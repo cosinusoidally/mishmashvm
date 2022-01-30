@@ -705,6 +705,9 @@ f2.fn=ctypes.cast(ctypes.voidptr_t(ex["mpeg1_decoder_get_coded_size"].address),f
 
 mpeg1_decoder_get_coded_size=f2.fn;
 
+// YCbCrToRGBA is lifted from jsmpeg so this function (and only this function) is
+// covered by the same license and jsmpeg see LICENSE_jsmpeg
+
 YCbCrToRGBA = function(y, cb, cr, rgba) {
 
 	// Chroma values are the same for each block of 4 pixels, so we proccess
