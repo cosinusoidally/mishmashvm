@@ -2,3 +2,4 @@
 *.o.new
 stderr.txt
 stdout.txt
+*.mpg
