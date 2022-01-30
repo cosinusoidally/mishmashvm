@@ -1,0 +1,2 @@
+rm out.o
+js tcc_em.js -c tcc_src/tcc.c -DCONFIG_TRIPLET="\"i386-linux-gnu\"" -DTCC_TARGET_I386       -DONE_SOURCE=1 -Wall -O0 -g  -I tcc_src/ -o out.o

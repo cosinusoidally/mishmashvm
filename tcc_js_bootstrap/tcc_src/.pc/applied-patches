@@ -1,0 +1,4 @@
+0001-Disable-test-not-working-on-i386.patch
+0002-Disable-stack-protector-in-runtime-library.patch
+0003-Prevent-dead-code-on-x86-in-prepare_dynamic_rel.patch
+0004-Fix-pthread-option-handling.patch

@@ -1,0 +1,39 @@
+From 849a2f5b4f59a0359d9d3f3620709d92e2beb8d1 Mon Sep 17 00:00:00 2001
+From: Thomas Preud'homme <robotux@celest.fr>
+Date: Sat, 24 Feb 2018 15:50:14 +0000
+Subject: Prevent dead code on !x86 in prepare_dynamic_rel
+
+In prepare_dynamic_rel() on non x86 targets the count++ statements
+appear before any case label and are therefore dead code. This triggers
+build failure when building with -Werror. This patch adds an extra guard
+around all the x86 case labels and their associated action, leaving just
+the default case label for non x86 targets which builds fine.
+
+Origin: vendor
+Forwarded: http://repo.or.cz/tinycc.git/commit/776aa0c093cc6083cbb61d0db8e303209b21bbad
+Applied-Upstream: commit:776aa0c093cc6083cbb61d0db8e303209b21bbad
+Last-Updated: 2018-02-24
+---
+ tccelf.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tccelf.c b/tccelf.c
+index 70d47e15..be540d51 100644
+--- a/tccelf.c
++++ b/tccelf.c
+@@ -873,6 +873,7 @@ static int prepare_dynamic_rel(TCCState *s1, Section *sr)
+         sym_index = ELFW(R_SYM)(rel->r_info);
+         type = ELFW(R_TYPE)(rel->r_info);
+         switch(type) {
++#if defined(TCC_TARGET_I386) || defined(TCC_TARGET_X86_64)
+ #if defined(TCC_TARGET_I386)
+         case R_386_32:
+             if (!get_sym_attr(s1, sym_index, 0)->dyn_index
+@@ -896,6 +897,7 @@ static int prepare_dynamic_rel(TCCState *s1, Section *sr)
+             if (get_sym_attr(s1, sym_index, 0)->dyn_index)
+                 count++;
+             break;
++#endif
+         default:
+             break;
+         }

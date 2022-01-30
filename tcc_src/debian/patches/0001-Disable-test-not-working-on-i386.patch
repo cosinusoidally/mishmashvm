@@ -1,0 +1,46 @@
+From 557d51707f31b75321fc25d80e5bf249895d171c Mon Sep 17 00:00:00 2001
+From: Thomas Preud'homme <robotux@celest.fr>
+Date: Sun, 17 Feb 2013 23:39:08 +0100
+Subject: Disable test not working on i386
+
+get_asm_string function does not compile with GCC on i386 and thus makes
+the testsuite fail on i386. This is a testism so it is fine do simply
+disable the test on such platform while upstream fixes it.
+
+Origin: vendor
+Forwarded: no
+Last-Update: 2018-02-21
+---
+ tests/tcctest.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/tests/tcctest.c b/tests/tcctest.c
+index 57670bea..3e0ae8bc 100644
+--- a/tests/tcctest.c
++++ b/tests/tcctest.c
+@@ -3184,6 +3184,7 @@ void override_func2 (void)
+   printf ("asmc: override2\n");
+ }
+ 
++#ifndef __i386__
+ /* This checks a construct used by the linux kernel to encode
+    references to strings by PC relative references.  */
+ extern int bug_table[] __attribute__((section("__bug_table")));
+@@ -3205,6 +3206,7 @@ char * get_asm_string (void)
+   char * str = ((char*)bug_table) + bug_table[1];
+   return str;
+ }
++#endif
+ 
+ /* This checks another constructs with local labels.  */
+ extern unsigned char alld_stuff[];
+@@ -3460,7 +3462,9 @@ void asm_test(void)
+        the global one, not the local decl from this function.  */
+     asm volatile(".weak override_func3\n.set override_func3, base_func");
+     override_func3();
++#ifndef __i386__
+     printf("asmstr: %s\n", get_asm_string());
++#endif
+     asm_local_label_diff();
+     asm_local_statics();
+ #endif

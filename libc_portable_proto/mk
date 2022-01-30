@@ -1,0 +1,2 @@
+rm my_libc.o
+js -e "args='tcc -c my_libc.c -O0'" $(which run_tcc.js)

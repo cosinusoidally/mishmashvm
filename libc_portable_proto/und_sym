@@ -1,0 +1,111 @@
+__errno_location -- address of errno variable
+int * __errno_location(void);
+__errno_location (yep)
+it's a macro subsituted when you do stuff like errno = blah
+probably can replace with a function if necessary (or remove use from tcc)
+
+
+libtcc1.o/libgcc stuff I think
+__ashldi3 (yep)
+__fixunsxfdi (nope)
+__floatundixf (nope)
+__lshrdi3 (yep)
+__udivdi3 (yep)
+__umoddi3 (nope)
+
+
+It's setjmp interesting to see if it is used.
+_setjmp (yep, but intercepting causes problems)
+longjmp (nope)
+
+
+File operations
+open (yep varargs)
+fopen (nope)
+unlink (yep)
+remove (nope)
+getcwd (yep)
+
+file stuff that works on an existing file descriptor
+read (yep)
+close (yep)
+fdopen (yep)
+fclose (yep)
+fread (nope)
+fwrite (yep)
+fflush (nope? hmm)
+fputc (yep)
+fputs (nope)
+fseek (nope)
+ftell (nope)
+fprintf (nope)
+sscanf (yep)
+lseek (nope)
+
+I think these are file descriptors need to know how they are defined
+yep file descriptors not 100% sure if I've overridden them propely
+stderr
+stdout
+
+
+
+libdl should check if they are called, and why
+*NOT CALLED*
+dlclose (nope)
+dlopen (nope)
+dlsym (nope)
+
+execvp (nope)
+exit (yep)
+getenv may get called but prob don't need (yep no env vars needed,
+is called but can just return null for everything)
+
+Memory stuff:
+malloc (yep)
+memcmp
+memcpy
+memmove
+memset
+realloc (yep)
+free (yep)
+
+Non portable memory stuff
+mprotect (nope)
+
+printf type stuff
+printf
+snprintf
+sprintf
+vfprintf
+vsnprintf
+
+signal handling (check if this is needed)
+sigaction (nope)
+sigemptyset (nope)
+
+String stuff:
+strcat
+strchr
+strcmp
+strcpy
+strlen
+strncmp
+strrchr
+strstr
+strtod
+strtof
+strtol
+strtold
+strtoll
+strtoul
+strtoull
+
+time stuff:
+time (nope)
+gettimeofday (nope)
+localtime (nope)
+
+misc stuff:
+ldexp (nope)
+qsort (yep)
+atoi (yep)

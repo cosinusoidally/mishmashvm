@@ -1,0 +1,32 @@
+From 7c2261b8eef7a22a9a33a73d0a5f12039973ed5b Mon Sep 17 00:00:00 2001
+From: Michael Matz <matz@suse.de>
+Date: Sat, 23 Dec 2017 14:49:07 +0100
+Subject: Fix -pthread option handling
+
+Adding -pthread confused option parsing as the number of file counting
+came out wrong.
+
+Origin: upstream, http://repo.or.cz/tinycc.git/commit/3b27b3b1d1ae953f5ecb37f5bc95758499d66971
+Bug-Debian: https://bugs.debian.org/891592
+Last-Update: 2018-02-28
+Applied-Upstream: commit:3b27b3b1d1ae953f5ecb37f5bc95758499d66971
+---
+ tcc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/tcc.c b/tcc.c
+index cd887d17..ee55ddda 100644
+--- a/tcc.c
++++ b/tcc.c
+@@ -298,8 +298,10 @@ redo:
+             if (n > 1 && s->outfile)
+                 tcc_error("cannot specify output file with -c many files");
+         } else {
+-            if (s->option_pthread)
++            if (s->option_pthread) {
+                 tcc_set_options(s, "-lpthread");
++		n = s->nb_files;
++	    }
+         }
+ 
+         if (s->do_bench)

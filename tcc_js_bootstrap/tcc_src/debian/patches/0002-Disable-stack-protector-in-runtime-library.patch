@@ -1,0 +1,28 @@
+From dc6b796293da8f4f411e369f241b41ce1c49ee77 Mon Sep 17 00:00:00 2001
+From: Thomas Preud'homme <robotux@celest.fr>
+Date: Sun, 17 Feb 2013 23:39:08 +0100
+Subject: Disable stack protector in runtime library
+
+tcc fails to run when compiled by itself and its runtime library was
+built with any variant of -fstack-protector. This is why test3 fails
+when libtcc1.a is build with -fstack-protector.
+
+Origin: vendor
+Forwarded: no
+Last-Update: 2018-02-24
+---
+ lib/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/Makefile b/lib/Makefile
+index 0c1ec54d..be25e884 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -20,6 +20,7 @@ XCFG = $(or $(findstring -win,$T),-unx)
+ # in order to use gcc, tyoe: make <target>-libtcc1-usegcc=yes
+ arm-libtcc1-usegcc ?= no
+ 
++CFLAGS:=$(CFLAGS) -fno-stack-protector
+ ifeq "$($(T)-libtcc1-usegcc)" "yes"
+  XCC = $(CC)
+  XAR = $(AR)

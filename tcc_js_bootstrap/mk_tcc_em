@@ -1,0 +1,1 @@
+emcc -s TOTAL_MEMORY=134217728 tcc_src/tcc.c -DCONFIG_TRIPLET="\"i386-linux-gnu\"" -DTCC_TARGET_I386       -DONE_SOURCE=1 -Wall -O0 -g4 -I tcc_src/

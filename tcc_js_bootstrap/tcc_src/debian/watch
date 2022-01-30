@@ -1,0 +1,5 @@
+version=4
+
+opts="pgpmode=auto"
+https://download.savannah.gnu.org/releases/tinycc/ \
+@PACKAGE@@ANY_VERSION@(?i)\.(?:tar\.xz|tar\.bz2|tar\.gz) debian uupdate
