@@ -138,13 +138,12 @@ edit etc/apt/sources.list :
 deb http://archive.ubuntu.com/ubuntu bionic main
 deb http://security.ubuntu.com/ubuntu bionic-security main
 
-chroot .
+sudo chroot .
 apt-get update
 apt-get upgrade
 apt-get install libsdl1.2debian
 
 adduser foo
-su foo
 
 exit your chroot and then bind mount some required directories:
 
@@ -152,6 +151,11 @@ sudo mount --bind /dev/ dev/
 sudo mount --bind /dev/shm/ dev/shm/
 sudo mount --bind /dev/pts/ dev/pts/
 sudo mount --bind /proc/ proc/
+
+chroot back in again, and become the foo user:
+
+sudo chroot .
+su foo
 
 In foo home directory create jsshell and mishmashvm
 
@@ -173,7 +177,7 @@ js> 1+2
 
 change into your mishmashvm and then run ./bootstrap.sh
 
-At the end, if that all went well you should see:
+At the end, if that all went well, you should see:
 
 6e2a6b9f731becd9d6bc8b0cc924eb4c60323b451bcce02d3509c2d00e5c8c80 my_libc.o
 no such file: my_libc.o.new
