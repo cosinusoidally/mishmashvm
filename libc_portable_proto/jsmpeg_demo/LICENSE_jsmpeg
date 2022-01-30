@@ -1,6 +1,8 @@
 The following license covers the following files in this directory
 (which are part of jsmpeg)
 
+See https://github.com/phoboslab/jsmpeg/ for original
+
 buffer.c  buffer.h  mp2.c  mp2.h  mpeg1.c  mpeg1.h
 
 
