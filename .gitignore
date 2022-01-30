@@ -1,2 +1,4 @@
 *.o
 *.o.new
+stderr.txt
+stdout.txt
