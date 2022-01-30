@@ -1,0 +1,4 @@
+These are the includes required by tcc. In usr/include are the glibc headers,
+SDL-1.2 headers and the Linux headers from i386 Ubuntu 18.04. In usr/tmp/tcc
+are the headers from the tcc compiler.
+
