@@ -12,12 +12,12 @@ compile it down to JS. But I didn't stop there, I then used the generated
 compiler to create native machine code version of itself, which I then can load
 and use from JS (I've written an elf loader and linker in JS).
 
+Bootstrapping
+=============
+
 Bootstrapping is quick (around 1 min on my very slow machine). All we need is an
 i686 version of Spidermonkey 45 (any version greater than about 24 should work,
 but for win32 you need to have a copy of msvcr120.dll which is bundled with 45).
-
-Bootstrapping
-=============
 
 There are no binaries in this repo (and none are needed to bootstrap). All you
 need to bootstrap is the spidermonkey shell (instructions on how to get this
@@ -39,6 +39,13 @@ the object code of tcc.
 Before running the boostrap commands you need Spidermonkey 45 (get binaries from
 Mozilla) and SDL 1.2 binaries (not a hard requirment, but needed for some
 demos).
+
+Note the bootstrap actually compiles tcc 4 times. The first compile is using the
+Emscripten compiled version of tcc. This is the slowest bit. The next 3 compiles
+are a 3 stage bootstrap using the newly generated tcc binary. Once the bootstrap
+is complete the Emscripten version of tcc is no longer needed (you can then use
+the binary to bootstrap new versions). The 3 stage binary bootstrap process
+takes a matter of seconds.
 
 Getting Set up:
 ===============
@@ -63,6 +70,10 @@ apt-get install libsdl1.2debian
 
 win32 setup:
 ============
+
+Note windows defender may slow things down significantly. Once it has scanned
+the mishmashvm directory once, it's worth setting an exclusion for that
+directory.
 
 Create a jsshell directory side by side with your mishmashvm directory:
 
