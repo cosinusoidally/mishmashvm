@@ -1,1 +1,185 @@
-mishmashvm - blah
+mishmashvm - adding a self hosted C JIT compiler to a JavaScript VM
+
+Current status: WIP, very rough kind of working poc.
+
+Works on win32 and i386 Linux
+
+How do we self host under a JS VM I'm using the Tiny C Compiler (which is
+written in C). To compile the C compiler we need a C compiler, but all we have a
+a JS VM (Mozilla's Spidermonkey). We need a C compiler written in JS. Manually
+porting the Tiny C Compiler to JS would take a while so I used Emscripten to
+compile it down to JS. But I didn't stop there, I then used the generated
+compiler to create native machine code version of itself, which I then can load
+and use from JS.
+
+Bootstrapping is quick (around 1 min on my very slow machine). All we need is an
+i686 version of Spidermonkey 45 (any version greater than about 24 should work,
+but for win32 you need to have a copy of msvcr120.dll which is bundled with 45).
+
+Bootstrapping
+=============
+
+./bootstrap.sh for Linux
+./bootstrap.bat for win32 (works on Microsoft Windows and Wine)
+
+For usage eg see libc_portable_proto/02.js :
+
+load("runner.js");
+inp=["tcc_bin/tcc_boot3.o", "tcc_bin/libtcc1.o"];
+ar="tcc -nostdinc -nostdlib -o tcc_bin/tcc_boot3.o.new -c ../tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I ../tcc_src/:../includes/usr/include/:../includes/usr/include/i386-linux-gnu/:../includes/tmp/tcc/lib/tcc/include/";
+go();
+
+As I mentioned, rough and ready but working. The above snippet of js will build
+the object code of tcc.
+
+Before running the boostrap commands you need Spidermonkey 45 (get binaries from
+Mozilla) and SDL 1.2 binaries (not a hard requirment, but needed for some
+demos).
+
+Getting Set up:
+===============
+
+Getting Spidermonkey:
+
+I have a mirror: https://github.com/cosinusoidally/jsshell-binaries-mirror
+(which includes Mozilla signatures you can check) or you can get the binaries
+directly from Mozilla:
+
+https://ftp.mozilla.org/pub/firefox/candidates/45.8.0esr-candidates/build2/jsshell-win32.zip
+https://ftp.mozilla.org/pub/firefox/candidates/45.8.0esr-candidates/build2/jsshell-linux-i686.zip
+
+SDL 1.2:
+win32: https://www.libsdl.org/release/SDL-1.2.15-win32.zip
+To be on the safe side I'd also do a virus scan on SDL, eg here are the results
+(and SHA256 sum) from Virus Total:
+https://www.virustotal.com/#/file/a28bbe38714ef7817b1c1e8082a48f391f15e4043402444b783952fca939edc1/detection).
+
+Linux: I'd recommend using Ubuntu 18.04, just install through apt-get:
+apt-get install libsdl1.2debian
+
+win32 setup:
+============
+
+Create a jsshell directory side by side with your mishmashvm directory:
+
+jsshell/
+mishmashvm/
+
+Extract jsshell-win32.zip and SDL-1.2.15-win32.zip into the jsshell directory.
+
+Tip: Windows 10 actually ships bsdtar which weirdly allows you to extact zip
+files. You can extract in powershell like this:
+
+tar -xf foo.zip
+
+You should end up with this:
+
+Z:\home\foo\scratch>dir jsshell
+Volume in drive Z has no label.
+Volume Serial Number is 0000-0000
+
+Directory of Z:\home\foo\scratch\jsshell
+
+ 1/30/2022   5:54 PM  <DIR>         .
+ 1/30/2022   5:52 PM  <DIR>         ..
+  1/1/2010  12:00 AM    10,429,952  icudt56.dll
+  1/1/2010  12:00 AM     1,392,128  icuin56.dll
+  1/1/2010  12:00 AM       928,256  icuuc56.dll
+  1/1/2010  12:00 AM     4,705,792  js.exe
+  3/2/2017   8:50 PM     7,770,910  jsshell-win32.zip
+  1/1/2010  12:00 AM       105,472  mozglue.dll
+  1/1/2010  12:00 AM       455,328  msvcp120.dll
+  1/1/2010  12:00 AM       970,912  msvcr120.dll
+  1/1/2010  12:00 AM     1,697,280  nss3.dll
+ 7/20/2007   7:25 AM           438  README-SDL.txt
+ 1/15/2012   4:49 PM       303,616  SDL.dll
+ 8/17/2013   3:59 AM       139,948  SDL-1.2.15-win32.zip
+      12 files               28,900,032 bytes
+       2 directories     11,151,065,088 bytes free
+
+cd into your mishmashvm folder
+
+and then run bootstrap.bat
+
+It will print a load of stuff to the command line as it works. Once all is done
+you should see the following:
+
+6e2a6b9f731becd9d6bc8b0cc924eb4c60323b451bcce02d3509c2d00e5c8c80 my_libc.o
+no such file: my_libc.o.new
+8a46cf8d20ad6d7e68e1ab66f9cfe49d1ab4ddbdc6d5f61e6e7c53c3ed425e42 stubs.o
+no such file: stubs.o.new
+59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o
+59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o.new
+9957fac1fddb4bc9670103ee5574c81898ffa87f9cd9a5bcb9f8615169245e10 tcc_bin/tcc_boot3.o
+9957fac1fddb4bc9670103ee5574c81898ffa87f9cd9a5bcb9f8615169245e10 tcc_bin/tcc_boot3.o.new
+
+my_libc.o is some wrapper code to provide win32/Linux libc compatibility
+stubs.o provides a bunch of dummy symbols to the elf loader
+
+tcc_bin/tcc_boot3.o is the Tiny C Compiler
+tcc_bin/libtcc1.o is a support library for tcc
+
+Linux Setup:
+============
+
+As noted earlier you need to have a 32 bit x86 linux env (either just with the
+32 bit support libs or a i386 chroot).
+
+The method I used was to set up a Ubuntu Bionic i386 chroot plus SDL 1.2:
+
+sudo debootstrap --arch=i386 --variant=minbase bionic bionic_min
+cd bionic_min
+edit etc/apt/sources.list :
+
+deb http://archive.ubuntu.com/ubuntu bionic main
+deb http://security.ubuntu.com/ubuntu bionic-security main
+
+chroot .
+apt-get update
+apt-get upgrade
+apt-get install libsdl1.2debian
+
+adduser foo
+su foo
+
+exit your chroot and then bind mount some required directories:
+
+sudo mount --bind /dev/ dev/
+sudo mount --bind /dev/shm/ dev/shm/
+sudo mount --bind /dev/pts/ dev/pts/
+sudo mount --bind /proc/ proc/
+
+In foo home directory create jsshell and mishmashvm
+
+jsshell directory should look like this:
+
+$ ls jsshell/
+js  jsshell-linux-i686.zip  libnspr4.so  libplc4.so  libplds4.so
+
+You need to add js to your PATH and its libs to LD_LIBRARY_PATH
+cd jsshell
+export PATH=$PWD:$PATH
+export LD_LIBRARY_PATH=$PWD
+
+Then check it works:
+
+$ js
+js> 1+2
+3
+
+change into your mishmashvm and then run ./bootstrap.sh
+
+At the end, if that all went well you should see:
+
+6e2a6b9f731becd9d6bc8b0cc924eb4c60323b451bcce02d3509c2d00e5c8c80 my_libc.o
+no such file: my_libc.o.new
+8a46cf8d20ad6d7e68e1ab66f9cfe49d1ab4ddbdc6d5f61e6e7c53c3ed425e42 stubs.o
+no such file: stubs.o.new
+59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o
+59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o.new
+9957fac1fddb4bc9670103ee5574c81898ffa87f9cd9a5bcb9f8615169245e10 tcc_bin/tcc_boot3.o
+9957fac1fddb4bc9670103ee5574c81898ffa87f9cd9a5bcb9f8615169245e10 tcc_bin/tcc_boot3.o.new
+
+The eagle eyed may notice that the above sha256sums are the same as the
+sha256sums on win32. That is because we are using exactly the same compiler on
+both Linux and win32.
