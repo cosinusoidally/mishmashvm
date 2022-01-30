@@ -36,7 +36,7 @@ go();
 As I mentioned, rough and ready but working. The above snippet of js will build
 the object code of tcc.
 
-Before running the boostrap commands you need Spidermonkey 45 (get binaries from
+Before running the bootstrap commands you need Spidermonkey 45 (get binaries from
 Mozilla) and SDL 1.2 binaries (not a hard requirment, but needed for some
 demos).
 
