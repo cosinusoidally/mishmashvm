@@ -19,6 +19,10 @@ but for win32 you need to have a copy of msvcr120.dll which is bundled with 45).
 Bootstrapping
 =============
 
+There are no binaries in this repo (and none are needed to bootstrap). All you
+need to bootstrap is the spidermonkey shell (instructions on how to get this
+from the Mozilla site are further down this page).
+
 ./bootstrap.sh for Linux
 ./bootstrap.bat for win32 (works on Microsoft Windows and Wine)
 
