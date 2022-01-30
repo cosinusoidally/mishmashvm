@@ -1,4 +1,26 @@
 These are the includes required by tcc. In usr/include are the glibc headers,
-SDL-1.2 headers and the Linux headers from i386 Ubuntu 18.04. In usr/tmp/tcc
+SDL-1.2 headers and the Linux headers from i386 Ubuntu 18.04. In tmp/tcc
 are the headers from the tcc compiler.
 
+These headers were generated as follows:
+
+Grab the following from the Ubuntu official repo:
+
+libc6-dev_2.27-3ubuntu1.2_i386.deb
+linux-libc-dev_4.15.0-163.171_i386.deb
+libsdl1.2-dev_1.2.15+dfsg2-0.1ubuntu0.1_i386.deb
+
+For each of them run:
+
+ar xv blah.deb
+tar xvf data.tar...
+rm data.tar...
+
+Then pull out the usr/include directory
+
+For the tcc includes you could probably just pull the relevant files out of
+../tcc_src
+
+Specifically:
+../tcc_src/include/*
+../tcc_src/tcclib.h
