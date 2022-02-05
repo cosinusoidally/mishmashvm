@@ -5,7 +5,8 @@ load("lib/elf_loader.js");
 load("lib/tcc_loader.js");
 
 tests=[
-  {"path":"tests/c_snippets","script":"trivial_c.js","description":"very simple c code example"}
+  {"path":"tests/c_snippets","script":"trivial_c.js","description":"very simple c code example"},
+  {"path":"tests/sdl","script":"simple_sdl.js","description":"Simple SDL example"}
 ];
 
 print_tests=function(){
