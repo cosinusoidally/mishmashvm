@@ -85,3 +85,20 @@ print(c_src);
 obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code,mm.libc_compat]);
 print("f1(): "+linked.run("f1")());
+
+print();
+print("Test linking twice");
+c_src="\
+int x=100;\n\
+int f1(int y){\n\
+  return y+x;\n\
+}\n\
+int f2(void){\n\
+return f1(5);\n\
+}\n";
+print(c_src);
+
+obj_code=mm.load_c_string(c_src);
+linked=mm.link([obj_code]);
+linked=mm.link([obj_code]);
+print("f2(): "+linked.run("f2")());
