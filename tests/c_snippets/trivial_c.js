@@ -9,5 +9,5 @@ print("Aim of the game is to load and run the following snippet of C");
 print(c_src);
 
 obj_code=mm.load_c_string(c_src);
-
-print(obj_code.run("f1")());
+linked=mm.link([obj_code]);
+print("f1(): "+linked.run("f1")());
