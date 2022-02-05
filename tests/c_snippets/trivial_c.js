@@ -77,11 +77,11 @@ print("Test calling a libc function");
 c_src='\
 #include <stdio.h>\n\
 int f1(int y){\n\
-  printf("Hello world\\n");\n\
+  printf("Hello world %d\\n",100);\n\
   return 10;\n\
 }\n';
 print(c_src);
 
 obj_code=mm.load_c_string(c_src);
-linked=mm.link([obj_code]);
+linked=mm.link([obj_code,mm.libc_compat]);
 print("f1(): "+linked.run("f1")());
