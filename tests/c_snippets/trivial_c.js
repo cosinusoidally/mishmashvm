@@ -71,3 +71,17 @@ obj_code1=mm.load_c_string(c_src1);
 obj_code2=mm.load_c_string(c_src2);
 linked=mm.link([obj_code1,obj_code2]);
 print("s2(): "+linked.run("s2")());
+
+print();
+print("Test calling a libc function");
+c_src='\
+#include <stdio.h>\n\
+int f1(int y){\n\
+  printf("Hello world\\n");\n\
+  return 10;\n\
+}\n';
+print(c_src);
+
+obj_code=mm.load_c_string(c_src);
+linked=mm.link([obj_code]);
+print("f1(): "+linked.run("f1")());
