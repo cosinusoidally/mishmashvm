@@ -102,3 +102,16 @@ obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code]);
 linked=mm.link([obj_code]);
 print("f2(): "+linked.run("f2")());
+
+print();
+print("Calling functions with input parameters");
+c_src="\
+int x=100;\n\
+int f1(int y){\n\
+  return y+x;\n\
+}\n";
+print(c_src);
+
+obj_code=mm.load_c_string(c_src);
+linked=mm.link([obj_code]);
+print("f1(11): "+linked.run("f1")(11));
