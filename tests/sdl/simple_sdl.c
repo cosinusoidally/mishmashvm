@@ -31,7 +31,8 @@ void init_sdl(){
 void my_sdl_main(){
 
 SDL_Event event;
-SDL_PollEvent(&event); 
+while(SDL_PollEvent(&event)) {
+//printf("event type %d\n",event.type);
 switch (event.type) {
                                 case SDL_QUIT:
                                         running = 0;
@@ -39,6 +40,7 @@ switch (event.type) {
                                 default:
                                         break;
                         }
+}
 //memcpy(get_framebuffer_sdl(),frame_raw,b);
 SDL_Flip(surface);
 if(running == 0 ){
