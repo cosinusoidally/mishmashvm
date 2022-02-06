@@ -3,18 +3,9 @@
 #define width 640
 #define height 360
 
-char *frame;
-char *frame_raw;
-int b=width*height*4;
 SDL_Surface *surface;
 int running=1;
 
-void set_sdl_buf(char *x){
-  frame =x;
-}
-void set_sdl_buf_raw(char *x){
-  frame_raw =x;
-}
 void* get_framebuffer_sdl(){
   return surface->pixels;
 }
