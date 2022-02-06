@@ -26,3 +26,4 @@ print_tests();
 
 print();
 print("To call a test run test(foo) where foo is the test number");
+print("use js -i mishmashvm.js to get an interactive repl");
