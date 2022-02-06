@@ -30,6 +30,13 @@ event_types=out.event_types;
 keycodes=out.keycodes;
 evt=new Uint8Array(out.SDL_Event);
 evt_m=libc.malloc(evt.length);
+k_off=out.SDL_KeyboardEvent.keysym+out.SDL_keysym.sym;
+print(k_off);
+
+function get_u32(e,o){
+  return e[o]|(e[o+1]<<8)|(e[o+2]<<16)|(e[o+3]<<24);
+};
+
 while(1){
   libc.memcpy(lib.run("get_framebuffer_sdl")(),fb,fb.length);
   while(lib.run("SDL_PollEvent")(evt_m)){
@@ -41,7 +48,7 @@ while(1){
       quit();
     };
     if(et==="SDL_KEYDOWN"){
-      print("key : "+keycodes[97]);
+      print("key : "+keycodes[get_u32(evt,k_off)]);
     }
   };
 //  lib.run("my_sdl_process_events")();
