@@ -6,7 +6,8 @@ load("lib/tcc_loader.js");
 
 tests=[
   {"path":"tests/c_snippets","script":"trivial_c.js","description":"very simple c code example"},
-  {"path":"tests/sdl","script":"simple_sdl.js","description":"Simple SDL example"}
+  {"path":"tests/sdl","script":"simple_sdl.js","description":"Simple SDL example"},
+  {"path":"tests/sdl","script":"sdl_events.js","description":"Simple SDL event handling example"}
 ];
 
 print_tests=function(){

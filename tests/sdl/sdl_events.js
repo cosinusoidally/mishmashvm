@@ -24,12 +24,23 @@ while(event_metadata[i]!==0){
 out.push(String.fromCharCode(event_metadata[i]));
 i++;
 };
-out=out.join("");
-print(JSON.stringify(JSON.parse(out)));
-
+out=JSON.parse(out.join(""));
+print(JSON.stringify(out));
+event_types=out.event_types;
+evt=new Uint8Array(out.SDL_Event);
+evt_m=libc.malloc(evt.length);
 while(1){
   libc.memcpy(lib.run("get_framebuffer_sdl")(),fb,fb.length);
-  lib.run("my_sdl_process_events")();
+  while(lib.run("SDL_PollEvent")(evt_m)){
+    libc.memcpy2(evt,evt_m,evt.length);
+    var et=event_types[evt[0]];
+    print(et);
+    if(et==="SDL_QUIT"){
+      lib.run("SDL_Quit")();
+      quit();
+    };
+  };
+//  lib.run("my_sdl_process_events")();
   lib.run("my_sdl_main")();
   frame();
 };

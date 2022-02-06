@@ -49,9 +49,9 @@ char * get_event_info(void){
   bar+= sprintf(bar,"\"SDL_KeyboardEvent\": %d,\n",sizeof(SDL_KeyboardEvent));
   bar+= sprintf(bar,"\"event_types\":\n");
   bar+= sprintf(bar,"{\n");
-  bar+= sprintf(bar,"\"SDL_KEYDOWN\": %d,\n",SDL_KEYDOWN);
-  bar+= sprintf(bar,"\"SDL_KEYUP\": %d,\n",SDL_KEYUP);
-  bar+= sprintf(bar,"\"SDL_QUIT\": %d\n",SDL_QUIT);
+  bar+= sprintf(bar," \"%d\": \"SDL_KEYDOWN\",\n",SDL_KEYDOWN);
+  bar+= sprintf(bar," \"%d\": \"SDL_KEYUP\",\n",SDL_KEYUP);
+  bar+= sprintf(bar," \"%d\": \"SDL_QUIT\"\n",SDL_QUIT);
   bar+= sprintf(bar,"}\n");
   bar+= sprintf(bar,"}\n");
   return foo;
