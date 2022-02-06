@@ -9,6 +9,33 @@ height=360;
 fb_r=new ArrayBuffer(width*height*4);
 fb=new Uint8ClampedArray(fb_r);
 
+function pset(x,y,r,g,b){
+  if(x<0){return;};
+  if(x>width){return;};
+  if(y<0){return;};
+  if(y>height){return;};
+  var o=(y*width+x)*4;
+  fb[o]=b;
+  fb[o+1]=g;
+  fb[o+2]=r;
+}
+
+font=JSON.parse(read("tests/sdl/font_8x8.json"));
+text="";
+function drawtext(x1,y1,s){
+  for(var i=0;i<s.length;i++){
+    for(var y=0;y<8;y++){
+      for(var x=0;x<8;x++){
+        try {
+          var c=200*font[s[i]][y][x];
+        } catch (e){
+        }
+        pset(x1+x+i*8,y1+y,0,c,0);
+      }
+    }
+  };
+  return;
+}
 function frame (){
   for(var i=0;i<fb.length;i=i+4){
     var c=Math.random()*128;
@@ -16,6 +43,7 @@ function frame (){
     fb[i+1]=c;
     fb[i+2]=c;
   };
+  drawtext(100,100,text);
 };
 lib.run("init_sdl")(width,height);
 
@@ -51,7 +79,9 @@ while(1){
       quit();
     };
     if(et==="SDL_KEYDOWN"){
-      print("key : "+keycodes[get_u32(evt,k_off)]);
+      var k=keycodes[get_u32(evt,k_off)];
+      text=text+k;
+      print("key : "+k);
     }
   };
 //  lib.run("my_sdl_process_events")();
