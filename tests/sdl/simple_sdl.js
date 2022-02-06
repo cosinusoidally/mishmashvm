@@ -14,7 +14,7 @@ function frame (){
     fb[i]=Math.random()*255;
   };
 };
-lib.run("init_sdl")();
+lib.run("init_sdl")(width,height);
 
 while(1){
   libc.memcpy(lib.run("get_framebuffer_sdl")(),fb,fb.length);
