@@ -27,6 +27,7 @@ i++;
 out=JSON.parse(out.join(""));
 print(JSON.stringify(out));
 event_types=out.event_types;
+keycodes=out.keycodes;
 evt=new Uint8Array(out.SDL_Event);
 evt_m=libc.malloc(evt.length);
 while(1){
@@ -39,6 +40,9 @@ while(1){
       lib.run("SDL_Quit")();
       quit();
     };
+    if(et==="SDL_KEYDOWN"){
+      print("key : "+keycodes[97]);
+    }
   };
 //  lib.run("my_sdl_process_events")();
   lib.run("my_sdl_main")();
