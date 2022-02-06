@@ -25,9 +25,7 @@ void* get_framebuffer_sdl(){
 void init_sdl(){
 
  SDL_Init(SDL_INIT_EVERYTHING);
-// surface=SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
- surface=SDL_SetVideoMode(width, height, 32, SDL_HWSURFACE);
-
+ surface=SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
 }
 
 void my_sdl_main(){
