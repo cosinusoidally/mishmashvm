@@ -37,6 +37,12 @@ switch (event.type) {
                                 case SDL_QUIT:
                                         running = 0;
                                         break;
+                                case SDL_KEYDOWN:
+                                        printf("SDL_KEYDOWN\n");
+                                        break;
+                                case SDL_KEYUP:
+                                        printf("SDL_KEYUP\n");
+                                        break;
                                 default:
                                         break;
                         }
