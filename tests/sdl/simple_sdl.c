@@ -13,6 +13,13 @@ void init_sdl(int width, int height){
 }
 
 void my_sdl_main(){
+  SDL_Flip(surface);
+  if(running == 0 ){
+    exit(0);
+  }
+}
+
+void my_sdl_process_events(){
   SDL_Event event;
   while(SDL_PollEvent(&event)) {
     switch (event.type) {
@@ -28,11 +35,6 @@ void my_sdl_main(){
       default:
         break;
     }
-  }
-
-  SDL_Flip(surface);
-  if(running == 0 ){
-    exit(0);
   }
 }
 

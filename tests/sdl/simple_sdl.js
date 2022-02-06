@@ -18,6 +18,7 @@ lib.run("init_sdl")(width,height);
 
 while(1){
   libc.memcpy(lib.run("get_framebuffer_sdl")(),fb,fb.length);
+  lib.run("my_sdl_process_events")();
   lib.run("my_sdl_main")();
   frame();
 };
