@@ -10,8 +10,11 @@ fb_r=new ArrayBuffer(width*height*4);
 fb=new Uint8ClampedArray(fb_r);
 
 function frame (){
-  for(var i=0;i<fb.length;i++){
-    fb[i]=Math.random()*255;
+  for(var i=0;i<fb.length;i=i+4){
+    var c=Math.random()*128;
+    fb[i]=c;
+    fb[i+1]=c;
+    fb[i+2]=c;
   };
 };
 lib.run("init_sdl")(width,height);
