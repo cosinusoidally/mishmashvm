@@ -1,7 +1,7 @@
 #include <SDL.h>
 
-#define width 640
-#define height 360
+#define width 320
+#define height 200
 
 char *frame;
 char *frame_raw;
@@ -41,7 +41,7 @@ switch (event.type) {
                                 default:
                                         break;
                         }
-//memcpy(get_framebuffer_sdl(),frame_raw,b);
+memcpy(get_framebuffer_sdl(),frame_raw,b);
 SDL_Flip(surface);
 if(running == 0 ){
 exit(0);
