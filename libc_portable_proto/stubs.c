@@ -23,4 +23,5 @@ strtoull();
 vsnprintf();
 fflush();
 fprintf();
+strtof();
 }
