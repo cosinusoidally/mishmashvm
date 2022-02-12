@@ -10,9 +10,18 @@ dump_und=true;
 if(dump_und=true){
   und=[];
   for(var i=0;i<duktape.und.length;i++){
-    print(und.push(duktape.und[i].st_name));
+    und.push(duktape.und[i].st_name);
   };
   und.push("printf");
   und.push("exit");
-  print(JSON.stringify(und));
-}
+  und=und.sort();
+  var stubs_src=[];
+  stubs_src.push("ljw_stubs(){");
+  for(var i=0;i<und.length;i++){
+    stubs_src.push(und[i]+"();");
+  };
+  stubs_src.push("}");
+  stubs_src=stubs_src.join("\n");
+  print(stubs_src);
+  stubs=mm.load_c_string(stubs_src);
+};
