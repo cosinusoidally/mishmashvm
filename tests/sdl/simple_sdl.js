@@ -14,11 +14,11 @@ function frame (){
     fb[i]=Math.random()*255;
   };
 };
-lib.run("init_sdl")(width,height);
+lib.get_fn("init_sdl")(width,height);
 
 while(1){
-  libc.memcpy(lib.run("get_framebuffer_sdl")(),fb,fb.length);
-  lib.run("my_sdl_process_events")();
-  lib.run("my_sdl_main")();
+  libc.memcpy(lib.get_fn("get_framebuffer_sdl")(),fb,fb.length);
+  lib.get_fn("my_sdl_process_events")();
+  lib.get_fn("my_sdl_main")();
   frame();
 };

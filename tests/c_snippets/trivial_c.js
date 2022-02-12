@@ -10,7 +10,7 @@ print(c_src);
 
 obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code]);
-print("f1(): "+linked.run("f1")());
+print("f1(): "+linked.get_fn("f1")());
 print();
 print("ok, and now another");
 c_src="\
@@ -21,7 +21,7 @@ print(c_src);
 
 obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code]);
-print("f1(): "+linked.run("f1")());
+print("f1(): "+linked.get_fn("f1")());
 print();
 print("A more complex example");
 c_src="\
@@ -33,7 +33,7 @@ print(c_src);
 print();
 obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code]);
-print("f1(): "+linked.run("f1")());
+print("f1(): "+linked.get_fn("f1")());
 
 print();
 print("lets have f2 calling f1");
@@ -49,7 +49,7 @@ print(c_src);
 
 obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code]);
-print("f2(): "+linked.run("f2")());
+print("f2(): "+linked.get_fn("f2")());
 
 print();
 print("Test 2 snippets:");
@@ -70,7 +70,7 @@ print(c_src2);
 obj_code1=mm.load_c_string(c_src1);
 obj_code2=mm.load_c_string(c_src2);
 linked=mm.link([obj_code1,obj_code2]);
-print("s2(): "+linked.run("s2")());
+print("s2(): "+linked.get_fn("s2")());
 
 print();
 print("Test calling a libc function");
@@ -84,7 +84,7 @@ print(c_src);
 
 obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code,mm.libc_compat]);
-print("f1(): "+linked.run("f1")());
+print("f1(): "+linked.get_fn("f1")());
 
 print();
 print("Test linking twice");
@@ -101,7 +101,7 @@ print(c_src);
 obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code]);
 linked=mm.link([obj_code]);
-print("f2(): "+linked.run("f2")());
+print("f2(): "+linked.get_fn("f2")());
 
 print();
 print("Calling functions with input parameters");
@@ -114,7 +114,7 @@ print(c_src);
 
 obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code]);
-print("f1(11): "+linked.run("f1")(11));
+print("f1(11): "+linked.get_fn("f1")(11));
 
 print("Test setjmp");
 c_src=read(test_path+"/setjmp.c");
@@ -122,4 +122,4 @@ print(c_src);
 
 obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code,mm.libc_compat]);
-print("f1(): "+linked.run("my_main")());
+print("f1(): "+linked.get_fn("my_main")());

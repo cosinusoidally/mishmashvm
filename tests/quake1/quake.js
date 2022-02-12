@@ -115,14 +115,12 @@ quake_objs.push(libsdl.syms);
 
 quake=mm.link(quake_objs);
 
-// I think "run" is the wrong name. "declare" would be more appropriate
-
-init_sdl=quake.run("init_sdl");
-quake_init=quake.run("real_main");
-set_sdl_buf_raw=quake.run("set_sdl_buf_raw");
-getFrameBuffer=quake.run("getFrameBuffer");
-frame=quake.run("my_doframe");
-my_sdl_main=quake.run("my_sdl_main");
+init_sdl=quake.get_fn("init_sdl");
+quake_init=quake.get_fn("real_main");
+set_sdl_buf_raw=quake.get_fn("set_sdl_buf_raw");
+getFrameBuffer=quake.get_fn("getFrameBuffer");
+frame=quake.get_fn("my_doframe");
+my_sdl_main=quake.get_fn("my_sdl_main");
 
 libc.chdir("../quake1_data/");
 

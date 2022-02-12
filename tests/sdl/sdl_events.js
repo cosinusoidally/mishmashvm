@@ -45,10 +45,10 @@ function frame (){
   };
   drawtext(100,100,text);
 };
-lib.run("init_sdl")(width,height);
+lib.get_fn("init_sdl")(width,height);
 
 event_metadata = new Uint8Array(10000);
-libc.memcpy2(event_metadata,lib.run("get_event_info")(),event_metadata.length);
+libc.memcpy2(event_metadata,lib.get_fn("get_event_info")(),event_metadata.length);
 var out=[];
 var i=0;
 while(event_metadata[i]!==0){
@@ -69,13 +69,13 @@ function get_u32(e,o){
 };
 
 while(1){
-  libc.memcpy(lib.run("get_framebuffer_sdl")(),fb,fb.length);
-  while(lib.run("SDL_PollEvent")(evt_m)){
+  libc.memcpy(lib.get_fn("get_framebuffer_sdl")(),fb,fb.length);
+  while(lib.get_fn("SDL_PollEvent")(evt_m)){
     libc.memcpy2(evt,evt_m,evt.length);
     var et=event_types[evt[0]];
     print(et);
     if(et==="SDL_QUIT"){
-      lib.run("SDL_Quit")();
+      lib.get_fn("SDL_Quit")();
       quit();
     };
     if(et==="SDL_KEYDOWN"){
@@ -84,7 +84,7 @@ while(1){
       print("key : "+k);
     }
   };
-//  lib.run("my_sdl_process_events")();
-  lib.run("my_sdl_main")();
+//  lib.get_fn("my_sdl_process_events")();
+  lib.get_fn("my_sdl_main")();
   frame();
 };
