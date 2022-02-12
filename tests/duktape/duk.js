@@ -20,7 +20,6 @@ passthrough={
   "memcmp": true,
   "strlen": true,
   "_setjmp": true,
-  "printf": true,
 };
 exclude={
   "__ashldi3": true,
@@ -45,8 +44,6 @@ if(dump_und=true){
       overrides.push([d,c]);
     };
   };
-  und.push("printf");
-  und.push("exit");
   und=und.sort();
   var stubs_src=[];
   stubs_src.push("ljw_stubs(){");
