@@ -67,7 +67,7 @@ return r;
 void *ljw_fopen(const char *pathname, const char *mode){
 void *r;
 r=fopen(pathname, mode);
-printf("fopen called %s %s\n",pathname,mode);
+//printf("fopen called %s %s\n",pathname,mode);
 return r;
 }
 

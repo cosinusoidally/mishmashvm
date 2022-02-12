@@ -8,7 +8,7 @@ tests=[
   {"path":"tests/c_snippets","script":"trivial_c.js","description":"very simple c code example"},
   {"path":"tests/sdl","script":"simple_sdl.js","description":"Simple SDL example"},
   {"path":"tests/sdl","script":"sdl_events.js","description":"Simple SDL event handling example"},
-  {"path":"tests/quake1","script":"quake.js","description":"Quake 1"},
+  {"path":"tests/quake1","script":"quake.js","description":"Quake 1, non-interactive demo playback"},
 ];
 
 print_tests=function(){
