@@ -1,0 +1,1 @@
+emcc -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS="['_main','_Host_Frame','_getFrameBuffer','_Key_Event']" -O2 -DNODE  -DNO_ASM  *c -lm

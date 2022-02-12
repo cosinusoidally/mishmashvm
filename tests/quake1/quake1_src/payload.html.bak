@@ -1,0 +1,90 @@
+<html>
+<head>
+<style>
+canvas {
+  image-rendering: crisp-edges;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+  -ms-interpolation-mode: nearest-neighbor;
+}
+
+</style>
+<script>
+function getFrame(){
+var oReq = new XMLHttpRequest();
+oReq.open("GET", "/img.ppm", true);
+oReq.responseType = "arraybuffer";
+
+oReq.onload = function (oEvent) {
+  var arrayBuffer = oReq.response; // Note: not oReq.responseText
+  if (arrayBuffer) {
+    var b = new Uint8Array(arrayBuffer);
+    for (var i = 0; i < 320*200; i++) {
+      d.data[i*4]=b[i*3];
+      d.data[i*4+1]=b[i*3+1];
+      d.data[i*4+2]=b[i*3+2];
+      d.data[i*4+3]=255;
+      // do something with each byte in the array
+    }
+    ctx.putImageData(d,0,0);
+    setTimeout(getFrame,50);
+  }
+};
+
+oReq.send(null);
+}
+map_key=function(x){
+// up
+if(x==38){return 128}
+// down
+if(x==40){return 129}
+// left
+if(x==37){return 130}
+// right
+if(x==39){return 131}
+// left-ctrl
+if(x==17){return 133}
+// left-shift
+if(x==16){return 134}
+
+return x;
+
+}
+window.onload=function(){
+//  alert("hello world\n");
+  can=document.createElement("canvas");
+  can.width=320;
+  can.height=200;
+  can.style.width=320*3;
+  can.style.height=200*3;
+  document.body.appendChild(can);
+  ctx=can.getContext("2d");
+  d=ctx.createImageData(320,200);
+  document.onkeydown=function(e){
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", '/control_down', true);
+
+    //Send the proper header information along with the request
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.send(map_key(e.keyCode)); 
+  }
+  document.onkeyup=function(e){
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", '/control_up', true);
+
+    //Send the proper header information along with the request
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.send(map_key(e.keyCode)); 
+  }
+  getFrame();
+}
+</script>
+</head>
+<body>
+<h1>
+Hello world
+</h1>
+
+
+</body>
+</html>
