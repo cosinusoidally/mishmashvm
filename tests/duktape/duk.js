@@ -20,7 +20,15 @@ passthrough={
   "memcmp": true,
   "strlen": true,
   "_setjmp": true,
+  "printf": true,
 };
+exclude={
+  "__ashldi3": true,
+  "__ashrdi3": true,
+  "__fixdfdi": true,
+  "__fixunsdfdi": true,
+  "__lshrdi3": true,
+}
 overrides=[];
 
 if(dump_und=true){
@@ -28,12 +36,14 @@ if(dump_und=true){
   for(var i=0;i<duktape.und.length;i++){
     var c=duktape.und[i].st_name;
     und.push(c);
-    if(!passthrough[c]){
-      d="ljw_crash_"+c;
-    } else {
-      d=c;
-    }
-    overrides.push([d,c]);
+    if(!exclude[c]){
+      if(!passthrough[c]){
+        d="ljw_crash_"+c;
+      } else {
+        d=c;
+      };
+      overrides.push([d,c]);
+    };
   };
   und.push("printf");
   und.push("exit");
@@ -43,8 +53,10 @@ if(dump_und=true){
   my_libc_src=[];
   for(var i=0;i<und.length;i++){
     var s=und[i];
-    stubs_src.push(s+"();");
-    my_libc_src.push("ljw_crash_"+s+"(){printf(\"unimplemented: "+s+"\\n\");exit(1);}");
+    if(!exclude[s]){
+      stubs_src.push(s+"();");
+      my_libc_src.push("ljw_crash_"+s+"(){printf(\"unimplemented: "+s+"\\n\");exit(1);}");
+    };
   };
   my_libc_src= my_libc_src.join("\n");
   stubs_src.push("}");
@@ -61,4 +73,6 @@ my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
 duk=mm.link([duktape,duk_glue,my_wrap,libtcc1]);
 
-duk.get_fn("dummy_main")();
+print();
+print("Got here duktape setup done");
+print(duk.get_fn("dummy_main")());

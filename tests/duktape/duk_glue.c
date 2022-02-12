@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
 }
 
 int dummy_main(){
+        printf("My hello world\n");
 	duk_context *ctx = duk_create_heap_default();
 
 	duk_push_c_function(ctx, native_print, DUK_VARARGS);
@@ -46,5 +47,5 @@ int dummy_main(){
 
 	duk_destroy_heap(ctx);
 
-	return 0;
+	return 7;
 }
