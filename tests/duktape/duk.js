@@ -20,6 +20,7 @@ passthrough={
   "memcmp": true,
   "strlen": true,
   "_setjmp": true,
+  "printf": true,
 };
 exclude={
   "__ashldi3": true,
