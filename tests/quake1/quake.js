@@ -3,7 +3,7 @@ print("you need the engine source in ../quake1_src and id1 pak files in ../quake
 
 mm.reserve_stack(800000);
 
-quake1_src="../quake1_src";
+quake1_src=test_path+"/quake1_src";
 quake1_data="../quake1_data";
 
 print("unfinished might not work yet");
