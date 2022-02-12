@@ -51,3 +51,7 @@ if(dump_und=true){
 };
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
+
+duk=mm.link([duktape,duk_glue,libtcc1,my_wrap]);
+
+duk.get_fn("dummy_main")();

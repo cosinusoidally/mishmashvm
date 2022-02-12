@@ -26,9 +26,13 @@ static duk_ret_t native_adder(duk_context *ctx) {
 }
 
 int main(int argc, char *argv[]) {
-	duk_context *ctx = duk_create_heap_default();
-
 	(void) argc; (void) argv;  /* suppress warning */
+        dummy_main();
+        return 0;
+}
+
+int dummy_main(){
+	duk_context *ctx = duk_create_heap_default();
 
 	duk_push_c_function(ctx, native_print, DUK_VARARGS);
 	duk_put_global_string(ctx, "print");
