@@ -58,6 +58,6 @@ if(dump_und=true){
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
-duk=mm.link([duktape,duk_glue,libtcc1,my_wrap]);
+duk=mm.link([duktape,duk_glue,my_wrap,libtcc1]);
 
 duk.get_fn("dummy_main")();
