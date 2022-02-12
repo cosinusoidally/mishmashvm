@@ -1,4 +1,4 @@
-print("Duktape");
+print("Duktape loading....");
 load("lib/gen_wrap.js");
 
 duk_srcdir=test_path+"/duktape_src/";
@@ -59,11 +59,11 @@ if(dump_und=true){
   my_libc_src= my_libc_src.join("\n");
   stubs_src.push("}");
   stubs_src=stubs_src.join("\n");
-  print("stubs:");
-  print(stubs_src);
+//  print("stubs:");
+//  print(stubs_src);
   stubs=mm.load_c_string(stubs_src);
-  print(JSON.stringify(overrides, null, " "));
-  print(my_libc_src);
+//  print(JSON.stringify(overrides, null, " "));
+//  print(my_libc_src);
   my_libc=mm.load_c_string(my_libc_src);
 };
 
@@ -71,6 +71,6 @@ my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
 duk=mm.link([duktape,duk_glue,my_wrap,libtcc1]);
 
+print("Load complete!");
 print();
-print("Got here duktape setup done");
 print(duk.get_fn("dummy_main")());
