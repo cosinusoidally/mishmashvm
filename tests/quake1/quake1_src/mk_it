@@ -1,0 +1,1 @@
+gcc -g -DNO_ASM  -DNATIVE *c -lm
