@@ -2330,6 +2330,8 @@ typedef struct duk_hthread duk_context;
 #define DUK_F_USE_REPL_ALL
 #endif
 
+#define DUK_F_USE_REPL_ALL
+
 #if defined(DUK_F_USE_REPL_ALL)
 #define DUK_USE_REPL_FPCLASSIFY
 #define DUK_USE_REPL_SIGNBIT

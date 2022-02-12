@@ -19,6 +19,7 @@ passthrough={
   "free": true,
   "memcmp": true,
   "strlen": true,
+  "_setjmp": true,
 };
 overrides=[];
 
