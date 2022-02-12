@@ -115,3 +115,11 @@ print(c_src);
 obj_code=mm.load_c_string(c_src);
 linked=mm.link([obj_code]);
 print("f1(11): "+linked.run("f1")(11));
+
+print("Test setjmp");
+c_src=read(test_path+"/setjmp.c");
+print(c_src);
+
+obj_code=mm.load_c_string(c_src);
+linked=mm.link([obj_code,mm.libc_compat]);
+print("f1(): "+linked.run("my_main")());

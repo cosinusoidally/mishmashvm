@@ -631,8 +631,7 @@ static int tcc_compile(TCCState *s1)
     is_asm = filetype == AFF_TYPE_ASM || filetype == AFF_TYPE_ASMPP;
     tccelf_begin_file(s1);
 
-// BODGE remove use of setjmp
-//    if (setjmp(s1->error_jmp_buf) == 0) {
+    if (setjmp(s1->error_jmp_buf) == 0) {
         s1->nb_errors = 0;
         s1->error_set_jmp_enabled = 1;
 
@@ -648,8 +647,7 @@ static int tcc_compile(TCCState *s1)
         } else {
             tccgen_compile(s1);
         }
-// BODGE remove use of setjmp
-//    }
+    }
     s1->error_set_jmp_enabled = 0;
 
     preprocess_end(s1);

@@ -594,7 +594,7 @@ obj3={};
 obj3.relocate_all=function(){};
 obj3.exports=[];
 [
-["ljw_crash___errno_location","__errno_location"],["ljw_crash_longjmp","longjmp"],["ljw_crash__setjmp","_setjmp"],["ljw_open","open"],["ljw_fopen","fopen"],["ljw_unlink","unlink"],["ljw_remove","remove"],["ljw_getcwd","getcwd"],["ljw_read","read"],["ljw_close","close"],["ljw_fdopen","fdopen"],["fclose","fclose"],["ljw_crash_fread","fread"],["fwrite","fwrite"],
+["ljw_crash___errno_location","__errno_location"],["longjmp","longjmp"],["_setjmp","_setjmp"],["ljw_open","open"],["ljw_fopen","fopen"],["ljw_unlink","unlink"],["ljw_remove","remove"],["ljw_getcwd","getcwd"],["ljw_read","read"],["ljw_close","close"],["ljw_fdopen","fdopen"],["fclose","fclose"],["ljw_crash_fread","fread"],["fwrite","fwrite"],
 ["fflush","fflush"],
 ["fputc","fputc"],["ljw_crash_fputs","fputs"],["ljw_crash_fseek","fseek"],["ljw_crash_ftell","ftell"],
 ["fprintf","fprintf"],
