@@ -11,8 +11,14 @@ libtcc1=mm.load_c_string(read("tcc_src/lib/libtcc1.c"));
 dump_und=true;
 
 passthrough={
-//  "malloc": true,
-//  "free": true
+  "malloc": true,
+  "memset": true,
+  "memcpy": true,
+  "realloc": true,
+  "memmove": true,
+  "free": true,
+  "memcmp": true,
+  "strlen": true,
 };
 overrides=[];
 
