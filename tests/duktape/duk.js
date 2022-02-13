@@ -24,6 +24,7 @@ passthrough={
   "fabs": true,
   "floor": true,
   "fmod": true,
+  "longjmp": true,
 };
 exclude={
   "__ashldi3": true,

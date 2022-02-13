@@ -51,3 +51,11 @@ try {
 } catch (e) {
     print(e.stack || e);
 }
+
+print("Let's try throwing an error as that needs longjmp");
+try {
+  print("Throwing error ...");
+  throw "error";
+} catch (e){
+  print("... caught error");
+}
