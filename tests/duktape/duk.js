@@ -37,6 +37,7 @@ passthrough={
   "asin": true,
   "acos": true,
   "atan": true,
+  "ceil": true,
 };
 exclude={
   "__ashldi3": true,
@@ -102,3 +103,25 @@ s=read(test_path+"/tests.js");
 
 duk_run=duk.get_fn("my_duk_run");
 duk_run(s);
+
+/*
+print("and now for something a bit more complicated");
+duk_run("function load(x){print(x)}");
+duk_run("function read(x){print(x)}");
+duk_run("try {"+read("tcc_js_bootstrap/tcc_em.js")+"}catch(e){print(e)}");
+*/
+
+/*
+try {
+duk_run("function quit(){throw 'quit'}");
+duk_run("function load(x){print(x)}");
+duk_run("function read(x){print('reading: '+x)};return '{\"tmpdir\":\"/dev/shm/mishmashvm_tmp/\"}'");
+duk_run("try {"+read("lib/setup_platform.js")+"}catch(e){print(e)}");
+duk_run("try {"+read("lib/mishmashvm_lib.js")+"}catch(e){print(e)}");
+duk_run("try {"+read("lib/elf_loader.js")+"}catch(e){print(e)}");
+duk_run("try {"+read("lib/tcc_loader.js")+"}catch(e){print(e)}");
+duk_run("try {"+read("mishmashvm.js")+"}catch(e){print(e)}");
+} catch (e){
+print(e);
+}
+*/
