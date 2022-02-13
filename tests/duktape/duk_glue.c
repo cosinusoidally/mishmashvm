@@ -56,12 +56,16 @@ int init(){
   ctx2 = duk_create_heap_default();
 }
 
-int my_duk_run(){
+int my_duk_run(char *s){
   duk_push_c_function(ctx2, native_print, DUK_VARARGS);
   duk_put_global_string(ctx2, "print");
 
-  duk_eval_string(ctx2, "print('Hello world!'+(1+5));");
+  duk_eval_string(ctx2, s);
   duk_pop(ctx2);  /* pop eval result */
 
   return 0;
+}
+
+int dummy_wrap(){
+  return my_duk_run("print('hi')");
 }
