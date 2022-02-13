@@ -25,6 +25,11 @@ passthrough={
   "floor": true,
   "fmod": true,
   "longjmp": true,
+  "sin": true,
+  "cos": true,
+  "tan": true,
+  "pow": true,
+  "acos": true,
 };
 exclude={
   "__ashldi3": true,

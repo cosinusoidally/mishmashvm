@@ -59,3 +59,20 @@ try {
 } catch (e){
   print("... caught error");
 }
+
+print("Some maths:");
+print("Math.E: ",Math.E);
+print("Math.LN2: ",Math.LN2);
+print("Math.LN10: ",Math.LN10);
+print("Math.LOG2E: ",Math.LOG2E);
+print("Math.LOG10E: ",Math.LOG10E);
+print("Math.PI: ",Math.PI);
+print("Math.SQRT1_2: ",Math.SQRT1_2);
+print("Math.SQRT2: ",Math.SQRT2);
+print("Math.abs(1): "+Math.abs(1));
+print("Math.abs(-1): "+Math.abs(-1));
+print("Math.acos(0): "+Math.acos(0));
+print("Math.sin(1): "+Math.sin(1));
+print("Math.cos(1): "+Math.cos(1));
+print("Math.tan(1): "+Math.tan(1));
+print("Math.pow(2,2): "+Math.pow(2,2));
