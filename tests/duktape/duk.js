@@ -30,6 +30,13 @@ passthrough={
   "tan": true,
   "pow": true,
   "acos": true,
+  "vsnprintf": true,
+  "snprintf": true,
+// note abort will get called for an unhandled exception
+//  "abort": true,
+  "asin": true,
+  "acos": true,
+  "atan": true,
 };
 exclude={
   "__ashldi3": true,

@@ -72,7 +72,18 @@ print("Math.SQRT2: ",Math.SQRT2);
 print("Math.abs(1): "+Math.abs(1));
 print("Math.abs(-1): "+Math.abs(-1));
 print("Math.acos(0): "+Math.acos(0));
+print("Math.asin(0): "+Math.asin(0));
+print("Math.atan(0): "+Math.atan(0));
 print("Math.sin(1): "+Math.sin(1));
 print("Math.cos(1): "+Math.cos(1));
 print("Math.tan(1): "+Math.tan(1));
 print("Math.pow(2,2): "+Math.pow(2,2));
+print("Some hyperbolic functions seem to be missing in duktape");
+
+try {
+  print("Math.acosh(0): "+Math.acosh(0));
+  print("Math.asinh(0): "+Math.asinh(0));
+  print("Math.atanh(0): "+Math.atanh(0));
+} catch (e) {
+  print("Caught error for missing functions: "+e);
+}
