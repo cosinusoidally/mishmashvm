@@ -73,4 +73,11 @@ duk=mm.link([duktape,duk_glue,my_wrap,libtcc1]);
 
 print("Load complete!");
 print();
-print(duk.get_fn("dummy_main")());
+dummy_main=duk.get_fn("dummy_main");
+dummy_main();
+
+init=duk.get_fn("init");
+init();
+
+duk_run=duk.get_fn("my_duk_run");
+duk_run();
