@@ -21,6 +21,9 @@ passthrough={
   "strlen": true,
   "_setjmp": true,
   "printf": true,
+  "fabs": true,
+  "floor": true,
+  "fmod": true,
 };
 exclude={
   "__ashldi3": true,
