@@ -82,7 +82,7 @@ init();
 duk_dummy_run=duk.get_fn("dummy_wrap");
 duk_dummy_run();
 
-s="print('test providing string from js')";
+s=read(test_path+"/tests.js");
 
 duk_run=duk.get_fn("my_duk_run");
 duk_run(s);
