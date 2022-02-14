@@ -87,3 +87,21 @@ try {
 } catch (e) {
   print("Caught error for missing functions: "+e);
 }
+
+var foo={};
+
+foo["bar"]="Hello";
+print(foo["bar"]==="Hello");
+print(JSON.stringify(foo));
+
+read=function(x,y){
+//print(x);
+
+if(arguments.length>1){
+//print(y);
+if(y==="binary"){
+return readFile(x);
+};
+};
+return buf_to_string(readFile(x));
+}

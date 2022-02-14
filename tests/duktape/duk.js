@@ -4,6 +4,7 @@ load("lib/gen_wrap.js");
 duk_srcdir=test_path+"/duktape_src/";
 
 duk_glue=mm.load_c_string(read(test_path+"/duk_glue.c"),{extra_flags:"-I "+duk_srcdir});
+//quit();
 duktape=mm.load_c_string(read(duk_srcdir+"duktape.c"),{extra_flags:"-I "+duk_srcdir});
 
 libtcc1=mm.load_c_string(read("tcc_src/lib/libtcc1.c"));
@@ -38,6 +39,13 @@ passthrough={
   "acos": true,
   "atan": true,
   "ceil": true,
+  "fopen": true,
+  "fseek": true,
+  "fclose": true,
+  "fread": true,
+  "ftell": true,
+  "ferror": true,
+  "strcmp": true,
 };
 exclude={
   "__ashldi3": true,
@@ -79,7 +87,7 @@ if(dump_und=true){
 //  print("stubs:");
 //  print(stubs_src);
   stubs=mm.load_c_string(stubs_src);
-//  print(JSON.stringify(overrides, null, " "));
+  print(JSON.stringify(overrides, null, " "));
 //  print(my_libc_src);
   my_libc=mm.load_c_string(my_libc_src);
 };
@@ -101,16 +109,24 @@ duk_dummy_run();
 
 s=read(test_path+"/tests.js");
 
-duk_run=duk.get_fn("my_duk_run");
+duk_run_raw=duk.get_fn("my_duk_run");
+duk_run=function(s){
+return duk_run_raw("try {"+s+"}catch(e){print(e)}")
+};
+
 duk_run(s);
 
-/*
+//mm.reserve_stack(800000);
+libc.chdir("tcc_js_bootstrap");
 print("and now for something a bit more complicated");
 duk_run("function load(x){print(x)}");
-duk_run("function read(x){print(x)}");
-duk_run("try {"+read("tcc_js_bootstrap/tcc_em.js")+"}catch(e){print(e)}");
-*/
-
+//duk_run("function read(x){print(x)}");
+st=Date.now();
+duk_run(read("../libc_portable_proto/sha256.js"));
+duk_run("try {"+read("tcc_em.js")+"}catch(e){print(e)}");
+duk_run("try {"+read("01_mk_tcc.js")+"}catch(e){print(e)}");
+duk_run("sha256=root.sha256;print(sha256(FS.readFile('out.o')));")
+print("took: "+(Date.now()-st));
 /*
 try {
 duk_run("function quit(){throw 'quit'}");

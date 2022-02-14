@@ -1,5 +1,11 @@
 // HACK mishmash
 int ljw_dummy(void){
+  fopen();
+  fread();
+  ferror();
+  ftell();
+  fseek();
+  fclose();
   printf("Hello world\n");
   exit(0);
 }
