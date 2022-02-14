@@ -115,27 +115,3 @@ return duk_run_raw("try {"+s+"}catch(e){print(e)}")
 };
 
 duk_run(s);
-
-//mm.reserve_stack(800000);
-libc.chdir("tcc_js_bootstrap");
-print("and now for something a bit more complicated");
-//duk_run("function read(x){print(x)}");
-st=Date.now();
-duk_run(read("../libc_portable_proto/sha256.js"));
-duk_run("try {"+read("03_mk_libc_stubs.js")+"}catch(e){print(e)}");
-duk_run("sha256=root.sha256;print(sha256(FS.readFile('out.o')));")
-print("took: "+(Date.now()-st));
-/*
-try {
-duk_run("function quit(){throw 'quit'}");
-duk_run("function load(x){print(x)}");
-duk_run("function read(x){print('reading: '+x)};return '{\"tmpdir\":\"/dev/shm/mishmashvm_tmp/\"}'");
-duk_run("try {"+read("lib/setup_platform.js")+"}catch(e){print(e)}");
-duk_run("try {"+read("lib/mishmashvm_lib.js")+"}catch(e){print(e)}");
-duk_run("try {"+read("lib/elf_loader.js")+"}catch(e){print(e)}");
-duk_run("try {"+read("lib/tcc_loader.js")+"}catch(e){print(e)}");
-duk_run("try {"+read("mishmashvm.js")+"}catch(e){print(e)}");
-} catch (e){
-print(e);
-}
-*/

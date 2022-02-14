@@ -93,23 +93,3 @@ var foo={};
 foo["bar"]="Hello";
 print(foo["bar"]==="Hello");
 print(JSON.stringify(foo));
-
-read=function(x,y){
-//print(x);
-
-if(arguments.length>1){
-//print(y);
-if(y==="binary"){
-return readFile(x);
-};
-};
-return buf_to_string(readFile(x));
-}
-
-function load(x){
-  print(x);
-  // stubbing out use of lib files since the compat later hasn't
-  // been written yet
-  if(x==="../lib/setup_platform.js"){return;};
-  eval.call(this,read(x));
-};
