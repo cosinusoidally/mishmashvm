@@ -1,4 +1,4 @@
-load(test_path+"/duk.js");
+load(test_path+"/duk_load.js");
 libc.chdir("tcc_js_bootstrap");
 print("");
 print("Running the Emscripten compiled version of tcc inside Duktape. This runs:");
