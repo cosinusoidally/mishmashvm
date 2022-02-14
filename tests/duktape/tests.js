@@ -87,3 +87,9 @@ try {
 } catch (e) {
   print("Caught error for missing functions: "+e);
 }
+
+var foo={};
+
+foo["bar"]="Hello";
+print(foo["bar"]==="Hello");
+print(JSON.stringify(foo));

@@ -51,9 +51,79 @@ int dummy_main(){
 }
 
 
+static duk_ret_t fileio_read_file(duk_context *ctx) {
+//printf("Trying to read file\n");
+	const char *fn;
+	char *buf;
+	size_t len;
+	size_t off;
+	int rc;
+	FILE *f;
+
+	fn = duk_require_string(ctx, 0);
+//printf("filename: %s\n",fn);
+	f = fopen(fn, "rb");
+if (!f) {
+		(void) duk_type_error(ctx, "cannot open file %s for reading",
+		                      fn);
+	}
+//printf("file opened\n");
+	rc = fseek(f, 0, SEEK_END);
+	len = (size_t) ftell(f);
+	rc = fseek(f, 0, SEEK_SET);
+//printf("file length: %d\n",len);
+	buf = (char *) duk_push_fixed_buffer(ctx, (duk_size_t) len);
+	for (off = 0; off < len;) {
+		size_t got;
+		got = fread((void *) (buf + off), 1, len - off, f);
+
+		if (ferror(f)) {
+			(void) fclose(f);
+printf("oh noes\n");
+			(void) duk_type_error(ctx, "error while reading %s", fn);
+		}
+
+		if (got == 0) {
+			if (feof(f)) {
+				break;
+			} else {
+/*
+				(void) fclose(f);
+				(void) duk_type_error(ctx, "error while reading %s", fn);
+*/
+			}
+		}
+		off += got;
+	}
+
+	if (f) {
+		(void) fclose(f);
+	}
+
+	return 1;
+}
+
+static duk_ret_t buf_to_string(duk_context *ctx) {
+  char *s;
+  duk_size_t sz;
+  s= (char *) duk_require_buffer(ctx, 0, &sz);
+  duk_push_lstring(ctx,s,sz);
+  return 1;
+}
+
+
 duk_context *ctx2;
 int init(){
   ctx2 = duk_create_heap_default();
+  duk_push_c_function(ctx2, fileio_read_file, 1 /*nargs*/);
+  duk_put_global_string(ctx2, "readFile");
+  duk_push_c_function(ctx2, buf_to_string, 1 /*nargs*/);
+  duk_put_global_string(ctx2, "buf_to_string");
+
+}
+
+int teardown(){
+  duk_destroy_heap(ctx2);
 }
 
 int my_duk_run(char *s){
