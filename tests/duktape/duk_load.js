@@ -100,9 +100,6 @@ print("Load complete!");
 print();
 dummy_main=duk.get_fn("dummy_main");
 
-init=duk.get_fn("init");
-teardown=duk.get_fn("teardown");
-init();
 
 duk_dummy_run=duk.get_fn("dummy_wrap");
 
@@ -110,3 +107,7 @@ duk_run_raw=duk.get_fn("my_duk_run");
 duk_run=function(s){
 return duk_run_raw("try {"+s+"}catch(e){print(e)}")
 };
+
+init=duk.get_fn("init");
+teardown=duk.get_fn("teardown");
+init();
