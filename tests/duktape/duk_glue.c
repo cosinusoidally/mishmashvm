@@ -122,6 +122,10 @@ int init(){
 
 }
 
+int teardown(){
+  duk_destroy_heap(ctx2);
+}
+
 int my_duk_run(char *s){
   duk_push_c_function(ctx2, native_print, DUK_VARARGS);
   duk_put_global_string(ctx2, "print");

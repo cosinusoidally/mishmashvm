@@ -102,6 +102,7 @@ dummy_main=duk.get_fn("dummy_main");
 dummy_main();
 
 init=duk.get_fn("init");
+teardown=duk.get_fn("teardown");
 init();
 
 duk_dummy_run=duk.get_fn("dummy_wrap");
