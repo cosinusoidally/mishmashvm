@@ -10,7 +10,7 @@ tests=[
   {"path":"tests/sdl","script":"sdl_events.js","description":"Simple SDL event handling example"},
   {"path":"tests/quake1","script":"quake.js","description":"Quake 1, non-interactive demo playback"},
   {"path":"tests/duktape","script":"duk.js","description":"The Duktape JavaScript VM"},
-  {"path":"tests/duktape","script":"duk_boot1.js","description":"Test bootstrap with duktape"},
+  {"path":"tests/duktape","script":"duk_boot1.js","description":"Test first stage bootstrap with duktape (building native tcc object code using the Emscripten compiled JS version of tcc). Note this test is very slow. Note does not write any files to disk so will not break the existing native tcc code."},
 ];
 
 print_tests=function(){
