@@ -10,6 +10,7 @@ tests=[
   {"path":"tests/sdl","script":"sdl_events.js","description":"Simple SDL event handling example"},
   {"path":"tests/quake1","script":"quake.js","description":"Quake 1, non-interactive demo playback"},
   {"path":"tests/duktape","script":"duk.js","description":"The Duktape JavaScript VM"},
+  {"path":"tests/duktape","script":"duk_boot1.js","description":"Test bootstrap with duktape"},
 ];
 
 print_tests=function(){
