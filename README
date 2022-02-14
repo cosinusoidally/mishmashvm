@@ -125,8 +125,9 @@ no such file: my_libc.o.new
 no such file: stubs.o.new
 59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o
 59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o.new
-9957fac1fddb4bc9670103ee5574c81898ffa87f9cd9a5bcb9f8615169245e10 tcc_bin/tcc_boot3.o
-9957fac1fddb4bc9670103ee5574c81898ffa87f9cd9a5bcb9f8615169245e10 tcc_bin/tcc_boot3.o.new
+9a9d8861ec0c93a219abb8587770a04a5314ce332187c9631f37a3b7bbde6469 tcc_bin/tcc_boot3.o
+9a9d8861ec0c93a219abb8587770a04a5314ce332187c9631f37a3b7bbde6469 tcc_bin/tcc_boot3.o.new
+
 
 my_libc.o is some wrapper code to provide win32/Linux libc compatibility
 stubs.o provides a bunch of dummy symbols to the elf loader
@@ -196,8 +197,8 @@ no such file: my_libc.o.new
 no such file: stubs.o.new
 59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o
 59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o.new
-9957fac1fddb4bc9670103ee5574c81898ffa87f9cd9a5bcb9f8615169245e10 tcc_bin/tcc_boot3.o
-9957fac1fddb4bc9670103ee5574c81898ffa87f9cd9a5bcb9f8615169245e10 tcc_bin/tcc_boot3.o.new
+9a9d8861ec0c93a219abb8587770a04a5314ce332187c9631f37a3b7bbde6469 tcc_bin/tcc_boot3.o
+9a9d8861ec0c93a219abb8587770a04a5314ce332187c9631f37a3b7bbde6469 tcc_bin/tcc_boot3.o.new
 
 The eagle eyed may notice that the above sha256sums are the same as the
 sha256sums on win32. That is because we are using exactly the same compiler on
