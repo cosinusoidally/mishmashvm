@@ -23,5 +23,5 @@ duk_run(read(x[0]));
 duk_run("sha256=root.sha256;print(sha256(FS.readFile('out.o')));")
 print("expected sha256:");
 print(x[1]);
-print("took: "+(Date.now()-st));
+print("took: "+((Date.now()-st)/1000)+"s");
 });
