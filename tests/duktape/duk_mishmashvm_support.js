@@ -59,9 +59,9 @@ my_ffi_call=function(){
   for(var i=0;i<arguments.length;i++){
     var c=arguments[i];
     if(typeof c==="string"){
-      print(c);
+//      print(c);
       c=get_str_address(c);
-      print(c);
+//      print(c);
     };
     if(typeof c==="object"){
       c=get_buffer_address(c);
@@ -75,4 +75,10 @@ foo="foo.so"
 print(my_ffi_call(fn_ptr2,foo));
 print(my_ffi_call(fn_ptr2,g));
 print(my_ffi_call(fn_ptr,3e9,11,12,13));
-print(my_ffi_call(ctypes_open_ptr,ff));
+my_libc=my_ffi_call(ctypes_open_ptr,ff);
+sym="puts";
+puts_ptr=my_ffi_call(ctypes_getsym_ptr,my_libc,sym);
+
+//print(puts_ptr);
+
+my_ffi_call(puts_ptr,"hello world via duktape ffi call");

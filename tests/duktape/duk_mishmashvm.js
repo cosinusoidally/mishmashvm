@@ -16,6 +16,12 @@ var ctypes_open_callback = ctypes.cast(ctypes_open_type.ptr(ctypes_open),ctypes.
 print("ctypes_open "+ctypes_open_callback);
 duk_run("ctypes_open_ptr="+ctypes_open_callback)
 
+var ctypes_getsym_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.char.ptr]);
+
+var ctypes_getsym_callback = ctypes.cast(ctypes_getsym_type.ptr(ctypes_getsym),ctypes.uint32_t).value;
+print("ctypes_getsym "+ctypes_getsym_callback);
+duk_run("ctypes_getsym_ptr="+ctypes_getsym_callback)
+
 var L=[];
 function ctypes_open(s) {
   var ln=s.readString();
@@ -27,6 +33,20 @@ function ctypes_open(s) {
     return L.length;
   } catch (e){
     print("unable to find: "+ln);
+  };
+  return 0;
+};
+
+function ctypes_getsym(h,s){
+  print("handle: "+h);
+  s=s.readString();
+  print("symbol: "+s);
+  try {
+    var sym=L[h-1].declare(s,ctypes.default_abi,ctypes.uint32_t);
+    return ctypes.cast(sym,ctypes.uint32_t).value;
+  } catch (e){
+    print(e);
+    print("unable to find symbol: "+s);
   };
   return 0;
 };
