@@ -70,6 +70,7 @@ my_ffi_call=function(){
   };
   return my_ffi_call_raw.apply(null,args);
 };
+/*
 ff="libc.so.6";
 foo="foo.so"
 print(my_ffi_call(fn_ptr2,foo));
@@ -82,7 +83,7 @@ puts_ptr=my_ffi_call(ctypes_getsym_ptr,my_libc,sym);
 //print(puts_ptr);
 
 my_ffi_call(puts_ptr,"hello world via duktape ffi call");
-
+*/
 ctypes.open=function(x){
   var h=my_ffi_call(ctypes_open_ptr,x);
   if(h===0){ throw "Error could not open: "+x};
