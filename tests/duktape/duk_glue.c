@@ -25,15 +25,26 @@ static duk_ret_t native_adder(duk_context *ctx) {
 	return 1;  /* one return value */
 }
 
+uint32_t dummy_ffi_call(uint32_t x){
+  printf("x=%u\n",x);
+  return 4000000000;
+}
+
+typedef uint32_t (* my_ffi_stub)(uint32_t a1,uint32_t a2,uint32_t a3,uint32_t a4,uint32_t a5,uint32_t a6,uint32_t a7,uint32_t a8);
+
 static duk_ret_t my_ffi_call(duk_context *ctx) {
 	int i;
 	int n = duk_get_top(ctx);  /* #args */
-
-	for (i = 0; i < n; i++) {
-		printf("%d %f\n",i,duk_to_number(ctx, i));
+        uint32_t args[8];
+	for (i = 1; i < n; i++) {
+	  args[i-1]=(uint32_t)duk_to_number(ctx, i);
 	}
-
-	duk_push_number(ctx, 2.0);
+	for (;i < 8; i++) {
+	  args[i]=0;
+	}
+        uint32_t ptr=duk_to_number(ctx, 0);
+	double ret=(double)(((my_ffi_stub)ptr)(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7]));
+	duk_push_number(ctx, ret);
 	return 1;  /* one return value */
 }
 
