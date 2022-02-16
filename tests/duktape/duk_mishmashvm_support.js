@@ -52,3 +52,22 @@ g[i]=f.charCodeAt(i);
 }
 print(JSON.stringify(g));
 print(my_ffi_call(fn_ptr2,get_buffer_address(g)));
+
+my_ffi_call_raw=my_ffi_call;
+my_ffi_call=function(){
+  var args=[];
+  for(var i=0;i<arguments.length;i++){
+    var c=arguments[i];
+    if(typeof c==="string"){
+      c=get_str_address(c);
+    };
+    if(typeof c==="object"){
+      c=get_buffer_address(c);
+    };
+    args.push(c);
+  };
+  return my_ffi_call_raw.apply(null,args);
+};
+
+print(my_ffi_call(fn_ptr2,"foo.so"));
+print(my_ffi_call(fn_ptr2,g));
