@@ -82,3 +82,21 @@ puts_ptr=my_ffi_call(ctypes_getsym_ptr,my_libc,sym);
 //print(puts_ptr);
 
 my_ffi_call(puts_ptr,"hello world via duktape ffi call");
+
+ctypes.open=function(x){
+  var h=my_ffi_call(ctypes_open_ptr,x);
+  if(h===0){ throw "Error could not open: "+x};
+  var declare=function(s){
+    var f_ptr=my_ffi_call(ctypes_getsym_ptr,h,s);
+    if(f_ptr===0){ throw "Couldn't find symbol: "+s};
+    var f=function(){
+      var args=[f_ptr];
+      for(var i=0;i<arguments.length;i++){
+        args.push(arguments[i]);
+      };
+      return my_ffi_call.apply(null,args);
+    };
+    return f;
+  };
+  return {"declare": declare};
+};
