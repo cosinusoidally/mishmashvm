@@ -70,7 +70,7 @@ my_ffi_call=function(){
   };
   return my_ffi_call_raw.apply(null,args);
 };
-ff="libc.so";
+ff="libc.so.6";
 foo="foo.so"
 print(my_ffi_call(fn_ptr2,foo));
 print(my_ffi_call(fn_ptr2,g));

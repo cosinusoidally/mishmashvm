@@ -12,13 +12,24 @@ duk_run("fn_ptr2="+ctypes.cast(duk.fns["dummy_ctypes_open"],ctypes.uint32_t).val
 
 var ctypes_open_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.char.ptr]);
 
-function ctypes_open(s) {
-print("string from duktape: "+s.readString());
-return 0;
-}
-
 var ctypes_open_callback = ctypes.cast(ctypes_open_type.ptr(ctypes_open),ctypes.uint32_t).value;
 print("ctypes_open "+ctypes_open_callback);
 duk_run("ctypes_open_ptr="+ctypes_open_callback)
+
+var L=[];
+function ctypes_open(s) {
+  var ln=s.readString();
+  print("Trying to open lib: "+ln);
+  try {
+    var l=ctypes.open(ln);
+    L.push(l);
+    print("opened: "+ln);
+    return L.length;
+  } catch (e){
+    print("unable to find: "+ln);
+  };
+  return 0;
+};
+
 duk_run(read(test_path+"/duk_mishmashvm_support.js"));
 //duk_run("load('mishmashvm.js');test(0)");
