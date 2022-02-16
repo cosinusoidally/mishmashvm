@@ -29,7 +29,6 @@ print("date_now_getsym "+date_now_callback);
 duk_run("date_now_ptr="+date_now_callback);
 
 function date_now(x){
-  print(x);
   var t=new Float64Array(1);
   t[0]=Date.now();
   libc.memcpy(x,t,8);
