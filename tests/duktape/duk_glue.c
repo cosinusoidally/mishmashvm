@@ -25,6 +25,18 @@ static duk_ret_t native_adder(duk_context *ctx) {
 	return 1;  /* one return value */
 }
 
+static duk_ret_t my_ffi_call(duk_context *ctx) {
+	int i;
+	int n = duk_get_top(ctx);  /* #args */
+
+	for (i = 0; i < n; i++) {
+		printf("%d %f\n",i,duk_to_number(ctx, i));
+	}
+
+	duk_push_number(ctx, 2.0);
+	return 1;  /* one return value */
+}
+
 int main(int argc, char *argv[]) {
 	(void) argc; (void) argv;  /* suppress warning */
         dummy_main();
@@ -119,7 +131,11 @@ int init(){
   duk_put_global_string(ctx2, "readFile");
   duk_push_c_function(ctx2, buf_to_string, 1 /*nargs*/);
   duk_put_global_string(ctx2, "buf_to_string");
+  duk_push_c_function(ctx2, native_print, DUK_VARARGS);
+  duk_put_global_string(ctx2, "print");
 
+  duk_push_c_function(ctx2, my_ffi_call, DUK_VARARGS);
+  duk_put_global_string(ctx2, "my_ffi_call");
 }
 
 int teardown(){
@@ -127,8 +143,6 @@ int teardown(){
 }
 
 int my_duk_run(char *s){
-  duk_push_c_function(ctx2, native_print, DUK_VARARGS);
-  duk_put_global_string(ctx2, "print");
 
   duk_eval_string(ctx2, s);
   duk_pop(ctx2);  /* pop eval result */

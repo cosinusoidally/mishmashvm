@@ -8,10 +8,6 @@ read=function(x,y){
 }
 
 function load(x){
-//  print(x);
-  // stubbing out use of lib files since the compat later hasn't
-  // been written yet
-  if(x==="../lib/setup_platform.js"){return;};
   eval.call(this,read(x));
 };
 
@@ -40,3 +36,8 @@ ctypes.FunctionType=function(x,y,z){
 ctypes.cast=function(x,y){
   return function(){};
 };
+
+
+print("hello world");
+
+print(my_ffi_call(10,11,12,13));
