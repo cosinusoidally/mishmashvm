@@ -22,21 +22,6 @@ ctypes.voidptr_t=function(x){
   return x;
 };
 
-ctypes.open=function(x){
-//  print("opening: "+x);
-  return {"declare": function(y){
-//                       print("declaring: "+y);
-                       return function(z){}}};
-};
-
-ctypes.FunctionType=function(x,y,z){
-  return {"ptr":0};
-};
-
-ctypes.cast=function(x,y){
-  return function(){};
-};
-
 
 print("hello world");
 
@@ -101,3 +86,29 @@ ctypes.open=function(x){
   };
   return {"declare": declare};
 };
+
+ctypes.FunctionType=function(x,y,z){
+  return {"ptr":"ptr"};
+};
+
+ctypes.cast=function(x,y){
+  print("x: "+x);
+  print("y: "+y);
+  if(y==="ptr"){
+    var f=function(){
+      var args=[x];
+      for(var i=0;i<arguments.length;i++){
+        args.push(arguments[i]);
+      };
+      return my_ffi_call.apply(null,args);
+    };
+    return f;
+  };
+  return function(){};
+};
+
+
+load("lib/setup_platform.js");
+
+libc.puts("Hello world from duktape via js-ctypes");
+print(libc.malloc_fntype.ptr);
