@@ -40,6 +40,7 @@ print(my_ffi_call(fn_ptr2,get_buffer_address(g)));
 
 my_ffi_call_raw=my_ffi_call;
 my_ffi_call=function(){
+//  print("arguments.length: "+arguments.length);
   var args=[];
   for(var i=0;i<arguments.length;i++){
     var c=arguments[i];
@@ -82,6 +83,7 @@ ctypes.open=function(x){
       };
       return my_ffi_call.apply(null,args);
     };
+    f.address=f_ptr;
     return f;
   };
   return {"declare": declare};
@@ -102,13 +104,23 @@ ctypes.cast=function(x,y){
       };
       return my_ffi_call.apply(null,args);
     };
+    f.address=x;
     return f;
   };
-  return function(){};
+  if(y=== "uint32_t"){
+    print("address: "+x.address);
+    return {value: x.address};
+  };
+  print("UNHANDLED");
+  throw "unhandled";
 };
 
-
+/*
 load("lib/setup_platform.js");
 
 libc.puts("Hello world from duktape via js-ctypes");
 print(libc.malloc_fntype.ptr);
+*/
+
+load("mishmashvm.js");
+test(0);
