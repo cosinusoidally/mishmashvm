@@ -40,4 +40,4 @@ ctypes.cast=function(x,y){
 
 print("hello world");
 
-print(my_ffi_call(3e9,11,12,13));
+print(my_ffi_call(fn_ptr,3e9,11,12,13));
