@@ -59,7 +59,9 @@ my_ffi_call=function(){
   for(var i=0;i<arguments.length;i++){
     var c=arguments[i];
     if(typeof c==="string"){
+      print(c);
       c=get_str_address(c);
+      print(c);
     };
     if(typeof c==="object"){
       c=get_buffer_address(c);
@@ -68,6 +70,9 @@ my_ffi_call=function(){
   };
   return my_ffi_call_raw.apply(null,args);
 };
-
-print(my_ffi_call(fn_ptr2,"foo.so"));
+ff="libc.so";
+foo="foo.so"
+print(my_ffi_call(fn_ptr2,foo));
 print(my_ffi_call(fn_ptr2,g));
+print(my_ffi_call(fn_ptr,3e9,11,12,13));
+print(my_ffi_call(ctypes_open_ptr,ff));
