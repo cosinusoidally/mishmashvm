@@ -94,8 +94,8 @@ ctypes.FunctionType=function(x,y,z){
 };
 
 ctypes.cast=function(x,y){
-  print("x: "+x);
-  print("y: "+y);
+//  print("x: "+x);
+//  print("y: "+y);
   if(y==="ptr"){
     var f=function(){
       var args=[x];
@@ -123,4 +123,4 @@ print(libc.malloc_fntype.ptr);
 */
 
 load("mishmashvm.js");
-test(0);
+test(4);
