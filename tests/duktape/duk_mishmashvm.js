@@ -22,6 +22,20 @@ var ctypes_getsym_callback = ctypes.cast(ctypes_getsym_type.ptr(ctypes_getsym),c
 print("ctypes_getsym "+ctypes_getsym_callback);
 duk_run("ctypes_getsym_ptr="+ctypes_getsym_callback)
 
+var date_now_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
+
+var date_now_callback = ctypes.cast(ctypes_getsym_type.ptr(date_now),ctypes.uint32_t).value;
+print("date_now_getsym "+date_now_callback);
+duk_run("date_now_ptr="+date_now_callback);
+
+function date_now(x){
+  print(x);
+  var t=new Float64Array(1);
+  t[0]=Date.now();
+  libc.memcpy(x,t,8);
+  return 0;
+};
+
 var L=[];
 function ctypes_open(s) {
   var ln=s.readString();
