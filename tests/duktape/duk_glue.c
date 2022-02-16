@@ -30,6 +30,11 @@ uint32_t dummy_ffi_call(uint32_t x){
   return 4000000000;
 }
 
+uint32_t dummy_ctypes_open(char *s){
+  printf("ctypes open: %s\n",s);
+  return 1;
+}
+
 typedef uint32_t (* my_ffi_stub)(uint32_t a1,uint32_t a2,uint32_t a3,uint32_t a4,uint32_t a5,uint32_t a6,uint32_t a7,uint32_t a8);
 
 static duk_ret_t my_ffi_call(duk_context *ctx) {
@@ -134,6 +139,20 @@ static duk_ret_t buf_to_string(duk_context *ctx) {
   return 1;
 }
 
+static duk_ret_t get_str_address(duk_context *ctx) {
+  uint32_t s;
+  s= (uint32_t)duk_get_string(ctx, 0);
+  duk_push_number(ctx,(double)s);
+  return 1;
+}
+
+static duk_ret_t get_buffer_address(duk_context *ctx) {
+  uint32_t s;
+  duk_size_t sz;
+  s= (uint32_t)duk_get_buffer_data(ctx, 0, &sz);
+  duk_push_number(ctx,(double)s);
+  return 1;
+}
 
 duk_context *ctx2;
 int init(){
@@ -147,6 +166,10 @@ int init(){
 
   duk_push_c_function(ctx2, my_ffi_call, DUK_VARARGS);
   duk_put_global_string(ctx2, "my_ffi_call");
+  duk_push_c_function(ctx2, get_str_address, 1);
+  duk_put_global_string(ctx2, "get_str_address");
+  duk_push_c_function(ctx2, get_buffer_address, 1);
+  duk_put_global_string(ctx2, "get_buffer_address");
 }
 
 int teardown(){

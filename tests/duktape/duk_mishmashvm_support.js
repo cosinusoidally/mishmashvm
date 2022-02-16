@@ -41,3 +41,14 @@ ctypes.cast=function(x,y){
 print("hello world");
 
 print(my_ffi_call(fn_ptr,3e9,11,12,13));
+print(my_ffi_call(fn_ptr2,get_str_address("libbar.so")));
+print(typeof (new ArrayBuffer(1)));
+print(typeof (new Uint8Array(1)));
+f="my buffer string";
+print(f);
+g=new Uint8Array(f.length+1);
+for(i=0;i<g.length-1;i++){
+g[i]=f.charCodeAt(i);
+}
+print(JSON.stringify(g));
+print(my_ffi_call(fn_ptr2,get_buffer_address(g)));
