@@ -36,19 +36,22 @@ int ctypes_getsym(uint32_t h,char *s){
 }
 
 int date_now(double *x){
-/*
-  struct timeval tv;
+// https://stackoverflow.com/questions/10905892/equivalent-of-gettimeday-for-windows/26085827
+  static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
 
-  if (gettimeofday(&tv, NULL) != 0) {
-    printf("gettimeofday() failed\n");
-    x[0]=0.0;
-    return 0;
-  }
+  SYSTEMTIME  system_time;
+  FILETIME    file_time;
+  uint64_t    time;
 
-  x[0] = (((double) tv.tv_sec) * 1000.0 +
-         ((double) tv.tv_usec) / 1000.0);
-*/
-x[0]=0.0;
+  GetSystemTime( &system_time );
+  SystemTimeToFileTime( &system_time, &file_time );
+  time =  ((uint64_t)file_time.dwLowDateTime )      ;
+  time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+  long tv_sec  = (long) ((time - EPOCH) / 10000000L);
+  long tv_usec = (long) (system_time.wMilliseconds * 1000);
+  x[0] = (((double) tv_sec) * 1000.0 +
+         ((double) tv_usec) / 1000.0);
   return 0;
 }
 
