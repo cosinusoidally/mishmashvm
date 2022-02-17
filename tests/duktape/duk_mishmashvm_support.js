@@ -126,7 +126,7 @@ load("mishmashvm.js");
 Date.now=function(){
   t=new Float64Array(1);
   my_ffi_call(date_now_ptr,t);
-  return t[0];
+  return Math.round(t[0]);
 };
 print("Date.now(): "+Date.now());
 //test(4);

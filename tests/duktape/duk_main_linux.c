@@ -34,8 +34,8 @@ int date_now(double *x){
     return 0;
   }
 
-  x[0] = ((double) tv.tv_sec) * 1000.0 +
-         ((double) tv.tv_usec) / 1000.0;
+  x[0] = (((double) tv.tv_sec) * 1000.0 +
+         ((double) tv.tv_usec) / 1000.0);
   return 0;
 }
 
