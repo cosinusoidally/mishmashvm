@@ -24,4 +24,7 @@ vsnprintf();
 fflush();
 fprintf();
 strtof();
+lseek();
+strncmp();
+strtol();
 }

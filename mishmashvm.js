@@ -12,6 +12,7 @@ tests=[
   {"path":"tests/duktape","script":"duk.js","description":"The Duktape JavaScript VM"},
   {"path":"tests/duktape","script":"duk_boot1.js","description":"Test first stage bootstrap with duktape (building native tcc object code using the Emscripten compiled JS version of tcc). Note this test is very slow. Note does not write any files to disk so will not break the existing native tcc code."},
   {"path":"tests/duktape","script":"duk_mishmashvm.js","description":"Run mishmashvm.js inside Duktape."},
+  {"path":"tests/duktape","script":"duk_build_linux.js","description":"Build Duktape for Linux"},
 ];
 
 print_tests=function(){
