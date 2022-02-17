@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+#include <time.h>
 
 void* L[8];
 uint32_t H=0;
@@ -25,7 +26,16 @@ int ctypes_getsym(uint32_t h,char *s){
 }
 
 int date_now(double *x){
-  x[0]=1.0;
+  struct timeval tv;
+
+  if (gettimeofday(&tv, NULL) != 0) {
+    printf("gettimeofday() failed\n");
+    x[0]=0.0;
+    return 0;
+  }
+
+  x[0] = ((double) tv.tv_sec) * 1000.0 +
+         ((double) tv.tv_usec) / 1000.0;
   return 0;
 }
 
