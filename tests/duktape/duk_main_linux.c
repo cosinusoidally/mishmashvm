@@ -19,12 +19,14 @@ int ctypes_open(char *s){
 
 int ctypes_getsym(uint32_t h,char *s){
   uint32_t p;
-  printf("Looking up: %s in %u\n",s,h);
+  printf("C Looking up: %s in %u\n",s,h);
   p=(uint32_t)dlsym(L[h-1],s);
   return p;
 }
 
-int date_now(void *x){
+int date_now(double *x){
+  x[0]=1.0;
+  return 0;
 }
 
 main(){
@@ -45,7 +47,8 @@ main(){
   my_duk_run(buf);
   sprintf(buf, "print(ctypes_getsym_ptr=%u);\n",&ctypes_getsym);
   my_duk_run(buf);
-  sprintf(buf, "print(date_now_ptr=%u);\n",&ctypes_getsym);
+  sprintf(buf, "print(date_now_ptr=%u);\n",&date_now);
   my_duk_run(buf);
   my_duk_run(b);
+  my_duk_run("test(3)");
 }
