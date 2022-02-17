@@ -129,4 +129,4 @@ Date.now=function(){
   return t[0];
 };
 print("Date.now(): "+Date.now());
-test(4);
+//test(4);

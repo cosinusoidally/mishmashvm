@@ -66,4 +66,4 @@ function ctypes_getsym(h,s){
 
 libc.puts("Test puts from Spidermonkey");
 duk_run(read(test_path+"/duk_mishmashvm_support.js"));
-//duk_run("load('mishmashvm.js');test(0)");
+duk_run("test(4)");
