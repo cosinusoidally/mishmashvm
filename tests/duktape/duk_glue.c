@@ -53,12 +53,6 @@ static duk_ret_t my_ffi_call(duk_context *ctx) {
 	return 1;  /* one return value */
 }
 
-int main(int argc, char *argv[]) {
-	(void) argc; (void) argv;  /* suppress warning */
-        dummy_main();
-        return 0;
-}
-
 int dummy_main(){
         printf("My hello world\n");
 	duk_context *ctx = duk_create_heap_default();
