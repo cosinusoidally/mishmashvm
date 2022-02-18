@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 #include <time.h>
+#include <stdint.h>
 
 void* L[8];
 uint32_t H=0;
