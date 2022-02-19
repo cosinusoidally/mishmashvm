@@ -57,11 +57,18 @@ passthrough={
   "fflush": true,
   "fprintf": true,
   "longjmp": true,
+  "strtoull": true,
+  "strtod": true,
+  "unlink": true,
+  "strstr": true,
+  "fread": true,
+  "remove": true,
 };
 
 exclude={
   "stdout": true,
   "stderr": true,
+  "__ashldi3": true,
 };
 
 overrides=[];
@@ -110,6 +117,36 @@ tcc_win32=mm.link([tcc_win32_o,libtcc1,my_wrap]);
 
 main=mm.arg_wrap(tcc_win32.get_fn("main"));
 
-com="i386-win32-tcc -vv "+test_path+"/hello.c";
+function build(com){
 print(com);
 main(com);
+};
+build("i386-win32-tcc -c tcc_src/lib/libtcc1.c -o "+mm.cfg.tmpdir+"/i386-win32-libtcc1.o -Btcc_src/win32 -Itcc_src/include");
+build("i386-win32-tcc -c tcc_src/lib/alloca86.S -o "+mm.cfg.tmpdir+"/i386-win32-alloca86.o -Btcc_src/win32 -Itcc_src/include");
+build("i386-win32-tcc -c tcc_src/lib/alloca86-bt.S -o "+mm.cfg.tmpdir+"/i386-win32-alloca86-bt.o -Btcc_src/win32 -Itcc_src/include");
+build("i386-win32-tcc -c tcc_src/win32/lib/chkstk.S -o "+mm.cfg.tmpdir+"/i386-win32-chkstk.o -Btcc_src/win32 -Itcc_src/include");
+build("i386-win32-tcc -c tcc_src/lib/bcheck.c -o "+mm.cfg.tmpdir+"/i386-win32-bcheck.o -Btcc_src/win32 -Itcc_src/include");
+build("i386-win32-tcc -c tcc_src/win32/lib/crt1.c -o "+mm.cfg.tmpdir+"/i386-win32-crt1.o -Btcc_src/win32 -Itcc_src/include");
+build("i386-win32-tcc -c tcc_src/win32/lib/crt1w.c -o "+mm.cfg.tmpdir+"/i386-win32-crt1w.o -Btcc_src/win32 -Itcc_src/include");
+build("i386-win32-tcc -c tcc_src/win32/lib/wincrt1.c -o "+mm.cfg.tmpdir+"/i386-win32-wincrt1.o -Btcc_src/win32 -Itcc_src/include");
+build("i386-win32-tcc -c tcc_src/win32/lib/wincrt1w.c -o "+mm.cfg.tmpdir+"/i386-win32-wincrt1w.o -Btcc_src/win32 -Itcc_src/include");
+build("i386-win32-tcc -c tcc_src/win32/lib/dllcrt1.c -o "+mm.cfg.tmpdir+"/i386-win32-dllcrt1.o -Btcc_src/win32 -Itcc_src/include");
+build("i386-win32-tcc -c tcc_src/win32/lib/dllmain.c -o "+mm.cfg.tmpdir+"/i386-win32-dllmain.o -Btcc_src/win32 -Itcc_src/include");
+
+build("i386-win32-tcc -ar "+mm.cfg.tmpdir+"/win32/lib/i386-win32-libtcc1.a "+
+(["i386-win32-libtcc1.o",
+"i386-win32-alloca86.o",
+"i386-win32-alloca86-bt.o",
+"i386-win32-chkstk.o",
+"i386-win32-bcheck.o",
+"i386-win32-crt1.o",
+"i386-win32-crt1w.o",
+"i386-win32-wincrt1.o",
+"i386-win32-wincrt1w.o",
+"i386-win32-dllcrt1.o",
+"i386-win32-dllmain.o"].map(function(x){
+return mm.cfg.tmpdir+"/"+x;
+}).join(" ")));
+//../i386-win32-tcc -ar rcs ../i386-win32-libtcc1.a i386-win32-libtcc1.o i386-win32-alloca86.o i386-win32-alloca86-bt.o i386-win32-chkstk.o i386-win32-bcheck.o i386-win32-crt1.o i386-win32-crt1w.o i386-win32-wincrt1.o i386-win32-wincrt1w.o i386-win32-dllcrt1.o i386-win32-dllmain.o
+
+build("i386-win32-tcc -vv "+test_path+"/hello.c");
