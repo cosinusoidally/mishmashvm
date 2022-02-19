@@ -3,10 +3,9 @@ load("lib/gen_wrap.js");
 libtcc1=mm.decode_elf(read("libc_portable_proto/tcc_bin/libtcc1.o","binary"));
 
 // need an absolute path (TODO work out the path)
-tcc_win32_deps_path="/dev/shm/mishmashvm_tmp/win32/"
 //tcc_win32_deps_path="/tmp/tcc/lib/tcc/win32/"
 
-extra="-DTCC_TARGET_PE -DTCC_TARGET_I386 -DTCC_LIBTCC1=\"i386-win32-libtcc1.a\" -DCONFIG_TCCDIR=\""+tcc_win32_deps_path+"\" -O0 -Wdeclaration-after-statement -fno-strict-aliasing -Wno-pointer-sign -Wno-sign-compare -Wno-unused-result -Itcc_src";
+extra="-DTCC_TARGET_PE -DTCC_TARGET_I386 -DTCC_LIBTCC1=\"i386-win32-libtcc1.a\" -DCONFIG_TCCDIR=\""+mm.cfg.tcc_win32_deps_path+"\" -O0 -Wdeclaration-after-statement -fno-strict-aliasing -Wno-pointer-sign -Wno-sign-compare -Wno-unused-result -Itcc_src";
 
 print(extra);
 
