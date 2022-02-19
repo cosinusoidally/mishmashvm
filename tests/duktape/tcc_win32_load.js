@@ -62,12 +62,17 @@ passthrough={
   "strstr": true,
   "fread": true,
   "remove": true,
+  "ldexp": true,
+  "qsort": true,
+  "strtof": true,
 };
 
 exclude={
   "stdout": true,
   "stderr": true,
   "__ashldi3": true,
+  "__udivdi3": true,
+  "__lshrdi3": true,
 };
 
 und=[];
