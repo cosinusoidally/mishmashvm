@@ -724,9 +724,10 @@ static int pe_write(struct pe_info *pe)
     fseek(op, offsetof(struct pe_header, opthdr.CheckSum), SEEK_SET);
     pe_fwrite(&pe_header.opthdr.CheckSum, sizeof pe_header.opthdr.CheckSum, op, NULL);
     fclose (op);
-#ifndef _WIN32
-    chmod(pe->filename, 0777);
-#endif
+// HACK mishmash don't use chmod
+//#ifndef _WIN32
+//    chmod(pe->filename, 0777);
+//#endif
 
     if (2 == pe->s1->verbose)
         printf("-------------------------------\n");

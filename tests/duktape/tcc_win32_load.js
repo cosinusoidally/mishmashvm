@@ -52,7 +52,7 @@ passthrough={
   "fputc": true,
   "fseek": true,
 // don't want this on windows
-  "chmod": true,
+//  "chmod": true,
   "vsnprintf": true,
   "fflush": true,
   "fprintf": true,
