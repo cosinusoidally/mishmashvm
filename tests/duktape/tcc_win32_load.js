@@ -81,8 +81,8 @@ if(plat==="win32"){
   exclude["strcasecmp"]=true;
 //  und.push({st_name:"strnicmp", sh_name:"und"});
 //  und.push({st_name:"stricmp"});
-  overrides.push(["ljw_crash_strnicmp","strncasecmp"]);
-  overrides.push(["ljw_crash_stricmp","strcasecmp"]);
+  overrides.push(["strnicmp","strncasecmp"]);
+  overrides.push(["stricmp","strcasecmp"]);
 };
 
 
@@ -110,12 +110,8 @@ if(plat==="win32"){
     };
   };
   if(plat==="win32"){
-    s="strnicmp";
-    my_libc_src.push("ljw_crash_"+s+"(){printf(\"unimplemented: "+s+"\\n\");exit(1);}");
-    s="stricmp";
-    my_libc_src.push("ljw_crash_"+s+"(){printf(\"unimplemented: "+s+"\\n\");exit(1);}");
-    stubs_src.push("ljw_crash_strnicmp();");
-    stubs_src.push("ljw_crash_stricmp();");
+    stubs_src.push("strnicmp();");
+    stubs_src.push("stricmp();");
   };
   my_libc_src= my_libc_src.join("\n");
   stubs_src.push("}");
