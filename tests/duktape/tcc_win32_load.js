@@ -146,8 +146,8 @@ print("If you run into build failures look in stderr.txt and stdout.txt for clue
 print("For this to work you need to have a win32 directory set up and for mmvm_cfg.json to cotain:");
 print("\"tcc_win32_deps_path\":\"absolute/path/to/win32\"");
 print("to create the win32 directory:");
-print("cp -r src_tcc/win32 $your_dir");
-print("cp src_tcc/include/* $your_dir/win32/include");
+print("cp -r tcc_src/win32 $your_dir");
+print("cp tcc_src/include/* $your_dir/win32/include");
   throw "Build failure";
 }
 return r;
