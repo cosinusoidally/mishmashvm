@@ -38,9 +38,30 @@ passthrough={
   "snprintf": true,
   "lseek": true,
   "strtol": true,
+  "strncmp": true,
+  "dup": true,
+  "fdopen": true,
+  "fgets": true,
+  "strncasecmp": true,
+  "strcasecmp": true,
+  "fclose": true,
+  "fopen": true,
+  "strncpy": true,
+  "fwrite": true,
+  "ftell": true,
+  "fputc": true,
+  "fseek": true,
+// don't want this on windows
+  "chmod": true,
+  "vsnprintf": true,
+  "fflush": true,
+  "fprintf": true,
+  "longjmp": true,
 };
 
 exclude={
+  "stdout": true,
+  "stderr": true,
 };
 
 overrides=[];
@@ -78,6 +99,10 @@ overrides=[];
 //  print(JSON.stringify(overrides, null, " "));
 //  print(my_libc_src);
   my_libc=mm.load_c_string(my_libc_src);
+
+// hack to wire up stdout and stderr (which are file backed stderr.txt/stdout.txt)
+libtcc1.exports.push(mm.libc_compat.imports["stdout"]);
+libtcc1.exports.push(mm.libc_compat.imports["stderr"]);
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
