@@ -121,11 +121,11 @@ if(plat==="win32"){
   my_libc_src= my_libc_src.join("\n");
   stubs_src.push("}");
   stubs_src=stubs_src.join("\n");
-  print("stubs:");
-  print(stubs_src);
+//  print("stubs:");
+//  print(stubs_src);
   stubs=mm.load_c_string(stubs_src);
-  print(JSON.stringify(overrides, null, " "));
-  print(my_libc_src);
+//  print(JSON.stringify(overrides, null, " "));
+//  print(my_libc_src);
   my_libc=mm.load_c_string(my_libc_src);
 
 // hack to wire up stdout and stderr (which are file backed stderr.txt/stdout.txt)
@@ -140,7 +140,17 @@ main=mm.arg_wrap(tcc_win32.get_fn("main"));
 
 function build(com){
 print(com);
-main(com);
+var r=main(com);
+if(r!==0){
+print("If you run into build failures look in stderr.txt and stdout.txt for clues");
+print("For this to work you need to have a win32 directory set up and for mmvm_cfg.json to cotain:");
+print("\"tcc_win32_deps_path\":\"absolute/path/to/win32\"");
+print("to create the win32 directory:");
+print("cp -r src_tcc/win32 $your_dir");
+print("cp src_tcc/include/* $your_dir/win32/include");
+  throw "Build failure";
+}
+return r;
 };
 build("i386-win32-tcc -c tcc_src/lib/libtcc1.c -o "+mm.cfg.tmpdir+"/i386-win32-libtcc1.o -Btcc_src/win32 -Itcc_src/include");
 build("i386-win32-tcc -c tcc_src/lib/alloca86.S -o "+mm.cfg.tmpdir+"/i386-win32-alloca86.o -Btcc_src/win32 -Itcc_src/include");
