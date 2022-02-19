@@ -70,9 +70,22 @@ exclude={
   "__ashldi3": true,
 };
 
+und=[];
 overrides=[];
 
-  und=[];
+if(plat==="win32"){
+  print("on win32");
+  delete passthrough["strncasecmp"];
+  delete passthrough["strcasecmp"];
+  exclude["strncasecmp"]=true;
+  exclude["strcasecmp"]=true;
+//  und.push({st_name:"strnicmp", sh_name:"und"});
+//  und.push({st_name:"stricmp"});
+  overrides.push(["ljw_crash_strnicmp","strncasecmp"]);
+  overrides.push(["ljw_crash_stricmp","strcasecmp"]);
+};
+
+
   for(var i=0;i<tcc_win32_o.und.length;i++){
     var c=tcc_win32_o.und[i].st_name;
     und.push(c);
@@ -96,14 +109,22 @@ overrides=[];
       my_libc_src.push("ljw_crash_"+s+"(){printf(\"unimplemented: "+s+"\\n\");exit(1);}");
     };
   };
+  if(plat==="win32"){
+    s="strnicmp";
+    my_libc_src.push("ljw_crash_"+s+"(){printf(\"unimplemented: "+s+"\\n\");exit(1);}");
+    s="stricmp";
+    my_libc_src.push("ljw_crash_"+s+"(){printf(\"unimplemented: "+s+"\\n\");exit(1);}");
+    stubs_src.push("ljw_crash_strnicmp();");
+    stubs_src.push("ljw_crash_stricmp();");
+  };
   my_libc_src= my_libc_src.join("\n");
   stubs_src.push("}");
   stubs_src=stubs_src.join("\n");
-//  print("stubs:");
-//  print(stubs_src);
+  print("stubs:");
+  print(stubs_src);
   stubs=mm.load_c_string(stubs_src);
-//  print(JSON.stringify(overrides, null, " "));
-//  print(my_libc_src);
+  print(JSON.stringify(overrides, null, " "));
+  print(my_libc_src);
   my_libc=mm.load_c_string(my_libc_src);
 
 // hack to wire up stdout and stderr (which are file backed stderr.txt/stdout.txt)
