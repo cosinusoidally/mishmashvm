@@ -23,9 +23,9 @@ ctypes.voidptr_t=function(x){
 };
 
 
-print("hello world");
+print("hello world test");
 
-print(my_ffi_call(fn_ptr,3e9,11,12,13));
+//print(my_ffi_call(fn_ptr,3e9,11,12,13));
 print(my_ffi_call(fn_ptr2,get_str_address("libbar.so")));
 print(typeof (new ArrayBuffer(1)));
 print(typeof (new Uint8Array(1)));
@@ -126,7 +126,7 @@ load("mishmashvm.js");
 Date.now=function(){
   t=new Float64Array(1);
   my_ffi_call(date_now_ptr,t);
-  return t[0];
+  return Math.round(t[0]);
 };
 print("Date.now(): "+Date.now());
-test(4);
+//test(4);

@@ -3,3 +3,6 @@
 stderr.txt
 stdout.txt
 *.mpg
+*.exe
+*.dll
+*.swp

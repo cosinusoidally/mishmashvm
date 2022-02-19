@@ -133,7 +133,10 @@ var st=Date.now();
 
 while(1){
 cur=Date.now();
-frame(cur-st);
+d=cur-st;
+if(d>20){
+  frame(d);
+  st=cur;
+};
 my_sdl_main(1);
-st=cur;
 }
