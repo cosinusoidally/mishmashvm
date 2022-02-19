@@ -13,6 +13,31 @@ print(extra);
 tcc_win32_o=mm.load_c_string(read("tcc_src/tcc.c"),{"extra_flags": extra});
 
 passthrough={
+  "malloc": true,
+  "memset": true,
+  "free": true,
+  "strlen": true,
+  "strcpy": true,
+  "realloc": true,
+  "memmove": true,
+  "memcpy": true,
+  "memcmp": true,
+  "sscanf": true,
+  "sprintf": true,
+  "printf": true,
+// might not want to keep getenv
+  "getenv": true,
+  "strchr": true,
+  "strrchr": true,
+  "strcmp": true,
+// need to think about whether I need to avoid
+  "open": true,
+  "_setjmp": true,
+  "read": true,
+  "close": true,
+  "snprintf": true,
+  "lseek": true,
+  "strtol": true,
 };
 
 exclude={
