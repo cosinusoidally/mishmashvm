@@ -164,5 +164,3 @@ build("i386-win32-tcc -ar "+mm.cfg.tmpdir+"/win32/lib/i386-win32-libtcc1.a "+
 return mm.cfg.tmpdir+"/"+x;
 }).join(" ")));
 //../i386-win32-tcc -ar rcs ../i386-win32-libtcc1.a i386-win32-libtcc1.o i386-win32-alloca86.o i386-win32-alloca86-bt.o i386-win32-chkstk.o i386-win32-bcheck.o i386-win32-crt1.o i386-win32-crt1w.o i386-win32-wincrt1.o i386-win32-wincrt1w.o i386-win32-dllcrt1.o i386-win32-dllmain.o
-
-build("i386-win32-tcc -vv "+test_path+"/hello.c");

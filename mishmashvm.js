@@ -14,7 +14,7 @@ tests=[
   {"path":"tests/duktape","script":"duk_mishmashvm.js","description":"Run mishmashvm.js inside Duktape."},
   {"path":"tests/duktape","script":"duk_build_linux.js","description":"Build Duktape for Linux"},
   {"path":"tests/duktape","script":"duk_build_win32.js","description":"Build Duktape for win32"},
-  {"path":"tests/duktape","script":"tcc_win32_load.js","description":"win32 tcc"},
+  {"path":"tests/duktape","script":"tcc_win32_hello.js","description":"win32 tcc"},
 ];
 
 print_tests=function(){
