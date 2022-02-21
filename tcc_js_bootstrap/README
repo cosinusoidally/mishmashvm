@@ -1,6 +1,13 @@
+This  contains the scripts run by the bootstrap scripts do the initial JS->native
+code boostrap of tcc:
+
+01_mk_tcc.js
+02_mk_libc_wrap.js
+03_mk_libc_stubs.js
+
 This directory contains JS version of the Tiny C Compiler (built with
-Emscripten). Does not need rebuilding under normal circumstances (you can just
-use the prebuilt tcc_em.js). 
+Emscripten). The JS compiler itself does not need rebuilding under normal
+circumstances (you can just use the prebuilt tcc_em.js).
 
 If you do need to rebuild you should use a nonfastcomp version of Emscripten
 1.27.0 (which is ancient). Basically:
