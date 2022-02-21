@@ -1,0 +1,23 @@
+This directory contains JS version of the Tiny C Compiler (built with
+Emscripten). Does not need rebuilding under normal circumstances (you can just
+use the prebuilt tcc_em.js). 
+
+If you do need to rebuild you should use a nonfastcomp version of Emscripten
+1.27.0 (which is ancient). Basically:
+
+check out Emscripten 1.27.0
+export EMCC_FAST_COMPILER=0
+Put Emscripten in your path
+run mk_tcc_em
+mv a.out.js tcc_em.js
+cat build_snippet.js >> tcc_em.js
+
+Edit tcc_em.js and remove the call to quit in the following line (near the
+bottom):
+  if (ENVIRONMENT_IS_SHELL && typeof quit === 'function') {
+//    quit(status);
+  }
+
+Full set up instructions for Emscripten are available here (I just used the same
+setup, except I used the 32 bit version of Ubuntu 18.04):
+https://github.com/cosinusoidally/quake-nodejs/blob/master/README.md
