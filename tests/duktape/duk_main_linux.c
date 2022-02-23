@@ -40,7 +40,8 @@ int date_now(double *x){
   return 0;
 }
 
-main(){
+main(int argc,char **argv){
+  char *cmd;
   init();
   FILE *f;
   f=fopen("tests/duktape/duk_mishmashvm_support.js","rb");
@@ -61,5 +62,13 @@ main(){
   sprintf(buf, "print(date_now_ptr=%u);\n",&date_now);
   my_duk_run(buf);
   my_duk_run(b);
-  my_duk_run("test(3)");
+  if(argc>1){
+    puts(argv[1]);
+    cmd=malloc(1024);
+    sprintf(cmd,"load(\"%s\")",argv[1]);
+    printf(cmd);
+    my_duk_run(cmd);
+  } else {
+    my_duk_run("test(3)");
+  }
 }
