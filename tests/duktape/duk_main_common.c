@@ -1,3 +1,29 @@
+void* L[8];
+uint32_t H=0;
+
+int ctypes_open(char *s){
+  printf("Opening lib: %s\n",s);
+#ifdef LIN
+  void *p=dlopen(s,RTLD_LAZY);
+#else
+  void *p=LoadLibrary(s);
+#endif
+  printf("p=%u\n",p);
+  if(p!=NULL){
+    L[H]=p;
+    H++;
+    return H;
+  };
+  return 0;
+}
+
+int ctypes_getsym(uint32_t h,char *s){
+  uint32_t p;
+  printf("C Looking up: %s in %u\n",s,h);
+  p=(uint32_t)dlsym(L[h-1],s);
+  return p;
+}
+
 main(int argc,char **argv){
   char *cmd;
   init();
