@@ -1,5 +1,4 @@
-
-loadRelativeToScript("../lib/setup_platform.js");
+load("../lib/setup_platform.js");
 var st=Date.now();
 print("Setting up virtual filesystem");
 print("set up compiler directories");
@@ -23,7 +22,11 @@ include_files.pop();
 include_files.map(function(x){
 //  print("/"+x+"  tcc_src/"+x);
 //  FS.mkdir(x);
+try{
   FS.writeFile("/tcc_src/"+x,read("tcc_src/"+x));
+} catch (e){
+//  print("missing file");
+}
 });
 print("set up directories");
 include_dirs=(read("include_dirs.txt").split("\n")).map(function(x){
@@ -45,19 +48,23 @@ include_files.pop();
 include_files.map(function(x){
 //  print("/"+x+"  ../includes/"+x);
 //  FS.mkdir(x);
+try{
   FS.writeFile("/"+x,read("../includes/"+x));
+} catch (e){
+//  print("missing file");
+}
 });
 print("Setting up fs took: "+ ((Date.now()-st)/1000)+"s");
 
-print("starting compile");
-st=Date.now();
+function compile(out_name){
+  print("starting compile");
+  st=Date.now();
 
-FS.writeFile("f1.c",read("f1.c"));
+  run();
+  print("compile took: "+ ((Date.now()-st)/1000)+"s");
 
-run();
-print("compile took: "+ ((Date.now()-st)/1000)+"s");
-
-f=libc.fopen("out.o","wb");
-op=FS.readFile("out.o");
-libc.fwrite(op,op.length,1,f);
-
+  f=libc.fopen(out_name,"wb");
+  op=FS.readFile("out.o");
+  libc.fwrite(op,op.length,1,f);
+  libc.fclose(f);
+}

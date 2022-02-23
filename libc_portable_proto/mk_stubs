@@ -1,2 +1,0 @@
-rm stubs.o
-js -e "args='tcc -c stubs.c -O0'" $(which run_tcc.js)

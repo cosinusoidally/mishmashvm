@@ -26,15 +26,14 @@ from the Mozilla site are further down this page).
 ./bootstrap.sh for Linux
 ./bootstrap.bat for win32 (works on Microsoft Windows and Wine)
 
-For usage eg see libc_portable_proto/02.js :
+Usage:
 
-load("runner.js");
-inp=["tcc_bin/tcc_boot3.o", "tcc_bin/libtcc1.o"];
-ar="tcc -nostdinc -nostdlib -o tcc_bin/tcc_boot3.o.new -c ../tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I ../tcc_src/:../includes/usr/include/:../includes/usr/include/i386-linux-gnu/:../includes/tmp/tcc/lib/tcc/include/";
-go();
+js -i mishmashvm.js
 
-As I mentioned, rough and ready but working. The above snippet of js will build
-the object code of tcc.
+will will start the vm, and load the C JIT compiler. You can then run various
+tests (the vm will print out instructions on how).
+
+For examples of how to use the api have a look in the tests directory.
 
 Before running the bootstrap commands you need Spidermonkey 45 (get binaries from
 Mozilla) and SDL 1.2 binaries (not a hard requirment, but needed for some
