@@ -46,6 +46,6 @@ main(int argc,char **argv){
     printf(cmd);
     my_duk_run(cmd);
   } else {
-    my_duk_run("test(3)");
+    printf("mishmashvm duktape, sorry no interactive mode\n");
   }
 }
