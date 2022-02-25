@@ -152,6 +152,10 @@ print("cp tcc_src/include/* $your_dir/win32/include");
 }
 return r;
 };
+
+mm.writeFile("/tmp/blah.txt",
+             "char *duk_boot_code="+JSON.stringify(read(test_path+"/duk_mishmashvm_support.js))+";");
+
 build("i386-win32-tcc -c tcc_src/lib/libtcc1.c -o "+mm.cfg.tmpdir+"/i386-win32-libtcc1.o -Btcc_src/win32 -Itcc_src/include");
 build("i386-win32-tcc -c tcc_src/lib/alloca86.S -o "+mm.cfg.tmpdir+"/i386-win32-alloca86.o -Btcc_src/win32 -Itcc_src/include");
 build("i386-win32-tcc -c tcc_src/lib/alloca86-bt.S -o "+mm.cfg.tmpdir+"/i386-win32-alloca86-bt.o -Btcc_src/win32 -Itcc_src/include");
