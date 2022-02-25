@@ -41,9 +41,14 @@ main(int argc,char **argv){
   my_duk_run(duk_boot_code);
   if(argc>1){
     puts(argv[1]);
-    cmd=malloc(1024);
+    int l=strlen(argv[1]);
+    printf("l=%d\n",l);
+    cmd=malloc(l+40);
+    for(int i=0;i<l;i++){
+      if(argv[1][i]=='\\'){argv[1][i]='/';}
+    }
     sprintf(cmd,"load(\"%s\")",argv[1]);
-    printf(cmd);
+    puts(cmd);
     my_duk_run(cmd);
   } else {
     printf("mishmashvm duktape, sorry no interactive mode\n");
