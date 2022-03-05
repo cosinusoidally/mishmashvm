@@ -58,12 +58,11 @@ function js_realloc(ptr,size){
 };
 
 function js_free(ptr){
-  // temp disable zeroing whilst troubleshooting crash
-  return 0;
 //  return libc.free(ptr);
 //  print("js_free called");
   var offset=ptr-mem_ptr;
   if(ptr!==0){
+//    print("freeing:"+allocations[ptr].size);
     for(var i=0;i<allocations[ptr].size;i++){
       mem_u8[offset+i]=0;
     };
@@ -102,10 +101,11 @@ print("my realloc:"+my_realloc_callback);
 
 function my_free(ptr){
 //  print("my_free called: "+ptr);
+  js_free(ptr);
   if(allocations[ptr]){
     allocations[ptr].size=0;
   };
-  return js_free(ptr);
+  return 0;
 };
 
 var my_free_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
