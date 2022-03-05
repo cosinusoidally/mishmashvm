@@ -5,16 +5,40 @@ allocations={};
 
 mem=new ArrayBuffer(1024*1024);
 
+var off=0;
+
 function js_malloc(p){
-  return libc.malloc(p);
+//  print("js_malloc called:"+p);
+  if(off+p>mem.length){
+    print("out of memory");
+    quit();
+  };
+  var ptr=mem_ptr+off;
+  off=off+p;
+  return ptr;
 };
 
 function js_realloc(ptr,size){
-  return libc.realloc(ptr,size);
+//  print("js_realloc called:"+ptr+" "+size);
+  if(ptr===0){
+    return my_malloc(size);
+  };
+  if(off+size>mem.length){
+    print("out of memory");
+    quit();
+  };
+  var new_ptr=mem_ptr+off;
+  var old_off=ptr-allocations[ptr].ptr;
+  for(var i=old_off;i<old_off+allocations[ptr].size;i++){
+    mem[off+i]=mem[old_off+i];
+  };
+  off=off+size;
+  return new_ptr;
 };
 
 function js_free(ptr){
-  return libc.free(ptr);
+//  return libc.free(ptr);
+  return 0;
 };
 
 function my_malloc(p){
