@@ -4,14 +4,15 @@ load("lib/gen_wrap.js");
 allocations={};
 
 mem=new ArrayBuffer(1024*1024);
+mem_u8=new Uint8Array(mem);
 
 var off=0;
 
 function js_malloc(p){
 //  print("js_malloc called:"+p);
-  if(off+p>mem.length){
-    print("out of memory");
-    quit();
+  if(off+p>mem_u8.length){
+    print("js_malloc out of memory");
+    exit(1);
   };
   var ptr=mem_ptr+off;
   off=off+p;
@@ -23,14 +24,14 @@ function js_realloc(ptr,size){
   if(ptr===0){
     return my_malloc(size);
   };
-  if(off+size>mem.length){
-    print("out of memory");
-    quit();
+  if(off+size>mem_u8.length){
+    print("js_realloc out of memory");
+    exit(1);
   };
   var new_ptr=mem_ptr+off;
   var old_off=ptr-allocations[ptr].ptr;
   for(var i=old_off;i<old_off+allocations[ptr].size;i++){
-    mem[off+i]=mem[old_off+i];
+    mem_u8[off+i]=mem_u8[old_off+i];
   };
   off=off+size;
   return new_ptr;
@@ -231,7 +232,7 @@ init();
 
 duk_run("print('hello world from duktape')");
 
-teardown();
+//teardown();
 //print(JSON.stringify(allocations));
 /*
 total_mem=0;
@@ -245,3 +246,4 @@ print("total mem leaked: "+total_mem);
 */
 a=new Uint32Array(100);
 print(get_addr(a));
+exit=duk.get_fn("exit");
