@@ -1,9 +1,13 @@
 print("Duktape loading....");
 load("lib/gen_wrap.js");
 
+allocations={};
+
 function my_malloc(p){
-  print("my_malloc called: "+p);
-  return libc.malloc(p);
+//  print("my_malloc called: "+p);
+  var ptr=libc.malloc(p);
+  allocations[ptr]={ptr:ptr,size:p};
+  return ptr;
 };
 
 var my_malloc_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
@@ -13,7 +17,7 @@ var my_malloc_callback = ctypes.cast(my_malloc_type.ptr(my_malloc),ctypes.uint32
 print("my malloc:"+my_malloc_callback);
 
 function my_realloc(ptr,size){
-  print("my_realloc called: "+ptr+" "+size);
+//  print("my_realloc called: "+ptr+" "+size);
   return libc.realloc(ptr,size);
 };
 
@@ -24,7 +28,7 @@ var my_realloc_callback = ctypes.cast(my_realloc_type.ptr(my_realloc),ctypes.uin
 print("my realloc:"+my_realloc_callback);
 
 function my_free(ptr){
-  print("my_free called: "+ptr);
+//  print("my_free called: "+ptr);
   return libc.free(ptr);
 };
 
@@ -177,3 +181,4 @@ teardown=duk.get_fn("teardown");
 init();
 
 duk_run("print('hello world from duktape')");
+print(JSON.stringify(allocations));
