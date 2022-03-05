@@ -83,9 +83,28 @@ for(var i=0;i<und.length;i++){
     my_libc_src.push("ljw_crash_"+s+"(){printf(\"unimplemented: "+s+"\\n\");exit(1);}");
   };
 };
+
+stubs_src.push("ljw_malloc();");
+stubs_src.push("ljw_realloc();");
+stubs_src.push("ljw_free();");
+overrides.push(["ljw_malloc","malloc"]);
+overrides.push(["ljw_realloc","realloc"]);
+overrides.push(["ljw_free","free"]);
+
+my_libc_src.push("\n\
+void * ljw_malloc(unsigned int m){\n\
+  printf(\"called: ljw_malloc %u\\n\",m);\n\
+  return malloc(m);\n\
+}");
+
+my_libc_src.push("ljw_realloc(){printf(\"unimplemented: ljw_realloc\\n\");exit(1);}");
+
+my_libc_src.push("ljw_free(){printf(\"unimplemented: ljw_free\\n\");exit(1);}");
+
 my_libc_src= my_libc_src.join("\n");
 stubs_src.push("}");
 stubs_src=stubs_src.join("\n");
+
 //  print("stubs:");
 //  print(stubs_src);
 stubs=mm.load_c_string(stubs_src);
