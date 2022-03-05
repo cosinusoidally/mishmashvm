@@ -3,9 +3,23 @@ load("lib/gen_wrap.js");
 
 allocations={};
 
+mem=new ArrayBuffer(1024*1024);
+
+function js_malloc(p){
+  return libc.malloc(p);
+};
+
+function js_realloc(ptr,size){
+  return libc.realloc(ptr,size);
+};
+
+function js_free(ptr){
+  return libc.free(ptr);
+};
+
 function my_malloc(p){
 //  print("my_malloc called: "+p);
-  var ptr=libc.malloc(p);
+  var ptr=js_malloc(p);
   allocations[ptr]={ptr:ptr,size:p};
   return ptr;
 };
@@ -18,7 +32,7 @@ print("my malloc:"+my_malloc_callback);
 
 function my_realloc(ptr,size){
 //  print("my_realloc called: "+ptr+" "+size);
-  var new_ptr=libc.realloc(ptr,size);
+  var new_ptr=js_realloc(ptr,size);
   if(allocations[ptr]){
     allocations[ptr].size=0;
   };
@@ -37,7 +51,7 @@ function my_free(ptr){
   if(allocations[ptr]){
     allocations[ptr].size=0;
   };
-  return libc.free(ptr);
+  return js_free(ptr);
 };
 
 var my_free_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
@@ -172,6 +186,9 @@ my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
 duk=mm.link([duktape,duk_glue,my_wrap,libtcc1]);
 
+get_addr=duk.get_fn("my_get_address");
+mem_ptr=get_addr(mem);
+print("memory: "+mem_ptr);
 print("Load complete!");
 print();
 dummy_main=duk.get_fn("dummy_main");
@@ -192,6 +209,7 @@ duk_run("print('hello world from duktape')");
 
 teardown();
 //print(JSON.stringify(allocations));
+/*
 total_mem=0;
 for(i in allocations){
   if((m=allocations[i].size)!==0){
@@ -200,7 +218,6 @@ for(i in allocations){
   total_mem=total_mem+m;
 };
 print("total mem leaked: "+total_mem);
-
-get_addr=duk.get_fn("my_get_address");
+*/
 a=new Uint32Array(100);
 print(get_addr(a));
