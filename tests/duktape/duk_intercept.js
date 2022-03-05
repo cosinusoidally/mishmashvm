@@ -293,7 +293,7 @@ fb=new Uint8ClampedArray(fb_r);
 
 function frame (){
   for(var i=0;i<mem_u8.length;i++){
-    fb[i*4]=mem_u8[i];
+    fb[i*4+1]=mem_u8[i];
   };
 };
 lib.get_fn("init_sdl")(width,height);
