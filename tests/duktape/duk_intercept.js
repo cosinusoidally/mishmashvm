@@ -12,12 +12,12 @@ libtcc1=mm.load_c_string(read("tcc_src/lib/libtcc1.c"));
 dump_und=true;
 
 passthrough={
-  "malloc": true,
+//  "malloc": true,
   "memset": true,
   "memcpy": true,
-  "realloc": true,
+//  "realloc": true,
   "memmove": true,
-  "free": true,
+//  "free": true,
   "memcmp": true,
   "strlen": true,
   "_setjmp": true,
@@ -53,6 +53,9 @@ exclude={
   "__fixdfdi": true,
   "__fixunsdfdi": true,
   "__lshrdi3": true,
+  "malloc": true,
+  "realloc": true,
+  "free": true,
 }
 overrides=[];
 
@@ -111,3 +114,5 @@ return duk_run_raw("try {"+s+"}catch(e){print(e)}")
 init=duk.get_fn("init");
 teardown=duk.get_fn("teardown");
 init();
+
+duk_run("print('hello world from duktape')");
