@@ -12,6 +12,17 @@ var my_malloc_callback = ctypes.cast(my_malloc_type.ptr(my_malloc),ctypes.uint32
 
 print("my malloc:"+my_malloc_callback);
 
+function my_realloc(ptr,size){
+  print("my_realloc called: "+ptr+" "+size);
+  return libc.realloc(ptr,size);
+};
+
+var my_realloc_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t]);
+
+var my_realloc_callback = ctypes.cast(my_realloc_type.ptr(my_realloc),ctypes.uint32_t).value;
+
+print("my realloc:"+my_realloc_callback);
+
 duk_srcdir=test_path+"/duktape_src/";
 
 duk_glue=mm.load_c_string(read(test_path+"/duk_glue.c"),{extra_flags:"-I "+duk_srcdir});
@@ -110,9 +121,10 @@ void * ljw_malloc(unsigned int m){\n\
 }");
 
 my_libc_src.push("\n\
+typedef void * (* my_realloc)(unsigned int ptr,unsigned int size);\n\
 void * ljw_realloc(unsigned int ptr,unsigned int size){\n\
-  printf(\"called: ljw_realloc %u %u\\n\",ptr,size);\n\
-  return realloc(ptr,size);\n\
+//  printf(\"called: ljw_realloc %u %u\\n\",ptr,size);\n\
+  return ((my_realloc)"+my_realloc_callback+")(ptr,size);\n\
 }");
 
 my_libc_src.push("\n\
