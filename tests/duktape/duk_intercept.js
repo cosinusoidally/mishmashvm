@@ -58,6 +58,8 @@ function js_realloc(ptr,size){
 };
 
 function js_free(ptr){
+  // temp disable zeroing whilst troubleshooting crash
+  return 0;
 //  return libc.free(ptr);
 //  print("js_free called");
   var offset=ptr-mem_ptr;
@@ -276,3 +278,28 @@ print(get_addr(a));
 exit=duk.get_fn("exit");
 duk_run("print('hello again')");
 duk_run(read(test_path+"/tests_intercept.js"));
+load("lib/setup_sdl.js");
+obj_code=mm.load_c_string(read(test_path+"/../sdl/simple_sdl.c"));
+lib=mm.link([obj_code,libsdl.syms,mm.libc_compat]);
+
+width=1024;
+height=1024;
+
+fb_r=new ArrayBuffer(width*height*4);
+fb=new Uint8ClampedArray(fb_r);
+
+function frame (){
+  for(var i=0;i<mem_u8.length;i++){
+    fb[i*4]=mem_u8[i];
+  };
+};
+lib.get_fn("init_sdl")(width,height);
+
+function update(){
+frame();
+libc.memcpy(lib.get_fn("get_framebuffer_sdl")(),fb,fb.length);
+lib.get_fn("my_sdl_process_events")();
+lib.get_fn("my_sdl_main")();
+};
+update();
+//duk_run("print('hello again2')");
