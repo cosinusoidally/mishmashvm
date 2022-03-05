@@ -79,7 +79,8 @@ function my_malloc(p){
 
 var my_malloc_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
 
-var my_malloc_callback = ctypes.cast(my_malloc_type.ptr(my_malloc),ctypes.uint32_t).value;
+var my_malloc_callback_handle = my_malloc_type.ptr(my_malloc);
+var my_malloc_callback = ctypes.cast( my_malloc_callback_handle,ctypes.uint32_t).value;
 
 print("my malloc:"+my_malloc_callback);
 
@@ -95,7 +96,8 @@ function my_realloc(ptr,size){
 
 var my_realloc_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t]);
 
-var my_realloc_callback = ctypes.cast(my_realloc_type.ptr(my_realloc),ctypes.uint32_t).value;
+var my_realloc_callback_handle = my_realloc_type.ptr(my_realloc);
+var my_realloc_callback = ctypes.cast(my_realloc_callback_handle,ctypes.uint32_t).value;
 
 print("my realloc:"+my_realloc_callback);
 
@@ -110,7 +112,8 @@ function my_free(ptr){
 
 var my_free_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
 
-var my_free_callback = ctypes.cast(my_free_type.ptr(my_free),ctypes.uint32_t).value;
+var my_free_callback_handle = my_free_type.ptr(my_free);
+var my_free_callback = ctypes.cast(my_free_callback_handle,ctypes.uint32_t).value;
 
 print("my free:"+my_free_callback);
 
@@ -254,7 +257,6 @@ duk_run_raw=duk.get_fn("my_duk_run");
 duk_run=function(s){
 return duk_run_raw("try {"+s+"}catch(e){print(e)}")
 };
-
 init=duk.get_fn("init");
 teardown=duk.get_fn("teardown");
 init();
@@ -278,6 +280,7 @@ print(get_addr(a));
 exit=duk.get_fn("exit");
 duk_run("print('hello again')");
 duk_run(read(test_path+"/tests_intercept.js"));
+
 load("lib/setup_sdl.js");
 obj_code=mm.load_c_string(read(test_path+"/../sdl/simple_sdl.c"));
 lib=mm.link([obj_code,libsdl.syms,mm.libc_compat]);
@@ -302,4 +305,5 @@ lib.get_fn("my_sdl_process_events")();
 lib.get_fn("my_sdl_main")();
 };
 update();
-//duk_run("print('hello again2')");
+
+duk_run("print('hello again2')");
