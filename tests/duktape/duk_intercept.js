@@ -18,7 +18,12 @@ print("my malloc:"+my_malloc_callback);
 
 function my_realloc(ptr,size){
 //  print("my_realloc called: "+ptr+" "+size);
-  return libc.realloc(ptr,size);
+  var new_ptr=libc.realloc(ptr,size);
+  if(allocations[ptr]){
+    allocations[ptr].size=0;
+  };
+  allocations[new_ptr]={ptr:new_ptr,size:size};
+  return new_ptr;
 };
 
 var my_realloc_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t]);
@@ -29,6 +34,9 @@ print("my realloc:"+my_realloc_callback);
 
 function my_free(ptr){
 //  print("my_free called: "+ptr);
+  if(allocations[ptr]){
+    allocations[ptr].size=0;
+  };
   return libc.free(ptr);
 };
 
@@ -181,4 +189,14 @@ teardown=duk.get_fn("teardown");
 init();
 
 duk_run("print('hello world from duktape')");
-print(JSON.stringify(allocations));
+
+teardown();
+//print(JSON.stringify(allocations));
+total_mem=0;
+for(i in allocations){
+  if((m=allocations[i].size)!==0){
+    print("Leak: "+JSON.stringify(allocations[i]));
+  };
+  total_mem=total_mem+m;
+};
+print("total mem leaked: "+total_mem);
