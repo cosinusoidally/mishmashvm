@@ -3,23 +3,34 @@ load("lib/gen_wrap.js");
 
 allocations={};
 
-mem=new ArrayBuffer(1024*1024);
+mem=new ArrayBuffer(64*1024*1024);
 mem_u8=new Uint8Array(mem);
 
 var off=0;
 
+function align_16(x){
+  if(x === (x & 0xfffffff0)){
+    return x;
+  } else {
+    return 16+(x & 0xfffffff0);
+  };
+};
+
 function js_malloc(p){
+//  return libc.malloc(p);
 //  print("js_malloc called:"+p);
   if(off+p>mem_u8.length){
     print("js_malloc out of memory");
     exit(1);
   };
   var ptr=mem_ptr+off;
-  off=off+p;
+  off=align_16(off+p);
+//  print(off.toString(16));
   return ptr;
 };
 
 function js_realloc(ptr,size){
+//  return libc.realloc(ptr,size);
 //  print("js_realloc called:"+ptr+" "+size);
   if(ptr===0){
     return my_malloc(size);
@@ -33,7 +44,8 @@ function js_realloc(ptr,size){
   for(var i=old_off;i<old_off+allocations[ptr].size;i++){
     mem_u8[off+i]=mem_u8[old_off+i];
   };
-  off=off+size;
+  off=align_16(off+size);
+//  print(off.toString(16));
   return new_ptr;
 };
 
@@ -247,3 +259,4 @@ print("total mem leaked: "+total_mem);
 a=new Uint32Array(100);
 print(get_addr(a));
 exit=duk.get_fn("exit");
+duk_run(read(test_path+"/tests_intercept.js"));
