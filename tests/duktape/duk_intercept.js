@@ -97,9 +97,17 @@ void * ljw_malloc(unsigned int m){\n\
   return malloc(m);\n\
 }");
 
-my_libc_src.push("ljw_realloc(){printf(\"unimplemented: ljw_realloc\\n\");exit(1);}");
+my_libc_src.push("\n\
+void * ljw_realloc(unsigned int ptr,unsigned int size){\n\
+  printf(\"called: ljw_realloc %u %u\\n\",ptr,size);\n\
+  return realloc(ptr,size);\n\
+}");
 
-my_libc_src.push("ljw_free(){printf(\"unimplemented: ljw_free\\n\");exit(1);}");
+my_libc_src.push("\n\
+unsigned int ljw_free(unsigned int ptr){\n\
+  printf(\"called: ljw_free %u\\n\",ptr);\n\
+  return free(ptr);\n\
+}");
 
 my_libc_src= my_libc_src.join("\n");
 stubs_src.push("}");
