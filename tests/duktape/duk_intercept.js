@@ -1,6 +1,17 @@
 print("Duktape loading....");
 load("lib/gen_wrap.js");
 
+function my_malloc(p){
+  print("my_malloc called: "+p);
+  return libc.malloc(p);
+};
+
+var my_malloc_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
+
+var my_malloc_callback = ctypes.cast(my_malloc_type.ptr(my_malloc),ctypes.uint32_t).value;
+
+print("my malloc:"+my_malloc_callback);
+
 duk_srcdir=test_path+"/duktape_src/";
 
 duk_glue=mm.load_c_string(read(test_path+"/duk_glue.c"),{extra_flags:"-I "+duk_srcdir});
@@ -92,9 +103,10 @@ overrides.push(["ljw_realloc","realloc"]);
 overrides.push(["ljw_free","free"]);
 
 my_libc_src.push("\n\
+typedef void * (* my_malloc)(unsigned int m);\n\
 void * ljw_malloc(unsigned int m){\n\
-  printf(\"called: ljw_malloc %u\\n\",m);\n\
-  return malloc(m);\n\
+//  printf(\"called: ljw_malloc %u\\n\",m);\n\
+  return ((my_malloc)"+my_malloc_callback+")(m);\n\
 }");
 
 my_libc_src.push("\n\
