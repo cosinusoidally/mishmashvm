@@ -23,6 +23,17 @@ var my_realloc_callback = ctypes.cast(my_realloc_type.ptr(my_realloc),ctypes.uin
 
 print("my realloc:"+my_realloc_callback);
 
+function my_free(ptr){
+  print("my_free called: "+ptr);
+  return libc.free(ptr);
+};
+
+var my_free_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
+
+var my_free_callback = ctypes.cast(my_free_type.ptr(my_free),ctypes.uint32_t).value;
+
+print("my free:"+my_free_callback);
+
 duk_srcdir=test_path+"/duktape_src/";
 
 duk_glue=mm.load_c_string(read(test_path+"/duk_glue.c"),{extra_flags:"-I "+duk_srcdir});
@@ -128,9 +139,10 @@ void * ljw_realloc(unsigned int ptr,unsigned int size){\n\
 }");
 
 my_libc_src.push("\n\
+typedef unsigned int (* my_free)(unsigned int ptr);\n\
 unsigned int ljw_free(unsigned int ptr){\n\
-  printf(\"called: ljw_free %u\\n\",ptr);\n\
-  return free(ptr);\n\
+//  printf(\"called: ljw_free %u\\n\",ptr);\n\
+  return ((my_free)"+my_free_callback+")(ptr);\n\
 }");
 
 my_libc_src= my_libc_src.join("\n");
