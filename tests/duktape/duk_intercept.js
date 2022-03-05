@@ -3,7 +3,7 @@ load("lib/gen_wrap.js");
 
 allocations={};
 
-mem=new ArrayBuffer(64*1024*1024);
+mem=new ArrayBuffer(1024*1024);
 mem_u8=new Uint8Array(mem);
 
 var off=0;
@@ -35,13 +35,21 @@ function js_realloc(ptr,size){
   if(ptr===0){
     return my_malloc(size);
   };
+  if(size<=allocations[ptr].size){
+    return ptr;
+  };
+  var old_size=allocations[ptr].size;
   if(off+size>mem_u8.length){
     print("js_realloc out of memory");
     exit(1);
   };
   var new_ptr=mem_ptr+off;
-  var old_off=ptr-allocations[ptr].ptr;
-  for(var i=old_off;i<old_off+allocations[ptr].size;i++){
+  var old_off=allocations[ptr].ptr-mem_ptr;
+//  print("old:"+old_off.toString(16));
+//  print("old size:"+old_size);
+//  print("new size:"+size);
+//  for(var i=old_off;i<old_off+allocations[ptr].size;i++){
+  for(var i=0;i<old_size;i++){
     mem_u8[off+i]=mem_u8[old_off+i];
   };
   off=align_16(off+size);
@@ -51,6 +59,7 @@ function js_realloc(ptr,size){
 
 function js_free(ptr){
 //  return libc.free(ptr);
+//  print("js_free called");
   return 0;
 };
 
@@ -259,4 +268,5 @@ print("total mem leaked: "+total_mem);
 a=new Uint32Array(100);
 print(get_addr(a));
 exit=duk.get_fn("exit");
+duk_run("print('hello again')");
 duk_run(read(test_path+"/tests_intercept.js"));

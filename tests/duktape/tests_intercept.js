@@ -1,8 +1,7 @@
-print();
 print("Putting Duktape through its paces");
 print("=================================");
 print('Some simple maths: 2 + 3 = '+ (2+3));
-/*
+
 print("Test the mandelbrot demo from the duktape repo:");
 
 function mandel() {
@@ -46,51 +45,23 @@ function mandel() {
     }
 }
 
-try {
-    mandel();
-} catch (e) {
-    print(e.stack || e);
+mandel();
+
+read=function(x,y){
+  if(arguments.length>1){
+    if(y==="binary"){
+      return readFile(x);
+    };
+  };
+  return buf_to_string(readFile(x));
 }
 
-print("Let's try throwing an error as that needs longjmp");
-try {
-  print("Throwing error ...");
-  throw "error";
-} catch (e){
-  print("... caught error");
-}
+function load(x){
+  print(x);
+  // stubbing out use of lib files since the compat later hasn't
+  // been written yet
+  if(x==="../lib/setup_platform.js"){return;};
+  eval.call(this,read(x));
+};
 
-print("Some maths:");
-print("Math.E: ",Math.E);
-print("Math.LN2: ",Math.LN2);
-print("Math.LN10: ",Math.LN10);
-print("Math.LOG2E: ",Math.LOG2E);
-print("Math.LOG10E: ",Math.LOG10E);
-print("Math.PI: ",Math.PI);
-print("Math.SQRT1_2: ",Math.SQRT1_2);
-print("Math.SQRT2: ",Math.SQRT2);
-print("Math.abs(1): "+Math.abs(1));
-print("Math.abs(-1): "+Math.abs(-1));
-print("Math.acos(0): "+Math.acos(0));
-print("Math.asin(0): "+Math.asin(0));
-print("Math.atan(0): "+Math.atan(0));
-print("Math.sin(1): "+Math.sin(1));
-print("Math.cos(1): "+Math.cos(1));
-print("Math.tan(1): "+Math.tan(1));
-print("Math.pow(2,2): "+Math.pow(2,2));
-print("Some hyperbolic functions seem to be missing in duktape");
-
-try {
-  print("Math.acosh(0): "+Math.acosh(0));
-  print("Math.asinh(0): "+Math.asinh(0));
-  print("Math.atanh(0): "+Math.atanh(0));
-} catch (e) {
-  print("Caught error for missing functions: "+e);
-}
-
-var foo={};
-
-foo["bar"]="Hello";
-print(foo["bar"]==="Hello");
-print(JSON.stringify(foo));
-*/
+load("tests/duktape/tests.js");
