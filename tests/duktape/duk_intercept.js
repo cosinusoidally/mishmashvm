@@ -35,6 +35,11 @@ function js_realloc(ptr,size){
   if(ptr===0){
     return my_malloc(size);
   };
+  if(size===0){
+    print("realloc 0");
+//    my_free(ptr);
+//    return ptr;
+  };
   if(size<=allocations[ptr].size){
     return ptr;
   };
@@ -265,16 +270,16 @@ duk_run("print('hello world from duktape')");
 
 //teardown();
 //print(JSON.stringify(allocations));
-/*
-total_mem=0;
-for(i in allocations){
-  if((m=allocations[i].size)!==0){
-    print("Leak: "+JSON.stringify(allocations[i]));
+function check_leak(){
+  total_mem=0;
+  for(i in allocations){
+    if((m=allocations[i].size)!==0){
+      print("Leak: "+JSON.stringify(allocations[i]));
+    };
+    total_mem=total_mem+m;
   };
-  total_mem=total_mem+m;
+  print("total mem leaked: "+total_mem);
 };
-print("total mem leaked: "+total_mem);
-*/
 a=new Uint32Array(100);
 print(get_addr(a));
 exit=duk.get_fn("exit");
