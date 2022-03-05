@@ -200,3 +200,7 @@ for(i in allocations){
   total_mem=total_mem+m;
 };
 print("total mem leaked: "+total_mem);
+
+get_addr=duk.get_fn("my_get_address");
+a=new Uint32Array(100);
+print(get_addr(a));
