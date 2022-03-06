@@ -297,14 +297,13 @@ better_alloc=(function(m){
       print("realloc out of memory");
       exit(1);
     };
-    var new_ptr=m_p+off;
+    var new_ptr=malloc(size);
     var old_off=chunks[ptr].ptr-m_p;
+    var new_off=chunks[new_ptr].ptr-m_p;
     for(var i=0;i<Math.min(old_size,size);i++){
-      m_u8[off+i]=m_u8[old_off+i];
+      m_u8[new_off+i]=m_u8[old_off+i];
     };
-    off=align_16(off+size);
     my_free(ptr);
-    chunks[new_ptr]={ptr:new_ptr,size:size};
     return new_ptr;
   };
 
