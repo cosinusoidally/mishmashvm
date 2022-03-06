@@ -264,7 +264,7 @@ better_alloc=(function(m){
   var bn=0;
   var chunks={};
   function round_up16(x){
-    var y=(x>>>4)<<4);
+    var y=(x>>>4)<<4;
     if(x>y){y=y+16};
     return y;
   };
