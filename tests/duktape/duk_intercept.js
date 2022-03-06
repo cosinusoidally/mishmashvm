@@ -59,6 +59,7 @@ function js_realloc(ptr,size){
   };
   off=align_16(off+size);
 //  print(off.toString(16));
+  my_free(ptr);
   return new_ptr;
 };
 
