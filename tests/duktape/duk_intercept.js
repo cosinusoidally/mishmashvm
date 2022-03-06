@@ -262,18 +262,18 @@ better_alloc=(function(m){
   print("Memory size: "+m_u8.length);
   print("Memory blocks: "+blocks.length);
   chunks={};
-  function malloc(p){
-  //  print("js_malloc called:"+p);
-    if(p===0){
+  function malloc(size){
+  //  print("js_malloc called:"+size);
+    if(size===0){
   //    print("zero size malloc");
-      p=1;
+      size=1;
     };
-    if(off+p>mem_u8.length){
+    if(off+size>m_u8.length){
       print("malloc out of memory");
       exit(1);
     };
-    var ptr=mem_ptr+off;
-    off=align_16(off+p);
+    var ptr=m_p+off;
+    off=align_16(off+size);
   //  print(off.toString(16));
     return ptr;
   };
@@ -289,17 +289,17 @@ better_alloc=(function(m){
       return 0;
     };
     var old_size=allocations[ptr].size;
-    if(off+size>mem_u8.length){
+    if(off+size>m_u8.length){
       print("js_realloc out of memory");
       exit(1);
     };
-    var new_ptr=mem_ptr+off;
-    var old_off=allocations[ptr].ptr-mem_ptr;
+    var new_ptr=m_p+off;
+    var old_off=allocations[ptr].ptr-m_p;
   //  print("old:"+old_off.toString(16));
   //  print("old size:"+old_size);
   //  print("new size:"+size);
     for(var i=0;i<Math.min(old_size,size);i++){
-      mem_u8[off+i]=mem_u8[old_off+i];
+      m_u8[off+i]=m_u8[old_off+i];
     };
     off=align_16(off+size);
   //  print(off.toString(16));
@@ -310,11 +310,11 @@ better_alloc=(function(m){
   function free(ptr){
   //  return libc.free(ptr);
   //  print("js_free called");
-    var offset=ptr-mem_ptr;
+    var offset=ptr-m_p;
     if(ptr!==0){
   //    print("freeing:"+allocations[ptr].size);
       for(var i=0;i<allocations[ptr].size;i++){
-        mem_u8[offset+i]=0;
+        m_u8[offset+i]=0;
       };
     };
     return 0;
