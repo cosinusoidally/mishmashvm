@@ -279,12 +279,13 @@ better_alloc=(function(m){
     };
     var ptr=m_p+off;
     off=align_16(off+size);
+    chunks[ptr]={ptr:ptr,size:size};
     return ptr;
   };
 
   function realloc(ptr,size){
     if(ptr===0){
-    return my_malloc(size);
+    return malloc(size);
     };
     if(size===0){
       my_free(ptr);
@@ -292,23 +293,24 @@ better_alloc=(function(m){
     };
     var old_size=allocations[ptr].size;
     if(off+size>m_u8.length){
-      print("js_realloc out of memory");
+      print("realloc out of memory");
       exit(1);
     };
     var new_ptr=m_p+off;
-    var old_off=allocations[ptr].ptr-m_p;
+    var old_off=chunks[ptr].ptr-m_p;
     for(var i=0;i<Math.min(old_size,size);i++){
       m_u8[off+i]=m_u8[old_off+i];
     };
     off=align_16(off+size);
     my_free(ptr);
+    chunks[new_ptr]={ptr:new_ptr,size:size};
     return new_ptr;
   };
 
   function free(ptr){
     var offset=ptr-m_p;
     if(ptr!==0){
-      for(var i=0;i<allocations[ptr].size;i++){
+      for(var i=0;i<chunks[ptr].size;i++){
         m_u8[offset+i]=0;
       };
     };
