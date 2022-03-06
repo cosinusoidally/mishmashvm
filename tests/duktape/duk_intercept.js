@@ -311,13 +311,24 @@ better_alloc=(function(m){
     var l=chunks[ptr].size;
     var o=Math.min(l,size);
     for(var i=0;i<o;i++){
-      m_u8[p-m_p]=m_u8[ptr-m_p];
+      m_u8[i+p-m_p]=m_u8[i+ptr-m_p];
     };
-    return 0;
+    return p;
   };
   function free(ptr){
     print("better free");
-    exit(1);
+    return 0;
+    if(ptr===0){
+      return 0;
+    };
+    var cs=chunks[ptr];
+    print(JSON.stringify(cs));
+    var bs=((cs.ptr-m_p)>>>4);
+    var rs=(cs.round_size)>>>4;
+    for(var i=bs;i<rs;i++){
+      blocks[i]=0;
+    };
+    delete chunks[ptr];
     return 0;
   };
 
