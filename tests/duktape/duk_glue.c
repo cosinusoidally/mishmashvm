@@ -181,3 +181,7 @@ int my_duk_run(char *s){
 int dummy_wrap(){
   return my_duk_run("print('hi')");
 }
+
+uint32_t my_get_address(uint32_t a){
+  return a;
+}

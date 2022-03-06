@@ -122,7 +122,6 @@ libc.puts("Hello world from duktape via js-ctypes");
 print(libc.malloc_fntype.ptr);
 */
 
-load("mishmashvm.js");
 Date.now=function(){
   t=new Float64Array(1);
   my_ffi_call(date_now_ptr,t);
