@@ -251,6 +251,7 @@ my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
 duk=mm.link([duktape,duk_glue,my_wrap,libtcc1]);
 
+exit=duk.get_fn("exit");
 get_addr=duk.get_fn("my_get_address");
 mem_ptr=get_addr(mem);
 
@@ -269,19 +270,54 @@ better_alloc=(function(m){
     return y;
   };
   function alloc(size){
-    var sr=round_up16(size);
-    return 16*bn+m_p;
+    var sr=round_up16(size)>>>4;
+    var n=bn;
+    var nb=0;
+    var no_space=true;
+    while(nb!=sr){
+      if(blocks[n]===0){
+        nb++;
+      };
+      no_space=false;
+    };
+    if(no_space){
+      print("No space");
+      exit(1);
+    };
+    var r=16*bn+m_p;
+    bn=bn+nb;
+    chunks[r]={ptr:r,size:size,round_size:sr<<4};
+    print();
+    print("size:"+size);
+    print("round size:"+(sr<<4));
+    print("pointer:"+r);
+    return r;
   };
   function malloc(size){
     print("better malloc");
+    if(size===0){size=1;};
     return alloc(size);
   };
   function realloc(ptr,size){
     print("better realloc");
+
+    if(ptr===0){
+      return alloc(size);
+    };
+    if(size===0){
+      free(ptr);
+    };
+    var p=alloc(size);
+    var l=chunks[ptr].size;
+    var o=Math.min(l,size);
+    for(var i=0;i<o;i++){
+      m_u8[p-m_p]=m_u8[ptr-m_p];
+    };
     return 0;
   };
-  function free(){
+  function free(ptr){
     print("better free");
+    exit(1);
     return 0;
   };
 
@@ -324,7 +360,6 @@ function check_leak(){
 };
 a=new Uint32Array(100);
 print(get_addr(a));
-exit=duk.get_fn("exit");
 duk_run("print('hello again')");
 duk_run(read(test_path+"/tests_intercept.js"));
 
