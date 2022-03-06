@@ -77,6 +77,7 @@ function js_free(ptr){
   return 0;
 };
 
+
 function my_malloc(p){
 //  print("my_malloc called: "+p);
   var ptr=js_malloc(p);
@@ -252,6 +253,45 @@ duk=mm.link([duktape,duk_glue,my_wrap,libtcc1]);
 
 get_addr=duk.get_fn("my_get_address");
 mem_ptr=get_addr(mem);
+
+better_alloc=(function(m){
+  var m_p=get_addr(m);
+  var m_u8=new Uint8Array(m);
+  var blocks=new Uint8Array(m_u8.length>>>4);
+  print("Memory: "+m_p);
+  print("Memory size: "+m_u8.length);
+  print("Memory blocks: "+blocks.length);
+  var bn=0;
+  var chunks={};
+  function round_up16(x){
+    var y=(x>>>4)<<4);
+    if(x>y){y=y+16};
+    return y;
+  };
+  function alloc(size){
+    var sr=round_up16(size);
+    return 16*bn+m_p;
+  };
+  function malloc(size){
+    print("better malloc");
+    return alloc(size);
+  };
+  function realloc(ptr,size){
+    print("better realloc");
+    return 0;
+  };
+  function free(){
+    print("better free");
+    return 0;
+  };
+
+  return {malloc:malloc,realloc:realloc,free:free};
+})(mem);
+
+js_malloc=better_alloc.malloc;
+js_realloc=better_alloc.realloc;
+js_free=better_alloc.free;
+
 print("memory: "+mem_ptr);
 print("Load complete!");
 print();
