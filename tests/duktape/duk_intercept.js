@@ -262,6 +262,7 @@ better_alloc=(function(m){
   print("Memory size: "+m_u8.length);
   print("Memory blocks: "+blocks.length);
   chunks={};
+  var off=0;
   function align_16(x){
     if(x === (x & 0xfffffff0)){
       return x;
@@ -291,7 +292,7 @@ better_alloc=(function(m){
       my_free(ptr);
       return 0;
     };
-    var old_size=allocations[ptr].size;
+    var old_size=chunks[ptr].size;
     if(off+size>m_u8.length){
       print("realloc out of memory");
       exit(1);
