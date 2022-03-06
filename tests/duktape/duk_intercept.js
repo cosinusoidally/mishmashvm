@@ -19,6 +19,10 @@ function align_16(x){
 function js_malloc(p){
 //  return libc.malloc(p);
 //  print("js_malloc called:"+p);
+  if(p===0){
+//    print("zero size malloc");
+    p=1;
+  };
   if(off+p>mem_u8.length){
     print("js_malloc out of memory");
     exit(1);
@@ -36,12 +40,9 @@ function js_realloc(ptr,size){
     return my_malloc(size);
   };
   if(size===0){
-    print("realloc 0");
-//    my_free(ptr);
-//    return ptr;
-  };
-  if(size<=allocations[ptr].size){
-    return ptr;
+//    print("realloc 0");
+    my_free(ptr);
+    return 0;
   };
   var old_size=allocations[ptr].size;
   if(off+size>mem_u8.length){
@@ -54,7 +55,7 @@ function js_realloc(ptr,size){
 //  print("old size:"+old_size);
 //  print("new size:"+size);
 //  for(var i=old_off;i<old_off+allocations[ptr].size;i++){
-  for(var i=0;i<old_size;i++){
+  for(var i=0;i<Math.min(old_size,size);i++){
     mem_u8[off+i]=mem_u8[old_off+i];
   };
   off=align_16(off+size);
