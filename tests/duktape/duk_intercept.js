@@ -263,45 +263,60 @@ better_alloc=(function(m){
   print("Memory size: "+m_u8.length);
   print("Memory blocks: "+blocks.length);
   var bn=0;
-  var chunks={};
+  chunks={};
   function round_up16(x){
     var y=(x>>>4)<<4;
     if(x>y){y=y+16};
     return y;
   };
   function alloc(size){
+    if(size===0){size=1};
     var sr=round_up16(size)>>>4;
+//    print("size:"+size);
+//    print("round size:"+(sr<<4));
     var n=bn;
     var nb=0;
     var no_space=true;
-    while(nb!=sr){
+    if(sr===1){
+//      print("sr =1");
+      if(blocks[n]===0){
+        nb=1;
+        no_space=false;
+      };
+    } else {
+     while(nb!==sr){
       if(blocks[n]===0){
         nb++;
       };
       no_space=false;
+      }
     };
     if(no_space){
-      print("No space");
+//      print("No space");
+//      print(m_p);
       exit(1);
     };
     var r=16*bn+m_p;
+//    print("old bn:"+bn);
     bn=bn+nb;
+//    print("new bn:"+bn);
     chunks[r]={ptr:r,size:size,round_size:sr<<4};
-    print();
-    print("size:"+size);
-    print("round size:"+(sr<<4));
-    print("pointer:"+r);
+//    print();
+//    print("size:"+size);
+//    print("round size:"+(sr<<4));
+//    print("pointer:"+r);
     return r;
   };
   function malloc(size){
-    print("better malloc");
+//    print("better malloc");
     if(size===0){size=1;};
     return alloc(size);
   };
   function realloc(ptr,size){
-    print("better realloc");
+//    print("better realloc");
 
     if(ptr===0){
+//      print("realloc size:"+size);
       return alloc(size);
     };
     if(size===0){
@@ -313,12 +328,14 @@ better_alloc=(function(m){
     for(var i=0;i<o;i++){
       m_u8[i+p-m_p]=m_u8[i+ptr-m_p];
     };
+    free(ptr);
     return p;
   };
   function free(ptr){
-    print("better free");
-    return 0;
+//    print("better free");
+//    return 0;
     if(ptr===0){
+//      print("free 0");
       return 0;
     };
     var cs=chunks[ptr];
@@ -328,7 +345,10 @@ better_alloc=(function(m){
     for(var i=bs;i<rs;i++){
       blocks[i]=0;
     };
-    delete chunks[ptr];
+    for(var i=cs.ptr-m_p;i<rs*16;i++){
+      m_u8[i]=0;
+    };
+//    delete chunks[ptr];
     return 0;
   };
 
