@@ -54,7 +54,6 @@ function js_realloc(ptr,size){
 //  print("old:"+old_off.toString(16));
 //  print("old size:"+old_size);
 //  print("new size:"+size);
-//  for(var i=old_off;i<old_off+allocations[ptr].size;i++){
   for(var i=0;i<Math.min(old_size,size);i++){
     mem_u8[off+i]=mem_u8[old_off+i];
   };
@@ -258,100 +257,68 @@ mem_ptr=get_addr(mem);
 better_alloc=(function(m){
   var m_p=get_addr(m);
   var m_u8=new Uint8Array(m);
-  var blocks=new Uint8Array(m_u8.length>>>4);
+  blocks=new Uint8Array(m_u8.length>>>4);
   print("Memory: "+m_p);
   print("Memory size: "+m_u8.length);
   print("Memory blocks: "+blocks.length);
-  var bn=0;
   chunks={};
-  function round_up16(x){
-    var y=(x>>>4)<<4;
-    if(x>y){y=y+16};
-    return y;
-  };
-  function alloc(size){
-    if(size===0){size=1};
-    var sr=round_up16(size)>>>4;
-//    print("size:"+size);
-//    print("round size:"+(sr<<4));
-    var n=bn;
-    var nb=0;
-    var no_space=true;
-    if(sr===1){
-//      print("sr =1");
-      if(blocks[n]===0){
-        nb=1;
-        no_space=false;
-      };
-    } else {
-     while(nb!==sr){
-      if(blocks[n]===0){
-        nb++;
-      };
-      no_space=false;
-      }
+  function malloc(p){
+  //  print("js_malloc called:"+p);
+    if(p===0){
+  //    print("zero size malloc");
+      p=1;
     };
-    if(no_space){
-//      print("No space");
-//      print(m_p);
+    if(off+p>mem_u8.length){
+      print("malloc out of memory");
       exit(1);
     };
-    var r=16*bn+m_p;
-//    print("old bn:"+bn);
-    bn=bn+nb;
-//    print("new bn:"+bn);
-    chunks[r]={ptr:r,size:size,round_size:sr<<4};
-//    print();
-//    print("size:"+size);
-//    print("round size:"+(sr<<4));
-//    print("pointer:"+r);
-    return r;
+    var ptr=mem_ptr+off;
+    off=align_16(off+p);
+  //  print(off.toString(16));
+    return ptr;
   };
-  function malloc(size){
-//    print("better malloc");
-    if(size===0){size=1;};
-    return alloc(size);
-  };
-  function realloc(ptr,size){
-//    print("better realloc");
 
+  function realloc(ptr,size){
+  //  print("js_realloc called:"+ptr+" "+size);
     if(ptr===0){
-//      print("realloc size:"+size);
-      return alloc(size);
+    return my_malloc(size);
     };
     if(size===0){
-      free(ptr);
-    };
-    var p=alloc(size);
-    var l=chunks[ptr].size;
-    var o=Math.min(l,size);
-    for(var i=0;i<o;i++){
-      m_u8[i+p-m_p]=m_u8[i+ptr-m_p];
-    };
-    free(ptr);
-    return p;
-  };
-  function free(ptr){
-//    print("better free");
-//    return 0;
-    if(ptr===0){
-//      print("free 0");
+  //    print("realloc 0");
+      my_free(ptr);
       return 0;
     };
-    var cs=chunks[ptr];
-    print(JSON.stringify(cs));
-    var bs=((cs.ptr-m_p)>>>4);
-    var rs=(cs.round_size)>>>4;
-    for(var i=bs;i<rs;i++){
-      blocks[i]=0;
+    var old_size=allocations[ptr].size;
+    if(off+size>mem_u8.length){
+      print("js_realloc out of memory");
+      exit(1);
     };
-    for(var i=cs.ptr-m_p;i<rs*16;i++){
-      m_u8[i]=0;
+    var new_ptr=mem_ptr+off;
+    var old_off=allocations[ptr].ptr-mem_ptr;
+  //  print("old:"+old_off.toString(16));
+  //  print("old size:"+old_size);
+  //  print("new size:"+size);
+    for(var i=0;i<Math.min(old_size,size);i++){
+      mem_u8[off+i]=mem_u8[old_off+i];
     };
-//    delete chunks[ptr];
-    return 0;
+    off=align_16(off+size);
+  //  print(off.toString(16));
+    my_free(ptr);
+    return new_ptr;
   };
 
+  function free(ptr){
+  //  return libc.free(ptr);
+  //  print("js_free called");
+    var offset=ptr-mem_ptr;
+    if(ptr!==0){
+  //    print("freeing:"+allocations[ptr].size);
+      for(var i=0;i<allocations[ptr].size;i++){
+        mem_u8[offset+i]=0;
+      };
+    };
+    return 0;
+  };
   return {malloc:malloc,realloc:realloc,free:free};
 })(mem);
 
