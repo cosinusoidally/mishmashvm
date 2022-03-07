@@ -255,6 +255,8 @@ get_addr=duk.get_fn("my_get_address");
 mem_ptr=get_addr(mem);
 
 var bump_alloc;
+var use_free_cache;
+use_free_cache === undefined ? use_free_cache=true : use_free_cache=false;
 better_alloc=(function(m){
   var m_p=get_addr(m);
   var m_u8=new Uint8Array(m);
@@ -262,6 +264,7 @@ better_alloc=(function(m){
   print("Memory size: "+m_u8.length);
   chunks={};
   var off=0;
+  free_cache={};
   function align_16(x){
     if(x === (x & 0xfffffff0)){
       return x;
@@ -279,6 +282,15 @@ better_alloc=(function(m){
       off=align_16(off+size);
       return ptr;
     } else {
+      var space=align_16(size);
+      if(free_cache[space]){
+         var ptr;
+         if(ptr=free_cache[space].pop()){
+           ptr=ptr.ptr;
+           return ptr;
+         };
+      };
+      free_cache={};
       var found=0;
       var op=m_p;
       var i=0;
@@ -305,7 +317,7 @@ better_alloc=(function(m){
       size=1;
     };
     var ptr=find_mem(size);
-    chunks[ptr]={ptr:ptr,size:size};
+    chunks[ptr]={ptr:ptr,size:size,space:align_16(size)};
     return ptr;
   };
 
@@ -337,6 +349,15 @@ better_alloc=(function(m){
     if(ptr!==0){
       for(var i=0;i<chunks[ptr].size;i++){
         m_u8[offset+i]=0;
+      };
+    };
+    if(chunks[ptr] && use_free_cache){
+      var o=chunks[ptr];
+//      print(JSON.stringify(o));
+      if(free_cache[o.space]){
+        free_cache[o.space].push(o);
+      } else {
+        free_cache[o.space]=[o];
       };
     };
     delete chunks[ptr];
@@ -382,8 +403,12 @@ function check_leak(){
 a=new Uint32Array(100);
 print(get_addr(a));
 duk_run("print('hello again')");
-duk_run(read(test_path+"/tests_intercept.js"));
-
+function test(){
+  st=Date.now();
+  duk_run(read(test_path+"/tests_intercept.js"));
+  print("took: "+((Date.now()-st)/1000));
+};
+test();
 load("lib/setup_sdl.js");
 obj_code=mm.load_c_string(read(test_path+"/../sdl/simple_sdl.c"));
 lib=mm.link([obj_code,libsdl.syms,mm.libc_compat]);
