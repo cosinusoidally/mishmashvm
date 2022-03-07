@@ -271,6 +271,34 @@ better_alloc=(function(m){
     };
   };
   function find_mem(size){
+/*
+    print("trying to find: "+size);
+    print("chunks: "+JSON.stringify(chunks));
+    var found=0;
+    var op=m_p;
+    for(var i=0;i<m_u8.length;i=i+16){
+      if(chunks[m_p+i]){
+        print(JSON.stringify(chunks[m_p+i]));
+        var j=align_16(chunks[m_p+i].size);
+        i=i+j;
+        found=0;
+        op=m_p+i;
+      } else {
+        found=found+16;
+      };
+      if(found>=size){
+        print("found: "+found+" more than "+size);
+        print("op: "+op);
+        return op;
+      };
+    };
+    print("can't find enough memory");
+    exit(1);
+*/
+    if(off+size>m_u8.length){
+      print("malloc out of memory");
+      exit(1);
+    };
     var ptr=m_p+off;
     off=align_16(off+size);
     return ptr;
@@ -278,10 +306,6 @@ better_alloc=(function(m){
   function malloc(size){
     if(size===0){
       size=1;
-    };
-    if(off+size>m_u8.length){
-      print("malloc out of memory");
-      exit(1);
     };
     var ptr=find_mem(size);
     chunks[ptr]={ptr:ptr,size:size};
@@ -293,7 +317,7 @@ better_alloc=(function(m){
     return malloc(size);
     };
     if(size===0){
-      my_free(ptr);
+      free(ptr);
       return 0;
     };
     var old_size=chunks[ptr].size;
@@ -307,7 +331,7 @@ better_alloc=(function(m){
     for(var i=0;i<Math.min(old_size,size);i++){
       m_u8[new_off+i]=m_u8[old_off+i];
     };
-    my_free(ptr);
+    free(ptr);
     return new_ptr;
   };
 
@@ -318,6 +342,7 @@ better_alloc=(function(m){
         m_u8[offset+i]=0;
       };
     };
+    delete chunks[ptr];
     return 0;
   };
   return {malloc:malloc,realloc:realloc,free:free};
