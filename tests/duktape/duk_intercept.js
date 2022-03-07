@@ -271,30 +271,26 @@ better_alloc=(function(m){
     };
   };
   function find_mem(size){
-/*
-    print("trying to find: "+size);
-    print("chunks: "+JSON.stringify(chunks));
     var found=0;
     var op=m_p;
-    for(var i=0;i<m_u8.length;i=i+16){
+    var i=0;
+    while(1){
       if(chunks[m_p+i]){
-        print(JSON.stringify(chunks[m_p+i]));
         var j=align_16(chunks[m_p+i].size);
         i=i+j;
-        found=0;
         op=m_p+i;
       } else {
-        found=found+16;
+        i=i+16;
       };
+      found=(m_p+i)-op;
       if(found>=size){
-        print("found: "+found+" more than "+size);
-        print("op: "+op);
         return op;
       };
+      if(i>=m_u8.length){break};
     };
     print("can't find enough memory");
     exit(1);
-*/
+/*
     if(off+size>m_u8.length){
       print("malloc out of memory");
       exit(1);
@@ -302,6 +298,7 @@ better_alloc=(function(m){
     var ptr=m_p+off;
     off=align_16(off+size);
     return ptr;
+*/
   };
   function malloc(size){
     if(size===0){
