@@ -265,6 +265,8 @@ better_alloc=(function(m){
   chunks={};
   var off=0;
   free_cache={};
+  free_cache_hit=0;
+  free_cache_miss=0;
   mem_histogram={};
   function align_16(x){
     if(x === (x & 0xfffffff0)){
@@ -280,6 +282,9 @@ better_alloc=(function(m){
         exit(1);
       };
       var ptr=m_p+off;
+      var space=align_16(size);
+      mem_histogram[space] ? mem_histogram[space].count++ : mem_histogram[space]={count:1,max:1};
+      mem_histogram[space].max=Math.max(mem_histogram[space].count,mem_histogram[space].max);
       off=align_16(off+size);
       return ptr;
     } else {
@@ -289,9 +294,11 @@ better_alloc=(function(m){
          if(ptr=free_cache[space].pop()){
            mem_histogram[space].count++;
            ptr=ptr.ptr;
+           free_cache_hit++;
            return ptr;
          };
       };
+      free_cache_miss++;
       free_cache={};
       var found=0;
       var op=m_p;
@@ -439,3 +446,18 @@ lib.get_fn("my_sdl_main")();
 update();
 
 duk_run("print('hello again2')");
+
+function warm_mem_cache(){
+  p=[];
+  mem_histogram2=JSON.parse(JSON.stringify(mem_histogram));
+  for(var i in mem_histogram2){
+    print("warming up: "+i+ " "+mem_histogram2[i].max);
+    for(var j=0;j<mem_histogram2[i].max;j++){
+      p.push(js_malloc(i));
+      p.push(js_malloc(i));
+    }
+  };
+  for(var i=0;i<p.length;i++){
+    js_free(p[i]);
+  }
+};
