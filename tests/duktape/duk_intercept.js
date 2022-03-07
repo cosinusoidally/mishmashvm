@@ -257,10 +257,8 @@ mem_ptr=get_addr(mem);
 better_alloc=(function(m){
   var m_p=get_addr(m);
   var m_u8=new Uint8Array(m);
-  blocks=new Uint8Array(m_u8.length>>>4);
   print("Memory: "+m_p);
   print("Memory size: "+m_u8.length);
-  print("Memory blocks: "+blocks.length);
   chunks={};
   var off=0;
   function align_16(x){
