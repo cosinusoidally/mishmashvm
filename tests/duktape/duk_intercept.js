@@ -270,6 +270,11 @@ better_alloc=(function(m){
       return 16+(x & 0xfffffff0);
     };
   };
+  function find_mem(size){
+    var ptr=m_p+off;
+    off=align_16(off+size);
+    return ptr;
+  };
   function malloc(size){
     if(size===0){
       size=1;
@@ -278,8 +283,7 @@ better_alloc=(function(m){
       print("malloc out of memory");
       exit(1);
     };
-    var ptr=m_p+off;
-    off=align_16(off+size);
+    var ptr=find_mem(size);
     chunks[ptr]={ptr:ptr,size:size};
     return ptr;
   };
