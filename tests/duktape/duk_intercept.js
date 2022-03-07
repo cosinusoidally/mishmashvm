@@ -263,7 +263,7 @@ better_alloc=(function(m){
   print("Memory: "+m_p);
   print("Memory size: "+m_u8.length);
   chunks={};
-  var off=0;
+  off=0;
   free_cache={};
   free_cache_hit=0;
   free_cache_miss=0;
@@ -461,3 +461,27 @@ function warm_mem_cache(){
     js_free(p[i]);
   }
 };
+
+function warm2(){
+  teardown();
+  off=0;
+  bump_alloc=true;
+  init();
+  test();
+  teardown();
+  bump_alloc=false;
+  init();
+  update();
+};
+
+function hit_rate(){
+  print(100*free_cache_hit/(free_cache_hit+free_cache_miss));
+}
+
+function perf(){
+  free_cache_hit=0;
+  free_cache_miss=0;
+  test();
+  hit_rate();
+  update();
+}
