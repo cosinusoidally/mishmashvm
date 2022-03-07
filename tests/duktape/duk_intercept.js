@@ -254,6 +254,7 @@ exit=duk.get_fn("exit");
 get_addr=duk.get_fn("my_get_address");
 mem_ptr=get_addr(mem);
 
+var bump_alloc;
 better_alloc=(function(m){
   var m_p=get_addr(m);
   var m_u8=new Uint8Array(m);
@@ -269,34 +270,35 @@ better_alloc=(function(m){
     };
   };
   function find_mem(size){
-    var found=0;
-    var op=m_p;
-    var i=0;
-    while(1){
-      if(chunks[m_p+i]){
-        var j=align_16(chunks[m_p+i].size);
-        i=i+j;
-        op=m_p+i;
-      } else {
-        i=i+16;
+    if(bump_alloc){
+      if(off+size>m_u8.length){
+        print("out of memory bump alloc");
+        exit(1);
       };
-      found=(m_p+i)-op;
-      if(found>=size){
-        return op;
+      var ptr=m_p+off;
+      off=align_16(off+size);
+      return ptr;
+    } else {
+      var found=0;
+      var op=m_p;
+      var i=0;
+      while(1){
+        if(chunks[m_p+i]){
+          var j=align_16(chunks[m_p+i].size);
+          i=i+j;
+          op=m_p+i;
+        } else {
+          i=i+16;
+        };
+        found=(m_p+i)-op;
+        if(found>=size){
+          return op;
+        };
+        if(i>=m_u8.length){break};
       };
-      if(i>=m_u8.length){break};
-    };
-    print("can't find enough memory");
-    exit(1);
-/*
-    if(off+size>m_u8.length){
-      print("malloc out of memory");
+      print("can't find enough memory");
       exit(1);
     };
-    var ptr=m_p+off;
-    off=align_16(off+size);
-    return ptr;
-*/
   };
   function malloc(size){
     if(size===0){
