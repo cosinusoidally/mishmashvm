@@ -265,6 +265,7 @@ better_alloc=(function(m){
   chunks={};
   var off=0;
   free_cache={};
+  mem_histogram={};
   function align_16(x){
     if(x === (x & 0xfffffff0)){
       return x;
@@ -286,6 +287,7 @@ better_alloc=(function(m){
       if(free_cache[space]){
          var ptr;
          if(ptr=free_cache[space].pop()){
+           mem_histogram[space].count++;
            ptr=ptr.ptr;
            return ptr;
          };
@@ -304,6 +306,8 @@ better_alloc=(function(m){
         };
         found=(m_p+i)-op;
         if(found>=size){
+          mem_histogram[space] ? mem_histogram[space].count++ : mem_histogram[space]={count:1,max:1};
+          mem_histogram[space].max=Math.max(mem_histogram[space].count,mem_histogram[space].max);
           return op;
         };
         if(i>=m_u8.length){break};
@@ -354,11 +358,11 @@ better_alloc=(function(m){
     if(chunks[ptr] && use_free_cache){
       var o=chunks[ptr];
 //      print(JSON.stringify(o));
-      if(free_cache[o.space]){
-        free_cache[o.space].push(o);
-      } else {
-        free_cache[o.space]=[o];
+      if(!free_cache[o.space]){
+        free_cache[o.space]=[];
       };
+      free_cache[o.space].push(o);
+      mem_histogram[o.space].count--;
     };
     delete chunks[ptr];
     return 0;
