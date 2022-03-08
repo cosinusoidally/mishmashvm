@@ -902,8 +902,8 @@
 #if !defined(DUK_USE_BYTEORDER)
 #define DUK_USE_BYTEORDER 1
 #endif
-
-#define DUK_USE_PACKED_TVAL
+// HACK mishmash don't use packed tval
+//#define DUK_USE_PACKED_TVAL
 
 /* FreeBSD, -m32, and clang prior to 5.0 has union aliasing issues which
  * break duk_tval copying.  Disable packed duk_tval automatically.
