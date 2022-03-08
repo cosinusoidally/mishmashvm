@@ -185,3 +185,7 @@ int dummy_wrap(){
 uint32_t my_get_address(uint32_t a){
   return a;
 }
+
+uint32_t my_get_ctx(){
+  return ctx2;
+}

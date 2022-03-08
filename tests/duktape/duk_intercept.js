@@ -258,8 +258,8 @@ var bump_alloc;
 var use_free_cache;
 use_free_cache === undefined ? use_free_cache=true : use_free_cache=false;
 better_alloc=(function(m){
-  var m_p=get_addr(m);
-  var m_u8=new Uint8Array(m);
+  m_p=get_addr(m);
+  m_u8=new Uint8Array(m);
   print("Memory: "+m_p);
   print("Memory size: "+m_u8.length);
   chunks={};
