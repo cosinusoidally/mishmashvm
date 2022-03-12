@@ -420,6 +420,10 @@ function test(){
   print("took: "+((Date.now()-st)/1000));
 };
 test();
+
+var use_sdl;
+use_sdl === undefined ? use_sdl=true : use_sdl=false;
+if(use_sdl){
 load("lib/setup_sdl.js");
 obj_code=mm.load_c_string(read(test_path+"/../sdl/simple_sdl.c"));
 lib=mm.link([obj_code,libsdl.syms,mm.libc_compat]);
@@ -444,7 +448,7 @@ lib.get_fn("my_sdl_process_events")();
 lib.get_fn("my_sdl_main")();
 };
 update();
-
+};
 duk_run("print('hello again2')");
 
 function warm_mem_cache(){
