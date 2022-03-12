@@ -526,17 +526,48 @@ get_u8=function(x){
 
 get_u32=function(x){
   x=x-m_p;
+  if(x<0){throw "out of bounds low"};
+  if(x>mem_u8.length-1){throw "out of bounds high"};
   var y=(x>>>2)<<2;
   if(y!==x){throw "unaligned"};
   return mem_u32[x>>>2];
 };
 
+duk_heaphdr=function(x){
+  return {
+    $type: "duk_heaphdr",
+  };
+};
+
 duk_hobject=function(x){
-  return {};
+  return {
+    $type: "duk_hobject",
+//    0      |    16 duk_heaphdr hdr;
+    hdr: duk_heaphdr(x),
+
+//   16      |     4 duk_uint8_t *props;
+    props: get_u32(x+16),
+
+//   20      |     4 duk_hobject *prototype;
+    prototype: get_u32(x+20),
+
+//   24      |     4 duk_uint32_t e_size;
+    e_size: get_u32(x+24),
+
+//   28      |     4 duk_uint32_t e_next;
+    e_next: get_u32(x+28),
+
+//   32      |     4 duk_uint32_t a_size;
+    a_size: get_u32(x+32),
+
+//   36      |     4 duk_uint32_t h_size;
+    h_size: get_u32(x+36),
+};
 }
 
 duk_context=function(x){
   return {
+    $type: "duk_hthread",
 //    0      |    40     duk_hobject obj;
     obj: duk_hobject(x),
 
@@ -589,13 +620,22 @@ duk_context=function(x){
     compile_ctx: get_u32(x+88),
 
 //   92      |   204     duk_hobject *builtins[51];
+    builtins: (function(x){
+      var builtins=[];
+      for(var i=0;i<51;i++){
+        builtins.push(duk_hobject(x+i*4));
+      };
+      return builtins;
+    }(x+92)),
 
 //  296      |     4     duk_hstring **strs;
     strs: get_u32(x+296),
   };
 };
+
+
 get_ctx=duk.get_fn("my_get_ctx");
 
 ctx=duk_context(get_ctx());
 
-print(JSON.stringify(ctx));
+print(JSON.stringify(ctx, null, ' '));
