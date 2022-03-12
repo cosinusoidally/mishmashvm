@@ -489,3 +489,113 @@ function perf(){
   hit_rate();
   update();
 }
+
+/*
+(gdb) ptype /o duk_context
+type = struct duk_hthread {
+    0      |    40     duk_hobject obj;
+   40      |     4     duk_instr_t **ptr_curr_pc;
+   44      |     4     duk_heap *heap;
+   48      |     1     duk_uint8_t strict;
+   49      |     1     duk_uint8_t state;
+   50      |     1     duk_uint8_t unused1;
+   51      |     1     duk_uint8_t unused2;
+   52      |     4     duk_tval *valstack;
+   56      |     4     duk_tval *valstack_end;
+   60      |     4     duk_tval *valstack_alloc_end;
+   64      |     4     duk_tval *valstack_bottom;
+   68      |     4     duk_tval *valstack_top;
+   72      |     4     duk_activation *callstack_curr;
+   76      |     4     duk_size_t callstack_top;
+   80      |     4     duk_size_t callstack_preventcount;
+   84      |     4     duk_hthread *resumer;
+   88      |     4     duk_compiler_ctx *compile_ctx;
+   92      |   204     duk_hobject *builtins[51];
+  296      |     4     duk_hstring **strs;
+
+                            total size (bytes):  300
+                         }
+*/
+
+mem_u8=new Uint8Array(mem);
+mem_u32=new Uint32Array(mem);
+
+get_u8=function(x){
+  return mem_u8[x-m_p];
+};
+
+get_u32=function(x){
+  x=x-m_p;
+  var y=(x>>>2)<<2;
+  if(y!==x){throw "unaligned"};
+  return mem_u32[x>>>2];
+};
+
+duk_hobject=function(x){
+  return {};
+}
+
+duk_context=function(x){
+  return {
+//    0      |    40     duk_hobject obj;
+    obj: duk_hobject(x),
+
+//   40      |     4     duk_instr_t **ptr_curr_pc;
+    ptr_curr_pc: get_u32(x+40),
+
+//   44      |     4     duk_heap *heap;
+    duk_heap: get_u32(x+44),
+
+//   48      |     1     duk_uint8_t strict;
+    strict: get_u8(x+48),
+
+//   49      |     1     duk_uint8_t state;
+    state: get_u8(x+49),
+
+//   50      |     1     duk_uint8_t unused1;
+    unused1: get_u8(x+50),
+
+//   51      |     1     duk_uint8_t unused2;
+    unused2: get_u8(x+51),
+
+//   52      |     4     duk_tval *valstack;
+    valstack: get_u32(x+52),
+
+//   56      |     4     duk_tval *valstack_end;
+    valstack_end: get_u32(x+56),
+
+//   60      |     4     duk_tval *valstack_alloc_end;
+    valstack_alloc_end: get_u32(x+60),
+
+//   64      |     4     duk_tval *valstack_bottom;
+    valstack_bottom: get_u32(x+64),
+
+//   68      |     4     duk_tval *valstack_top;
+    valstack_top: get_u32(x+68),
+
+//   72      |     4     duk_activation *callstack_curr;
+    callstack_curr: get_u32(x+72),
+
+//   76      |     4     duk_size_t callstack_top;
+    callstack_top: get_u32(x+76),
+
+//   80      |     4     duk_size_t callstack_preventcount;
+    callstack_preventcount: get_u32(x+80),
+
+//   84      |     4     duk_hthread *resumer;
+    resumer: get_u32(x+84),
+
+//   88      |     4     duk_compiler_ctx *compile_ctx;
+    compile_ctx: get_u32(x+88),
+
+//   92      |   204     duk_hobject *builtins[51];
+
+//  296      |     4     duk_hstring **strs;
+    strs: get_u32(x+296),
+  };
+};
+get_ctx=duk.get_fn("my_get_ctx");
+
+ctx=duk_context(get_ctx());
+
+print(JSON.stringify(ctx));
