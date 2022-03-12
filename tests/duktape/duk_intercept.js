@@ -521,7 +521,10 @@ mem_u8=new Uint8Array(mem);
 mem_u32=new Uint32Array(mem);
 
 get_u8=function(x){
-  return mem_u8[x-m_p];
+  x=x-m_p;
+  if(x<0){throw "out of bounds low"};
+  if(x>mem_u8.length-1){throw "out of bounds high"};
+  return mem_u8[x];
 };
 
 get_u32=function(x){
@@ -536,12 +539,26 @@ get_u32=function(x){
 duk_heaphdr=function(x){
   return {
     $type: "duk_heaphdr",
+    $size: 16,
+//    0      |     4     duk_uint32_t h_flags;
+    h_flags: get_u32(x),
+
+//    4      |     4     duk_uint32_t h_refcount;
+    h_refcount: get_u32(x+4),
+
+//    8      |     4     duk_heaphdr *h_next;
+    h_next: get_u32(x+8),
+
+//   12      |     4     duk_heaphdr *h_prev;
+    h_prev: get_u32(x+12),
+
   };
 };
 
 duk_hobject=function(x){
   return {
     $type: "duk_hobject",
+    $size: 40,
 //    0      |    16 duk_heaphdr hdr;
     hdr: duk_heaphdr(x),
 
@@ -568,6 +585,7 @@ duk_hobject=function(x){
 duk_context=function(x){
   return {
     $type: "duk_hthread",
+    $size: 300,
 //    0      |    40     duk_hobject obj;
     obj: duk_hobject(x),
 
