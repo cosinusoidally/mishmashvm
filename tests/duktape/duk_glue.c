@@ -189,3 +189,17 @@ uint32_t my_get_address(uint32_t a){
 uint32_t my_get_ctx(){
   return ctx2;
 }
+
+uint32_t get_layout(){
+  int l;
+#if defined(DUK_USE_HOBJECT_LAYOUT_1)
+  l=1;
+#endif
+#if defined(DUK_USE_HOBJECT_LAYOUT_2)
+  l=2;
+#endif
+#if defined(DUK_USE_HOBJECT_LAYOUT_3)
+  l=3;
+#endif
+  return l;
+}

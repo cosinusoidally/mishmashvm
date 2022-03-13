@@ -641,7 +641,7 @@ duk_context=function(x){
     builtins: (function(x){
       var builtins=[];
       for(var i=0;i<51;i++){
-        builtins.push(duk_hobject(x+i*4));
+        builtins.push(duk_hobject(get_u32(x+i*4)));
       };
       return builtins;
     }(x+92)),
@@ -657,3 +657,5 @@ get_ctx=duk.get_fn("my_get_ctx");
 ctx=duk_context(get_ctx());
 
 print(JSON.stringify(ctx, null, ' '));
+
+print("DUK_USE_HOBJECT_LAYOUT_"+duk.get_fn("get_layout")());
