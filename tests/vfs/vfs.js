@@ -26,17 +26,19 @@ passthrough={
 
 // splitting out the io operations:
 io={
+// format string related:
   "sscanf": true,
   "sprintf": true,
   "printf": true,
+  "vsnprintf": true,
+  "snprintf": true,
+// file:
   "open": true,
   "read": true,
-  "fflush": true,
-  "vsnprintf": true,
-  "fprintf": true,
-  "snprintf": true,
   "close": true,
   "unlink": true,
+  "fflush": true,
+  "fprintf": true,
   "fopen": true,
   "fwrite": true,
   "fputc": true,
