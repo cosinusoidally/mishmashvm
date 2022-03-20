@@ -84,13 +84,6 @@ function my_malloc(p){
   return ptr;
 };
 
-var my_malloc_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
-
-var my_malloc_callback_handle = my_malloc_type.ptr(my_malloc);
-var my_malloc_callback = ctypes.cast( my_malloc_callback_handle,ctypes.uint32_t).value;
-
-print("my malloc:"+my_malloc_callback);
-
 function my_realloc(ptr,size){
 //  print("my_realloc called: "+ptr+" "+size);
   var new_ptr=js_realloc(ptr,size);
@@ -101,13 +94,6 @@ function my_realloc(ptr,size){
   return new_ptr;
 };
 
-var my_realloc_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t]);
-
-var my_realloc_callback_handle = my_realloc_type.ptr(my_realloc);
-var my_realloc_callback = ctypes.cast(my_realloc_callback_handle,ctypes.uint32_t).value;
-
-print("my realloc:"+my_realloc_callback);
-
 function my_free(ptr){
 //  print("my_free called: "+ptr);
   js_free(ptr);
@@ -116,13 +102,6 @@ function my_free(ptr){
   };
   return 0;
 };
-
-var my_free_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
-
-var my_free_callback_handle = my_free_type.ptr(my_free);
-var my_free_callback = ctypes.cast(my_free_callback_handle,ctypes.uint32_t).value;
-
-print("my free:"+my_free_callback);
 
 callbacks=[
   my_malloc,
