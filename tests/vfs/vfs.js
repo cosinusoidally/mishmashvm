@@ -5,6 +5,8 @@ my_tcc=mm.decode_elf(read("libc_portable_proto/tcc_bin/tcc_boot3.o","binary"));
 
 libtcc1=mm.decode_elf(read("libc_portable_proto/tcc_bin/libtcc1.o","binary"));
 
+libc_compat=mm.link([mm.libc_compat]);
+
 dump_und=true;
 
 passthrough={
@@ -53,9 +55,10 @@ io_vfs={
   "open": true,
 };
 
+real_open=libc_compat.get_fn("open");
 function my_open(pathname,flags,mode){
   print("open: "+pathname+" "+flags+" "+mode);
-  return 0;
+  return real_open(pathname,flags,mode);
 };
 
 callbacks=[
@@ -64,9 +67,8 @@ callbacks=[
 
 function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
   var fn=callbacks[f];
-  print(fn.name +" " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
-  return 0;
-//  return fn(a1,a2,a3,a4,a5,a6,a7);
+//  print(fn.name +" " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
+  return fn(a1,a2,a3,a4,a5,a6,a7);
 };
 
 var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
@@ -120,9 +122,9 @@ unsigned int ljw_callback_dispatch(unsigned int f,unsigned int a1,unsigned int a
 
 my_libc_src.push("\n\
 unsigned int ljw_open(unsigned int pathname, unsigned int flags, unsigned int mode){\n\
-//  printf(\"called: ljw_open %u\\n\",m);\n\
-  ljw_callback_dispatch(0,pathname,flags,mode,0,0,0,0);\n\
-  return open(pathname,flags,mode);\n\
+  printf(\"called: ljw_open %u %u %u\\n\",pathname, flags,mode);\n\
+  return ljw_callback_dispatch(0,pathname,flags,mode,0,0,0,0);\n\
+//  return open(pathname,flags,mode);\n\
 }");
 
   my_libc_src= my_libc_src.join("\n");
