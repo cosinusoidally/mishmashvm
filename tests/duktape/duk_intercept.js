@@ -124,6 +124,18 @@ var my_free_callback = ctypes.cast(my_free_callback_handle,ctypes.uint32_t).valu
 
 print("my free:"+my_free_callback);
 
+function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
+  print("callback: "+f+" "+a7);
+  return 0;
+};
+
+var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
+
+var callback_dispatch_handle = callback_dispatch_type.ptr(callback_dispatch);
+var callback_dispatch_ptr = ctypes.cast(callback_dispatch_handle,ctypes.uint32_t).value;
+
+print("callback dispatch:"+callback_dispatch_ptr);
+
 duk_srcdir=test_path+"/duktape_src/";
 
 duk_glue=mm.load_c_string(read(test_path+"/duk_glue.c"),{extra_flags:"-I "+duk_srcdir});
@@ -235,6 +247,12 @@ unsigned int ljw_free(unsigned int ptr){\n\
   return ((my_free)"+my_free_callback+")(ptr);\n\
 }");
 
+my_libc_src.push("\n\
+typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
+unsigned int callback(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7){\n\
+  printf(\"called: callback %u\\n\",f);\n\
+  return ((my_callback)"+callback_dispatch_ptr+")(f,a1,a2,a3,a4,a5,a6,a7);\n\
+}");
 my_libc_src= my_libc_src.join("\n");
 stubs_src.push("}");
 stubs_src=stubs_src.join("\n");
