@@ -48,6 +48,7 @@ static duk_ret_t my_ffi_call(duk_context *ctx) {
 	  args[i]=0;
 	}
         uint32_t ptr=duk_to_number(ctx, 0);
+        __asm__("and $0xfffffff0,%esp");
 	double ret=(double)(((my_ffi_stub)ptr)(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7]));
 	duk_push_number(ctx, ret);
 	return 1;  /* one return value */
