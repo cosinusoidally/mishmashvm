@@ -56,8 +56,21 @@ io_vfs={
 };
 
 real_open=libc_compat.get_fn("open");
+real_strlen=libc_compat.get_fn("strlen");
+real_strcpy=libc_compat.get_fn("strcpy");
+
+function ptr_to_string(p){
+  var pn=new Uint8Array(real_strlen(p));
+  real_strcpy(pn,p);
+  var pns=[];
+  pn.forEach(function(x,i){pns[i]= String.fromCharCode(x)});
+  return pns.join("");
+};
+
 function my_open(pathname,flags,mode){
   print("open: "+pathname+" "+flags+" "+mode);
+  var pn=ptr_to_string(pathname);
+  print("file open: "+JSON.stringify(pn));
   return real_open(pathname,flags,mode);
 };
 
@@ -122,7 +135,7 @@ unsigned int ljw_callback_dispatch(unsigned int f,unsigned int a1,unsigned int a
 
 my_libc_src.push("\n\
 unsigned int ljw_open(unsigned int pathname, unsigned int flags, unsigned int mode){\n\
-  printf(\"called: ljw_open %u %u %u\\n\",pathname, flags,mode);\n\
+//  printf(\"called: ljw_open %u %u %u\\n\",pathname, flags,mode);\n\
   return ljw_callback_dispatch(0,pathname,flags,mode,0,0,0,0);\n\
 //  return open(pathname,flags,mode);\n\
 }");
