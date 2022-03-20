@@ -8,6 +8,18 @@ libtcc1=mm.decode_elf(read("libc_portable_proto/tcc_bin/libtcc1.o","binary"));
 dump_und=true;
 
 passthrough={
+  "malloc": true,
+  "memset": true,
+  "free": true,
+  "strlen": true,
+  "strcpy": true,
+  "realloc": true,
+  "memmove": true,
+  "memcpy": true,
+  "memcmp": true,
+  "sscanf": true,
+  "sprintf": true,
+  "printf": true,
 };
 
 exclude={
