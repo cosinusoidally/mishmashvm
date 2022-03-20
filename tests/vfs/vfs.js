@@ -39,6 +39,20 @@ passthrough={
   "fclose": true,
 };
 
+// splitting out the io operations:
+io={
+
+};
+
+for(var i in io){
+  passthrough[i]=io[i];
+};
+
+// io functions with vfs wrappers
+io_vfs={
+
+};
+
 exclude={
 }
 overrides=[];
