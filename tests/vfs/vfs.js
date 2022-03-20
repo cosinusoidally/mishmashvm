@@ -35,7 +35,6 @@ io={
   "vsnprintf": true,
   "snprintf": true,
 // file:
-  "read": true,
   "close": true,
   "unlink": true,
   "fflush": true,
@@ -53,9 +52,12 @@ for(var i in io){
 // io functions with vfs wrappers
 io_vfs={
   "open": true,
+  "read": true,
 };
 
 real_open=libc_compat.get_fn("open");
+real_read=libc_compat.get_fn("read");
+
 real_strlen=libc_compat.get_fn("strlen");
 real_strcpy=libc_compat.get_fn("strcpy");
 
@@ -71,11 +73,23 @@ function my_open(pathname,flags,mode){
   print("open: "+pathname+" "+flags+" "+mode);
   var pn=ptr_to_string(pathname);
   print("file open: "+JSON.stringify(pn));
-  return real_open(pathname,flags,mode);
+  var fd=real_open(pathname,flags,mode);
+  print("file fd: "+fd);
+  print();
+  return fd;
+};
+
+function my_read(fd,buf,count){
+  print("read: "+fd+" "+buf+" "+count);
+  var s=real_read(fd,buf,count);
+  print("amount read: "+s);
+  print();
+  return s;
 };
 
 callbacks=[
-  my_open
+  my_open,
+  my_read,
 ];
 
 function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
@@ -123,7 +137,10 @@ if(dump_und=true){
   };
 
 stubs_src.push("ljw_open();");
+stubs_src.push("ljw_read();");
+
 overrides.push(["ljw_open","open"]);
+overrides.push(["ljw_read","read"]);
 
 my_libc_src.push("\n\
 typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
@@ -138,6 +155,12 @@ unsigned int ljw_open(unsigned int pathname, unsigned int flags, unsigned int mo
 //  printf(\"called: ljw_open %u %u %u\\n\",pathname, flags,mode);\n\
   return ljw_callback_dispatch(0,pathname,flags,mode,0,0,0,0);\n\
 //  return open(pathname,flags,mode);\n\
+}");
+
+my_libc_src.push("\n\
+unsigned int ljw_read(unsigned int fd, unsigned int buf, unsigned int count){\n\
+//  printf(\"called: ljw_read %u %u %u\\n\",fd, buf, count);\n\
+  return ljw_callback_dispatch(1,fd,buf,count,0,0,0,0);\n\
 }");
 
   my_libc_src= my_libc_src.join("\n");
