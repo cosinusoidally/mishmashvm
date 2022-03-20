@@ -17,18 +17,22 @@ passthrough={
   "memmove": true,
   "memcpy": true,
   "memcmp": true,
-  "sscanf": true,
-  "sprintf": true,
-  "printf": true,
   "getenv": true,
   "strchr": true,
   "strrchr": true,
   "strcmp": true,
-  "open": true,
   "_setjmp": true,
+};
+
+// splitting out the io operations:
+io={
+  "sscanf": true,
+  "sprintf": true,
+  "printf": true,
+  "open": true,
   "read": true,
-  "vsnprintf": true,
   "fflush": true,
+  "vsnprintf": true,
   "fprintf": true,
   "snprintf": true,
   "close": true,
@@ -37,11 +41,6 @@ passthrough={
   "fwrite": true,
   "fputc": true,
   "fclose": true,
-};
-
-// splitting out the io operations:
-io={
-
 };
 
 for(var i in io){
