@@ -39,8 +39,6 @@ io={
   "unlink": true,
   "fflush": true,
   "fprintf": true,
-  "fwrite": true,
-  "fputc": true,
   "fclose": true,
 };
 
@@ -55,12 +53,16 @@ io_vfs={
   "read": true,
 // new school file io:
   "fopen": true,
+  "fwrite": true,
+  "fputc": true,
 };
 
 real_open=libc_compat.get_fn("open");
 real_read=libc_compat.get_fn("read");
 
 real_fopen=libc_compat.get_fn("fopen");
+real_fwrite=libc_compat.get_fn("fwrite");
+real_fputc=libc_compat.get_fn("fputc");
 
 real_strlen=libc_compat.get_fn("strlen");
 real_strcpy=libc_compat.get_fn("strcpy");
@@ -103,10 +105,28 @@ function my_fopen(pathname,mode){
   return file;
 };
 
+function my_fwrite(ptr,size,nmemb,stream){
+  print("fwrite: "+ptr+" "+size+" "+nmemb+" "+stream);
+  var s=real_fwrite(ptr,size,nmemb,stream);
+  print("fwrite size: "+s);
+  print();
+  return s;
+};
+
+function my_fputc(c,stream){
+  print("fputc: "+c+" "+" "+stream);
+  var s=real_fputc(c,stream);
+  print("fputc value: "+s);
+  print();
+  return s;
+};
+
 callbacks=[
   my_open,
   my_read,
   my_fopen,
+  my_fwrite,
+  my_fputc,
 ];
 
 function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
@@ -155,11 +175,17 @@ if(dump_und=true){
 
 stubs_src.push("ljw_open();");
 stubs_src.push("ljw_read();");
+
 stubs_src.push("ljw_fopen();");
+stubs_src.push("ljw_fwrite();");
+stubs_src.push("ljw_fputc();");
 
 overrides.push(["ljw_open","open"]);
 overrides.push(["ljw_read","read"]);
+
 overrides.push(["ljw_fopen","fopen"]);
+overrides.push(["ljw_fwrite","fwrite"]);
+overrides.push(["ljw_fputc","fputc"]);
 
 my_libc_src.push("\n\
 typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
@@ -186,6 +212,16 @@ my_libc_src.push("\n\
 unsigned int ljw_fopen(unsigned int pathname, unsigned int mode){\n\
 //  printf(\"called: ljw_fopen %u %u %u\\n\",pathname, mode);\n\
   return ljw_callback_dispatch(2,pathname,mode,0,0,0,0,0);\n\
+}");
+
+my_libc_src.push("\n\
+unsigned int ljw_fwrite(unsigned int ptr, unsigned int size, unsigned int nmemb, unsigned int stream){\n\
+  return ljw_callback_dispatch(3,ptr,size,nmemb,stream,0,0,0);\n\
+}");
+
+my_libc_src.push("\n\
+unsigned int ljw_fputc(unsigned int c, unsigned int stream){\n\
+  return ljw_callback_dispatch(4,c,stream,0,0,0,0,0);\n\
 }");
 
   my_libc_src= my_libc_src.join("\n");
