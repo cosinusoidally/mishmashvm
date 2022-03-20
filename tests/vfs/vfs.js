@@ -54,4 +54,6 @@ my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
 tcc=mm.link([my_tcc,my_wrap,libtcc1]);
 
+main=mm.arg_wrap(tcc.get_fn("main"));
 print("Load complete!");
+main("tcc");
