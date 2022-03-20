@@ -33,7 +33,6 @@ io={
   "vsnprintf": true,
   "snprintf": true,
 // file:
-  "open": true,
   "read": true,
   "close": true,
   "unlink": true,
@@ -51,16 +50,23 @@ for(var i in io){
 
 // io functions with vfs wrappers
 io_vfs={
+  "open": true,
+};
 
+function my_open(pathname,flags,mode){
+  print("open: "+pathname+" "+flags+" "+mode);
+  return 0;
 };
 
 callbacks=[
+  my_open
 ];
 
 function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
   var fn=callbacks[f];
-//  print(fn.name +" " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
-  return fn(a1,a2,a3,a4,a5,a6,a7);
+  print(fn.name +" " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
+  return 0;
+//  return fn(a1,a2,a3,a4,a5,a6,a7);
 };
 
 var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
@@ -101,12 +107,22 @@ if(dump_und=true){
     };
   };
 
+stubs_src.push("ljw_open();");
+overrides.push(["ljw_open","open"]);
+
 my_libc_src.push("\n\
 typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
 unsigned int ljw_callback_dispatch(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7){\n\
 //  printf(\"called: callback %u\\n\",f);\n\
   __asm__(\"and $0xfffffff0,%esp\");\n\
   return ((my_callback)"+callback_dispatch_ptr+")(f,a1,a2,a3,a4,a5,a6,a7);\n\
+}");
+
+my_libc_src.push("\n\
+unsigned int ljw_open(unsigned int pathname, unsigned int flags, unsigned int mode){\n\
+//  printf(\"called: ljw_open %u\\n\",m);\n\
+  ljw_callback_dispatch(0,pathname,flags,mode,0,0,0,0);\n\
+  return open(pathname,flags,mode);\n\
 }");
 
   my_libc_src= my_libc_src.join("\n");
