@@ -656,6 +656,6 @@ get_ctx=duk.get_fn("my_get_ctx");
 
 ctx=duk_context(get_ctx());
 
-print(JSON.stringify(ctx, null, ' '));
+//print(JSON.stringify(ctx, null, ' '));
 
 print("DUK_USE_HOBJECT_LAYOUT_"+duk.get_fn("get_layout")());
