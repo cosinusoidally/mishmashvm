@@ -84,13 +84,6 @@ function my_malloc(p){
   return ptr;
 };
 
-var my_malloc_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
-
-var my_malloc_callback_handle = my_malloc_type.ptr(my_malloc);
-var my_malloc_callback = ctypes.cast( my_malloc_callback_handle,ctypes.uint32_t).value;
-
-print("my malloc:"+my_malloc_callback);
-
 function my_realloc(ptr,size){
 //  print("my_realloc called: "+ptr+" "+size);
   var new_ptr=js_realloc(ptr,size);
@@ -101,13 +94,6 @@ function my_realloc(ptr,size){
   return new_ptr;
 };
 
-var my_realloc_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t]);
-
-var my_realloc_callback_handle = my_realloc_type.ptr(my_realloc);
-var my_realloc_callback = ctypes.cast(my_realloc_callback_handle,ctypes.uint32_t).value;
-
-print("my realloc:"+my_realloc_callback);
-
 function my_free(ptr){
 //  print("my_free called: "+ptr);
   js_free(ptr);
@@ -117,12 +103,24 @@ function my_free(ptr){
   return 0;
 };
 
-var my_free_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t]);
+callbacks=[
+  my_malloc,
+  my_realloc,
+  my_free
+];
 
-var my_free_callback_handle = my_free_type.ptr(my_free);
-var my_free_callback = ctypes.cast(my_free_callback_handle,ctypes.uint32_t).value;
+function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
+  var fn=callbacks[f];
+//  print(fn.name +" " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
+  return fn(a1,a2,a3,a4,a5,a6,a7);
+};
 
-print("my free:"+my_free_callback);
+var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
+
+var callback_dispatch_handle = callback_dispatch_type.ptr(callback_dispatch);
+var callback_dispatch_ptr = ctypes.cast(callback_dispatch_handle,ctypes.uint32_t).value;
+
+print("callback dispatch:"+callback_dispatch_ptr);
 
 duk_srcdir=test_path+"/duktape_src/";
 
@@ -215,24 +213,29 @@ overrides.push(["ljw_realloc","realloc"]);
 overrides.push(["ljw_free","free"]);
 
 my_libc_src.push("\n\
-typedef void * (* my_malloc)(unsigned int m);\n\
+typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
+unsigned int ljw_callback_dispatch(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7){\n\
+//  printf(\"called: callback %u\\n\",f);\n\
+  __asm__(\"and $0xfffffff0,%esp\");\n\
+  return ((my_callback)"+callback_dispatch_ptr+")(f,a1,a2,a3,a4,a5,a6,a7);\n\
+}");
+
+my_libc_src.push("\n\
 void * ljw_malloc(unsigned int m){\n\
 //  printf(\"called: ljw_malloc %u\\n\",m);\n\
-  return ((my_malloc)"+my_malloc_callback+")(m);\n\
+  return ljw_callback_dispatch(0,m,0,0,0,0,0,0);\n\
 }");
 
 my_libc_src.push("\n\
-typedef void * (* my_realloc)(unsigned int ptr,unsigned int size);\n\
 void * ljw_realloc(unsigned int ptr,unsigned int size){\n\
 //  printf(\"called: ljw_realloc %u %u\\n\",ptr,size);\n\
-  return ((my_realloc)"+my_realloc_callback+")(ptr,size);\n\
+  return ljw_callback_dispatch(1,ptr,size,0,0,0,0,0);\n\
 }");
 
 my_libc_src.push("\n\
-typedef unsigned int (* my_free)(unsigned int ptr);\n\
 unsigned int ljw_free(unsigned int ptr){\n\
 //  printf(\"called: ljw_free %u\\n\",ptr);\n\
-  return ((my_free)"+my_free_callback+")(ptr);\n\
+  return ljw_callback_dispatch(2,ptr,0,0,0,0,0,0);\n\
 }");
 
 my_libc_src= my_libc_src.join("\n");
