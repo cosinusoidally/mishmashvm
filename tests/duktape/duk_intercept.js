@@ -124,8 +124,15 @@ var my_free_callback = ctypes.cast(my_free_callback_handle,ctypes.uint32_t).valu
 
 print("my free:"+my_free_callback);
 
+callbacks=[
+  my_malloc,
+  my_realloc,
+  my_free
+];
+
 function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
-  print("callback: "+f+" "+a7);
+  var fn=callbacks[f];
+  print(fn.name +" " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
   return 0;
 };
 
@@ -227,9 +234,17 @@ overrides.push(["ljw_realloc","realloc"]);
 overrides.push(["ljw_free","free"]);
 
 my_libc_src.push("\n\
+typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
+unsigned int ljw_callback_dispatch(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7){\n\
+//  printf(\"called: callback %u\\n\",f);\n\
+  return ((my_callback)"+callback_dispatch_ptr+")(f,a1,a2,a3,a4,a5,a6,a7);\n\
+}");
+
+my_libc_src.push("\n\
 typedef void * (* my_malloc)(unsigned int m);\n\
 void * ljw_malloc(unsigned int m){\n\
 //  printf(\"called: ljw_malloc %u\\n\",m);\n\
+  ljw_callback_dispatch(0,m,0,0,0,0,0,0);\n\
   return ((my_malloc)"+my_malloc_callback+")(m);\n\
 }");
 
@@ -237,6 +252,7 @@ my_libc_src.push("\n\
 typedef void * (* my_realloc)(unsigned int ptr,unsigned int size);\n\
 void * ljw_realloc(unsigned int ptr,unsigned int size){\n\
 //  printf(\"called: ljw_realloc %u %u\\n\",ptr,size);\n\
+  ljw_callback_dispatch(1,ptr,size,0,0,0,0,0);\n\
   return ((my_realloc)"+my_realloc_callback+")(ptr,size);\n\
 }");
 
@@ -244,15 +260,10 @@ my_libc_src.push("\n\
 typedef unsigned int (* my_free)(unsigned int ptr);\n\
 unsigned int ljw_free(unsigned int ptr){\n\
 //  printf(\"called: ljw_free %u\\n\",ptr);\n\
+  ljw_callback_dispatch(2,ptr,0,0,0,0,0,0);\n\
   return ((my_free)"+my_free_callback+")(ptr);\n\
 }");
 
-my_libc_src.push("\n\
-typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
-unsigned int callback(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7){\n\
-  printf(\"called: callback %u\\n\",f);\n\
-  return ((my_callback)"+callback_dispatch_ptr+")(f,a1,a2,a3,a4,a5,a6,a7);\n\
-}");
 my_libc_src= my_libc_src.join("\n");
 stubs_src.push("}");
 stubs_src=stubs_src.join("\n");
