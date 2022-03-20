@@ -20,6 +20,23 @@ passthrough={
   "sscanf": true,
   "sprintf": true,
   "printf": true,
+  "getenv": true,
+  "strchr": true,
+  "strrchr": true,
+  "strcmp": true,
+  "open": true,
+  "_setjmp": true,
+  "read": true,
+  "vsnprintf": true,
+  "fflush": true,
+  "fprintf": true,
+  "snprintf": true,
+  "close": true,
+  "unlink": true,
+  "fopen": true,
+  "fwrite": true,
+  "fputc": true,
+  "fclose": true,
 };
 
 exclude={
@@ -62,10 +79,14 @@ if(dump_und=true){
   my_libc=mm.load_c_string(my_libc_src);
 };
 
+// hack to wire up stdout and stderr (which are file backed stderr.txt/stdout.txt)
+libtcc1.exports.push(mm.libc_compat.imports["stdout"]);
+libtcc1.exports.push(mm.libc_compat.imports["stderr"]);
+
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
 tcc=mm.link([my_tcc,my_wrap,libtcc1]);
 
 main=mm.arg_wrap(tcc.get_fn("main"));
 print("Load complete!");
-main("tcc");
+main("tcc -nostdinc -c "+(test_path+"/hello.c"));
