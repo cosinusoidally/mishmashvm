@@ -39,7 +39,6 @@ io={
   "unlink": true,
   "fflush": true,
   "fprintf": true,
-  "fopen": true,
   "fwrite": true,
   "fputc": true,
   "fclose": true,
@@ -51,12 +50,17 @@ for(var i in io){
 
 // io functions with vfs wrappers
 io_vfs={
+// old school file io:
   "open": true,
   "read": true,
+// new school file io:
+  "fopen": true,
 };
 
 real_open=libc_compat.get_fn("open");
 real_read=libc_compat.get_fn("read");
+
+real_fopen=libc_compat.get_fn("fopen");
 
 real_strlen=libc_compat.get_fn("strlen");
 real_strcpy=libc_compat.get_fn("strcpy");
@@ -87,9 +91,22 @@ function my_read(fd,buf,count){
   return s;
 };
 
+function my_fopen(pathname,mode){
+  print("fopen: "+pathname+" "+" "+mode);
+  var pn=ptr_to_string(pathname);
+  var mode=ptr_to_string(mode);
+  print("fopen file: "+JSON.stringify(pn));
+  print("fopen mode: "+JSON.stringify(mode));
+  var file=real_fopen(pathname,mode);
+  print("fopen file: "+file);
+  print();
+  return file;
+};
+
 callbacks=[
   my_open,
   my_read,
+  my_fopen,
 ];
 
 function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
@@ -138,9 +155,11 @@ if(dump_und=true){
 
 stubs_src.push("ljw_open();");
 stubs_src.push("ljw_read();");
+stubs_src.push("ljw_fopen();");
 
 overrides.push(["ljw_open","open"]);
 overrides.push(["ljw_read","read"]);
+overrides.push(["ljw_fopen","fopen"]);
 
 my_libc_src.push("\n\
 typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
@@ -161,6 +180,12 @@ my_libc_src.push("\n\
 unsigned int ljw_read(unsigned int fd, unsigned int buf, unsigned int count){\n\
 //  printf(\"called: ljw_read %u %u %u\\n\",fd, buf, count);\n\
   return ljw_callback_dispatch(1,fd,buf,count,0,0,0,0);\n\
+}");
+
+my_libc_src.push("\n\
+unsigned int ljw_fopen(unsigned int pathname, unsigned int mode){\n\
+//  printf(\"called: ljw_fopen %u %u %u\\n\",pathname, mode);\n\
+  return ljw_callback_dispatch(2,pathname,mode,0,0,0,0,0);\n\
 }");
 
   my_libc_src= my_libc_src.join("\n");
