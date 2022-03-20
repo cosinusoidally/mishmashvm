@@ -54,8 +54,25 @@ io_vfs={
 
 };
 
+callbacks=[
+];
+
+function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
+  var fn=callbacks[f];
+//  print(fn.name +" " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
+  return fn(a1,a2,a3,a4,a5,a6,a7);
+};
+
+var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
+
+var callback_dispatch_handle = callback_dispatch_type.ptr(callback_dispatch);
+var callback_dispatch_ptr = ctypes.cast(callback_dispatch_handle,ctypes.uint32_t).value;
+
+print("callback dispatch:"+callback_dispatch_ptr);
+
 exclude={
 }
+
 overrides=[];
 
 if(dump_und=true){
@@ -83,6 +100,15 @@ if(dump_und=true){
       my_libc_src.push("ljw_crash_"+s+"(){printf(\"unimplemented: "+s+"\\n\");exit(1);}");
     };
   };
+
+my_libc_src.push("\n\
+typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
+unsigned int ljw_callback_dispatch(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7){\n\
+//  printf(\"called: callback %u\\n\",f);\n\
+  __asm__(\"and $0xfffffff0,%esp\");\n\
+  return ((my_callback)"+callback_dispatch_ptr+")(f,a1,a2,a3,a4,a5,a6,a7);\n\
+}");
+
   my_libc_src= my_libc_src.join("\n");
   stubs_src.push("}");
   stubs_src=stubs_src.join("\n");
