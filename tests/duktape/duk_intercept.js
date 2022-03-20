@@ -132,8 +132,8 @@ callbacks=[
 
 function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
   var fn=callbacks[f];
-  print(fn.name +" " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
-  return 0;
+//  print(fn.name +" " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
+  return fn(a1,a2,a3,a4,a5,a6,a7);
 };
 
 var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
@@ -244,24 +244,21 @@ my_libc_src.push("\n\
 typedef void * (* my_malloc)(unsigned int m);\n\
 void * ljw_malloc(unsigned int m){\n\
 //  printf(\"called: ljw_malloc %u\\n\",m);\n\
-  ljw_callback_dispatch(0,m,0,0,0,0,0,0);\n\
-  return ((my_malloc)"+my_malloc_callback+")(m);\n\
+  return ljw_callback_dispatch(0,m,0,0,0,0,0,0);\n\
 }");
 
 my_libc_src.push("\n\
 typedef void * (* my_realloc)(unsigned int ptr,unsigned int size);\n\
 void * ljw_realloc(unsigned int ptr,unsigned int size){\n\
 //  printf(\"called: ljw_realloc %u %u\\n\",ptr,size);\n\
-  ljw_callback_dispatch(1,ptr,size,0,0,0,0,0);\n\
-  return ((my_realloc)"+my_realloc_callback+")(ptr,size);\n\
+  return ljw_callback_dispatch(1,ptr,size,0,0,0,0,0);\n\
 }");
 
 my_libc_src.push("\n\
 typedef unsigned int (* my_free)(unsigned int ptr);\n\
 unsigned int ljw_free(unsigned int ptr){\n\
 //  printf(\"called: ljw_free %u\\n\",ptr);\n\
-  ljw_callback_dispatch(2,ptr,0,0,0,0,0,0);\n\
-  return ((my_free)"+my_free_callback+")(ptr);\n\
+  return ljw_callback_dispatch(2,ptr,0,0,0,0,0,0);\n\
 }");
 
 my_libc_src= my_libc_src.join("\n");
