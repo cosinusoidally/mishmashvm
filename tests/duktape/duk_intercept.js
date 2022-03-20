@@ -221,21 +221,18 @@ unsigned int ljw_callback_dispatch(unsigned int f,unsigned int a1,unsigned int a
 }");
 
 my_libc_src.push("\n\
-typedef void * (* my_malloc)(unsigned int m);\n\
 void * ljw_malloc(unsigned int m){\n\
 //  printf(\"called: ljw_malloc %u\\n\",m);\n\
   return ljw_callback_dispatch(0,m,0,0,0,0,0,0);\n\
 }");
 
 my_libc_src.push("\n\
-typedef void * (* my_realloc)(unsigned int ptr,unsigned int size);\n\
 void * ljw_realloc(unsigned int ptr,unsigned int size){\n\
 //  printf(\"called: ljw_realloc %u %u\\n\",ptr,size);\n\
   return ljw_callback_dispatch(1,ptr,size,0,0,0,0,0);\n\
 }");
 
 my_libc_src.push("\n\
-typedef unsigned int (* my_free)(unsigned int ptr);\n\
 unsigned int ljw_free(unsigned int ptr){\n\
 //  printf(\"called: ljw_free %u\\n\",ptr);\n\
   return ljw_callback_dispatch(2,ptr,0,0,0,0,0,0);\n\
