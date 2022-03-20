@@ -1,9 +1,9 @@
 print("virtual filesystem test");
 load("lib/gen_wrap.js");
 
-my_tcc=mm.decode_elf("libc_portable_proto/tcc_bin/tcc_boot3.o");
+my_tcc=mm.decode_elf(read("libc_portable_proto/tcc_bin/tcc_boot3.o","binary"));
 
-libtcc1=mm.decode_elf("libc_portable_proto/tcc_bin/libtcc1.o");
+libtcc1=mm.decode_elf(read("libc_portable_proto/tcc_bin/libtcc1.o","binary"));
 
 dump_und=true;
 
@@ -16,8 +16,8 @@ overrides=[];
 
 if(dump_und=true){
   und=[];
-  for(var i=0;i<tcc.und.length;i++){
-    var c=tcc.und[i].st_name;
+  for(var i=0;i<my_tcc.und.length;i++){
+    var c=my_tcc.und[i].st_name;
     und.push(c);
     if(!exclude[c]){
       if(!passthrough[c]){
@@ -52,6 +52,6 @@ if(dump_und=true){
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
-tcc=mm.link([tcc,my_wrap,libtcc1]);
+tcc=mm.link([my_tcc,my_wrap,libtcc1]);
 
 print("Load complete!");
