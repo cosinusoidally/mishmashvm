@@ -68,6 +68,8 @@ real_fprintf=libc_compat.get_fn("fprintf");
 real_strlen=libc_compat.get_fn("strlen");
 real_strcpy=libc_compat.get_fn("strcpy");
 
+real_memcpy=libc_compat.get_fn("memcpy");
+
 function ptr_to_string(p){
   var pn=new Uint8Array(real_strlen(p));
   real_strcpy(pn,p);
@@ -94,13 +96,28 @@ function my_read(fd,buf,count){
   return s;
 };
 
+vfiles={
+};
+
+vfs={
+
+};
+
 function my_fopen(pathname,mode){
   print("fopen: "+pathname+" "+" "+mode);
   var pn=ptr_to_string(pathname);
   var mode=ptr_to_string(mode);
   print("fopen file: "+JSON.stringify(pn));
   print("fopen mode: "+JSON.stringify(mode));
-  var file=real_fopen(pn,mode);
+  var file;
+  if(pn.split(":")[0]==="mmvfs"){
+    print("fopen virtual file: "+pn);
+    file=real_fopen(pn,mode);
+    vfiles[file]={pathname:pn,file: file,data:[]};
+    vfs[pn]=vfiles[file];
+  } else {
+    file=real_fopen(pn,mode);
+  };
   print("fopen file: "+file);
   print();
   return file;
@@ -108,7 +125,22 @@ function my_fopen(pathname,mode){
 
 function my_fwrite(ptr,size,nmemb,stream){
   print("fwrite: "+ptr+" "+size+" "+nmemb+" "+stream);
-  var s=real_fwrite(ptr,size,nmemb,stream);
+  var s;
+  var f;
+  if(f=vfiles[stream]){
+    print("fwrite virtual");
+    var len=size*nmemb;
+    if(len >0){
+      var buf=new Uint8Array(len);
+      real_memcpy(buf,ptr,len);
+      for(var i=0;i<buf.length;i++){
+        f.data.push(buf[i]);
+      };
+    };
+    s=real_fwrite(ptr,size,nmemb,stream);
+  } else {
+    s=real_fwrite(ptr,size,nmemb,stream);
+  };
   print("fwrite size: "+s);
   print();
   return s;
@@ -116,7 +148,14 @@ function my_fwrite(ptr,size,nmemb,stream){
 
 function my_fputc(c,stream){
   print("fputc: "+c+" "+" "+stream);
-  var s=real_fputc(c,stream);
+  var s;
+  if(f=vfiles[stream]){
+    print("fputc virtual");
+    f.data.push(c);
+    s=real_fputc(c,stream);
+  } else {
+    s=real_fputc(c,stream);
+  };
   print("fputc value: "+s);
   print();
   return s;
@@ -265,3 +304,7 @@ tcc=mm.link([my_tcc,my_wrap,libtcc1]);
 main=mm.arg_wrap(tcc.get_fn("main"));
 print("Load complete!");
 main("tcc -nostdinc -c "+(test_path+"/hello.c -o mmvfs:hello.o"));
+
+obj_code=mm.decode_elf(vfs["mmvfs:hello.o"].data);
+linked=mm.link([obj_code,mm.libc_compat]);
+linked.get_fn("main")();
