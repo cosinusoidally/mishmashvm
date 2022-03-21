@@ -103,6 +103,9 @@ vfs={
 
 };
 
+
+dummy=test_path+"/dummy.txt";
+
 function my_fopen(pathname,mode){
   print("fopen: "+pathname+" "+" "+mode);
   var pn=ptr_to_string(pathname);
@@ -112,7 +115,7 @@ function my_fopen(pathname,mode){
   var file;
   if(pn.split(":")[0]==="mmvfs"){
     print("fopen virtual file: "+pn);
-    file=real_fopen(pn,mode);
+    file=real_fopen(dummy,"rb");
     vfiles[file]={pathname:pn,file: file,data:[]};
     vfs[pn]=vfiles[file];
   } else {
