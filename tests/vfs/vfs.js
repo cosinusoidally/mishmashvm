@@ -24,6 +24,7 @@ passthrough={
   "strrchr": true,
   "strcmp": true,
   "_setjmp": true,
+  "atoi": true,
 };
 
 // splitting out the io operations:
@@ -35,7 +36,6 @@ io={
   "vsnprintf": true,
   "snprintf": true,
 // file:
-  "close": true,
   "unlink": true,
   "fflush": true,
   "fclose": true,
@@ -50,6 +50,7 @@ io_vfs={
 // old school file io:
   "open": true,
   "read": true,
+  "close": true,
 // new school file io:
   "fopen": true,
   "fwrite": true,
@@ -59,6 +60,7 @@ io_vfs={
 
 real_open=libc_compat.get_fn("open");
 real_read=libc_compat.get_fn("read");
+real_close=libc_compat.get_fn("close");
 
 real_fopen=libc_compat.get_fn("fopen");
 real_fwrite=libc_compat.get_fn("fwrite");
@@ -125,6 +127,17 @@ function my_read(fd,buf,count){
 //  print("amount read: "+s);
 //  print();
   return s;
+};
+
+function my_close(fd){
+//  print("close: "+fd);
+  if(vfds[fd]){
+    var f=vfds[fd];
+    print("virtual close: "+f.file.pathname+" "+f.offset);
+    print();
+    delete vfds[fd];
+  };
+  return real_close(fd);
 };
 
 vfds={
@@ -213,6 +226,7 @@ callbacks=[
   my_fwrite,
   my_fputc,
   my_fprintf,
+  my_close,
 ];
 
 function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
@@ -261,6 +275,7 @@ if(dump_und=true){
 
 stubs_src.push("ljw_open();");
 stubs_src.push("ljw_read();");
+stubs_src.push("ljw_close();");
 
 stubs_src.push("ljw_fopen();");
 stubs_src.push("ljw_fwrite();");
@@ -269,6 +284,7 @@ stubs_src.push("ljw_fprintf();");
 
 overrides.push(["ljw_open","open"]);
 overrides.push(["ljw_read","read"]);
+overrides.push(["ljw_close","close"]);
 
 overrides.push(["ljw_fopen","fopen"]);
 overrides.push(["ljw_fwrite","fwrite"]);
@@ -315,6 +331,11 @@ unsigned int ljw_fputc(unsigned int c, unsigned int stream){\n\
 my_libc_src.push("\n\
 unsigned int ljw_fprintf(unsigned int stream,unsigned int format,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7){\n\
   return ljw_callback_dispatch(5,stream,format,a3,a4,a5,a6,a7);\n\
+}");
+
+my_libc_src.push("\n\
+unsigned int ljw_close(unsigned int fd){\n\
+  return ljw_callback_dispatch(6,fd,fd,0,0,0,0,0);\n\
 }");
 
   my_libc_src= my_libc_src.join("\n");
@@ -365,3 +386,5 @@ obj_code3=mm.decode_elf(vfs["mmvfs:hello3.o"].data);
 linked3=mm.link([obj_code3,mm.libc_compat]);
 l3=linked3.get_fn("main");
 l3();
+
+tcc2=main("tcc -nostdinc -nostdlib -o mmvfs:tcc.o -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/:includes/usr/include/:includes/usr/include/i386-linux-gnu/:includes/tmp/tcc/lib/tcc/include/")
