@@ -125,7 +125,7 @@ function my_fputc(c,stream){
 // fprintf is varargs so this is not technically correct
 // but will work for up to 5 integer parameters
 function my_fprintf(stream,format,a3,a4,a5,a6,a7){
-  print("fprintf: "+ptr_to_string(format));
+  print("fprintf: "+stream+" "+ptr_to_string(format));
   var s=real_fprintf(stream,format,a3,a4,a5,a6,a7);
   print("fprintf value: "+s);
   print();
