@@ -427,3 +427,9 @@ tcc2=mm.link([tcc_new.tcc,my_wrap,tcc_new.libtcc1]);
 
 main2=mm.arg_wrap(tcc2.get_fn("main"));
 main2("tcc");
+
+main2("tcc -nostdinc -c "+(test_path+"/hello.c -o mmvfs:blah.o"));
+
+obj_code4=mm.decode_elf(vfs["mmvfs:blah.o"].data);
+linked4=mm.link([obj_code4,mm.libc_compat]);
+linked4.get_fn("main")();
