@@ -69,6 +69,7 @@ real_strlen=libc_compat.get_fn("strlen");
 real_strcpy=libc_compat.get_fn("strcpy");
 
 real_memcpy=libc_compat.get_fn("memcpy");
+real_memcpy2=libc_compat.get_fn("memcpy");
 
 function ptr_to_string(p){
   var pn=new Uint8Array(real_strlen(p));
@@ -108,6 +109,16 @@ function my_read(fd,buf,count){
     print("virtual read: "+f.file.pathname+" "+f.offset);
     print();
     s=0;
+    var d=f.file.data;
+    var b=[];
+    var c=count;
+    while((f.offset<d.length) && count>0){
+      b.push(d[f.offset]);
+      f.offset++;
+      count--;
+      s++;
+    };
+    real_memcpy2(buf, new Uint8Array(b),count);
   } else {
     s=real_read(fd,buf,count);
   };
@@ -340,7 +351,7 @@ obj_code2=mm.decode_elf(vfs["mmvfs:hello2.o"].data);
 linked2=mm.link([obj_code2,mm.libc_compat]);
 linked2.get_fn("main")();
 
-hello3='main(){printf("hello 3\n");}';
+hello3='main(){printf("hello world 3\\n");}';
 h=[];
 for(var i=0;i<hello3.length;i++){
   h.push(hello3.charCodeAt(i));
@@ -348,4 +359,9 @@ for(var i=0;i<hello3.length;i++){
 vfs["mmvfs:hello3.c"]={pathname:"mmvfs:hello3.c",data:h};
 
 
-main("tcc -nostdinc -nostdlib -I ./includes/usr/include/:./includes/usr/include/i386-linux-gnu/:./includes/tmp/tcc/lib/tcc/include/:./includes/usr/include/SDL -c mmvfs:hello3.c -o mmvfs:hello2.o");
+main("tcc -nostdinc -nostdlib -I ./includes/usr/include/:./includes/usr/include/i386-linux-gnu/:./includes/tmp/tcc/lib/tcc/include/:./includes/usr/include/SDL -c mmvfs:hello3.c -o mmvfs:hello3.o");
+
+obj_code3=mm.decode_elf(vfs["mmvfs:hello3.o"].data);
+linked3=mm.link([obj_code3,mm.libc_compat]);
+l3=linked3.get_fn("main");
+l3();
