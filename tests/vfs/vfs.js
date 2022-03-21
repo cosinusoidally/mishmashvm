@@ -41,7 +41,6 @@ io={
 // file:
   "unlink": true,
   "fflush": true,
-  "fclose": true,
 };
 
 for(var i in io){
@@ -59,6 +58,7 @@ io_vfs={
   "fwrite": true,
   "fputc": true,
   "fprintf": true,
+  "fclose": true,
 };
 
 real_open=libc_compat.get_fn("open");
@@ -69,6 +69,7 @@ real_fopen=libc_compat.get_fn("fopen");
 real_fwrite=libc_compat.get_fn("fwrite");
 real_fputc=libc_compat.get_fn("fputc");
 real_fprintf=libc_compat.get_fn("fprintf");
+real_fclose=libc_compat.get_fn("fclose");
 
 real_strlen=libc_compat.get_fn("strlen");
 real_strcpy=libc_compat.get_fn("strcpy");
@@ -222,6 +223,18 @@ function my_fprintf(stream,format,a3,a4,a5,a6,a7){
   return s;
 };
 
+function my_fclose(stream){
+  print("fclose: "+stream);
+  var s;
+  var f;
+  if(f=vfiles[stream]){
+    print("fclose virtual");
+    delete vfiles[stream];
+  };
+  s=real_fclose(stream);
+  return s;
+};
+
 callbacks=[
   my_open,
   my_read,
@@ -230,6 +243,7 @@ callbacks=[
   my_fputc,
   my_fprintf,
   my_close,
+  my_fclose,
 ];
 
 function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
@@ -284,6 +298,7 @@ stubs_src.push("ljw_fopen();");
 stubs_src.push("ljw_fwrite();");
 stubs_src.push("ljw_fputc();");
 stubs_src.push("ljw_fprintf();");
+stubs_src.push("ljw_fclose();");
 
 overrides.push(["ljw_open","open"]);
 overrides.push(["ljw_read","read"]);
@@ -293,6 +308,7 @@ overrides.push(["ljw_fopen","fopen"]);
 overrides.push(["ljw_fwrite","fwrite"]);
 overrides.push(["ljw_fputc","fputc"]);
 overrides.push(["ljw_fprintf","fprintf"]);
+overrides.push(["ljw_fclose","fclose"]);
 
 my_libc_src.push("\n\
 typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
@@ -338,7 +354,12 @@ unsigned int ljw_fprintf(unsigned int stream,unsigned int format,unsigned int a3
 
 my_libc_src.push("\n\
 unsigned int ljw_close(unsigned int fd){\n\
-  return ljw_callback_dispatch(6,fd,fd,0,0,0,0,0);\n\
+  return ljw_callback_dispatch(6,fd,0,0,0,0,0,0);\n\
+}");
+
+my_libc_src.push("\n\
+unsigned int ljw_fclose(unsigned int stream){\n\
+  return ljw_callback_dispatch(7,stream,0,0,0,0,0,0);\n\
 }");
 
   my_libc_src= my_libc_src.join("\n");
