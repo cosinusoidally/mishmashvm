@@ -89,10 +89,10 @@ function my_open(pathname,flags,mode){
 };
 
 function my_read(fd,buf,count){
-  print("read: "+fd+" "+buf+" "+count);
+//  print("read: "+fd+" "+buf+" "+count);
   var s=real_read(fd,buf,count);
-  print("amount read: "+s);
-  print();
+//  print("amount read: "+s);
+//  print();
   return s;
 };
 
@@ -127,11 +127,11 @@ function my_fopen(pathname,mode){
 };
 
 function my_fwrite(ptr,size,nmemb,stream){
-  print("fwrite: "+ptr+" "+size+" "+nmemb+" "+stream);
+//  print("fwrite: "+ptr+" "+size+" "+nmemb+" "+stream);
   var s;
   var f;
   if(f=vfiles[stream]){
-    print("fwrite virtual");
+//    print("fwrite virtual");
     var len=size*nmemb;
     if(len >0){
       var buf=new Uint8Array(len);
@@ -144,23 +144,23 @@ function my_fwrite(ptr,size,nmemb,stream){
   } else {
     s=real_fwrite(ptr,size,nmemb,stream);
   };
-  print("fwrite size: "+s);
-  print();
+//  print("fwrite size: "+s);
+//  print();
   return s;
 };
 
 function my_fputc(c,stream){
-  print("fputc: "+c+" "+" "+stream);
+//  print("fputc: "+c+" "+" "+stream);
   var s;
   if(f=vfiles[stream]){
-    print("fputc virtual");
+//    print("fputc virtual");
     f.data.push(c);
     s=c;
   } else {
     s=real_fputc(c,stream);
   };
-  print("fputc value: "+s);
-  print();
+//  print("fputc value: "+s);
+//  print();
   return s;
 };
 
@@ -311,3 +311,10 @@ main("tcc -nostdinc -c "+(test_path+"/hello.c -o mmvfs:hello.o"));
 obj_code=mm.decode_elf(vfs["mmvfs:hello.o"].data);
 linked=mm.link([obj_code,mm.libc_compat]);
 linked.get_fn("main")();
+
+
+main("tcc -nostdinc -nostdlib -I ./includes/usr/include/:./includes/usr/include/i386-linux-gnu/:./includes/tmp/tcc/lib/tcc/include/:./includes/usr/include/SDL -c "+(test_path+"/hello2.c -o mmvfs:hello2.o"));
+
+obj_code2=mm.decode_elf(vfs["mmvfs:hello2.o"].data);
+linked2=mm.link([obj_code2,mm.libc_compat]);
+linked2.get_fn("main")();
