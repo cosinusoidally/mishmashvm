@@ -25,6 +25,8 @@ passthrough={
   "strcmp": true,
   "_setjmp": true,
   "atoi": true,
+  "qsort": true,
+  "strtod": true,
 };
 
 // splitting out the io operations:
