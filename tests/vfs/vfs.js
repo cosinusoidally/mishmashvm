@@ -80,7 +80,7 @@ function my_open(pathname,flags,mode){
   print("open: "+pathname+" "+flags+" "+mode);
   var pn=ptr_to_string(pathname);
   print("file open: "+JSON.stringify(pn));
-  var fd=real_open(pathname,flags,mode);
+  var fd=real_open(pn,flags,mode);
   print("file fd: "+fd);
   print();
   return fd;
@@ -100,7 +100,7 @@ function my_fopen(pathname,mode){
   var mode=ptr_to_string(mode);
   print("fopen file: "+JSON.stringify(pn));
   print("fopen mode: "+JSON.stringify(mode));
-  var file=real_fopen(pathname,mode);
+  var file=real_fopen(pn,mode);
   print("fopen file: "+file);
   print();
   return file;
@@ -264,4 +264,4 @@ tcc=mm.link([my_tcc,my_wrap,libtcc1]);
 
 main=mm.arg_wrap(tcc.get_fn("main"));
 print("Load complete!");
-main("tcc -nostdinc -c "+(test_path+"/hello.c"));
+main("tcc -nostdinc -c "+(test_path+"/hello.c -o mmvfs:hello.o"));
