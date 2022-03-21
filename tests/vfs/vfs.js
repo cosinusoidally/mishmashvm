@@ -27,6 +27,7 @@ passthrough={
   "atoi": true,
   "qsort": true,
   "strtod": true,
+  "strtoull": true,
 };
 
 // splitting out the io operations:
@@ -389,4 +390,19 @@ linked3=mm.link([obj_code3,mm.libc_compat]);
 l3=linked3.get_fn("main");
 l3();
 
-tcc2=main("tcc -nostdinc -nostdlib -o mmvfs:tcc.o -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/:includes/usr/include/:includes/usr/include/i386-linux-gnu/:includes/tmp/tcc/lib/tcc/include/")
+print("JIT tcc into vfs");
+main("tcc -nostdinc -nostdlib -o mmvfs:tcc.o -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/:includes/usr/include/:includes/usr/include/i386-linux-gnu/:includes/tmp/tcc/lib/tcc/include/");
+main("tcc -nostdinc -nostdlib -c tcc_src/lib/libtcc1.c -o mmvfs:libtcc1.o");
+
+tcc_new={
+tcc:mm.decode_elf(vfs["mmvfs:tcc.o"].data),
+libtcc1:mm.decode_elf(vfs["mmvfs:tcc.o"].data)
+};
+
+tcc_new.libtcc1.exports.push(mm.libc_compat.imports["stdout"]);
+tcc_new.libtcc1.exports.push(mm.libc_compat.imports["stderr"]);
+
+tcc2=mm.link([tcc_new.tcc,my_wrap,tcc_new.libtcc1]);
+
+main2=mm.arg_wrap(tcc2.get_fn("main"));
+main2("tcc");
