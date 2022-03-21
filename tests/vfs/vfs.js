@@ -137,7 +137,7 @@ function my_fwrite(ptr,size,nmemb,stream){
         f.data.push(buf[i]);
       };
     };
-    s=real_fwrite(ptr,size,nmemb,stream);
+    s=nmemb;
   } else {
     s=real_fwrite(ptr,size,nmemb,stream);
   };
@@ -152,7 +152,7 @@ function my_fputc(c,stream){
   if(f=vfiles[stream]){
     print("fputc virtual");
     f.data.push(c);
-    s=real_fputc(c,stream);
+    s=c;
   } else {
     s=real_fputc(c,stream);
   };
