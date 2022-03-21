@@ -82,7 +82,19 @@ function my_open(pathname,flags,mode){
   print("open: "+pathname+" "+flags+" "+mode);
   var pn=ptr_to_string(pathname);
   print("file open: "+JSON.stringify(pn));
-  var fd=real_open(pn,flags,mode);
+  var fd;
+  if(pn.split(":")[0]==="mmvfs"){
+    print("virtual open: "+pn);
+    if(vfs[pn]){
+      print("found virtual file: "+pn);
+      fd=real_open(dummy,0,0);
+      vfds[fd]={file:vfs[pn],offset:0};
+    } else {
+      fd=new Uint32Array([-1])[0];
+    };
+  } else {
+    fd=real_open(pn,flags,mode);
+  };
   print("file fd: "+fd);
   print();
   return fd;
@@ -90,19 +102,28 @@ function my_open(pathname,flags,mode){
 
 function my_read(fd,buf,count){
 //  print("read: "+fd+" "+buf+" "+count);
-  var s=real_read(fd,buf,count);
+  var s;
+  if(vfds[fd]){
+    var f=vfds[fd];
+    print("virtual read: "+f.file.pathname+" "+f.offset);
+    print();
+    s=0;
+  } else {
+    s=real_read(fd,buf,count);
+  };
 //  print("amount read: "+s);
 //  print();
   return s;
+};
+
+vfds={
 };
 
 vfiles={
 };
 
 vfs={
-
 };
-
 
 dummy=test_path+"/dummy.txt";
 
@@ -318,3 +339,13 @@ main("tcc -nostdinc -nostdlib -I ./includes/usr/include/:./includes/usr/include/
 obj_code2=mm.decode_elf(vfs["mmvfs:hello2.o"].data);
 linked2=mm.link([obj_code2,mm.libc_compat]);
 linked2.get_fn("main")();
+
+hello3='main(){printf("hello 3\n");}';
+h=[];
+for(var i=0;i<hello3.length;i++){
+  h.push(hello3.charCodeAt(i));
+};
+vfs["mmvfs:hello3.c"]={pathname:"mmvfs:hello3.c",data:h};
+
+
+main("tcc -nostdinc -nostdlib -I ./includes/usr/include/:./includes/usr/include/i386-linux-gnu/:./includes/tmp/tcc/lib/tcc/include/:./includes/usr/include/SDL -c mmvfs:hello3.c -o mmvfs:hello2.o");
