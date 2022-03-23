@@ -1,4 +1,8 @@
 print("virtual filesystem test");
+
+var save_vfs_wrap;
+var cached_vfs_wrap;
+
 load("lib/gen_wrap.js");
 
 my_tcc=mm.decode_elf(read("libc_portable_proto/tcc_bin/tcc_boot3.o","binary"));
@@ -367,10 +371,17 @@ unsigned int ljw_fclose(unsigned int stream){\n\
   stubs_src=stubs_src.join("\n");
 //  print("stubs:");
 //  print(stubs_src);
-  stubs=mm.load_c_string(stubs_src);
+  if(!cached_vfs_wrap){
+    stubs=mm.load_c_string(stubs_src);
 //  print(JSON.stringify(overrides, null, " "));
 //  print(my_libc_src);
-  my_libc=mm.load_c_string(my_libc_src);
+    my_libc=mm.load_c_string(my_libc_src);
+    if(save_vfs_wrap){
+      print("caching to disk");
+    };
+  } else {
+    print("using cached wrapper");
+  };
 };
 
 // hack to wire up stdout and stderr (which are file backed stderr.txt/stdout.txt)
