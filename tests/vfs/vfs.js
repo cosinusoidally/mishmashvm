@@ -68,7 +68,12 @@ io_vfs={
 real_open=libc_compat.get_fn("open");
 real_read=libc_compat.get_fn("read");
 real_close=libc_compat.get_fn("close");
-real_unlink=libc_compat.get_fn("unlink");
+// danger unlink is dangerous createa dummy impl
+// real_unlink=libc_compat.get_fn("unlink");
+real_unlink=function(pathname){
+  print("skipping real unlink: "+pathname);
+  return 0;
+};
 
 real_fopen=libc_compat.get_fn("fopen");
 real_fwrite=libc_compat.get_fn("fwrite");
@@ -81,6 +86,8 @@ real_strcpy=libc_compat.get_fn("strcpy");
 
 real_memcpy=libc_compat.get_fn("memcpy");
 real_memcpy2=libc_compat.get_fn("memcpy");
+
+real_exit=libc_compat.get_fn("exit");
 
 function ptr_to_string(p){
   var pn=new Uint8Array(real_strlen(p));
@@ -150,14 +157,20 @@ function my_close(fd){
 };
 
 function my_unlink(pathname){
-//  print("unlink: "+fd);
-  var[pn]=ptr_to_string;
-  if(vfs[pn]){
-    var f=vfs[pn];
-    print("virtual unlink: "+f.file.pathname);
+  var pn=ptr_to_string(pathname);
+  print("unlink: "+pn);
+  var r;
+  if(pn.split(":")[0]==="mmvfs"){
+    print("virtual unlink: "+pn);
     print();
+    r=0;
+  } else {
+    print("real unlink: "+pn);
+    print("real unlink ptr: "+pathname);
+    r=real_unlink(pathname);
   };
-  return real_unlink(pathname);
+  print("unlink return: "+r);
+  return r;
 };
 
 vfds={
