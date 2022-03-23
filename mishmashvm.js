@@ -16,6 +16,7 @@ tests=[
   {"path":"tests/duktape","script":"duk_build_win32.js","description":"Build Duktape for win32"},
   {"path":"tests/duktape","script":"tcc_win32_hello.js","description":"win32 tcc"},
   {"path":"tests/duktape","script":"duk_intercept.js","description":"The Duktape JavaScript VM but with some libc calls intercepted"},
+  {"path":"tests/vfs","script":"vfs.js","description":"testing out a virtual filesystem implementation"},
 ];
 
 print_tests=function(){
