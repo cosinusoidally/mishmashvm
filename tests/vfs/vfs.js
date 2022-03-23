@@ -380,14 +380,20 @@ unsigned int ljw_fclose(unsigned int stream){\n\
 //  print(stubs_src);
   if(!cached_vfs_wrap){
     stubs=mm.load_c_string(stubs_src);
+    stubs_obj=read(mm.cfg.tmpdir+"/tmp.o","binary");
 //  print(JSON.stringify(overrides, null, " "));
 //  print(my_libc_src);
     my_libc=mm.load_c_string(my_libc_src);
+    my_libc_obj=read(mm.cfg.tmpdir+"/tmp.o","binary");
     if(save_vfs_wrap){
       print("caching to disk");
+      mm.writeFile(test_path+"/vfs_stubs.o",stubs_obj);
+      mm.writeFile(test_path+"/vfs_libc.o",my_libc_obj);
     };
   } else {
-    print("using cached wrapper");
+    print("using cached vfs wrapper");
+    stubs=mm.decode_elf(read(test_path+"/vfs_stubs.o","binary"));
+    my_libc=mm.decode_elf(read(test_path+"/vfs_libc.o","binary"));
   };
 };
 
