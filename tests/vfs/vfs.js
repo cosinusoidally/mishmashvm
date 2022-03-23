@@ -43,7 +43,6 @@ io={
   "vsnprintf": true,
   "snprintf": true,
 // file:
-  "unlink": true,
   "fflush": true,
 };
 
@@ -57,6 +56,7 @@ io_vfs={
   "open": true,
   "read": true,
   "close": true,
+  "unlink": true,
 // new school file io:
   "fopen": true,
   "fwrite": true,
@@ -68,6 +68,7 @@ io_vfs={
 real_open=libc_compat.get_fn("open");
 real_read=libc_compat.get_fn("read");
 real_close=libc_compat.get_fn("close");
+real_unlink=libc_compat.get_fn("unlink");
 
 real_fopen=libc_compat.get_fn("fopen");
 real_fwrite=libc_compat.get_fn("fwrite");
@@ -146,6 +147,17 @@ function my_close(fd){
     delete vfds[fd];
   };
   return real_close(fd);
+};
+
+function my_unlink(pathname){
+//  print("unlink: "+fd);
+  var[pn]=ptr_to_string;
+  if(vfs[pn]){
+    var f=vfs[pn];
+    print("virtual unlink: "+f.file.pathname);
+    print();
+  };
+  return real_unlink(pathname);
 };
 
 vfds={
@@ -248,6 +260,7 @@ callbacks=[
   my_fprintf,
   my_close,
   my_fclose,
+  my_unlink,
 ];
 
 function callback_dispatch(f,a1,a2,a3,a4,a5,a6,a7){
@@ -297,6 +310,7 @@ if(dump_und=true){
 stubs_src.push("ljw_open();");
 stubs_src.push("ljw_read();");
 stubs_src.push("ljw_close();");
+stubs_src.push("ljw_unlink();");
 
 stubs_src.push("ljw_fopen();");
 stubs_src.push("ljw_fwrite();");
@@ -307,6 +321,7 @@ stubs_src.push("ljw_fclose();");
 overrides.push(["ljw_open","open"]);
 overrides.push(["ljw_read","read"]);
 overrides.push(["ljw_close","close"]);
+overrides.push(["ljw_unlink","unlink"]);
 
 overrides.push(["ljw_fopen","fopen"]);
 overrides.push(["ljw_fwrite","fwrite"]);
@@ -371,6 +386,11 @@ unsigned int ljw_close(unsigned int fd){\n\
 my_libc_src.push("\n\
 unsigned int ljw_fclose(unsigned int stream){\n\
   return ljw_callback_dispatch(7,stream,0,0,0,0,0,0);\n\
+}");
+
+my_libc_src.push("\n\
+unsigned int ljw_unlink(unsigned int pathname){\n\
+  return ljw_callback_dispatch(8,pathname,0,0,0,0,0,0);\n\
 }");
 
   my_libc_src= my_libc_src.join("\n");
