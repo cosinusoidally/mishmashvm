@@ -313,13 +313,20 @@ overrides.push(["ljw_fwrite","fwrite"]);
 overrides.push(["ljw_fputc","fputc"]);
 overrides.push(["ljw_fprintf","fprintf"]);
 overrides.push(["ljw_fclose","fclose"]);
+overrides.push(["ljw_set_callback","ljw_set_callback"]);
 
 my_libc_src.push("\n\
+int ljw_callback_ptr=0;\n\
+\n\
+unsigned int ljw_set_callback(unsigned int p){\n\
+  ljw_callback_ptr=p;\n\
+  return 0;\n\
+};\n\
 typedef unsigned int (* my_callback)(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7);\n\
 unsigned int ljw_callback_dispatch(unsigned int f,unsigned int a1,unsigned int a2,unsigned int a3,unsigned int a4,unsigned int a5,unsigned int a6,unsigned int a7){\n\
 //  printf(\"called: callback %u\\n\",f);\n\
   __asm__(\"and $0xfffffff0,%esp\");\n\
-  return ((my_callback)"+callback_dispatch_ptr+")(f,a1,a2,a3,a4,a5,a6,a7);\n\
+  return ((my_callback)ljw_callback_ptr)(f,a1,a2,a3,a4,a5,a6,a7);\n\
 }");
 
 my_libc_src.push("\n\
@@ -391,6 +398,8 @@ libtcc1.exports.push(mm.libc_compat.imports["stderr"]);
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
 tcc=mm.link([my_tcc,my_wrap,libtcc1]);
+
+tcc.get_fn("ljw_set_callback")(callback_dispatch_ptr);
 
 main=mm.arg_wrap(tcc.get_fn("main"));
 print("Load complete!");
