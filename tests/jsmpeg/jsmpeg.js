@@ -53,7 +53,7 @@ my_libc=mm.load_c_string(my_libc_src);
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
-jsmpeg=mm.link([jsmpeg_obj,libtcc1]);
+jsmpeg=mm.link([jsmpeg_obj,my_wrap,libtcc1]);
 
 
 print("load complete");
@@ -97,9 +97,11 @@ fb[i*4+3]=fby[i];
   return true;
 }
 
+mpeg1_decoder_create=jsmpeg.get_fn("mpeg1_decoder_create");
+
 vid=read("../vid/big-buck-bunny.mpg","binary");
-/*
 decoder=mpeg1_decoder_create(vid.length,2);
+/*
 write_ptr= mpeg1_decoder_get_write_ptr(decoder,vid.length);
 
 libc.memcpy(write_ptr,vid,vid.length);
