@@ -64,6 +64,28 @@ my_libc=mm.load_c_string(my_libc_src);
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
+// HACK I'm getting some weird crashes on win32 that I think might be something
+// to do with malloc/free/realloc try using a different impl on win32
+try{
+  nss3=ctypes.open("nss3.dll")
+  print("win32 trying to set up alternative malloc/free/realloc");
+  my_malloc=ctypes.cast(nss3.declare("PR_Malloc",ctypes.default_abi,ctypes.void_t),ctypes.uint32_t).value;
+  my_realloc=ctypes.cast(nss3.declare("PR_Realloc",ctypes.default_abi,ctypes.void_t),ctypes.uint32_t).value;
+  my_free=ctypes.cast(nss3.declare("PR_Free",ctypes.default_abi,ctypes.void_t),ctypes.uint32_t).value;
+  print(my_malloc);
+  print(JSON.stringify(my_wrap.exports));
+  wr={};
+  my_wrap.exports.map(function(x){
+    wr[x.st_name]=x;
+  });
+  wr.malloc.address=my_malloc;
+  wr.realloc.address=my_realloc;
+  wr.free.address=my_free;
+  print(JSON.stringify(wr.malloc));
+} catch (e){
+  print("Linux no malloc/free/realloc override needed");
+};
+
 jsmpeg=mm.link([jsmpeg_obj,sdl_obj,libsdl.syms,my_wrap,libtcc1]);
 
 
