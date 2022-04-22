@@ -1,2 +1,0 @@
-rm sdl_test2.o
-js -e "args='tcc -c sdl_test2.c -O0 -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -DHAVE_OPENGL'" $(which run_tcc.js)
