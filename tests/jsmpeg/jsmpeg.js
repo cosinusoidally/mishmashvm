@@ -17,6 +17,9 @@ passthrough={
   "memset": true,
   "memcpy": true,
   "memmove": true,
+  "abs": true,
+  "exit": true,
+  "realloc": true,
 };
 
 exclude={
