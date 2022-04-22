@@ -55,4 +55,73 @@ my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
 jsmpeg=mm.link([jsmpeg_obj,libtcc1]);
 
+
 print("load complete");
+
+width=640;
+height=360;
+
+fb_r=new ArrayBuffer(width*height*4);
+fb_y=new ArrayBuffer(width*height);
+fb_cr=new ArrayBuffer(width*height/2);
+fb_cb=new ArrayBuffer(width*height/2);
+
+fb=new Uint8ClampedArray(fb_r);
+fby=new Uint8Array(fb_y);
+fbcr=new Uint8Array(fb_cr);
+fbcb=new Uint8Array(fb_cb);
+var j=0;
+
+frn=0;
+frame=function(){
+  cur=Date.now();
+  if(((cur-t0)/1000)*24 <frn){
+    return false;
+  }
+  frn++;
+  mpeg1_decoder_decode(decoder);
+  //print(mpeg1_decoder_get_coded_size(decoder)/width);
+  libc.memcpy2(fb_y,mpeg1_decoder_get_y_ptr(decoder),fby.length);
+  libc.memcpy2(fb_cr,mpeg1_decoder_get_cr_ptr(decoder),fbcr.length);
+  libc.memcpy2(fb_cb,mpeg1_decoder_get_cb_ptr(decoder),fbcb.length);
+/*
+for(var i=0;i<width*height;i++){
+fb[i*4]=fby[i];
+fb[i*4+1]=fby[i];
+fb[i*4+2]=fby[i];
+fb[i*4+3]=fby[i];
+}
+*/
+  YCbCrToRGBA(fby,fbcb,fbcr,fb);
+  libc.memcpy(get_framebuffer_sdl(),fb_r,fb.length);
+  return true;
+}
+
+vid=read("../vid/big-buck-bunny.mpg","binary");
+/*
+decoder=mpeg1_decoder_create(vid.length,2);
+write_ptr= mpeg1_decoder_get_write_ptr(decoder,vid.length);
+
+libc.memcpy(write_ptr,vid,vid.length);
+mpeg1_decoder_did_write(decoder,vid.length);
+print("Framerate: "+ mpeg1_decoder_get_frame_rate(decoder));
+print("width: "+ mpeg1_decoder_get_width(decoder));
+print("height: "+ mpeg1_decoder_get_height(decoder));
+
+function go(){
+  init_sdl();
+  t0=Date.now();
+  //set_sdl_buf_raw(fb_r);
+  var st=Date.now();
+
+  while(1){
+    cur=Date.now();
+    if(frame(cur-st)){
+      my_sdl_main();
+    };
+    st=cur;
+  }
+};
+
+go();
+*/
