@@ -13,6 +13,7 @@ passthrough={
   "malloc": true,
   "memset": true,
   "memcpy": true,
+  "memmove": true,
 };
 
 exclude={
@@ -61,6 +62,77 @@ jsmpeg=mm.link([jsmpeg_obj,my_wrap,libtcc1]);
 
 print("load complete");
 
+// YCbCrToRGBA is lifted from jsmpeg so this function (and only this function) is
+// covered by the same license and jsmpeg see LICENSE_jsmpeg
+
+YCbCrToRGBA = function(y, cb, cr, rgba) {
+
+        // Chroma values are the same for each block of 4 pixels, so we proccess
+        // 2 lines at a time, 2 neighboring pixels each.
+        // I wish we could use 32bit writes to the RGBA buffer instead of writing
+        // each byte separately, but we need the automatic clamping of the RGBA
+        // buffer.
+
+        var w = ((width + 15) >> 4) << 4,
+                w2 = w >> 1;
+
+        var yIndex1 = 0,
+                yIndex2 = w,
+                yNext2Lines = w + (w - width);
+
+        var cIndex = 0,
+                cNextLine = w2 - (width >> 1);
+
+        var rgbaIndex1 = 0,
+                rgbaIndex2 = width * 4,
+                rgbaNext2Lines = width * 4;
+
+        var cols = width >> 1,
+                rows = height >> 1;
+
+        var ccb, ccr, r, g, b;
+
+        for (var row = 0; row < rows; row++) {
+                for (var col = 0; col < cols; col++) {
+                        ccb = cb[cIndex];
+                        ccr = cr[cIndex];
+                        cIndex++;
+
+                        r = (ccb + ((ccb * 103) >> 8)) - 179;
+                        g = ((ccr * 88) >> 8) - 44 + ((ccb * 183) >> 8) - 91;
+                        b = (ccr + ((ccr * 198) >> 8)) - 227;
+
+                        // Line 1
+                        var y1 = y[yIndex1++];
+                        var y2 = y[yIndex1++];
+                        rgba[rgbaIndex1]   = y1 + r;
+                        rgba[rgbaIndex1+1] = y1 - g;
+                        rgba[rgbaIndex1+2] = y1 + b;
+                        rgba[rgbaIndex1+4] = y2 + r;
+                        rgba[rgbaIndex1+5] = y2 - g;
+                        rgba[rgbaIndex1+6] = y2 + b;
+                        rgbaIndex1 += 8;
+
+                        // Line 2
+                        var y3 = y[yIndex2++];
+                        var y4 = y[yIndex2++];
+                        rgba[rgbaIndex2]   = y3 + r;
+                        rgba[rgbaIndex2+1] = y3 - g;
+                        rgba[rgbaIndex2+2] = y3 + b;
+                        rgba[rgbaIndex2+4] = y4 + r;
+                        rgba[rgbaIndex2+5] = y4 - g;
+                        rgba[rgbaIndex2+6] = y4 + b;
+                        rgbaIndex2 += 8;
+                }
+
+                yIndex1 += yNext2Lines;
+                yIndex2 += yNext2Lines;
+                rgbaIndex1 += rgbaNext2Lines;
+                rgbaIndex2 += rgbaNext2Lines;
+                cIndex += cNextLine;
+        }
+};
+
 width=640;
 height=360;
 
@@ -76,6 +148,8 @@ fbcb=new Uint8Array(fb_cb);
 var j=0;
 
 frn=0;
+t0=Date.now();
+
 frame=function(){
   cur=Date.now();
   if(((cur-t0)/1000)*24 <frn){
@@ -106,6 +180,10 @@ mpeg1_decoder_did_write=jsmpeg.get_fn("mpeg1_decoder_did_write");
 mpeg1_decoder_get_frame_rate=jsmpeg.get_fn("mpeg1_decoder_get_frame_rate");
 mpeg1_decoder_get_width=jsmpeg.get_fn("mpeg1_decoder_get_width");
 mpeg1_decoder_get_height=jsmpeg.get_fn("mpeg1_decoder_get_height");
+mpeg1_decoder_decode=jsmpeg.get_fn("mpeg1_decoder_decode");
+mpeg1_decoder_get_y_ptr=jsmpeg.get_fn("mpeg1_decoder_get_y_ptr");
+mpeg1_decoder_get_cr_ptr=jsmpeg.get_fn("mpeg1_decoder_get_cr_ptr");
+mpeg1_decoder_get_cb_ptr=jsmpeg.get_fn("mpeg1_decoder_get_cb_ptr");
 
 vid=read("../vid/big-buck-bunny.mpg","binary");
 decoder=mpeg1_decoder_create(vid.length,2);
@@ -132,4 +210,5 @@ function go(){
   }
 };
 
+frame();
 // go();
