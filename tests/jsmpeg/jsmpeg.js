@@ -145,8 +145,8 @@ height=360;
 
 fb_r=new ArrayBuffer(width*height*4);
 fb_y=new ArrayBuffer(width*height);
-fb_cr=new ArrayBuffer(width*height/2);
-fb_cb=new ArrayBuffer(width*height/2);
+fb_cr=new ArrayBuffer(width*height/4);
+fb_cb=new ArrayBuffer(width*height/4);
 
 fb=new Uint8ClampedArray(fb_r);
 fby=new Uint8Array(fb_y);
