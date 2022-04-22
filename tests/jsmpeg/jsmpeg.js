@@ -12,6 +12,7 @@ jsmpeg_obj=mm.load_c_string(read(jsmpeg_srcdir+"/jsmpeg_all.c"),{extra_flags:"-I
 passthrough={
   "malloc": true,
   "memset": true,
+  "memcpy": true,
 };
 
 exclude={
@@ -100,10 +101,14 @@ fb[i*4+3]=fby[i];
 }
 
 mpeg1_decoder_create=jsmpeg.get_fn("mpeg1_decoder_create");
+mpeg1_decoder_get_write_ptr=jsmpeg.get_fn("mpeg1_decoder_get_write_ptr");
+mpeg1_decoder_did_write=jsmpeg.get_fn("mpeg1_decoder_did_write");
+mpeg1_decoder_get_frame_rate=jsmpeg.get_fn("mpeg1_decoder_get_frame_rate");
+mpeg1_decoder_get_width=jsmpeg.get_fn("mpeg1_decoder_get_width");
+mpeg1_decoder_get_height=jsmpeg.get_fn("mpeg1_decoder_get_height");
 
 vid=read("../vid/big-buck-bunny.mpg","binary");
 decoder=mpeg1_decoder_create(vid.length,2);
-/*
 write_ptr= mpeg1_decoder_get_write_ptr(decoder,vid.length);
 
 libc.memcpy(write_ptr,vid,vid.length);
@@ -127,5 +132,4 @@ function go(){
   }
 };
 
-go();
-*/
+// go();
