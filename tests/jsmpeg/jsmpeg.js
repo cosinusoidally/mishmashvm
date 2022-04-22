@@ -2,10 +2,13 @@ print("jsmpeg demo");
 print("make sure the video file exists at ../vid/big-buck-bunny.mpg");
 
 load("lib/gen_wrap.js");
+load("lib/setup_sdl.js");
 
 jsmpeg_srcdir=test_path+"/jsmpeg_src/";
 
 libtcc1=mm.load_c_string(read("tcc_src/lib/libtcc1.c"));
+
+sdl_obj=mm.load_c_string(read(jsmpeg_srcdir+"/sdl_test2.c"));
 
 jsmpeg_obj=mm.load_c_string(read(jsmpeg_srcdir+"/jsmpeg_all.c"),{extra_flags:"-I "+jsmpeg_srcdir});
 
@@ -57,7 +60,7 @@ my_libc=mm.load_c_string(my_libc_src);
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
-jsmpeg=mm.link([jsmpeg_obj,my_wrap,libtcc1]);
+jsmpeg=mm.link([jsmpeg_obj,sdl_obj,libsdl.syms,my_wrap,libtcc1]);
 
 
 print("load complete");
