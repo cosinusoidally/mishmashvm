@@ -10,6 +10,8 @@ libtcc1=mm.load_c_string(read("tcc_src/lib/libtcc1.c"));
 jsmpeg_obj=mm.load_c_string(read(jsmpeg_srcdir+"/jsmpeg_all.c"),{extra_flags:"-I "+jsmpeg_srcdir});
 
 passthrough={
+  "malloc": true,
+  "memset": true,
 };
 
 exclude={
