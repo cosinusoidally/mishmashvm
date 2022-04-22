@@ -1,3 +1,0 @@
-tcc -c buffer.c
-tcc -c mp2.c
-tcc -c mpeg1.c

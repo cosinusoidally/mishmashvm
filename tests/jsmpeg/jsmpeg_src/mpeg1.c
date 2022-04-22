@@ -822,8 +822,9 @@ int mpeg1_decoder_has_sequence_header(mpeg1_decoder_t *self) {
 	return self->has_sequence_header;
 }
 
-float mpeg1_decoder_get_frame_rate(mpeg1_decoder_t *self) {
-	return self->frame_rate;
+// HACK MMVM change return type to int
+int mpeg1_decoder_get_frame_rate(mpeg1_decoder_t *self) {
+	return (int)(self->frame_rate);
 }
 
 int mpeg1_decoder_get_coded_size(mpeg1_decoder_t *self) {
