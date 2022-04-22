@@ -20,6 +20,7 @@ passthrough={
 };
 
 exclude={
+  "__fixsfdi": true,
 };
 
 overrides=[];
@@ -151,7 +152,6 @@ fbcb=new Uint8Array(fb_cb);
 var j=0;
 
 frn=0;
-t0=Date.now();
 
 frame=function(){
   cur=Date.now();
@@ -188,6 +188,10 @@ mpeg1_decoder_get_y_ptr=jsmpeg.get_fn("mpeg1_decoder_get_y_ptr");
 mpeg1_decoder_get_cr_ptr=jsmpeg.get_fn("mpeg1_decoder_get_cr_ptr");
 mpeg1_decoder_get_cb_ptr=jsmpeg.get_fn("mpeg1_decoder_get_cb_ptr");
 
+init_sdl=jsmpeg.get_fn("init_sdl");
+get_framebuffer_sdl=jsmpeg.get_fn("get_framebuffer_sdl");
+my_sdl_main=jsmpeg.get_fn("my_sdl_main");
+
 vid=read("../vid/big-buck-bunny.mpg","binary");
 decoder=mpeg1_decoder_create(vid.length,2);
 write_ptr= mpeg1_decoder_get_write_ptr(decoder,vid.length);
@@ -213,5 +217,4 @@ function go(){
   }
 };
 
-frame();
-// go();
+go();
