@@ -6,11 +6,14 @@ foo(){
 #include "mp2.c"
 #include "buffer.c"
 
+int clamp(int x){
+  if(x>255){x=255;}
+  if(x<0){x=0;}
+  return x;
+}
+
 // YCbCrToRGBA = function(y, cb, cr, rgba, width, height) {
 void YCbCrToRGBA(char *y, char *cb, char *cr, char *rgba, int width, int height){
-  memcpy(rgba,y,width*height);
-  memcpy(rgba+width*height,cb,(width*height) >> 2);
-//  memcpy(rgba+width*height+((width*height) >> 2),cr,(width*height) >> 2);
 
 //        var w = ((width + 15) >> 4) << 4,
         int w = ((width + 15) >> 4) << 4,
@@ -67,17 +70,17 @@ void YCbCrToRGBA(char *y, char *cb, char *cr, char *rgba, int width, int height)
 //                        var y2 = y[yIndex1++];
                         int y2 = y[yIndex1++];
 //                        rgba[rgbaIndex1]   = y1 + r;
-                        rgba[rgbaIndex1]   = y1 + r;
+                        rgba[rgbaIndex1]   = clamp(y1 + r);
 //                        rgba[rgbaIndex1+1] = y1 - g;
-                        rgba[rgbaIndex1+1] = y1 - g;
+                        rgba[rgbaIndex1+1] = clamp(y1 - g);
 //                        rgba[rgbaIndex1+2] = y1 + b;
-                        rgba[rgbaIndex1+2] = y1 + b;
+                        rgba[rgbaIndex1+2] = clamp(y1 + b);
 //                        rgba[rgbaIndex1+4] = y2 + r;
-                        rgba[rgbaIndex1+4] = y2 + r;
+                        rgba[rgbaIndex1+4] = clamp(y2 + r);
 //                        rgba[rgbaIndex1+5] = y2 - g;
-                        rgba[rgbaIndex1+5] = y2 - g;
+                        rgba[rgbaIndex1+5] = clamp(y2 - g);
 //                        rgba[rgbaIndex1+6] = y2 + b;
-                        rgba[rgbaIndex1+6] = y2 + b;
+                        rgba[rgbaIndex1+6] = clamp(y2 + b);
 //                        rgbaIndex1 += 8;
                         rgbaIndex1 += 8;
 
@@ -87,17 +90,17 @@ void YCbCrToRGBA(char *y, char *cb, char *cr, char *rgba, int width, int height)
 //                        var y4 = y[yIndex2++];
                         int y4 = y[yIndex2++];
 //                        rgba[rgbaIndex2]   = y3 + r;
-                        rgba[rgbaIndex2]   = y3 + r;
+                        rgba[rgbaIndex2]   = clamp(y3 + r);
 //                        rgba[rgbaIndex2+1] = y3 - g;
-                        rgba[rgbaIndex2+1] = y3 - g;
+                        rgba[rgbaIndex2+1] = clamp(y3 - g);
 //                        rgba[rgbaIndex2+2] = y3 + b;
-                        rgba[rgbaIndex2+2] = y3 + b;
+                        rgba[rgbaIndex2+2] = clamp(y3 + b);
 //                        rgba[rgbaIndex2+4] = y4 + r;
-                        rgba[rgbaIndex2+4] = y4 + r;
+                        rgba[rgbaIndex2+4] = clamp(y4 + r);
 //                        rgba[rgbaIndex2+5] = y4 - g;
-                        rgba[rgbaIndex2+5] = y4 - g;
+                        rgba[rgbaIndex2+5] = clamp(y4 - g);
 //                        rgba[rgbaIndex2+6] = y4 + b;
-                        rgba[rgbaIndex2+6] = y4 + b;
+                        rgba[rgbaIndex2+6] = clamp(y4 + b);
 //                        rgbaIndex2 += 8;
                         rgbaIndex2 += 8;
 //                }
