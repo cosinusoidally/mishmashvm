@@ -72,7 +72,7 @@ print("load complete");
 // YCbCrToRGBA is lifted from jsmpeg so this function (and only this function) is
 // covered by the same license and jsmpeg see LICENSE_jsmpeg
 
-YCbCrToRGBA = function(y, cb, cr, rgba) {
+YCbCrToRGBA = function(y, cb, cr, rgba, width, height) {
 
         // Chroma values are the same for each block of 4 pixels, so we proccess
         // 2 lines at a time, 2 neighboring pixels each.
@@ -176,7 +176,7 @@ frame=function(){
   memcpy(fb_cr,mpeg1_decoder_get_cr_ptr(decoder),fbcr.length);
   memcpy(fb_cb,mpeg1_decoder_get_cb_ptr(decoder),fbcb.length);
 
-  YCbCrToRGBA(fby,fbcb,fbcr,fb);
+  YCbCrToRGBA(fby,fbcb,fbcr,fb,width,height);
 
   memcpy(get_framebuffer_sdl(),fb_r,fb.length);
   return true;
