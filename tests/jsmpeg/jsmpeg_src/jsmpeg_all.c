@@ -5,3 +5,7 @@ foo(){
 #include "mpeg1.c"
 #include "mp2.c"
 #include "buffer.c"
+
+void YCbCrToRGBA(){
+
+}

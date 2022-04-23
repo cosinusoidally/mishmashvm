@@ -140,6 +140,14 @@ YCbCrToRGBA = function(y, cb, cr, rgba) {
         }
 };
 
+try{
+  print(Duktape);
+  print("Duktape overriding YCbCrToRGBA");
+  YCbCrToRGBA=jsmpeg.get_fn("YCbCrToRGBA");
+} catch (e){
+  print("In spidermonkey no YCbCrToRGBA override");
+};
+
 width=640;
 height=360;
 
