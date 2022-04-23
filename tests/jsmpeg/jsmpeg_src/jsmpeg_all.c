@@ -7,13 +7,12 @@ foo(){
 #include "buffer.c"
 
 unsigned char my_clamp(const int x) {
-//    return (x < 0) ? 0 : ((x > 0xFF) ? 0xFF : (unsigned char) x);
-return (unsigned char)x;
+    return (x < 0) ? 0 : ((x > 0xFF) ? 0xFF : (unsigned char) x);
 }
 // #define clamp(X) (((X) < (255)) ? (X) : (255))
 
 // YCbCrToRGBA = function(y, cb, cr, rgba, width, height) {
-void YCbCrToRGBA(char *y, char *cb, char *cr, char *rgba, int width, int height){
+void YCbCrToRGBA(unsigned char *y,unsigned char *cb,unsigned char *cr,unsigned char *rgba, int width, int height){
 
         unsigned int w = ((width + 15) >> 4) << 4,
                 w2 = w >> 1;
