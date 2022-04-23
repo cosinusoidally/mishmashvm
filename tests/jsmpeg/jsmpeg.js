@@ -20,6 +20,7 @@ passthrough={
   "abs": true,
   "exit": true,
   "realloc": true,
+  "printf": true,
 };
 
 exclude={
