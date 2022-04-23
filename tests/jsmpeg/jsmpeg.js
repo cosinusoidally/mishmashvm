@@ -167,15 +167,9 @@ frame=function(){
   memcpy(fb_y,mpeg1_decoder_get_y_ptr(decoder),fby.length);
   memcpy(fb_cr,mpeg1_decoder_get_cr_ptr(decoder),fbcr.length);
   memcpy(fb_cb,mpeg1_decoder_get_cb_ptr(decoder),fbcb.length);
-/*
-for(var i=0;i<width*height;i++){
-fb[i*4]=fby[i];
-fb[i*4+1]=fby[i];
-fb[i*4+2]=fby[i];
-fb[i*4+3]=fby[i];
-}
-*/
+
   YCbCrToRGBA(fby,fbcb,fbcr,fb);
+
   memcpy(get_framebuffer_sdl(),fb_r,fb.length);
   return true;
 }
