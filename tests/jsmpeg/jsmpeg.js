@@ -20,6 +20,7 @@ passthrough={
   "abs": true,
   "exit": true,
   "realloc": true,
+  "printf": true,
 };
 
 exclude={
@@ -72,7 +73,7 @@ print("load complete");
 // YCbCrToRGBA is lifted from jsmpeg so this function (and only this function) is
 // covered by the same license and jsmpeg see LICENSE_jsmpeg
 
-YCbCrToRGBA = function(y, cb, cr, rgba) {
+YCbCrToRGBA = function(y, cb, cr, rgba, width, height) {
 
         // Chroma values are the same for each block of 4 pixels, so we proccess
         // 2 lines at a time, 2 neighboring pixels each.
@@ -140,6 +141,14 @@ YCbCrToRGBA = function(y, cb, cr, rgba) {
         }
 };
 
+try{
+  print(Duktape);
+  print("Duktape overriding YCbCrToRGBA");
+  YCbCrToRGBA=jsmpeg.get_fn("YCbCrToRGBA");
+} catch (e){
+  print("In spidermonkey no YCbCrToRGBA override");
+};
+
 width=640;
 height=360;
 
@@ -167,15 +176,9 @@ frame=function(){
   memcpy(fb_y,mpeg1_decoder_get_y_ptr(decoder),fby.length);
   memcpy(fb_cr,mpeg1_decoder_get_cr_ptr(decoder),fbcr.length);
   memcpy(fb_cb,mpeg1_decoder_get_cb_ptr(decoder),fbcb.length);
-/*
-for(var i=0;i<width*height;i++){
-fb[i*4]=fby[i];
-fb[i*4+1]=fby[i];
-fb[i*4+2]=fby[i];
-fb[i*4+3]=fby[i];
-}
-*/
-  YCbCrToRGBA(fby,fbcb,fbcr,fb);
+
+  YCbCrToRGBA(fby,fbcb,fbcr,fb,width,height);
+
   memcpy(get_framebuffer_sdl(),fb_r,fb.length);
   return true;
 }
