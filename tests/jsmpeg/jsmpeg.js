@@ -1,5 +1,7 @@
 print("jsmpeg demo");
 print("make sure the video file exists at ../vid/big-buck-bunny.mpg");
+print("file can be obtained from https://phoboslab.org/files/jsmpeg/big-buck-bunny.mpg");
+print("in this demo only video is supported (similar to the original jsmpeg version https://github.com/phoboslab/jsmpeg/tree/v0.2 ) have a look at that github page if you want to encode your own video with ffmpeg");
 
 load("lib/gen_wrap.js");
 load("lib/setup_sdl.js");
