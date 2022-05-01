@@ -153,7 +153,7 @@ try{
 
 var use_bc;
 if(use_bc){
-  load("YCbCrToRGBA_bc_version.js");
+  load(test_path+"/YCbCrToRGBA_bc_version.js");
 };
 
 width=640;

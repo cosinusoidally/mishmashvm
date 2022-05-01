@@ -1,6 +1,6 @@
 YCbCrToRGBA_bc=(function(){
 
-var bc=read("YCbCrToRGBA.bc","binary");
+var bc=read(test_path+"/YCbCrToRGBA.bc","binary");
 
 var DUK_BC_LDINT_BIAS =  (1 << 15);
 var DUK_BC_JUMP_BIAS= (1 <<23);
