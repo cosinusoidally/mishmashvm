@@ -151,6 +151,11 @@ try{
   print("In spidermonkey no YCbCrToRGBA override");
 };
 
+var use_bc;
+if(use_bc){
+  load("YCbCrToRGBA_bc_version.js");
+};
+
 width=640;
 height=360;
 
