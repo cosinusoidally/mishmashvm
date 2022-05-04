@@ -6,10 +6,12 @@ load(test_path+"/duk_load.js");
 test_path=test_path_old;
 
 duk_run("print('hello world from duktape')");
-
+duk_compile=duk.get_fn("my_compile");
+bc_addr=duk_compile("yuv.js",read(test_path+"/YCbCrToRGBA.js"));
 YCbCrToRGBA_bc=(function(){
 
-bc=read(test_path+"/YCbCrToRGBA.bc","binary");
+bc=new Uint8Array(881);
+libc.memcpy2(bc,bc_addr,881);
 
 var DUK_BC_LDINT_BIAS =  (1 << 15);
 var DUK_BC_JUMP_BIAS= (1 <<23);
