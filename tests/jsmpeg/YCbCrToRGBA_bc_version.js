@@ -1,6 +1,6 @@
 YCbCrToRGBA_bc=(function(){
 
-var bc=read(test_path+"/YCbCrToRGBA.bc","binary");
+bc=read(test_path+"/YCbCrToRGBA.bc","binary");
 
 var DUK_BC_LDINT_BIAS =  (1 << 15);
 var DUK_BC_JUMP_BIAS= (1 <<23);
@@ -412,6 +412,140 @@ var vm = {
 },
 };
 
+function get_ins(f,ip){
+  return f.instrs.dec[ip];
+};
+
+emit={
+
+"DUK_OP_ADD_RC":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code:["regs[", ins[2], "]=","regs[", ins[1],"]+", load_const(f,ins[0]),  ";" ]
+  };
+},
+"DUK_OP_BASR_RC":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2], "]=","regs[", ins[1],"]>>", load_const(f,ins[0]),  ";" ]
+  }
+},
+"DUK_OP_BASL_RC":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2], "]=","regs[", ins[1],"]<<", load_const(f,ins[0]),  ";" ]
+  }
+},
+"DUK_OP_LDINT":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2], "]=",(get_bc(ins)-DUK_BC_LDINT_BIAS),";" ]
+  }
+},
+"DUK_OP_LDREG":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2], "]=regs[",get_bc(ins),"];" ]
+  }
+},
+"DUK_OP_SUB_RR":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2], "]=regs[",ins[1],"]-regs[",ins[0],"];" ]
+  }
+},
+"DUK_OP_ADD_RR":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2], "]=regs[",ins[1],"]+regs[",ins[0],"];" ]
+  }
+},
+"DUK_OP_MUL_RC":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2], "]=","regs[", ins[1],"]*", load_const(f,ins[0]),  ";" ]
+  }
+},
+"DUK_OP_LABEL":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["// label: "+get_bc(ins)+"\n"+"return 1;"],
+    branch: [ip+3]
+  }
+},
+"DUK_OP_JUMP":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["return 1;"],
+    branch: [1+ip+get_abc(ins)-DUK_BC_JUMP_BIAS]
+  };
+},
+"DUK_OP_LT_RR":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2], "]=regs[",ins[1],"]<regs[",ins[0],"];" ]
+  }
+},
+"DUK_OP_IFFALSE_R":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["var r=0;\n","var cv=regs[",get_bc(ins),"];\n",
+          "if(!cv){\n",
+          "  r++;\n",
+          "};\n",
+          "r++;\n",
+          "return r;"],
+    branch: [ip+1,ip+2]
+  };
+},
+"DUK_OP_POSTINCR":function(f,ip){
+  var ins=get_ins(f,ip);
+  return { code: ["var r=regs[",get_bc(ins),"];var ro=r++;regs[",get_bc(ins),"]=r;regs[",ins[2],"]=ro;"]};
+  return [];
+},
+"DUK_OP_GETPROP_RR":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2], "]=regs[",ins[1],"][regs[",ins[0],"]];" ]
+  }
+},
+"DUK_OP_SUB_RC":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code:["regs[", ins[2], "]=","regs[", ins[1],"]-", load_const(f,ins[0]),  ";" ]
+ }
+},
+"DUK_OP_PUTPROP_RR":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2],"][regs[",ins[1],"]]=regs[",ins[0],"];" ]
+  }
+  return { code: []};
+  return [];
+  var cc=fa.regs[ins[0]];
+  var cb=fa.regs[ins[1]];
+  var res=cc;
+  if(trace){
+    print(ins);
+    print("putprop: "+ins[1]+" (value "+cb+") from register "+ins[0]+
+    " (value "+cc+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]][cb]=res;
+  fa.ip++;
+},
+"DUK_OP_ENDLABEL":function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["// endlabel: "+get_bc(ins)+"\n"],
+  }
+},
+"DUK_OP_RETUNDEF":function(ins,fa){
+  return { code: ["return 0;\n"]};
+},
+
+
+};
 
 function get_bc(ins){
   return (ins[0]<<8)+ins[1];
@@ -429,46 +563,130 @@ var cb;
 var cr;
 var rgba;
 var fs;
-
+var fa;
 function setup(y,cb,cr,rgba,width,height){
 fa=setup_fn(f,[y,cb,cr,rgba,width,height]);
 };
 
+var jj=jit(f);
+/*
 function go(){
 while(step_fn(fa)!=="error"){
 };
 };
+*/
 
+function go(){
+var t=0;
+var regs=fa.regs;
+var r=0;
+var cb=jj.blocks[0];
+while(r=cb[0](regs)){
+/*
+ print(cb[1]);
+ print(cb[2]);
+ print(r);
+ print(t++);
+ print();
+*/
+ cb=jj.blocks[cb[r]];
+};
+}
+
+function jit(f){
+  var branch_targets=[];
+  var l=0;
+  var b=[];
+  var d=[];
+  for(var i=0;i<f.instrs.dec.length;i++){
+    var a=[];
+    var c=f.instrs.dec[i];
+    a.push("// ip: "+i);
+    a.push("// "+c);
+    var e=emit[c[3]](f,i);
+    d[i]=e;
+    a.push(e.code.join(""));
+    a.push("// branch: "+JSON.stringify(e.branch));
+    a.push([""]);
+    if(e.branch){
+      branch_targets.push(i);
+      for(j in e.branch){
+        branch_targets.push(e.branch[j]);
+      };
+    };
+    b.push(a.join("\n"));
+  };
+  branch_targets.sort(function(x,y){if(x>y){return 1}});
+  var b2=[0];
+  for(var i=0;i<branch_targets.length;i++){
+    if([branch_targets[i]]>b2[b2.length-1]){
+       b2.push(branch_targets[i]);
+     };
+  };
+  var blocks=[];
+  var l=0;
+  b2.push(f.instrs.dec.length);
+  for(var k=0;k<b2.length;k++){
+    var j=b2[k];
+    var cb=[];
+    for(var i=l;i<j;i++){
+      cb.push(b[i]);
+    };
+    blocks[l]=[cb];
+    if(d[j-1] ? d[j-1].branch : 0){
+      blocks[l][1]=d[j-1].branch[0];
+      blocks[l][2]=d[j-1].branch[1];
+    } else {
+      blocks[l][0].push("return 1;\n");
+      blocks[l][1]=j;
+    };
+    l=j;
+  };
+  for(i in blocks){
+//    print(blocks[i]);
+    blocks[i][0]=new Function("regs",blocks[i][0].join("\n"));
+  };
+  return {code_chunks:b,branch_targets:b2,blocks,branch_map:d};
+};
 return function (y, cb, cr, rgba, width, height){
 setup(y, cb, cr, rgba, width, height);
 go();
 };
 })();
 
-/*
-function test(){
-var width=640;
-var height=360;
-var y=new Uint8Array(width*height);
+yuv_test=(function(){
+var width,height,y,cb,cr,rgba,rgba_new;
+
+function yuv_test_setup(){
+width=640;
+height=360;
+y=new Uint8Array(width*height);
 
 for(var i=0;i<y.length;i++){
   y[i]=Math.random()*255;
 };
-var cb=new Uint8Array((width/2)*(height/2));
-var cr=new Uint8Array((width/2)*(height/2));
+cb=new Uint8Array((width/2)*(height/2));
+cr=new Uint8Array((width/2)*(height/2));
 for(var i=0;i<cb.length;i++){
   cb[i]=Math.random()*255;
   cr[i]=Math.random()*255;
 };
-var rgba=new Uint8ClampedArray(width*height*4);
+rgba=new Uint8ClampedArray(width*height*4);
 
-yuv(y,cb,cr,rgba,width,height);
 
 load("yuv.js");
 
-var rgba_new=new Uint8ClampedArray(width*height*4);
+rgba_new=new Uint8ClampedArray(width*height*4);
+};
+
+function yuv_test_go(){
+var st=Date.now();
+yuv(y,cb,cr,rgba,width,height);
+print("     bytecode:"+(Date.now()-st));
+var st=Date.now();
 YCbCrToRGBA(y, cb, cr, rgba_new, width, height);
 
+print("none bytecode:"+(Date.now()-st));
 var mm=0;
 for(var i=0;i<rgba_new.length;i++){
   if(rgba_new[i]!==rgba[i]){
@@ -481,9 +699,16 @@ if(mm===0){
 } else {
  print("prob");
 };
-
 };
 
-
-test();
-*/
+return function yuv_test(){
+yuv_test_setup();
+for(var i=0;i<10;i++){
+yuv_test_go();
+};
+};
+})();
+//yuv_test()
+//j=jit(f);
+//print(j.code_chunks.join("\n"));
+//print(j.branch_targets);
