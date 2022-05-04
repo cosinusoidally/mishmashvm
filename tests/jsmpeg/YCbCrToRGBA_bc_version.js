@@ -1,3 +1,12 @@
+test_path_old=test_path;
+test_path="tests/duktape";
+
+load(test_path+"/duk_load.js");
+
+test_path=test_path_old;
+
+duk_run("print('hello world from duktape')");
+
 YCbCrToRGBA_bc=(function(){
 
 bc=read(test_path+"/YCbCrToRGBA.bc","binary");
