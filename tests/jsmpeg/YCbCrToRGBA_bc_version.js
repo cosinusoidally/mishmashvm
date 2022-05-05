@@ -1,3 +1,5 @@
+var use_c;
+
 test_path_old=test_path;
 test_path="tests/duktape";
 
@@ -8,6 +10,9 @@ test_path=test_path_old;
 duk_run("print('hello world from duktape')");
 duk_compile=duk.get_fn("my_compile");
 bc_addr=duk_compile("yuv.js",read(test_path+"/YCbCrToRGBA.js"));
+
+get_ptr=duk.get_fn("my_get_address");
+
 YCbCrToRGBA_bc=(function(){
 
 bc=new Uint8Array(881);
@@ -531,19 +536,6 @@ emit={
   return {
     code: ["regs[", ins[2],"][regs[",ins[1],"]]=regs[",ins[0],"];" ]
   }
-  return { code: []};
-  return [];
-  var cc=fa.regs[ins[0]];
-  var cb=fa.regs[ins[1]];
-  var res=cc;
-  if(trace){
-    print(ins);
-    print("putprop: "+ins[1]+" (value "+cb+") from register "+ins[0]+
-    " (value "+cc+") and storing in register "+ins[2]);
-    print("result: "+res);
-  };
-  fa.regs[ins[2]][cb]=res;
-  fa.ip++;
 },
 "DUK_OP_ENDLABEL":function(f,ip){
   var ins=get_ins(f,ip);
@@ -585,6 +577,12 @@ emit_c["DUK_OP_GETPROP_RR"]=function(f,ip){
     code: ["regs[", ins[2], "]=((unsigned char *)regs[",ins[1],"])[regs[",ins[0],"]];" ]
   }
 };
+emit_c["DUK_OP_PUTPROP_RR"]=function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["((unsigned char *)regs[", ins[2],"])[regs[",ins[1],"]]=regs[",ins[0],"];" ]
+  }
+};
 
 function get_bc(ins){
   return (ins[0]<<8)+ins[1];
@@ -620,6 +618,18 @@ function go(){
 var t=0;
 var regs=fa.regs;
 var r=0;
+if(use_c){
+  regs=new Uint32Array(fa.regs.length);
+  for(var i=0;i<regs.length;i++){
+    if(typeof fa.regs[i]==="object"){
+      regs[i]=get_ptr(fa.regs[i]);
+    } else {
+      regs[i]=fa.regs[i];
+    }
+  };
+  print(JSON.stringify(regs));
+  jj=j2;
+};
 var cb=jj.blocks[0];
 while(r=cb[0](regs)){
 /*
@@ -704,6 +714,11 @@ function jit(f,C){
     var c_fn=mm.load_c_string(code,{"extra_flags":"-g"});
     mm.writeFile(mm.cfg.tmpdir+"/jit.c",read(mm.cfg.tmpdir+"/tmp.c","binary"));
     mm.writeFile(mm.cfg.tmpdir+"/jit.o",read(mm.cfg.tmpdir+"/tmp.o","binary"));
+    var c_code=mm.link([c_fn]);
+    for(i in blocks){
+      print("f"+i);
+      blocks[i][0]=c_code.get_fn("f"+i);
+   };
   };
   return {code_chunks:b,branch_targets:b2,blocks,branch_map:d};
 };
