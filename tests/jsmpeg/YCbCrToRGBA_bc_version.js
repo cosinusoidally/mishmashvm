@@ -562,6 +562,23 @@ var emit_c={};
 for(i in emit){
   emit_c[i]=emit[i];
 };
+emit_c["DUK_OP_IFFALSE_R"]=function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["int r=0;\n","int cv=regs[",get_bc(ins),"];\n",
+          "if(!cv){\n",
+          "  r++;\n",
+          "};\n",
+          "r++;\n",
+          "return r;"],
+    branch: [ip+1,ip+2]
+  };
+};
+emit_c["DUK_OP_POSTINCR"]=function(f,ip){
+  var ins=get_ins(f,ip);
+  return { code: ["int r=regs[",get_bc(ins),"];int ro=r++;regs[",get_bc(ins),"]=r;regs[",ins[2],"]=ro;"]};
+  return [];
+};
 
 function get_bc(ins){
   return (ins[0]<<8)+ins[1];
