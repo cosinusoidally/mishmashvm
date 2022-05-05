@@ -718,7 +718,7 @@ function jit(f,C){
     code.push("\
 unsigned char my_clamp(const int x) {\n\
     return (x < 0) ? 0 : ((x > 0xFF) ? 0xFF : (unsigned char) x);\n\
-}");
+}\n");
     for(i in blocks){
       code.push(blocks[i][0]);
     };

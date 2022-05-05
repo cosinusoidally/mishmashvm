@@ -85,10 +85,17 @@ try{
 var use_bc;
 if(use_bc){
   load(test_path+"/YCbCrToRGBA_bc_version.js");
+  YCbCrToRGBA=YCbCrToRGBA_bc;
+};
+
+var perf;
+
+if(perf){
+  YCbCrToRGBA_real=YCbCrToRGBA;
   YCbCrToRGBA=function(y, cb, cr, rgba, width, height){
     var st=Date.now();
-    var r=YCbCrToRGBA_bc(y, cb, cr, rgba, width, height)
-    print("YCbCrToRGBA_bc time: "+(Date.now()-st));
+    var r=YCbCrToRGBA_real(y, cb, cr, rgba, width, height)
+    print("YCbCrToRGBA time: "+(Date.now()-st));
     return r;
   };
 };
