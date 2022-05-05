@@ -672,6 +672,16 @@ function jit(f,C){
       blocks[i][0]=new Function("regs",blocks[i][0].join("\n"));
     };
   };
+  if(C){
+    var code=[];
+    for(i in blocks){
+      code.push(blocks[i][0]);
+    };
+    code=code.join("");
+    var c_fn=mm.load_c_string(code,{"extra_flags":"-g"});
+    mm.writeFile(mm.cfg.tmpdir+"/jit.c",read(mm.cfg.tmpdir+"/tmp.c","binary"));
+    mm.writeFile(mm.cfg.tmpdir+"/jit.o",read(mm.cfg.tmpdir+"/tmp.o","binary"));
+  };
   return {code_chunks:b,branch_targets:b2,blocks,branch_map:d};
 };
 return function (y, cb, cr, rgba, width, height){
