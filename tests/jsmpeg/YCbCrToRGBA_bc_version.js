@@ -558,6 +558,11 @@ emit={
 
 };
 
+var emit_c={};
+for(i in emit){
+  emit_c[i]=emit[i];
+};
+
 function get_bc(ins){
   return (ins[0]<<8)+ins[1];
 };
@@ -580,6 +585,7 @@ fa=setup_fn(f,[y,cb,cr,rgba,width,height]);
 };
 
 var jj=jit(f);
+j2=jit(f,true);
 /*
 function go(){
 while(step_fn(fa)!=="error"){
@@ -604,7 +610,7 @@ while(r=cb[0](regs)){
 };
 }
 
-function jit(f){
+function jit(f,C){
   var branch_targets=[];
   var l=0;
   var b=[];
@@ -614,7 +620,12 @@ function jit(f){
     var c=f.instrs.dec[i];
     a.push("// ip: "+i);
     a.push("// "+c);
-    var e=emit[c[3]](f,i);
+    var e;
+    if(C){
+      e=emit_c[c[3]](f,i);
+    } else {
+      e=emit[c[3]](f,i);
+    };
     d[i]=e;
     a.push(e.code.join(""));
     a.push("// branch: "+JSON.stringify(e.branch));
@@ -654,8 +665,12 @@ function jit(f){
     l=j;
   };
   for(i in blocks){
-//    print(blocks[i]);
-    blocks[i][0]=new Function("regs",blocks[i][0].join("\n"));
+    if(C){
+      blocks[i][0]=["int f",i,"(unsigned int *regs){\n",blocks[i][0].join("\n"),"\n}\n\n"].join("");
+      print(blocks[i]);
+    } else {
+      blocks[i][0]=new Function("regs",blocks[i][0].join("\n"));
+    };
   };
   return {code_chunks:b,branch_targets:b2,blocks,branch_map:d};
 };
