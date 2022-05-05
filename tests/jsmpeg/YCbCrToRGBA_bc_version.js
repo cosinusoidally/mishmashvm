@@ -628,8 +628,9 @@ if(use_c){
       regs[i]=fa.regs[i];
     }
   };
-  print(JSON.stringify(regs));
+//  print(JSON.stringify(regs));
   jj=j2;
+  return jj.blocks.loop(regs);
 };
 var cb=jj.blocks[0];
 while(r=cb[0](regs)){
@@ -715,6 +716,33 @@ function jit(f,C){
     for(i in blocks){
       code.push(blocks[i][0]);
     };
+    code.push("unsigned int foo[128][3];\n");
+    code.push("int init(){\n");
+    for(i in blocks){
+    code.push("foo["+i+"][0]=&f"+i+";\n");
+    if(blocks[i][1]!==undefined){
+      code.push("foo["+i+"][1]="+blocks[i][1]+";\n");
+    };
+    if(blocks[i][2]!==undefined){
+      code.push("foo["+i+"][2]="+blocks[i][2]+";\n");
+    };
+    };
+/*
+int init(){\n\
+ foo[0][0]=&f0;
+}
+*/
+    code.push("}\n");
+    code.push("typedef int (* fn)(unsigned int *regs);\n");
+    code.push("\n\
+int loop(unsigned int *regs){\n\
+  int r;\n\
+  int *cb=foo[0];\n\
+  while(r=((fn)(cb[0]))(regs)){\n\
+    cb=foo[cb[r]];\n\
+  };\n\
+  return 0;\n\
+}");
     code=code.join("");
     var c_fn=mm.load_c_string(code,{"extra_flags":"-g"});
     mm.writeFile(mm.cfg.tmpdir+"/jit.c",read(mm.cfg.tmpdir+"/tmp.c","binary"));
@@ -724,6 +752,8 @@ function jit(f,C){
       print("f"+i);
       blocks[i][0]=c_code.get_fn("f"+i);
    };
+   blocks.loop=c_code.get_fn("loop");
+   c_code.get_fn("init")();
   };
   return {code_chunks:b,branch_targets:b2,blocks,branch_map:d};
 };
