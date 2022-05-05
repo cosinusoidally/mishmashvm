@@ -1,4 +1,5 @@
 var use_c;
+var c_dbg;
 
 test_path_old=test_path;
 test_path="tests/duktape";
@@ -699,7 +700,11 @@ function jit(f,C){
   };
   for(i in blocks){
     if(C){
-      blocks[i][0]=["int f",i,"(unsigned int *regs){\nint r;\nint ro;\nint cv;\n",blocks[i][0].join("\n"),"\n}\n\n"].join("");
+      var dbg="";
+      if(c_dbg){
+         dbg=["printf(\"f",i,"\\n\");\n"].join("");
+      };
+      blocks[i][0]=["int f",i,"(unsigned int *regs){\nint r;\nint ro;\nint cv;\n",dbg,blocks[i][0].join("\n"),"\n}\n\n"].join("");
       print(blocks[i]);
     } else {
       blocks[i][0]=new Function("regs",blocks[i][0].join("\n"));
@@ -714,7 +719,7 @@ function jit(f,C){
     var c_fn=mm.load_c_string(code,{"extra_flags":"-g"});
     mm.writeFile(mm.cfg.tmpdir+"/jit.c",read(mm.cfg.tmpdir+"/tmp.c","binary"));
     mm.writeFile(mm.cfg.tmpdir+"/jit.o",read(mm.cfg.tmpdir+"/tmp.o","binary"));
-    var c_code=mm.link([c_fn]);
+    var c_code=mm.link([c_fn,mm.libc_compat]);
     for(i in blocks){
       print("f"+i);
       blocks[i][0]=c_code.get_fn("f"+i);
