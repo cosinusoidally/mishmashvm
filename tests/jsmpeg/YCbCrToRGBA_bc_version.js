@@ -565,7 +565,7 @@ for(i in emit){
 emit_c["DUK_OP_IFFALSE_R"]=function(f,ip){
   var ins=get_ins(f,ip);
   return {
-    code: ["int r=0;\n","int cv=regs[",get_bc(ins),"];\n",
+    code: ["r=0;\n","cv=regs[",get_bc(ins),"];\n",
           "if(!cv){\n",
           "  r++;\n",
           "};\n",
@@ -576,8 +576,14 @@ emit_c["DUK_OP_IFFALSE_R"]=function(f,ip){
 };
 emit_c["DUK_OP_POSTINCR"]=function(f,ip){
   var ins=get_ins(f,ip);
-  return { code: ["int r=regs[",get_bc(ins),"];int ro=r++;regs[",get_bc(ins),"]=r;regs[",ins[2],"]=ro;"]};
+  return { code: ["r=regs[",get_bc(ins),"];ro=r++;regs[",get_bc(ins),"]=r;regs[",ins[2],"]=ro;"]};
   return [];
+};
+emit_c["DUK_OP_GETPROP_RR"]=function(f,ip){
+  var ins=get_ins(f,ip);
+  return {
+    code: ["regs[", ins[2], "]=((unsigned char *)regs[",ins[1],"])[regs[",ins[0],"]];" ]
+  }
 };
 
 function get_bc(ins){
@@ -683,7 +689,7 @@ function jit(f,C){
   };
   for(i in blocks){
     if(C){
-      blocks[i][0]=["int f",i,"(unsigned int *regs){\n",blocks[i][0].join("\n"),"\n}\n\n"].join("");
+      blocks[i][0]=["int f",i,"(unsigned int *regs){\nint r;\nint ro;\nint cv;\n",blocks[i][0].join("\n"),"\n}\n\n"].join("");
       print(blocks[i]);
     } else {
       blocks[i][0]=new Function("regs",blocks[i][0].join("\n"));
