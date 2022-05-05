@@ -581,7 +581,7 @@ emit_c["DUK_OP_GETPROP_RR"]=function(f,ip){
 emit_c["DUK_OP_PUTPROP_RR"]=function(f,ip){
   var ins=get_ins(f,ip);
   return {
-    code: ["((unsigned char *)regs[", ins[2],"])[regs[",ins[1],"]]=regs[",ins[0],"];" ]
+    code: ["((unsigned char *)regs[", ins[2],"])[regs[",ins[1],"]]=my_clamp(regs[",ins[0],"]);" ]
   }
 };
 
@@ -607,7 +607,9 @@ fa=setup_fn(f,[y,cb,cr,rgba,width,height]);
 };
 
 var jj=jit(f);
+if(use_c){
 j2=jit(f,true);
+};
 /*
 function go(){
 while(step_fn(fa)!=="error"){
@@ -713,6 +715,10 @@ function jit(f,C){
   };
   if(C){
     var code=[];
+    code.push("\
+unsigned char my_clamp(const int x) {\n\
+    return (x < 0) ? 0 : ((x > 0xFF) ? 0xFF : (unsigned char) x);\n\
+}");
     for(i in blocks){
       code.push(blocks[i][0]);
     };
@@ -743,6 +749,7 @@ int loop(unsigned int *regs){\n\
   };\n\
   return 0;\n\
 }");
+
     code=code.join("");
     var c_fn=mm.load_c_string(code,{"extra_flags":"-g"});
     mm.writeFile(mm.cfg.tmpdir+"/jit.c",read(mm.cfg.tmpdir+"/tmp.c","binary"));
