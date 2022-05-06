@@ -675,7 +675,11 @@ function jit(f,C){
     };
     b.push(a.join("\n"));
   };
-  branch_targets.sort(function(x,y){if(x>y){return 1}});
+  branch_targets.sort(function(x,y){
+    if(x>y){return 1;};
+    if(x<y){return -1;};
+    return 0;
+  });
   var b2=[0];
   for(var i=0;i<branch_targets.length;i++){
     if([branch_targets[i]]>b2[b2.length-1]){
