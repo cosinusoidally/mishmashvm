@@ -390,8 +390,17 @@ var vm = {
 "DUK_OP_RETUNDEF":function(ins,fa){
   if(trace){
     print(ins);
-    print("endlabel: "+get_bc(ins));
+    print("retundef: "+get_bc(ins));
   };
+  fa.ret=true;
+;
+},
+"DUK_OP_RETREG":function(ins,fa){
+  if(trace){
+    print(ins);
+    print("retreg: "+get_bc(ins));
+  };
+  fa.regs[0]=fa.regs[get_bc(ins)];
   fa.ret=true;
 ;
 },
@@ -439,3 +448,7 @@ function step_fn(fa){
   };
 };
 
+fa=gen_activation(d.fns[0],[1,2]);
+trace=true;
+while(step_fn(fa)!=="error"){
+};
