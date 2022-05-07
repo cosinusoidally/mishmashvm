@@ -210,6 +210,7 @@ uint32_t *my_compile(void *fn,void *str,uint32_t *out){
   duk_size_t bc_len;
 
   printf("compiling string %s %s\n", fn,str);
+  printf("length of string: %d\n",strlen(str));
   duk_push_string(ctx2, fn);
   duk_compile_string_filename(ctx2, 0, str);
   duk_dump_function(ctx2);
