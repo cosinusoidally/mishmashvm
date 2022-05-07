@@ -448,7 +448,14 @@ function step_fn(fa){
   };
 };
 
+function run(fa){
+  while(step_fn(fa)!=="error"){
+  };
+};
+
 fa=gen_activation(d.fns[0],[1,2]);
 trace=true;
-while(step_fn(fa)!=="error"){
-};
+run(fa);
+
+fa2=gen_activation(d,[]);
+run(fa2);
