@@ -455,6 +455,14 @@ var vm = {
   fa.ip++;
 ;
 },
+"DUK_OP_CSVAR_CR":function(ins,fa){
+  if(trace){
+    print(ins);
+    print("DUK_OP_CSVAR_CR has "+ins[2]+" parameters and it's name is: "+load_const(fa.fn,ins[1]) );
+  };
+  fa.ip++;
+;
+},
 };
 
 function get_bc(ins){
