@@ -404,6 +404,24 @@ var vm = {
   fa.ret=true;
 ;
 },
+"DUK_OP_CLOSURE":function(ins,fa){
+  if(trace){
+    print(ins);
+    print("DUK_OP_CLOSURE: fn index: "+get_bc(ins)+" into reg "+ins[2]);
+  };
+  fa.regs[2]=fa.regs[get_bc(ins)];
+  fa.ip++;
+;
+},
+"DUK_OP_DECLVAR_CR":function(ins,fa){
+  if(trace){
+    print(ins);
+    print("DUK_OP_DECLVAR_CR:  "+get_bc(ins)+" into reg "+ins[2]);
+  };
+//  fa.regs[2]=fa.regs[get_bc(ins)];
+  fa.ip++;
+;
+},
 };
 
 function get_bc(ins){
@@ -456,6 +474,8 @@ function run(fa){
 fa=gen_activation(d.fns[0],[1,2]);
 trace=true;
 run(fa);
-
+print()
+print("outer fn");
+dump_bc(d);
 fa2=gen_activation(d,[]);
 run(fa2);
