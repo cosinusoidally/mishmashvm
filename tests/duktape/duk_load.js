@@ -2,13 +2,13 @@ print("Duktape loading....");
 load("lib/gen_wrap.js");
 
 duk_srcdir=test_path+"/duktape_src/";
-
+var st=Date.now();
 duk_glue=mm.load_c_string(read(test_path+"/duk_glue.c"),{extra_flags:"-I "+duk_srcdir});
 //quit();
 duktape=mm.load_c_string(read(duk_srcdir+"duktape.c"),{extra_flags:"-I "+duk_srcdir});
 
 libtcc1=mm.load_c_string(read("tcc_src/lib/libtcc1.c"));
-
+print("Duktape object code generated in "+(Date.now()-st)+"ms");
 dump_und=true;
 
 passthrough={
