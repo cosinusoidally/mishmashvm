@@ -169,3 +169,10 @@ function decode_number(b,o){
 
 var d=decode_bc(bc);
 
+function dump_bc(b){
+  var ins=b.instrs.dec;
+  for(var i=0;i<ins.length;i++){
+    print(i+": "+ins[i]);
+  };
+};
+
