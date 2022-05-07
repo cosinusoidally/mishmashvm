@@ -55,6 +55,8 @@ var ops={
 112: "DUK_OP_PUTPROP_RR",
 162: "DUK_OP_ENDLABEL",
 158: "DUK_OP_RETUNDEF",
+173: "DUK_OP_CSVAR_CR",
+177: "DUK_OP_CALL1",
 }
 
 var ct={
@@ -513,3 +515,8 @@ print("outer fn");
 dump_bc(d);
 fa2=gen_activation(d,[]);
 run(fa2);
+
+print("bar");
+dump_bc(d.fns[1]);
+fa3=gen_activation(d.fns[1],[1,2]);
+run(fa3);
