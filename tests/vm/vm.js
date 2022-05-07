@@ -26,9 +26,10 @@ libc.memcpy2(bc,bc_ptr,bc_len);
 
 var DUK_BC_LDINT_BIAS =  (1 << 15);
 var DUK_BC_JUMP_BIAS= (1 <<23);
+var DUK__NO_FORMALS=0xFFFFFFFF;
 
 var def={
- 0xbf:"DUK__SER_MARKER"
+ 0xbf:"DUK__SER_MARKER",
 }
 
 var ops={
@@ -76,7 +77,7 @@ function u16r(b,o){
 
 function u32r(b,o){
   var off=o[0];
-  var r=(b[off]<<24)+(b[off+1]<<16)+(b[off+2]<<8)+b[off+3];
+  var r=((b[off]<<24)+(b[off+1]<<16)+(b[off+2]<<8)+b[off+3])>>>0;
   o[0]=o[0]+4;;
   return r;
 };
@@ -117,6 +118,7 @@ function decode_fn(bc,o){
   u32r(bc,o);
   u32r(bc,o);
   r.fun_flags=u32r(bc,o);
+  print(JSON.stringify(r));
   r.instrs={};
   r.instrs.raw=[];
   for(var n=r.count_instr;n>0;n--){
@@ -146,6 +148,36 @@ function decode_fn(bc,o){
   for(var n=r.count_funcs; n > 0; n--) {
     r.fns.push(decode_fn(bc,o));
   };
+  var tmp32=u32r(bc,o);
+  r.funcname=decode_string(bc,o);
+  r.filename=decode_string(bc,o);
+  r.pc2line=decode_buffer(bc,o);
+  r.varmap=decode_varmap(bc,o);
+  r.arr_limit=u32r(bc,o);
+  print(r.arr_limit);
+  if(r.arr_limit!==DUK__NO_FORMALS){
+    throw "error formals";
+  };
+  return r;
+};
+
+function decode_varmap(b,o){
+  var r=[];
+  for(;;){
+    var s=decode_string(b,o);
+    if(s.len===0){ break;};
+    r.push([s,u32r(b,o)]);
+  };
+  return r;
+};
+
+function decode_buffer(b,o){
+  var r={};
+  r.len=u32r(b,o);
+  r.raw=[];
+  for(var i=0;i<r.len;i++){
+    r.raw.push(u8r(b,o));
+  };
   return r;
 };
 
@@ -169,7 +201,6 @@ function decode_number(b,o){
   return r;
 };
 
-var d=decode_bc(bc);
 
 function dump_bc(b){
   var ins=b.instrs.dec;
@@ -471,6 +502,9 @@ function run(fa){
   };
 };
 
+print("got here");
+var d=decode_bc(bc);
+print("decode done");
 fa=gen_activation(d.fns[0],[1,2]);
 trace=true;
 run(fa);
