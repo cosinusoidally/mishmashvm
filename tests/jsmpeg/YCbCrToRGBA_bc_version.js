@@ -10,7 +10,7 @@ test_path=test_path_old;
 
 duk_run("print('hello world from duktape')");
 duk_compile=duk.get_fn("my_compile");
-bc_addr=duk_compile("yuv.js",read(test_path+"/YCbCrToRGBA.js"));
+bc_addr=duk_compile("yuv.js",read(test_path+"/YCbCrToRGBA.js"),0);
 
 get_ptr=duk.get_fn("my_get_address");
 

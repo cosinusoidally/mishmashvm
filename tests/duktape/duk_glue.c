@@ -205,7 +205,7 @@ uint32_t get_layout(){
   return l;
 }
 
-uint32_t *my_compile(void *fn,void *str){
+uint32_t *my_compile(void *fn,void *str,uint32_t *out){
   void *bc_ptr;
   duk_size_t bc_len;
 
@@ -218,5 +218,9 @@ uint32_t *my_compile(void *fn,void *str){
   void *foo=malloc(bc_len);
   memcpy(foo,bc_ptr,bc_len);
   duk_pop(ctx2);  /* pop eval result */
+  if(out){
+    out[0]=foo;
+    out[1]=bc_len;
+  }
   return foo;
 };
