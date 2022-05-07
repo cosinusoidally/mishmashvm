@@ -1,5 +1,7 @@
 print("vm demo");
 
+var trace;
+
 test_path_old=test_path;
 test_path="tests/duktape";
 
@@ -173,6 +175,267 @@ function dump_bc(b){
   var ins=b.instrs.dec;
   for(var i=0;i<ins.length;i++){
     print(i+": "+ins[i]);
+  };
+};
+
+function load_const(f,i){
+  return f.consts[i].value;
+};
+
+var vm = {
+"DUK_OP_ADD_RC":function(ins,fa){
+  var cv=load_const(fa.fn,ins[0]);
+  var cr=fa.regs[ins[1]];
+  var res=cv+cr;
+  if(trace){
+    print(ins);
+    print("adding register: "+ins[1]+" (value "+cr+") to constant "+ins[0]+
+    " (value "+cv+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_BASR_RC":function(ins,fa){
+  var cv=load_const(fa.fn,ins[0]);
+  var cr=fa.regs[ins[1]]; 
+  var res=cr >> cv;
+  if(trace){
+    print(ins);
+    print("shifting right register: "+ins[1]+" (value "+cr+") by constant "+ins[0]+
+    " (value "+cv+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_BASL_RC":function(ins,fa){
+  var cv=load_const(fa.fn,ins[0]);
+  var cr=fa.regs[ins[1]]; 
+  var res=cr << cv;
+  if(trace){
+    print(ins);
+    print("shifting left register: "+ins[1]+" (value "+cr+") by constant "+ins[0]+
+    " (value "+cv+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_LDINT":function(ins,fa){
+  var cv=get_bc(ins)-DUK_BC_LDINT_BIAS;
+  if(trace){
+    print(ins);
+    print("loading int: "+cv+" into register: "+ins[2]);
+    print("result: "+cv);
+  };
+  fa.regs[ins[2]]=cv;
+  fa.ip++;
+},
+"DUK_OP_LDREG":function(ins,fa){
+  var cv=get_bc(ins);
+  var res=fa.regs[cv];
+  if(trace){
+    print(ins);
+    print("loading register: "+cv+" into register: "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_SUB_RR":function(ins,fa){
+  var cc=fa.regs[ins[0]];
+  var cb=fa.regs[ins[1]];
+  var res=cb-cc;
+  if(trace){
+    print(ins);
+    print("subtracting register: "+ins[1]+" (value "+cb+") from register "+ins[0]+
+    " (value "+cc+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_ADD_RR":function(ins,fa){
+  var cc=fa.regs[ins[0]];
+  var cb=fa.regs[ins[1]];
+  var res=cb+cc;
+  if(trace){
+    print(ins);
+    print("adding register: "+ins[1]+" (value "+cb+") to register "+ins[0]+
+    " (value "+cc+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_MUL_RC":function(ins,fa){
+  var cv=load_const(fa.fn,ins[0]);
+  var cr=fa.regs[ins[1]];
+  var res=cr*cv;
+  if(trace){
+    print(ins);
+    print("mul register: "+ins[1]+" (value "+cr+") to constant "+ins[0]+
+    " (value "+cv+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_LABEL":function(ins,fa){
+  if(trace){
+    print(ins);
+    print("label: "+get_bc(ins));
+  };
+  fa.ip+=3;
+},
+"DUK_OP_JUMP":function(ins,fa){
+  fa.ip++;
+  var t=get_abc(ins)-DUK_BC_JUMP_BIAS; 
+  if(trace){
+    print(ins);
+    print("jump "+t+" relative to ip "+fa.ip);
+    print("target: "+(t+fa.ip));
+  };
+  fa.ip=t+fa.ip;
+},
+"DUK_OP_LT_RR":function(ins,fa){
+  var cc=fa.regs[ins[0]];
+  var cb=fa.regs[ins[1]];
+  var res=cb<cc;
+  if(trace){
+    print(ins);
+    print("less than register: "+ins[1]+" (value "+cb+") from register "+ins[0]+
+    " (value "+cc+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_IFFALSE_R":function(ins,fa){
+  var cr=get_bc(ins);
+  var cv=fa.regs[cr];
+  if(trace){
+    print(ins);
+    print("if false regsiter: "+cr+" value: "+cv);
+  };
+  if(!cv){
+    fa.ip++;
+  };
+  fa.ip++;
+},
+"DUK_OP_POSTINCR":function(ins,fa){
+  var cr=get_bc(ins);
+  var cv=fa.regs[cr];
+  if(trace){
+    print(ins);
+    print("postinc: "+cr+" (value "+cv+") store in "+ins[2]);
+  };
+  var cvo=cv;
+  cv++;
+  fa.regs[cr]=cv
+  fa.regs[ins[2]]=cvo;
+  if(trace){
+    print("result: "+fa.regs[cr]+" "+fa.regs[ins[2]]);
+  };
+  fa.ip++;
+},
+"DUK_OP_GETPROP_RR":function(ins,fa){
+  var cc=fa.regs[ins[0]];
+  var cb=fa.regs[ins[1]];
+  var res=cb[cc];
+  if(trace){
+    print(ins);
+    print("getprop: "+ins[1]+" (value "+cb+") from register "+ins[0]+
+    " (value "+cc+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_SUB_RC":function(ins,fa){
+  var cv=load_const(fa.fn,ins[0]);
+  var cr=fa.regs[ins[1]];
+  var res=cr-cv;
+  if(trace){
+    print(ins);
+    print("sub register: "+ins[1]+" (value "+cr+") to constant "+ins[0]+
+    " (value "+cv+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_PUTPROP_RR":function(ins,fa){
+  var cc=fa.regs[ins[0]];
+  var cb=fa.regs[ins[1]];
+  var res=cc;
+  if(trace){
+    print(ins);
+    print("putprop: "+ins[1]+" (value "+cb+") from register "+ins[0]+
+    " (value "+cc+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]][cb]=res;
+  fa.ip++;
+},
+"DUK_OP_ENDLABEL":function(ins,fa){
+  if(trace){
+    print(ins);
+    print("endlabel: "+get_bc(ins));
+  };
+  fa.ip++
+;
+},
+"DUK_OP_RETUNDEF":function(ins,fa){
+  if(trace){
+    print(ins);
+    print("endlabel: "+get_bc(ins));
+  };
+  fa.ret=true;
+;
+},
+};
+
+function get_bc(ins){
+  return (ins[0]<<8)+ins[1];
+};
+
+function get_abc(ins){
+  return (ins[0]<<16)+(ins[1]<<8)+ins[2];
+};
+
+function gen_activation(f){
+
+};
+
+function gen_activation(f,a){
+  var regs=new Array(f.fun_nregs);
+  for(var i=0;i<f.fun_nargs;i++){
+    regs[i]=a[i];
+  };
+  return {ins:f.instrs.dec,regs:regs,ip:0,fn:f};
+};
+
+function step_fn(fa){
+  if(trace){
+    print("step");
+    print("ip:"+fa.ip);
+  };
+  var inf=fa.ins[fa.ip];
+  var ins=inf[3];
+  if(!vm[ins]){
+    if(trace){
+      print("missing "+ins);
+    };
+    return "error";
+  };
+  vm[ins](inf,fa);
+  if(fa.ret){
+    return "error";
+  };
+  if(trace){
+    print();
   };
 };
 
