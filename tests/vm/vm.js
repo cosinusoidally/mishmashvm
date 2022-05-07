@@ -13,7 +13,7 @@ duk_compile=duk.get_fn("my_compile");
 
 bc_raw=new Uint32Array(2);
 
-duk_compile("yuv.js",read(test_path+"/test.js","binary"),bc_raw);
+duk_compile("yuv.js",read(test_path+"/test.js"),bc_raw);
 
 bc_ptr=bc_raw[0];
 bc_len=bc_raw[1];
