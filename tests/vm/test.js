@@ -32,3 +32,16 @@ function inc2(x){
     x[c]=x[c]-1;
   };
 }
+
+function inc3(x){
+  var c=0;
+  var d=1;
+  var e=1;
+  var f=1000;
+  while(1){
+    x[c]=x[c]+1;
+    if(x[c]>f){
+      x[d]=e;
+    };
+  };
+}

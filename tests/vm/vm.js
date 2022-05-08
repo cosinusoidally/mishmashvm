@@ -63,6 +63,7 @@ var ops={
 176: "DUK_OP_CALL0",
 60: "DUK_OP_MUL_RR",
 49: "DUK_OP_IFTRUE_C",
+32: "DUK_OP_GT_RR",
 }
 
 var ct={
@@ -561,6 +562,19 @@ var vm = {
   };
   fa.ip++;
 },
+"DUK_OP_GT_RR":function(ins,fa){
+  var cc=fa.regs[ins[0]];
+  var cb=fa.regs[ins[1]];
+  var res=cb>cc;
+  if(trace){
+    print(ins);
+    print("greater than register: "+ins[1]+" (value "+cb+") from register "+ins[0]+
+    " (value "+cc+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
 };
 
 function get_bc(ins){
@@ -793,3 +807,11 @@ while(w<1000){
 print("result");
 print(x1);
 print(x2);
+
+x3=[0,0];
+
+f3=gen_stepper("inc3",[x3],true);
+while(x3[1]===0){
+  f3=single_step(f3);
+};
+print("result:"+x3);
