@@ -644,6 +644,54 @@ function dummy_frame(){
 return{regs:[],call:{base:0},ip:0,ins:[[0,0,0,"END"]]};
 };
 
+
+function single_step(stack){
+  print("stack len:"+stack.length);
+  var fa=stack[stack.length-1];
+  var c;
+  c=step_fn(fa);
+  while(1){
+    if(c==="error"){
+      break;
+    };
+    if(c.ret){
+      stack.pop();
+      fa=stack[stack.length-1];
+      fa.regs[fa.call.base]=c.retval;
+      delete fa.call;
+      break;
+    }
+    if(c.call){
+      if(trace){
+      print("start call");
+      };
+      var b=c.call.base;
+      var f_n=fa.regs[b];
+      if(trace){
+      print("name: "+f_n);
+      print("num params: "+c.call.params);
+      print("base reg number for params: "+c.call.base);
+      };
+      b=b+2;
+      a=[];
+      for(var i=b;i<b+c.call.params;i++){
+        a.push(fa.regs[i]);
+      };
+      if(trace){
+      print(a);
+      print();
+      };
+      fa=gen_activation(d.fns_by_name[f_n],a);
+      stack.push(fa);
+    };
+    break;
+  };
+  if(trace){
+    print(JSON.stringify(fa.regs));
+  }
+  return stack;
+};
+
 print("got here");
 var d=decode_bc(bc);
 gen_fn_names(d);
@@ -699,3 +747,18 @@ arr=[1,2,3];
 print("calling inc: "+arr);
 r=call_name("inc",[arr],true);
 print("arr: "+arr);
+
+function gen_stepper(n,a,t){
+  trace=t;
+  var dummy=dummy_frame();
+  var fa=gen_activation(d.fns_by_name[n],a);
+//  run(fa,[dummy,fa]);
+  return [dummy,fa];
+};
+print("Single stepping");
+g=gen_stepper("factorial",[10],true);
+n=g;
+while(n.length>1){
+  print(n.length);
+  n=single_step(g);
+};
