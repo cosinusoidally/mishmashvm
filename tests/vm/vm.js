@@ -622,5 +622,11 @@ function call_name(n,a,t){
   run(fa,[dummy,fa]);
   return fa.retval;
 };
-
 print("calling bar: ",call_name("bar",[5,5]));
+
+print();
+dump_bc(d.fns_by_name["factorial"]);
+p=4;
+print("calling factorial: "+p);
+r=call_name("factorial",[p],true);
+print("factorial result: "+r);
