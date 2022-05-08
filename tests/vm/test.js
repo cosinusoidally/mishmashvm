@@ -45,3 +45,20 @@ function inc3(x){
     };
   };
 }
+
+function syscall(x,n,i){
+  var a=0;
+  var b=1;
+  var r=2;
+  x[a]=n;
+  x[b]=i;
+  return x[r];
+}
+
+function test_syscall(x,y){
+  var n=1;
+  var l=10;
+  for(var i=0;i<l;i++){
+    y[i]=syscall(x,n,i);
+  };
+};

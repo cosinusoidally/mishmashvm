@@ -810,8 +810,20 @@ print(x2);
 
 x3=[0,0];
 
-f3=gen_stepper("inc3",[x3],true);
+f3=gen_stepper("inc3",[x3],false);
 while(x3[1]===0){
   f3=single_step(f3);
 };
 print("result:"+x3);
+
+x4=[];
+y=[];
+print("syscall test");
+f4=gen_stepper("test_syscall",[x4,y],false);
+while(f4.length>1){
+f4=single_step(f4);
+if(x4[0]===1){
+  x4[2]=Math.sin(x4[1]);
+}
+};
+print("result: "+y);
