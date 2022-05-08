@@ -204,3 +204,24 @@ uint32_t get_layout(){
 #endif
   return l;
 }
+
+uint32_t *my_compile(void *fn,void *str,uint32_t *out){
+  void *bc_ptr;
+  duk_size_t bc_len;
+
+  printf("compiling string %s %s\n", fn,str);
+  printf("length of string: %d\n",strlen(str));
+  duk_push_string(ctx2, fn);
+  duk_compile_string_filename(ctx2, 0, str);
+  duk_dump_function(ctx2);
+  bc_ptr = duk_require_buffer_data(ctx2, -1, &bc_len);
+  printf("bc_len: %d\n",bc_len);
+  void *foo=malloc(bc_len);
+  memcpy(foo,bc_ptr,bc_len);
+  duk_pop(ctx2);  /* pop eval result */
+  if(out){
+    out[0]=foo;
+    out[1]=bc_len;
+  }
+  return foo;
+};
