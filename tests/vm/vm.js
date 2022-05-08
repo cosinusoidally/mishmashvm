@@ -548,7 +548,9 @@ function run(fa,stack){
       break;
     }
     if(c.call){
+      if(trace){
       print("start call");
+      };
       var b=c.call.base;
       var f_n=fa.regs[b];
       if(trace){
@@ -560,9 +562,11 @@ function run(fa,stack){
       a=[];
       for(var i=b;i<b+c.call.params;i++){
         a.push(fa.regs[i]);
-      }
+      };
+      if(trace){
       print(a);
       print();
+      };
       fa=gen_activation(d.fns_by_name[f_n],a);
       stack.push(fa);
     };
@@ -605,3 +609,13 @@ dummy2=dummy_frame();
 run(fa4,[dummy2,fa4]);
 print(JSON.stringify(fa4.regs));
 print(JSON.stringify(dummy2));
+
+function call_name(n,a,t){
+  trace=t;
+  var dummy=dummy_frame();
+  var fa=gen_activation(d.fns_by_name[n],a);
+  run(fa,[dummy,fa]);
+  return fa.retval;
+};
+
+print("calling bar: ",call_name("bar",[5,5]));
