@@ -18,3 +18,17 @@ function inc(x){
   x[c]=x[c]+1;
   return;
 }
+
+function inc1(x){
+  var c=0;
+  while(1){
+    x[c]=x[c]+1;
+  };
+}
+
+function inc2(x){
+  var c=0;
+  while(1){
+    x[c]=x[c]-1;
+  };
+}

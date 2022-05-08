@@ -62,6 +62,7 @@ var ops={
 160: "DUK_OP_RETCONSTN",
 176: "DUK_OP_CALL0",
 60: "DUK_OP_MUL_RR",
+49: "DUK_OP_IFTRUE_C",
 }
 
 var ct={
@@ -548,6 +549,18 @@ var vm = {
   fa.regs[ins[2]]=res;
   fa.ip++;
 },
+"DUK_OP_IFTRUE_C":function(ins,fa){
+  var cn=get_bc(ins);
+  var cv=load_const(fa.fn,cn);
+  if(trace){
+    print(ins);
+    print("if true constant: "+cn+" value: "+cv);
+  };
+  if(cv){
+    fa.ip++;
+  };
+  fa.ip++;
+},
 };
 
 function get_bc(ins){
@@ -646,7 +659,6 @@ return{regs:[],call:{base:0},ip:0,ins:[[0,0,0,"END"]]};
 
 
 function single_step(stack){
-  print("stack len:"+stack.length);
   var fa=stack[stack.length-1];
   var c;
   c=step_fn(fa);
@@ -762,3 +774,22 @@ while(n.length>1){
   print(n.length);
   n=single_step(g);
 };
+print(n[0].regs[0]);
+
+x1=[0];
+x2=[1000];
+
+f1=gen_stepper("inc1",[x1],false);
+f2=gen_stepper("inc2",[x2],false);
+print("HERE");
+print(JSON.stringify(f1[1].fn.consts));
+w=0;
+while(w<1000){
+ f1=single_step(f1);
+ f2=single_step(f2);
+ w++;
+};
+
+print("result");
+print(x1);
+print(x2);
