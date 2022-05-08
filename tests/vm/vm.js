@@ -722,14 +722,13 @@ print("got here");
 var d=decode_bc(bc);
 gen_fn_names(d);
 print("decode done");
-fa=gen_activation(d.fns[1],[1,2]);
-trace=true;
+fa=gen_activation(d.fns[1],[1,2],false);
 dummy=dummy_frame();
 run(fa,[dummy,fa]);
 print()
 print("outer fn");
 dump_bc(d);
-fa2=gen_activation(d,[]);
+fa2=gen_activation(d,[],false);
 dummy=dummy_frame();
 run(fa2,[dummy,fa2]);
 
@@ -763,7 +762,7 @@ print();
 dump_bc(d.fns_by_name["factorial"]);
 p=10;
 print("calling factorial: "+p);
-r=call_name("factorial",[p],true);
+r=call_name("factorial",[p],false);
 print("factorial result: "+r);
 
 
@@ -771,7 +770,7 @@ dump_bc(d.fns_by_name["inc"]);
 
 arr=[1,2,3];
 print("calling inc: "+arr);
-r=call_name("inc",[arr],true);
+r=call_name("inc",[arr],false);
 print("arr: "+arr);
 
 function gen_stepper(n,a,t){
@@ -782,10 +781,10 @@ function gen_stepper(n,a,t){
   return [dummy,fa];
 };
 print("Single stepping");
-g=gen_stepper("factorial",[10],true);
+g=gen_stepper("factorial",[10],false);
 n=g;
 while(n.length>1){
-  print(n.length);
+//  print(n.length);
   n=single_step(g);
 };
 print(n[0].regs[0]);
