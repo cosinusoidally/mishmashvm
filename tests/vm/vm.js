@@ -691,3 +691,11 @@ p=10;
 print("calling factorial: "+p);
 r=call_name("factorial",[p],true);
 print("factorial result: "+r);
+
+
+dump_bc(d.fns_by_name["inc"]);
+
+arr=[1,2,3];
+print("calling inc: "+arr);
+r=call_name("inc",[arr],true);
+print("arr: "+arr);

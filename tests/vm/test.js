@@ -12,3 +12,9 @@ function factorial(x) {
   };
   return x * factorial(x-1);
 };
+
+function inc(x){
+  var c=0;
+  x[c]=x[c]+1;
+  return;
+}
