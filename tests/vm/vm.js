@@ -13,7 +13,7 @@ duk_compile=duk.get_fn("my_compile");
 
 bc_raw=new Uint32Array(2);
 
-duk_compile("yuv.js",read(test_path+"/test.js"),bc_raw);
+duk_compile("test.js",read(test_path+"/test.js"),bc_raw);
 
 bc_ptr=bc_raw[0];
 bc_len=bc_raw[1];
@@ -110,6 +110,15 @@ function decode_bc(bc){
   return decode_fn(bc,o);
 };
 
+function gen_fn_names(d){
+  d.fns_by_name={};
+  for(i in d.fns){
+    var f=d.fns[i];
+    d.fns_by_name[f.funcname]=f;
+  }
+};
+
+
 function decode_fn(bc,o){
   var r={};
   r.count_instr=u32r(bc,o);
@@ -151,8 +160,8 @@ function decode_fn(bc,o){
     r.fns.push(decode_fn(bc,o));
   };
   var tmp32=u32r(bc,o);
-  r.funcname=decode_string(bc,o);
-  r.filename=decode_string(bc,o);
+  r.funcname=decode_string(bc,o).value;
+  r.filename=decode_string(bc,o).value;
   r.pc2line=decode_buffer(bc,o);
   r.varmap=decode_varmap(bc,o);
   r.arr_limit=u32r(bc,o);
@@ -425,6 +434,7 @@ var vm = {
     print(ins);
     print("retundef: "+get_bc(ins));
   };
+  fa.retval=undefined;
   fa.ret=true;
 ;
 },
@@ -433,7 +443,7 @@ var vm = {
     print(ins);
     print("retreg: "+get_bc(ins));
   };
-  fa.regs[0]=fa.regs[get_bc(ins)];
+  fa.retval=fa.regs[get_bc(ins)];
   fa.ret=true;
 ;
 },
@@ -458,17 +468,20 @@ var vm = {
 "DUK_OP_CSVAR_CR":function(ins,fa){
   if(trace){
     print(ins);
-    print("DUK_OP_CSVAR_CR has "+ins[2]+" parameters and it's name is: "+load_const(fa.fn,ins[1]) );
+    print("DUK_OP_CSVAR_CR gets stored in "+ins[2]+" and it's name is: "+load_const(fa.fn,ins[1]) );
   };
-  fa.regs[2]=load_const(fa.fn,ins[1]);
+  fa.regs[ins[2]]=load_const(fa.fn,ins[1]);
   fa.ip++;
 ;
 },
 "DUK_OP_CALL1":function(ins,fa){
+  var base=get_bc(ins);
+  var params=ins[2];
   if(trace){
     print(ins);
-    print("DUK_OP_CALL1 has "+ins[2]+" parameters and it's index is: "+get_bc(ins) );
+    print("DUK_OP_CALL1 has "+params+" parameters and it's base reg is: "+base);
   };
+  fa.call={base:base,params:params};
   fa.ip++;
 ;
 },
@@ -494,6 +507,12 @@ function gen_activation(f,a){
   return {ins:f.instrs.dec,regs:regs,ip:0,fn:f};
 };
 
+function gen_fn_activation(d,name,args){
+  if(trace){
+    print("generatin avtivation for: "+name+" with args "+args);
+  };
+};
+
 function step_fn(fa){
   if(trace){
     print("step");
@@ -508,32 +527,57 @@ function step_fn(fa){
     return "error";
   };
   vm[ins](inf,fa);
-  if(fa.ret){
-    return "error";
-  };
   if(trace){
     print();
   };
+  return fa;
 };
 
-function run(fa){
-  while(step_fn(fa)!=="error"){
+function run(fa,stack){
+  var c;
+  while(1){
+  while(c=step_fn(fa)){
+    if(c==="error"){
+      break;
+    };
+    if(c.ret){
+      stack.pop();
+      fa=stack[stack.length-1];
+      fa.regs[fa.call.base]=c.retval;
+      delete fa.call;
+      break;
+    }
+    if(c.call){
+
+    };
   };
+  if(c==="error"){break};
+  }
+};
+function dummy_frame(){
+return{regs:[],call:{base:0},ip:0,ins:[[0,0,0,"END"]]};
 };
 
 print("got here");
 var d=decode_bc(bc);
+gen_fn_names(d);
 print("decode done");
-fa=gen_activation(d.fns[0],[1,2]);
+fa=gen_activation(d.fns[1],[1,2]);
 trace=true;
-run(fa);
+dummy=dummy_frame();
+run(fa,[dummy,fa]);
 print()
 print("outer fn");
 dump_bc(d);
 fa2=gen_activation(d,[]);
-run(fa2);
+dummy=dummy_frame();
+run(fa2,[dummy,fa2]);
 
 print("bar");
-dump_bc(d.fns[1]);
-fa3=gen_activation(d.fns[1],[1,2]);
-run(fa3);
+dump_bc(d.fns[0]);
+fa3=gen_activation(d.fns[0],[1,2]);
+print(JSON.stringify(fa3.regs));
+dummy=dummy_frame();
+run(fa3,[dummy,fa3]);
+print(JSON.stringify(fa3.regs));
+print(JSON.stringify(dummy));
