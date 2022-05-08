@@ -548,7 +548,23 @@ function run(fa,stack){
       break;
     }
     if(c.call){
-
+      print("start call");
+      var b=c.call.base;
+      var f_n=fa.regs[b];
+      if(trace){
+      print("name: "+f_n);
+      print("num params: "+c.call.params);
+      print("base reg number for params: "+c.call.base);
+      };
+      b=b+2;
+      a=[];
+      for(var i=b;i<b+c.call.params;i++){
+        a.push(fa.regs[i]);
+      }
+      print(a);
+      print();
+      fa=gen_activation(d.fns_by_name[f_n],a);
+      stack.push(fa);
     };
   };
   if(c==="error"){break};
@@ -581,3 +597,11 @@ dummy=dummy_frame();
 run(fa3,[dummy,fa3]);
 print(JSON.stringify(fa3.regs));
 print(JSON.stringify(dummy));
+
+trace=false;
+fa4=gen_activation(d.fns[0],[1,2]);
+print(JSON.stringify(fa4.regs));
+dummy2=dummy_frame();
+run(fa4,[dummy2,fa4]);
+print(JSON.stringify(fa4.regs));
+print(JSON.stringify(dummy2));
