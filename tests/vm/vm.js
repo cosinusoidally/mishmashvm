@@ -460,6 +460,15 @@ var vm = {
     print(ins);
     print("DUK_OP_CSVAR_CR has "+ins[2]+" parameters and it's name is: "+load_const(fa.fn,ins[1]) );
   };
+  fa.regs[2]=load_const(fa.fn,ins[1]);
+  fa.ip++;
+;
+},
+"DUK_OP_CALL1":function(ins,fa){
+  if(trace){
+    print(ins);
+    print("DUK_OP_CALL1 has "+ins[2]+" parameters and it's index is: "+get_bc(ins) );
+  };
   fa.ip++;
 ;
 },
