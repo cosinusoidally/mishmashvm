@@ -58,7 +58,7 @@ var ops={
 173: "DUK_OP_CSVAR_CR",
 177: "DUK_OP_CALL1",
 26: "DUK_OP_SEQ_RC",
-48: "DUK_OP_IFTRUE",
+48: "DUK_OP_IFTRUE_R",
 160: "DUK_OP_RETCONSTN",
 176: "DUK_OP_CALL0",
 60: "DUK_OP_MUL_RR",
@@ -490,6 +490,64 @@ var vm = {
   fa.ip++;
 ;
 },
+"DUK_OP_SEQ_RC":function(ins,fa){
+  var cv=load_const(fa.fn,ins[0]);
+  var cr=fa.regs[ins[1]];
+  var res=cr === cv;
+  if(trace){
+    print(ins);
+    print("DUK_OP_SEQ_RC strict equals: "+ins[1]+" (value "+cr+") and "+ins[0]+
+    " (value "+cv+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
+"DUK_OP_IFTRUE_R":function(ins,fa){
+  var cr=get_bc(ins);
+  var cv=fa.regs[cr];
+  if(trace){
+    print(ins);
+    print("if true regsiter: "+cr+" value: "+cv);
+  };
+  if(cv){
+    fa.ip++;
+  };
+  fa.ip++;
+},
+"DUK_OP_CALL0":function(ins,fa){
+  var base=get_bc(ins);
+  var params=ins[2];
+  if(trace){
+    print(ins);
+    print("DUK_OP_CALL0 has "+params+" parameters and it's base reg is: "+base);
+  };
+  fa.call={base:base,params:params};
+  fa.ip++;
+;
+},
+"DUK_OP_RETCONSTN":function(ins,fa){
+  if(trace){
+    print(ins);
+    print("RETCONSTN: "+get_bc(ins));
+  };
+  fa.retval=load_const(fa.fn,get_bc(ins));
+  fa.ret=true;
+;
+},
+"DUK_OP_MUL_RR":function(ins,fa){
+  var cc=fa.regs[ins[0]];
+  var cb=fa.regs[ins[1]];
+  var res=cb*cc;
+  if(trace){
+    print(ins);
+    print("DUK_OP_MUL_RR register: "+ins[1]+" (value "+cb+") from register "+ins[0]+
+    " (value "+cc+") and storing in register "+ins[2]);
+    print("result: "+res);
+  };
+  fa.regs[ins[2]]=res;
+  fa.ip++;
+},
 };
 
 function get_bc(ins){
@@ -578,6 +636,9 @@ function run(fa,stack){
   };
   if(c==="error"){break};
   }
+  if(trace){
+    print(JSON.stringify(fa.regs));
+  }
 };
 function dummy_frame(){
 return{regs:[],call:{base:0},ip:0,ins:[[0,0,0,"END"]]};
@@ -626,7 +687,7 @@ print("calling bar: ",call_name("bar",[5,5]));
 
 print();
 dump_bc(d.fns_by_name["factorial"]);
-p=4;
+p=10;
 print("calling factorial: "+p);
 r=call_name("factorial",[p],true);
 print("factorial result: "+r);
