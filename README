@@ -1,16 +1,22 @@
 mishmashvm - adding a self hosted C JIT compiler to a JavaScript VM
 
+Unless otherwise indicated all code in this repo is (C) Liam Wilson 2022 and
+licensed under the LGPL v2.1 (a copy of which exists under tcc_src/COPYING).
+This repo includes code from various other projects (the Tiny C Compiler,
+Duktape, jsmpeg, glibc headers, etc) license info for those project are
+included within this repo.
+
 Current status: WIP, very rough kind of working poc.
 
 Works on win32 and i386 Linux
 
 How do we self host under a JS VM? I'm using the Tiny C Compiler (tcc) (which is
-written in C). To compile the C compiler we need a C compiler, but all we have is
-a JS VM (Mozilla's Spidermonkey). We need a C compiler written in JS. Manually
-porting the Tiny C Compiler to JS would take a while so I used Emscripten to
-compile it down to JS. But I didn't stop there, I then used the generated
-compiler to create native machine code version of itself, which I then can load
-and use from JS (I've written an elf loader and linker in JS).
+written in C). To compile the C compiler we need a C compiler, but all we have
+is a JS VM (Mozilla's Spidermonkey). We need a C compiler written in JS.
+Manually porting the Tiny C Compiler to JS would take a while so I used
+Emscripten to compile it down to JS. But I didn't stop there, I then used the
+generated compiler to create a native machine code version of itself, which I
+then can load and use from JS (I've written an elf loader and linker in JS).
 
 Bootstrapping
 =============
