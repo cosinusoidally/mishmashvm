@@ -21,3 +21,5 @@ linked=mm.link([obj_code,mm.libc_compat]);
 mem=new Uint32Array(1);
 linked.get_fn("f1")(mem);
 print(mem.length);
+gc();
+print(mem[obj_code.exports[0].address/4].toString(16));
