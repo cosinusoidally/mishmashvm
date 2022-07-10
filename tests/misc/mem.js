@@ -22,4 +22,18 @@ mem=new Uint32Array(1);
 linked.get_fn("f1")(mem);
 print(mem.length);
 gc();
-print(mem[obj_code.exports[0].address/4].toString(16));
+
+function readByte(x){
+  var o=x>>>2;
+  var r=x&3;
+  return (mem[o]>>>(r*8)) &255;
+}
+
+fn=obj_code.exports[0];
+addr=fn.address;
+size=fn.st_size;
+bytes=[];
+for(var i=0;i<size;i++){
+bytes.push(("00"+readByte(addr+i).toString(16)).slice(-2));
+}
+print(JSON.stringify(bytes));
