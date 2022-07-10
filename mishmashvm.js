@@ -19,6 +19,7 @@ tests=[
   {"path":"tests/vfs","script":"vfs.js","description":"testing out a virtual filesystem implementation"},
   {"path":"tests/jsmpeg","script":"jsmpeg.js","description":"testing out jsmpeg"},
   {"path":"tests/vm","script":"vm.js","description":"vm ideas"},
+  {"path":"tests/misc","script":"mem.js","description":"testing adding arbitrary memory read/write to Spidermonkey 102"},
 ];
 
 print_tests=function(){
