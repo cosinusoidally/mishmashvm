@@ -79,7 +79,7 @@ try{
   print("Duktape overriding YCbCrToRGBA");
   YCbCrToRGBA=jsmpeg.get_fn("YCbCrToRGBA");
 } catch (e){
-  print("In spidermonkey no YCbCrToRGBA override");
+  print("Not using manual C port of YCbCrToRGBA");
 };
 
 var use_bc;
