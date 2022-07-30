@@ -11,7 +11,9 @@ test_path=test_path_old;
 
 duk_compile=duk.get_fn("my_compile");
 
-bc_raw=new Uint32Array(2);
+// we only need length to be 2 but we must make it bigger
+// as SM may move smaller typed arrays during GC
+bc_raw=new Uint32Array(32);
 
 duk_compile("test.js",read(test_path+"/test.js"),bc_raw);
 
