@@ -10,14 +10,24 @@ test_path=test_path_old;
 
 duk_run("print('hello world from duktape')");
 duk_compile=duk.get_fn("my_compile");
-bc_addr=duk_compile("yuv.js",read(test_path+"/YCbCrToRGBA.js"),0);
+// we only need length to be 2 but we must make it bigger
+// as SM may move smaller typed arrays during GC
+bc_raw=new Uint32Array(32);
+
+duk_compile("test.js",read(test_path+"/YCbCrToRGBA.js"),bc_raw);
+
+bc_ptr=bc_raw[0];
+bc_len=bc_raw[1];
+
+print("bc_ptr:"+bc_ptr);
+print("bc_len:"+bc_len);
+
+bc=new Uint8Array(bc_len);
+libc.memcpy2(bc,bc_ptr,bc_len);
 
 get_ptr=duk.get_fn("my_get_address");
 
 YCbCrToRGBA_bc=(function(){
-
-bc=new Uint8Array(881);
-libc.memcpy2(bc,bc_addr,881);
 
 var DUK_BC_LDINT_BIAS =  (1 << 15);
 var DUK_BC_JUMP_BIAS= (1 <<23);
