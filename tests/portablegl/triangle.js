@@ -8,9 +8,23 @@ libtcc1=mm.load_c_string(read("tcc_src/lib/libtcc1.c"));
 obj=mm.load_c_string(read(test_path+"/sdl1_main.c"),{extra_flags:"-I"+test_path+" -I "+test_path+"/triangle"});
 
 passthrough={
+  "malloc": true,
+  "memmove": true,
+  "memset": true,
+  "free": true,
+  "memcpy": true,
+  "realloc": true,
+  "roundf": true,
+  "printf": true,
 };
 
 exclude={
+  "SDL_Init": true,
+  "SDL_SetVideoMode": true,
+  "SDL_PollEvent": true,
+  "SDL_GetTicks": true,
+  "SDL_Flip": true,
+  "SDL_Quit": true,
 };
 
 overrides=[];
