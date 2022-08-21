@@ -1,11 +1,11 @@
 print("GL triangle");
 
 load("lib/gen_wrap.js");
-
+load("lib/setup_sdl.js");
 
 libtcc1=mm.load_c_string(read("tcc_src/lib/libtcc1.c"));
 
-obj=mm.load_c_string(read("sdl1_main.c"),{extra_flags:"-I triangle"});
+obj=mm.load_c_string(read(test_path+"/sdl1_main.c"),{extra_flags:"-I"+test_path+" -I "+test_path+"/triangle"});
 
 passthrough={
 };
@@ -52,3 +52,5 @@ my_libc=mm.load_c_string(my_libc_src);
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
 demo=mm.link([obj,libsdl.syms,my_wrap,libtcc1]);
+
+demo.get_fn("sdl_main")();
