@@ -43,9 +43,18 @@ mygl={
     log("texImage2D target: "+target+ " level: "+level+ " internalformat: "+internalformat+" width: "+width+" height: "+height+" border: "+border+" format: "+format+" type: "+type+" pixels: "+pixels);
 
   },
-  texParameterf: function(){},
-  createFramebuffer: function(){},
-  bindFramebuffer: function(){},
+  texParameterf: function(target, pname, param){
+
+    log("texParameterf target: "+target+ " pname: "+pname+ " param: "+param);
+  },
+  createFramebuffer: function(){
+    log("createFramebuffer");
+    return {"type":"WebGLFramebuffer"};
+  },
+  bindFramebuffer: function(target, framebuffer){
+    log("bindFramebuffer target: "+target+" framebuffer: "+framebuffer);
+
+  },
   framebufferTexture2D: function(){},
   createRenderbuffer: function(){},
   bindRenderbuffer: function(){},
@@ -97,6 +106,10 @@ mygl={
   TEXTURE_2D: 3553,
   RGB: 6407,
   UNSIGNED_BYTE: 5121,
+  TEXTURE_MIN_FILTER: 10241,
+  TEXTURE_MAG_FILTER: 10240,
+  LINEAR: 9729,
+  FRAMEBUFFER: 36160,
 };
 
 window={};
