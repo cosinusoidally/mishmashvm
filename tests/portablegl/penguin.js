@@ -38,9 +38,14 @@ mygl={
   getProgramInfoLog: function(){},
   getAttribLocation: function(){},
   getUniformLocation: function(){},
+  createBuffer: function(){return {};},
+  bindBuffer: function(){},
+  bufferData: function(){},
 };
 
 window={};
+window.location={};
+location=window.location;
 document={};
 
 document.getElementById=function(n){
@@ -65,6 +70,23 @@ document.getElementById=function(n){
 function alert(x){
 print("ALERT: "+x);
 };
+
+function Image(){
+
+};
+
+function XMLHttpRequest(){
+
+};
+
+XMLHttpRequest.prototype.open=function(){
+
+};
+
+XMLHttpRequest.prototype.send=function(){
+
+};
+
 // load demo
 load(test_path+"/penguin/penguin.js");
 
