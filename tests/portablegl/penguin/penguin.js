@@ -1997,7 +1997,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	}
 	var frame=0;
-	var high_quality=true;
+	var high_quality=false;
 	function drawScene() {
 		check_window_size();
 	    var redraw = view.changed;
