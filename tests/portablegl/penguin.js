@@ -6,9 +6,24 @@ load(test_path+"/main.js");
 
 // compat code:
 mygl={
-
+  frontFace: function(){},
+  cullFace: function(){},
+  enable: function(){},
+  depthRange: function(){},
+  clearDepth: function(){},
+  createTexture: function(){},
+  activeTexture: function(){},
+  bindTexture: function(){},
+  texImage2D: function(){},
+  texParameterf: function(){},
+  createFramebuffer: function(){},
+  bindFramebuffer: function(){},
+  framebufferTexture2D: function(){},
+  createRenderbuffer: function(){},
+  bindRenderbuffer: function(){},
+  renderbufferStorage: function(){},
+  framebufferRenderbuffer: function(){},
 };
-
 
 window={};
 document={};
