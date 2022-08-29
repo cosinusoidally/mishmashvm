@@ -1,5 +1,5 @@
-print("GL triangle");
-name="triangle";
+print("penguin puzzle");
+name="penguin";
 
 load(test_path+"/main.js");
 
