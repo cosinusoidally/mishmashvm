@@ -4,6 +4,14 @@ name="penguin";
 
 load(test_path+"/main.js");
 
+debug=true;
+
+log=function(x){
+  if(debug){
+    print(x);
+  };
+}
+
 // compat code:
 mygl={
   frontFace: function(){},
@@ -23,6 +31,13 @@ mygl={
   bindRenderbuffer: function(){},
   renderbufferStorage: function(){},
   framebufferRenderbuffer: function(){},
+  createProgram: function(){},
+  attachShader: function(){},
+  linkProgram: function(){},
+  getProgramParameter: function(){},
+  getProgramInfoLog: function(){},
+  getAttribLocation: function(){},
+  getUniformLocation: function(){},
 };
 
 window={};
@@ -37,7 +52,15 @@ document.getElementById=function(n){
       }
     };
   };
-  throw "unsupported element name";
+  if(n.match("shader-fs")){
+    log("shader-fs: "+n);
+    return {};
+  };
+  if(n.match("shader-vs")){
+    log("shader-vs: "+n);
+    return {};
+  };
+  throw "unsupported element name: "+n;
 };
 function alert(x){
 print("ALERT: "+x);
