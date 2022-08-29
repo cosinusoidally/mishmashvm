@@ -62,6 +62,7 @@ mygl={
   disable: function(){},
   depthMask: function(){},
   finish: function(){},
+  drawElements: function(){},
   LINK_STATUS: 35714,
 };
 
@@ -110,12 +111,17 @@ function XMLHttpRequest(){
 
 };
 
-XMLHttpRequest.prototype.open=function(){
-
+XMLHttpRequest.prototype.open=function(method, url){
+  log("XMLHttpRequest.open: method "+method+" url "+url);
+  this.method=method;
+  this.url=url;
 };
 
 XMLHttpRequest.prototype.send=function(){
-
+  log("XMLHttpRequest.send: method "+this.method+" url "+this.url);
+  this.readyState=4;
+  this.responseText=read(test_path+"/penguin/"+this.url);
+  this.onreadystatechange();
 };
 
 // load demo
