@@ -5,11 +5,22 @@ name="penguin";
 load(test_path+"/main.js");
 
 // compat code:
+mygl={
+
+};
+
+
 window={};
 document={};
+
 document.getElementById=function(n){
   if(n==="mycanvas"){
-    return {};
+    return {
+      getContext: function(x){
+        print("getContext called: "+x);
+        return mygl; 
+      }
+    };
   };
   throw "unsupported element name";
 };
