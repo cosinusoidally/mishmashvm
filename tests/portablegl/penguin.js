@@ -39,7 +39,10 @@ mygl={
   bindTexture: function(target,texture){
     log("bindTexture target: "+target+" texture: "+texture);
   },
-  texImage2D: function(){},
+  texImage2D: function(target, level, internalformat, width, height, border, format, type, pixels){
+    log("texImage2D target: "+target+ " level: "+level+ " internalformat: "+internalformat+" width: "+width+" height: "+height+" border: "+border+" format: "+format+" type: "+type+" pixels: "+pixels);
+
+  },
   texParameterf: function(){},
   createFramebuffer: function(){},
   bindFramebuffer: function(){},
@@ -92,6 +95,8 @@ mygl={
   TEXTURE0: 33984,
   TEXTURE1: 33985,
   TEXTURE_2D: 3553,
+  RGB: 6407,
+  UNSIGNED_BYTE: 5121,
 };
 
 window={};
