@@ -14,9 +14,15 @@ log=function(x){
 
 // compat code:
 mygl={
-  frontFace: function(){},
-  cullFace: function(){},
-  enable: function(){},
+  frontFace: function(mode){
+    log("frontFace mode: "+mode);
+  },
+  cullFace: function(mode){
+    log("cullFace mode: "+mode);
+  },
+  enable: function(cap){
+    log("enable cap: "+cap);
+  },
   depthRange: function(){},
   clearDepth: function(){},
   createTexture: function(){},
@@ -64,6 +70,14 @@ mygl={
   finish: function(){},
   drawElements: function(){},
   LINK_STATUS: 35714,
+  CW: 2304,
+  CCW: 2305,
+  FRONT: 1028,
+  BACK: 1029,
+  FRONT_AND_BACK: 1032,
+  BLEND: 3042,
+  CULL_FACE: 2884,
+  DEPTH_TEST: 2929,
 };
 
 window={};
