@@ -23,11 +23,22 @@ mygl={
   enable: function(cap){
     log("enable cap: "+cap);
   },
-  depthRange: function(){},
-  clearDepth: function(){},
-  createTexture: function(){},
-  activeTexture: function(){},
-  bindTexture: function(){},
+  depthRange: function(zNear,zFar){
+    log("depthRange zNear: "+zNear+" zFar: "+zFar);
+  },
+  clearDepth: function(depth){
+    log("depth depth: "+depth);
+  },
+  createTexture: function(){
+    log("createTexture");
+    return {"type":"WebGLTexture"}
+  },
+  activeTexture: function(texture){
+    log("activeTexture texture: "+texture);
+  },
+  bindTexture: function(target,texture){
+    log("bindTexture target: "+target+" texture: "+texture);
+  },
   texImage2D: function(){},
   texParameterf: function(){},
   createFramebuffer: function(){},
@@ -78,6 +89,9 @@ mygl={
   BLEND: 3042,
   CULL_FACE: 2884,
   DEPTH_TEST: 2929,
+  TEXTURE0: 33984,
+  TEXTURE1: 33985,
+  TEXTURE_2D: 3553,
 };
 
 window={};
@@ -85,9 +99,11 @@ window={};
 window.location={};
 location=window.location;
 
+window.events=[];
+
 window.requestAnimFrame=function(callback){
   log("requestAnimFrame: "+callback);
-
+  window.events.push(callback);
 };
 requestAnimFrame=window.requestAnimFrame;
 
@@ -142,6 +158,14 @@ XMLHttpRequest.prototype.send=function(){
 load(test_path+"/penguin/penguin.js");
 
 //run demo
-webGLStart();
+window.events.push(webGLStart);
+window.next=0;
+while(window.events[window.next]){
+  window.fn=window.events[window.next];
+  delete window.events[window.next];
+  window.next++;
+  window.fn();
+  if(window.next>1){break};
+}
 
 //demo.get_fn("sdl_setup_context")();
