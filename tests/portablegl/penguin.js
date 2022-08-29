@@ -31,10 +31,17 @@ mygl={
   bindRenderbuffer: function(){},
   renderbufferStorage: function(){},
   framebufferRenderbuffer: function(){},
-  createProgram: function(){},
+  createProgram: function(){
+    return {};
+  },
   attachShader: function(){},
   linkProgram: function(){},
-  getProgramParameter: function(){},
+  getProgramParameter: function(program,pname){
+    if(pname===this.LINK_STATUS){
+      return true;
+    };
+    return false;
+  },
   getProgramInfoLog: function(){},
   getAttribLocation: function(){},
   getUniformLocation: function(){},
@@ -55,6 +62,7 @@ mygl={
   disable: function(){},
   depthMask: function(){},
   finish: function(){},
+  LINK_STATUS: 35714,
 };
 
 window={};
