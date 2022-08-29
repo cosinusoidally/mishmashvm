@@ -41,11 +41,30 @@ mygl={
   createBuffer: function(){return {};},
   bindBuffer: function(){},
   bufferData: function(){},
+  clearColor: function(){},
+  viewport: function(){},
+  clear: function(){},
+  colorMask: function(){},
+  useProgram: function(){},
+  uniform1i: function(){},
+  uniform4f: function(){},
+  uniformMatrix4fv: function(){},
+  vertexAttribPointer: function(){},
+  enableVertexAttribArray: function(){},
+  drawArrays: function(){},
+  disable: function(){},
+  depthMask: function(){},
+  finish: function(){},
 };
 
 window={};
+
 window.location={};
 location=window.location;
+
+window.requestAnimFrame=function(){};
+requestAnimFrame=window.requestAnimFrame;
+
 document={};
 
 document.getElementById=function(n){
@@ -54,7 +73,8 @@ document.getElementById=function(n){
       getContext: function(x){
         print("getContext called: "+x);
         return mygl; 
-      }
+      },
+      style: {}
     };
   };
   if(n.match("shader-fs")){
