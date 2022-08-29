@@ -70,7 +70,10 @@ window={};
 window.location={};
 location=window.location;
 
-window.requestAnimFrame=function(){};
+window.requestAnimFrame=function(callback){
+  log("requestAnimFrame: "+callback);
+
+};
 requestAnimFrame=window.requestAnimFrame;
 
 document={};
