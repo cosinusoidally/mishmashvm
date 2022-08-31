@@ -160,23 +160,23 @@ mygl={
   vertexAttribPointer: function(index, size, type, normalized, stride, offset){
     log("vertexAttribPointer index: "+index+" size: "+size+" type: "+type+" normalized: "+normalized+" stride: "+stride+" offset: "+offset);
   },
-  enableVertexAttribArray: function(){
-    log("enableVertexAttribArray");
+  enableVertexAttribArray: function(index){
+    log("enableVertexAttribArray index:"+index);
   },
-  drawArrays: function(){
-    log("drawArrays");
+  drawArrays: function(mode, first, count){
+    log("drawArrays mode: "+mode+" first: "+first+" count: "+count);
   },
-  disable: function(){
-    log("disable");
+  disable: function(capability){
+    log("disable capability: "+capability);
   },
-  depthMask: function(){
-    log("depthMask");
+  depthMask: function(flag){
+    log("depthMask: "+flag);
   },
   finish: function(){
     log("finish");
   },
-  drawElements: function(){
-    log("drawElements");
+  drawElements: function(mode, count, type, offset){
+    log("drawElements mode: "+mode+" count: "+count+" type: "+type+" offset: "+offset);
   },
   LINK_STATUS: 35714,
   CW: 2304,
@@ -205,6 +205,10 @@ mygl={
   COLOR_BUFFER_BIT: 16384,
   DEPTH_BUFFER_BIT: 256,
   FLOAT: 5126,
+  TRIANGLE_FAN: 6,
+  TRIANGLE_STRIP: 5,
+  TRIANGLES: 4,
+  UNSIGNED_SHORT:5123 ,
 };
 
 window={};
