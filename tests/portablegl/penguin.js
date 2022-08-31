@@ -132,6 +132,8 @@ mygl={
 };
 
 window={};
+window.innerWidth=640;
+window.innerHeight=480;
 
 window.location={};
 location=window.location;
@@ -153,7 +155,9 @@ document.getElementById=function(n){
         print("getContext called: "+x);
         return mygl; 
       },
-      style: {}
+      style: {},
+      width: window.innerWidth,
+      height: window.innerHeight,
     };
   };
   if(n.match("shader-fs")){
