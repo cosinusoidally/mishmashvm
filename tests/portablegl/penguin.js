@@ -256,7 +256,15 @@ throw "ERROR alert"
 };
 
 function Image(){
-
+  Object.defineProperty(this, 'src', { set(x) {
+    log("Image src: "+x);
+    this.data=read(test_path+"/penguin/"+x,"binary");
+    var that=this;
+    window.events.push(function(){
+      log("Image onload callback for "+x);
+      that.onload();
+    });
+  } });
 };
 
 function XMLHttpRequest(){
@@ -287,7 +295,7 @@ while(window.events[window.next]){
   delete window.events[window.next];
   window.next++;
   window.fn();
-  if(window.next>1){break};
+  if(window.next>6){break};
 }
 
 //demo.get_fn("sdl_setup_context")();
