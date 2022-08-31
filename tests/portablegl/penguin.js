@@ -91,29 +91,49 @@ mygl={
   compileShader: function(shader){
     log("compileShader shader: "+ shader);
   },
-  getShaderParameter: function(){
-    log("getShaderParameter");
+  getShaderParameter: function(shader, pname){
+    log("getShaderParameter shader: "+shader+" pname: "+pname);
+    return true;
   },
-  getShaderInfoLog: function(){
-    log("getShaderInfoLog");
+  getShaderInfoLog: function(shader){
+    log("getShaderInfoLog shader: "+shader);
   },
   attachShader: function(program, shader){
     log("attachShader program: "+program+" shader:"+ shader);
   },
-  linkProgram: function(){},
+  linkProgram: function(program){
+    log("linkProgram program: "+program);
+  },
   getProgramParameter: function(program,pname){
     if(pname===this.LINK_STATUS){
       return true;
     };
     return false;
   },
-  getProgramInfoLog: function(){},
-  getAttribLocation: function(){},
-  getUniformLocation: function(){},
-  createBuffer: function(){return {};},
-  bindBuffer: function(){},
-  bufferData: function(){},
-  clearColor: function(){},
+  getProgramInfoLog: function(program){
+    log("getProgramInfoLog program: "+program);
+  },
+  getAttribLocation: function(program,name){
+    log("getAttribLocation program: "+program+" name: "+name);
+  },
+  getUniformLocation: function(program,name){
+    log("getUniformLocation program: "+program+" name: "+name);
+  },
+  createBuffer: function(){
+    log("createBuffer");
+    return {"type":"WebGLBuffer"};
+  },
+  bindBuffer: function(target, buffer){
+    log("bindBuffer target: "+target+" buffer: "+buffer)
+  },
+  bufferData: function(target, srcData, usage){
+    // annoying the WebGL api uses overloaded functions
+    // just handle the case used by penguins puzzle
+    log("bufferData target: "+target+" srcData: "+srcData+" usage: "+usage)
+  },
+  clearColor: function(){
+
+  },
   viewport: function(){},
   clear: function(){},
   colorMask: function(){},
@@ -148,6 +168,10 @@ mygl={
   FRAMEBUFFER: 36160,
   VERTEX_SHADER: 35633,
   FRAGMENT_SHADER: 35632,
+  COMPILE_STATUS: 35713,
+  ARRAY_BUFFER: 34962,
+  ELEMENT_ARRAY_BUFFER: 34963,
+  STATIC_DRAW : 35044,
 };
 
 window={};
@@ -191,6 +215,7 @@ document.getElementById=function(n){
 };
 function alert(x){
 print("ALERT: "+x);
+throw "ERROR alert"
 };
 
 function Image(){
