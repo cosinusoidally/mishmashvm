@@ -131,23 +131,51 @@ mygl={
     // just handle the case used by penguins puzzle
     log("bufferData target: "+target+" srcData: "+srcData+" usage: "+usage)
   },
-  clearColor: function(){
-
+  clearColor: function(red, green, blue, alpha){
+    log("clearColor red: "+red+" green: "+green+" blue: "+blue+" alpha: "+alpha)
   },
-  viewport: function(){},
-  clear: function(){},
-  colorMask: function(){},
-  useProgram: function(){},
-  uniform1i: function(){},
-  uniform4f: function(){},
-  uniformMatrix4fv: function(){},
-  vertexAttribPointer: function(){},
-  enableVertexAttribArray: function(){},
-  drawArrays: function(){},
-  disable: function(){},
-  depthMask: function(){},
-  finish: function(){},
-  drawElements: function(){},
+  viewport: function(x, y, width, height){
+    log("viewport x: "+x+" y: "+y+" width: "+width+" height: "+height);
+  },
+  clear: function(mask){
+    log("clear mask: "+mask);
+  },
+  colorMask: function() {
+    log("colorMask");
+  },
+  useProgram: function(){
+    log("useProgram");
+  },
+  uniform1i: function(){
+    log("uniform1i");
+  },
+  uniform4f: function(){
+    log("uniform4f");
+  },
+  uniformMatrix4fv: function(){
+    log("uniformMatrix4fv");
+  },
+  vertexAttribPointer: function(){
+    log("vertexAttribPointer");
+  },
+  enableVertexAttribArray: function(){
+    log("enableVertexAttribArray");
+  },
+  drawArrays: function(){
+    log("drawArrays");
+  },
+  disable: function(){
+    log("disable");
+  },
+  depthMask: function(){
+    log("depthMask");
+  },
+  finish: function(){
+    log("finish");
+  },
+  drawElements: function(){
+    log("drawElements");
+  },
   LINK_STATUS: 35714,
   CW: 2304,
   CCW: 2305,
@@ -172,6 +200,8 @@ mygl={
   ARRAY_BUFFER: 34962,
   ELEMENT_ARRAY_BUFFER: 34963,
   STATIC_DRAW : 35044,
+  COLOR_BUFFER_BIT: 16384,
+  DEPTH_BUFFER_BIT: 256,
 };
 
 window={};
