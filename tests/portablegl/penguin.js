@@ -143,20 +143,22 @@ mygl={
   colorMask: function() {
     log("colorMask");
   },
-  useProgram: function(){
-    log("useProgram");
+  useProgram: function(program){
+    log("useProgram program: "+program);
   },
-  uniform1i: function(){
-    log("uniform1i");
+  uniform1i: function(location, v0){
+    log("uniform1i location: "+location+" v0: "+v0);
   },
-  uniform4f: function(){
-    log("uniform4f");
+  uniform4f: function(location, v0, v1, v2, v3){
+    log("uniform4f location: "+location+" v0: "+v0+" v1: "+v1+" v2: "+v2+" v3: "+v3);
   },
-  uniformMatrix4fv: function(){
-    log("uniformMatrix4fv");
+  uniformMatrix4fv: function(location, transpose, value){
+    // looks like there's a bug in penguins puzzle. They set gl.FALSE which doesn't exist.
+    // should be false
+    log("uniformMatrix4fv location: "+location+" transpose: "+transpose+" value: "+value);
   },
-  vertexAttribPointer: function(){
-    log("vertexAttribPointer");
+  vertexAttribPointer: function(index, size, type, normalized, stride, offset){
+    log("vertexAttribPointer index: "+index+" size: "+size+" type: "+type+" normalized: "+normalized+" stride: "+stride+" offset: "+offset);
   },
   enableVertexAttribArray: function(){
     log("enableVertexAttribArray");
@@ -202,6 +204,7 @@ mygl={
   STATIC_DRAW : 35044,
   COLOR_BUFFER_BIT: 16384,
   DEPTH_BUFFER_BIT: 256,
+  FLOAT: 5126,
 };
 
 window={};
