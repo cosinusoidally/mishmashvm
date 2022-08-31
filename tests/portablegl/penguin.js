@@ -48,22 +48,41 @@ mygl={
     log("texParameterf target: "+target+ " pname: "+pname+ " param: "+param);
   },
   createFramebuffer: function(){
+    // TODO no implementation
     log("createFramebuffer");
     return {"type":"WebGLFramebuffer"};
   },
   bindFramebuffer: function(target, framebuffer){
+    // TODO no implementation needed
     log("bindFramebuffer target: "+target+" framebuffer: "+framebuffer);
 
   },
-  framebufferTexture2D: function(){},
-  createRenderbuffer: function(){},
-  bindRenderbuffer: function(){},
-  renderbufferStorage: function(){},
-  framebufferRenderbuffer: function(){},
-  createProgram: function(){
-    return {};
+  framebufferTexture2D: function(){
+    // TODO no implementation needed
+    log("framebufferTexture2D");
   },
-  attachShader: function(){},
+  createRenderbuffer: function(){
+    log("createRenderbuffer");
+  },
+  bindRenderbuffer: function(){
+    // TODO no implementation needed
+    log("bindRenderbuffer");
+  },
+  renderbufferStorage: function(){
+    // TODO no implementation needed
+    log("renderbufferStorage");
+  },
+  framebufferRenderbuffer: function(){
+    // TODO no implementation needed
+    log("framebufferRenderbuffer");
+  },
+  createProgram: function(){
+    log("createProgram");
+    return {"type":" WebGLProgram"};
+  },
+  attachShader: function(program, shader){
+    log("attachShader program: "+program+" shader:"+ shader);
+  },
   linkProgram: function(){},
   getProgramParameter: function(program,pname){
     if(pname===this.LINK_STATUS){
