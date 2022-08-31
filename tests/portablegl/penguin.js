@@ -80,6 +80,23 @@ mygl={
     log("createProgram");
     return {"type":" WebGLProgram"};
   },
+  createShader: function(type){
+    log("createShader type: "+type);
+    return {"type":"WebGLShader"};
+  },
+  shaderSource: function(shader,source){
+    log("shaderSource shader: "+shader+" source: "+source);
+    shader.source=source;
+  },
+  compileShader: function(shader){
+    log("compileShader shader: "+ shader);
+  },
+  getShaderParameter: function(){
+    log("getShaderParameter");
+  },
+  getShaderInfoLog: function(){
+    log("getShaderInfoLog");
+  },
   attachShader: function(program, shader){
     log("attachShader program: "+program+" shader:"+ shader);
   },
@@ -129,6 +146,8 @@ mygl={
   TEXTURE_MAG_FILTER: 10240,
   LINEAR: 9729,
   FRAMEBUFFER: 36160,
+  VERTEX_SHADER: 35633,
+  FRAGMENT_SHADER: 35632,
 };
 
 window={};
@@ -162,11 +181,11 @@ document.getElementById=function(n){
   };
   if(n.match("shader-fs")){
     log("shader-fs: "+n);
-    return {};
+    return {"type": "x-shader/x-fragment","firstChild":{"nodeType":1,"nextSibling":{"nodeType":3,"textContent":"// "+n}}};
   };
   if(n.match("shader-vs")){
     log("shader-vs: "+n);
-    return {};
+    return {"type": "x-shader/x-vertex","firstChild":{"nodeType":1,"nextSibling":{"nodeType":3,"textContent":"// "+n}}};
   };
   throw "unsupported element name: "+n;
 };
