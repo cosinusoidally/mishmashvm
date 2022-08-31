@@ -39,9 +39,34 @@ mygl={
   bindTexture: function(target,texture){
     log("bindTexture target: "+target+" texture: "+texture);
   },
-  texImage2D: function(target, level, internalformat, width, height, border, format, type, pixels){
-    log("texImage2D target: "+target+ " level: "+level+ " internalformat: "+internalformat+" width: "+width+" height: "+height+" border: "+border+" format: "+format+" type: "+type+" pixels: "+pixels);
-
+  texImage2D: function(){
+    // someone on the WebGL committee thought it would be a good idea to have function overloading in the api
+    // function overloading is not idiomatic JS so I will have to emulate it
+    var a=arguments;
+    if(a.length===9){
+      var target=a[0];
+      var level=a[1];
+      var internalformat=a[2];
+      var width=a[3];
+      var height=a[4];
+      var border=a[5];
+      var format=a[6];
+      var type=a[7];
+      var pixels=a[8];
+      log("texImage2D target: "+target+ " level: "+level+ " internalformat: "+internalformat+" width: "+width+" height: "+height+" border: "+border+" format: "+format+" type: "+type+" pixels: "+pixels);
+      return;
+    };
+    if(a.length===6){
+      var target=a[0];
+      var level=a[1];
+      var internalformat=a[2];
+      var format=a[3];
+      var type=a[4];
+      var pixels=a[5];
+      log("texImage2D target: "+target+ " level: "+level+ " internalformat: "+internalformat+" format: "+format+" type: "+type+" pixels: "+pixels);
+      return;
+    };
+    throw "error texImage2D variant not supported";
   },
   texParameterf: function(target, pname, param){
 
