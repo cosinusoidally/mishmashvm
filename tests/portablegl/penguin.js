@@ -165,8 +165,8 @@ mygl={
   clear: function(mask){
     log("clear mask: "+mask);
   },
-  colorMask: function() {
-    log("colorMask");
+  colorMask: function(red, green, blue, alpha) {
+    log("colorMask  red: "+red+" green: "+green+" blue: "+blue+" alpha: "+alpha);
   },
   useProgram: function(program){
     log("useProgram program: "+program);
@@ -203,6 +203,12 @@ mygl={
   drawElements: function(mode, count, type, offset){
     log("drawElements mode: "+mode+" count: "+count+" type: "+type+" offset: "+offset);
   },
+  texParameteri: function(target, pname, param){
+    log("texParameteri target: "+target+" pname: "+pname+" param: "+param);
+  },
+  generateMipmap: function(target){
+    log("generateMipmap target:"+target);
+  },
   LINK_STATUS: 35714,
   CW: 2304,
   CCW: 2305,
@@ -233,7 +239,10 @@ mygl={
   TRIANGLE_FAN: 6,
   TRIANGLE_STRIP: 5,
   TRIANGLES: 4,
-  UNSIGNED_SHORT:5123 ,
+  UNSIGNED_SHORT: 5123,
+  TEXTURE_WRAP_S: 10242,
+  TEXTURE_WRAP_T: 10243,
+  MIRRORED_REPEAT: 33648,
 };
 
 window={};
