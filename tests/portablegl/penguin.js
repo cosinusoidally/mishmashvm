@@ -20,6 +20,9 @@ pgl={
   glEnable: demo.get_fn("glEnable"),
   glDepthRange: demo.get_fn("wrap_glDepthRange"),
   glClearDepth: demo.get_fn("wrap_glClearDepth"),
+  glGenTextures: demo.get_fn("glGenTextures"),
+  glActiveTexture: demo.get_fn("glActiveTexture"),
+  glBindTexture: demo.get_fn("glBindTexture"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -29,7 +32,9 @@ pgl.consts['GL_BACK']= 179;
 pgl.consts['GL_BLEND']= 168;
 pgl.consts['GL_CULL_FACE']= 164;
 pgl.consts['GL_DEPTH_TEST']= 165;
-
+pgl.consts['GL_TEXTURE0']= 156;
+pgl.consts['GL_TEXTURE1']= 157;
+pgl.consts['GL_TEXTURE_2D']= 93;
 
 // compat code:
 mygl={
@@ -73,13 +78,29 @@ mygl={
   },
   createTexture: function(){
     log("createTexture");
-    return {"type":"WebGLTexture"}
+    var tex=new Uint32Array(1);
+    pgl.glGenTextures(1,tex);
+    log("Created texture: "+tex[0]);
+    return tex[0];
   },
   activeTexture: function(texture){
     log("activeTexture texture: "+texture);
+    var t2=0;
+    if(texture===this.TEXTURE0){
+      t2=pgl.consts.GL_TEXTURE0;
+    };
+    if(texture===this.TEXTURE1){
+      t2=pgl.consts.GL_TEXTURE1;
+    };
+    pgl.glActiveTexture(t2);
   },
   bindTexture: function(target,texture){
     log("bindTexture target: "+target+" texture: "+texture);
+    var t2=0;
+    if(target===this.TEXTURE_2D){
+      t2=pgl.consts.GL_TEXTURE_2D;
+    };
+    pgl.glBindTexture(t2,texture);
   },
   texImage2D: function(){
     // someone on the WebGL committee thought it would be a good idea to have function overloading in the api
@@ -96,6 +117,7 @@ mygl={
       var type=a[7];
       var pixels=a[8];
       log("texImage2D target: "+target+ " level: "+level+ " internalformat: "+internalformat+" width: "+width+" height: "+height+" border: "+border+" format: "+format+" type: "+type+" pixels: "+pixels);
+      // TODO implementation of 9 argument form not needed
       return;
     };
     if(a.length===6){
@@ -111,7 +133,7 @@ mygl={
     throw "error texImage2D variant not supported";
   },
   texParameterf: function(target, pname, param){
-
+    // TODO no implementation needed
     log("texParameterf target: "+target+ " pname: "+pname+ " param: "+param);
   },
   createFramebuffer: function(){

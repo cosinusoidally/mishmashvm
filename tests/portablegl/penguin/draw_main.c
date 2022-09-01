@@ -121,4 +121,7 @@ void show_consts(){
   printf("pgl.consts['GL_BLEND']= %u;\n",GL_BLEND);
   printf("pgl.consts['GL_CULL_FACE']= %u;\n",GL_CULL_FACE);
   printf("pgl.consts['GL_DEPTH_TEST']= %u;\n",GL_DEPTH_TEST);
+  printf("pgl.consts['GL_TEXTURE0']= %u;\n",GL_TEXTURE0);
+  printf("pgl.consts['GL_TEXTURE1']= %u;\n",GL_TEXTURE1);
+  printf("pgl.consts['GL_TEXTURE_2D']= %u;\n",GL_TEXTURE_2D);
 }
