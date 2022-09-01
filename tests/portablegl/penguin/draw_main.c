@@ -124,4 +124,6 @@ void show_consts(){
   printf("pgl.consts['GL_TEXTURE0']= %u;\n",GL_TEXTURE0);
   printf("pgl.consts['GL_TEXTURE1']= %u;\n",GL_TEXTURE1);
   printf("pgl.consts['GL_TEXTURE_2D']= %u;\n",GL_TEXTURE_2D);
+  printf("pgl.consts['GL_RGB']= %u;\n",GL_RGB);
+  printf("pgl.consts['GL_UNSIGNED_BYTE']= %u;\n",GL_UNSIGNED_BYTE);
 }

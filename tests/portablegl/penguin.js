@@ -23,6 +23,7 @@ pgl={
   glGenTextures: demo.get_fn("glGenTextures"),
   glActiveTexture: demo.get_fn("glActiveTexture"),
   glBindTexture: demo.get_fn("glBindTexture"),
+  glTexImage2D: demo.get_fn("glTexImage2D"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -35,6 +36,8 @@ pgl.consts['GL_DEPTH_TEST']= 165;
 pgl.consts['GL_TEXTURE0']= 156;
 pgl.consts['GL_TEXTURE1']= 157;
 pgl.consts['GL_TEXTURE_2D']= 93;
+pgl.consts['GL_RGB']= 136;
+pgl.consts['GL_UNSIGNED_BYTE']= 205;
 
 // compat code:
 mygl={
@@ -128,6 +131,23 @@ mygl={
       var type=a[4];
       var pixels=a[5];
       log("texImage2D target: "+target+ " level: "+level+ " internalformat: "+internalformat+" format: "+format+" type: "+type+" pixels: "+pixels);
+      var t2=0;
+      if(target===this.TEXTURE_2D){
+        t2=pgl.consts.GL_TEXTURE_2D;
+      };
+      var i2=0;
+      if(internalformat===this.RGB){
+        i2=pgl.consts.GL_RGB;
+      };
+      var f2=0;
+      if(format===this.RGB){
+        f2=pgl.consts.GL_RGB;
+      };
+      var ty2=0;
+      if(type===this.UNSIGNED_BYTE){
+        ty2=pgl.consts.GL_UNSIGNED_BYTE;
+      };
+      pgl.glTexImage2D(t2,level,i2,pixels.width,pixels.height,0,f2,ty2,pixels.data);
       return;
     };
     throw "error texImage2D variant not supported";
@@ -370,7 +390,10 @@ throw "ERROR alert"
 function Image(){
   Object.defineProperty(this, 'src', { set(x) {
     log("Image src: "+x);
-    this.data=read(test_path+"/penguin/"+x,"binary");
+    this.rawdata=read(test_path+"/penguin/"+x,"binary");
+    this.width=128;
+    this.height=128;
+    this.data=new Uint8Array(this.width*this.height*3);
     var that=this;
     window.events.push(function(){
       log("Image onload callback for "+x);
