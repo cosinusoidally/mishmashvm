@@ -1,8 +1,8 @@
 #define PORTABLEGL_IMPLEMENTATION
 #include "portablegl.h"
 
-#define WIDTH 640
-#define HEIGHT 480
+int WIDTH=640;
+int HEIGHT=480;
 
 
 #include <stdio.h>
@@ -97,4 +97,14 @@ void init(){
 	memcpy(the_uniforms.mvp_mat, identity, sizeof(mat4));
 
 	glClearColor(0, 0, 0, 1);
+}
+
+void wrap_glClearColor(float *p){
+  printf("C glClearColor %f %f %f %f \n",p[0],p[1],p[2],p[3]);
+  glClearColor(p[0],p[1],p[2],p[3]);
+}
+
+void show_consts(){
+  printf("pgl.consts['GL_COLOR_BUFFER_BIT']= %u;\n",GL_COLOR_BUFFER_BIT);
+  printf("pgl.consts['GL_DEPTH_BUFFER_BIT']= %u;\n",GL_DEPTH_BUFFER_BIT);
 }

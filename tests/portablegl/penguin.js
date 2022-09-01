@@ -11,6 +11,16 @@ log=function(x){
     print(x);
   };
 }
+pgl={
+  update: demo.get_fn("update"),
+  glFrontFace: demo.get_fn("glFrontFace"),
+  glClearColor: demo.get_fn("wrap_glClearColor"),
+  glClear: demo.get_fn("glClear"),
+
+};
+pgl.consts={};
+pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
+pgl.consts['GL_DEPTH_BUFFER_BIT']= 2048;
 
 // compat code:
 mygl={
@@ -158,12 +168,22 @@ mygl={
   },
   clearColor: function(red, green, blue, alpha){
     log("clearColor red: "+red+" green: "+green+" blue: "+blue+" alpha: "+alpha)
+    pgl.glClearColor(new Float32Array([red, green, blue, alpha]));
   },
   viewport: function(x, y, width, height){
     log("viewport x: "+x+" y: "+y+" width: "+width+" height: "+height);
   },
   clear: function(mask){
     log("clear mask: "+mask);
+    var m2=0;
+    if(mask&this.COLOR_BUFFER_BIT){
+      m2|=pgl.consts.GL_COLOR_BUFFER_BIT;
+    };
+    if(mask&this.DEPTH_BUFFER_BIT){
+      m2|=pgl.consts.GL_DEPTH_BUFFER_BIT;
+    };
+    log("m2 "+m2);
+    pgl.glClear(m2);
   },
   colorMask: function(red, green, blue, alpha) {
     log("colorMask  red: "+red+" green: "+green+" blue: "+blue+" alpha: "+alpha);
@@ -199,6 +219,7 @@ mygl={
   },
   finish: function(){
     log("finish");
+    pgl.update();
   },
   drawElements: function(mode, count, type, offset){
     log("drawElements mode: "+mode+" count: "+count+" type: "+type+" offset: "+offset);
@@ -264,6 +285,9 @@ document={};
 
 document.getElementById=function(n){
   if(n==="mycanvas"){
+    demo.get_fn("setup_context")();
+    demo.get_fn("sdl_setup_context")();
+
     return {
       getContext: function(x){
         print("getContext called: "+x);
@@ -317,6 +341,8 @@ XMLHttpRequest.prototype.send=function(){
   this.responseText=read(test_path+"/penguin/"+this.url);
   this.onreadystatechange();
 };
+
+demo.get_fn("show_consts")();
 
 // load demo
 load(test_path+"/penguin/penguin.js");

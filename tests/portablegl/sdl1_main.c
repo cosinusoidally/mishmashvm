@@ -64,6 +64,11 @@ int sdl_main(void) {
   return 0;
 }
 
+void update(){
+    memcpy(surface->pixels,bbufpix,WIDTH*HEIGHT*4);
+    SDL_Flip(surface);
+};
+
 int main(int argc, char** argv)
 {
         sdl_main();
