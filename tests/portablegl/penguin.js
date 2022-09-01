@@ -395,11 +395,11 @@ document.getElementById=function(n){
   };
   if(n.match("shader-fs")){
     log("shader-fs: "+n);
-    return {"type": "x-shader/x-fragment","firstChild":{"nodeType":1,"nextSibling":{"nodeType":3,"textContent":"// "+n}}};
+    return {"type": "x-shader/x-fragment","firstChild":{"nodeType":1,"nextSibling":{"nodeType":3,"textContent":n}}};
   };
   if(n.match("shader-vs")){
     log("shader-vs: "+n);
-    return {"type": "x-shader/x-vertex","firstChild":{"nodeType":1,"nextSibling":{"nodeType":3,"textContent":"// "+n}}};
+    return {"type": "x-shader/x-vertex","firstChild":{"nodeType":1,"nextSibling":{"nodeType":3,"textContent":n}}};
   };
   throw "unsupported element name: "+n;
 };
