@@ -16,22 +16,51 @@ pgl={
   glFrontFace: demo.get_fn("glFrontFace"),
   glClearColor: demo.get_fn("wrap_glClearColor"),
   glClear: demo.get_fn("glClear"),
+  glCullFace: demo.get_fn("glCullFace"),
+  glEnable: demo.get_fn("glEnable"),
 
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
 pgl.consts['GL_DEPTH_BUFFER_BIT']= 2048;
+pgl.consts['GL_CW']= 182;
+pgl.consts['GL_BACK']= 179;
+pgl.consts['GL_BLEND']= 168;
+pgl.consts['GL_CULL_FACE']= 164;
+pgl.consts['GL_DEPTH_TEST']= 165;
+
 
 // compat code:
 mygl={
   frontFace: function(mode){
     log("frontFace mode: "+mode);
+    var m2=0;
+    if(mode===this.CW){
+      m2=pgl.consts.GL_CW;
+    };
+    pgl.glFrontFace(m2);
   },
   cullFace: function(mode){
     log("cullFace mode: "+mode);
+    var m2=0;
+    if(mode===this.BACK){
+      m2=pgl.consts.GL_BACK;
+    };
+    pgl.glCullFace(m2);
   },
   enable: function(cap){
     log("enable cap: "+cap);
+    var cap2=0;
+    if(cap===this.BLEND){
+      cap2=pgl.consts.GL_BLEND;
+    };
+    if(cap===this.CULL_FACE){
+      cap2=pgl.consts.GL_CULL_FACE;
+    };
+    if(cap===this.DEPTH_TEST){
+      cap2=pgl.consts.GL_DEPTH_TEST;
+    };
+    pgl.glEnable(cap2);
   },
   depthRange: function(zNear,zFar){
     log("depthRange zNear: "+zNear+" zFar: "+zFar);

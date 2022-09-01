@@ -107,4 +107,9 @@ void wrap_glClearColor(float *p){
 void show_consts(){
   printf("pgl.consts['GL_COLOR_BUFFER_BIT']= %u;\n",GL_COLOR_BUFFER_BIT);
   printf("pgl.consts['GL_DEPTH_BUFFER_BIT']= %u;\n",GL_DEPTH_BUFFER_BIT);
+  printf("pgl.consts['GL_CW']= %u;\n",GL_CW);
+  printf("pgl.consts['GL_BACK']= %u;\n",GL_BACK);
+  printf("pgl.consts['GL_BLEND']= %u;\n",GL_BLEND);
+  printf("pgl.consts['GL_CULL_FACE']= %u;\n",GL_CULL_FACE);
+  printf("pgl.consts['GL_DEPTH_TEST']= %u;\n",GL_DEPTH_TEST);
 }
