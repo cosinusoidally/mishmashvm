@@ -104,6 +104,15 @@ void wrap_glClearColor(float *p){
   glClearColor(p[0],p[1],p[2],p[3]);
 }
 
+void wrap_glDepthRange(float *p){
+  printf("C glDepthRange %f %f \n",p[0],p[1]);
+  glDepthRange(p[0],p[1]);
+}
+
+void wrap_glClearDepth(float *p){
+  printf("C glClearDepth %f \n",p[0]);
+  glClearDepth(p[0]);
+}
 void show_consts(){
   printf("pgl.consts['GL_COLOR_BUFFER_BIT']= %u;\n",GL_COLOR_BUFFER_BIT);
   printf("pgl.consts['GL_DEPTH_BUFFER_BIT']= %u;\n",GL_DEPTH_BUFFER_BIT);

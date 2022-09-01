@@ -18,7 +18,8 @@ pgl={
   glClear: demo.get_fn("glClear"),
   glCullFace: demo.get_fn("glCullFace"),
   glEnable: demo.get_fn("glEnable"),
-
+  glDepthRange: demo.get_fn("wrap_glDepthRange"),
+  glClearDepth: demo.get_fn("wrap_glClearDepth"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -64,9 +65,11 @@ mygl={
   },
   depthRange: function(zNear,zFar){
     log("depthRange zNear: "+zNear+" zFar: "+zFar);
+    pgl.glDepthRange(new Float32Array([zNear,zFar]));
   },
   clearDepth: function(depth){
-    log("depth depth: "+depth);
+    log("clearDepth depth: "+depth);
+    pgl.glClearDepth(new Float32Array([depth]));
   },
   createTexture: function(){
     log("createTexture");
