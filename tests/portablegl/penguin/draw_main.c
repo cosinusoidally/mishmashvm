@@ -126,4 +126,8 @@ void show_consts(){
   printf("pgl.consts['GL_TEXTURE_2D']= %u;\n",GL_TEXTURE_2D);
   printf("pgl.consts['GL_RGB']= %u;\n",GL_RGB);
   printf("pgl.consts['GL_UNSIGNED_BYTE']= %u;\n",GL_UNSIGNED_BYTE);
+  printf("pgl.consts['GL_UNSIGNED_BYTE']= %u;\n",GL_UNSIGNED_BYTE);
+  printf("pgl.consts['GL_TEXTURE_WRAP_S']= %u;\n",GL_TEXTURE_WRAP_S);
+  printf("pgl.consts['GL_TEXTURE_WRAP_T']= %u;\n",GL_TEXTURE_WRAP_T);
+  printf("pgl.consts['GL_MIRRORED_REPEAT']= %u;\n",GL_MIRRORED_REPEAT);
 }

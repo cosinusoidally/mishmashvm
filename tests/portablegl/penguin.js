@@ -24,6 +24,7 @@ pgl={
   glActiveTexture: demo.get_fn("glActiveTexture"),
   glBindTexture: demo.get_fn("glBindTexture"),
   glTexImage2D: demo.get_fn("glTexImage2D"),
+  glTexParameteri: demo.get_fn("glTexParameteri"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -38,6 +39,9 @@ pgl.consts['GL_TEXTURE1']= 157;
 pgl.consts['GL_TEXTURE_2D']= 93;
 pgl.consts['GL_RGB']= 136;
 pgl.consts['GL_UNSIGNED_BYTE']= 205;
+pgl.consts['GL_TEXTURE_WRAP_S']= 121;
+pgl.consts['GL_TEXTURE_WRAP_T']= 122;
+pgl.consts['GL_MIRRORED_REPEAT']= 127;
 
 // compat code:
 mygl={
@@ -300,8 +304,25 @@ mygl={
   },
   texParameteri: function(target, pname, param){
     log("texParameteri target: "+target+" pname: "+pname+" param: "+param);
+    var t2=0;
+    if(target===this.TEXTURE_2D){
+      t2=pgl.consts.GL_TEXTURE_2D;
+    };
+    var pn2=0;
+    if(pname===this.TEXTURE_WRAP_S){
+      pn2=pgl.consts.GL_TEXTURE_WRAP_S;
+    };
+    if(pname===this.TEXTURE_WRAP_T){
+      pn2=pgl.consts.GL_TEXTURE_WRAP_T;
+    };
+    var pa2=0;
+    if(param===this.MIRRORED_REPEAT){
+      pa2=pgl.consts.GL_MIRRORED_REPEAT;
+    };
+    pgl.glTexParameteri(t2,pn2,pa2);
   },
   generateMipmap: function(target){
+    // TODO portablegl does not support this
     log("generateMipmap target:"+target);
   },
   LINK_STATUS: 35714,
