@@ -44,6 +44,26 @@ pgl.consts['GL_TEXTURE_WRAP_S']= 121;
 pgl.consts['GL_TEXTURE_WRAP_T']= 122;
 pgl.consts['GL_MIRRORED_REPEAT']= 127;
 
+/*
+uniforms:
+sizeof(shader_uniforms)=164
+offsetof(shader_uniforms,view)=0
+offsetof(shader_uniforms,world)=64
+offsetof(shader_uniforms,blend)=128
+offsetof(shader_uniforms,color)=144
+offsetof(shader_uniforms,texture)=160
+*/
+
+pgl.uniforms={raw:new ArrayBuffer(164)};
+pgl.uniforms.float32=new Float32Array(pgl.uniforms.raw);
+pgl.uniforms.uint32=new Uint32Array(pgl.uniforms.raw);
+pgl.uniforms.offsets={};
+pgl.uniforms.offsets.view=0;
+pgl.uniforms.offsets.world=64/4;
+pgl.uniforms.offsets.blend=128/4;
+pgl.uniforms.offsets.color=144/4;
+pgl.uniforms.offsets.texture=160/4;
+
 // compat code:
 mygl={
   frontFace: function(mode){
@@ -108,6 +128,7 @@ mygl={
     if(target===this.TEXTURE_2D){
       t2=pgl.consts.GL_TEXTURE_2D;
     };
+    log("-bindTexture realtarget: "+t2+" texture: "+texture);
     pgl.glBindTexture(t2,texture);
   },
   texImage2D: function(){
@@ -276,14 +297,32 @@ mygl={
   },
   uniform1i: function(location, v0){
     log("uniform1i location: "+location+" v0: "+v0);
+    var o=pgl.uniforms.offsets[location];
+    if(o!==undefined){
+      pgl.uniforms.uint32[o]=v0;
+    };
   },
   uniform4f: function(location, v0, v1, v2, v3){
     log("uniform4f location: "+location+" v0: "+v0+" v1: "+v1+" v2: "+v2+" v3: "+v3);
+    var o=pgl.uniforms.offsets[location];
+    if(o!==undefined){
+      pgl.uniforms.float32[o]=v0;
+      pgl.uniforms.float32[o]=v1;
+      pgl.uniforms.float32[o]=v2;
+      pgl.uniforms.float32[o]=v3;
+    };
   },
   uniformMatrix4fv: function(location, transpose, value){
     // looks like there's a bug in penguins puzzle. They set gl.FALSE which doesn't exist.
     // should be false
     log("uniformMatrix4fv location: "+location+" transpose: "+transpose+" value: "+value);
+    var o=pgl.uniforms.offsets[location];
+    if(o!==undefined){
+      for(var i=0;i<value.length;i++){
+        pgl.uniforms.float32[i+o]=value[i];
+      };
+    };
+
   },
   vertexAttribPointer: function(index, size, type, normalized, stride, offset){
     log("vertexAttribPointer index: "+index+" size: "+size+" type: "+type+" normalized: "+normalized+" stride: "+stride+" offset: "+offset);
@@ -444,9 +483,12 @@ XMLHttpRequest.prototype.send=function(){
   this.responseText=read(test_path+"/penguin/"+this.url);
   this.onreadystatechange();
 };
-
+log("show_consts");
 demo.get_fn("show_consts")();
-
+log("");
+log("get_shader_unform_metadata");
+demo.get_fn("get_shader_unform_metadata")();
+log("");
 // load demo
 load(test_path+"/penguin/penguin.js");
 

@@ -132,6 +132,32 @@ void show_consts(){
   printf("pgl.consts['GL_MIRRORED_REPEAT']= %u;\n",GL_MIRRORED_REPEAT);
 }
 
+typedef struct shader_uniforms
+{
+// from shader_vs:
+//        uniform mat4 view;
+          mat4 view;
+//        uniform mat4 world;
+          mat4 world;
+//        uniform vec4 blend;
+          vec4 blend;
+
+// from shader_fs
+//        uniform vec4 color;
+          vec4 color;
+//        uniform sampler2D texture;
+          GLuint texture;
+} shader_uniforms;
+
+void get_shader_unform_metadata(){
+  printf("sizeof(shader_uniforms)=%u\n",sizeof(shader_uniforms));
+  printf("offsetof(shader_uniforms,view)=%u\n",offsetof(shader_uniforms,view));
+  printf("offsetof(shader_uniforms,world)=%u\n",offsetof(shader_uniforms,world));
+  printf("offsetof(shader_uniforms,blend)=%u\n",offsetof(shader_uniforms,blend));
+  printf("offsetof(shader_uniforms,color)=%u\n",offsetof(shader_uniforms,color));
+  printf("offsetof(shader_uniforms,texture)=%u\n",offsetof(shader_uniforms,texture));
+}
+
 /*
 <script id="shader-vs" type="x-shader/x-vertex">
         attribute vec2 tex;
