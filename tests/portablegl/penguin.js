@@ -25,6 +25,7 @@ pgl={
   glBindTexture: demo.get_fn("glBindTexture"),
   glTexImage2D: demo.get_fn("glTexImage2D"),
   glTexParameteri: demo.get_fn("glTexParameteri"),
+  create_program: demo.get_fn("create_program"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -191,7 +192,7 @@ mygl={
   },
   createProgram: function(){
     log("createProgram");
-    return {"type":" WebGLProgram"};
+    return {"type":" WebGLProgram","program":pgl.create_program()};
   },
   createShader: function(type){
     log("createShader type: "+type);

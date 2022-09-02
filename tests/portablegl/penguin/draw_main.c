@@ -131,3 +131,9 @@ void show_consts(){
   printf("pgl.consts['GL_TEXTURE_WRAP_T']= %u;\n",GL_TEXTURE_WRAP_T);
   printf("pgl.consts['GL_MIRRORED_REPEAT']= %u;\n",GL_MIRRORED_REPEAT);
 }
+
+GLuint create_program(){
+  myshader = pglCreateProgram(smooth_vs, smooth_fs, 4, smooth, GL_FALSE);
+  printf("create_program %u\n",myshader);
+  return myshader;
+}
