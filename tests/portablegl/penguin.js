@@ -26,6 +26,7 @@ pgl={
   glTexImage2D: demo.get_fn("glTexImage2D"),
   glTexParameteri: demo.get_fn("glTexParameteri"),
   create_program: demo.get_fn("create_program"),
+  pglSetUniform: demo.get_fn("pglSetUniform"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -301,6 +302,7 @@ mygl={
     if(o!==undefined){
       pgl.uniforms.uint32[o]=v0;
     };
+    pgl.pglSetUniform(pgl.uniforms.raw);
   },
   uniform4f: function(location, v0, v1, v2, v3){
     log("uniform4f location: "+location+" v0: "+v0+" v1: "+v1+" v2: "+v2+" v3: "+v3);
@@ -311,6 +313,7 @@ mygl={
       pgl.uniforms.float32[o]=v2;
       pgl.uniforms.float32[o]=v3;
     };
+    pgl.pglSetUniform(pgl.uniforms.raw);
   },
   uniformMatrix4fv: function(location, transpose, value){
     // looks like there's a bug in penguins puzzle. They set gl.FALSE which doesn't exist.
@@ -322,7 +325,7 @@ mygl={
         pgl.uniforms.float32[i+o]=value[i];
       };
     };
-
+    pgl.pglSetUniform(pgl.uniforms.raw);
   },
   vertexAttribPointer: function(index, size, type, normalized, stride, offset){
     log("vertexAttribPointer index: "+index+" size: "+size+" type: "+type+" normalized: "+normalized+" stride: "+stride+" offset: "+offset);
