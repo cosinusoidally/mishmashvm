@@ -132,6 +132,44 @@ void show_consts(){
   printf("pgl.consts['GL_MIRRORED_REPEAT']= %u;\n",GL_MIRRORED_REPEAT);
 }
 
+/*
+<script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec2 tex;
+        attribute vec3 vertex;
+        attribute vec3 normal;
+        varying vec2 tcoord;
+        uniform mat4 view;
+        uniform mat4 world;
+        uniform vec4 blend;
+        varying float light;
+        void main(void) {
+                vec4 normal2 = world * vec4(normal,0.0);
+                light = 0.5+max(0.0,0.5*dot(normal2.xyz,vec3(0.7,0,0.7)));
+                tcoord = tex+blend.xy;
+                vec4 vertex2 = world * vec4(vertex,1.0);
+                gl_Position = view * vertex2;
+        }
+</script>
+*/
+
+/*
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+        uniform vec4 color;
+        uniform sampler2D texture;
+        varying vec2 tcoord;
+        varying float light;
+        void main(void) {
+            mediump vec4 col = texture2D(texture,tcoord);
+                if (col.x>0.9 && col.y>0.6 && col.y<0.61 && col.z<0.1)
+                         discard;
+                gl_FragColor = col*light;
+                gl_FragColor.a = 1.0;
+        }
+</script>
+*/
+
+
 GLuint create_program(){
   myshader = pglCreateProgram(smooth_vs, smooth_fs, 4, smooth, GL_FALSE);
   printf("create_program %u\n",myshader);

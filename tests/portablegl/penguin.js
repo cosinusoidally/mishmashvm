@@ -217,6 +217,7 @@ mygl={
   },
   linkProgram: function(program){
     log("linkProgram program: "+program);
+    log("-linkProgram program number: "+program.program);
   },
   getProgramParameter: function(program,pname){
     if(pname===this.LINK_STATUS){
@@ -229,9 +230,11 @@ mygl={
   },
   getAttribLocation: function(program,name){
     log("getAttribLocation program: "+program+" name: "+name);
+    return name;
   },
   getUniformLocation: function(program,name){
     log("getUniformLocation program: "+program+" name: "+name);
+    return name;
   },
   createBuffer: function(){
     log("createBuffer");
@@ -269,6 +272,7 @@ mygl={
   },
   useProgram: function(program){
     log("useProgram program: "+program);
+    log("-useProgram program number: "+program.program);
   },
   uniform1i: function(location, v0){
     log("uniform1i location: "+location+" v0: "+v0);
