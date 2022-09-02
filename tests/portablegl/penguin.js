@@ -539,6 +539,9 @@ log("");
 log("get_shader_unform_metadata");
 demo.get_fn("get_shader_unform_metadata")();
 log("");
+log("get_shader_attributes_metadata");
+demo.get_fn("get_shader_attributes_metadata")();
+log("");
 // load demo
 load(test_path+"/penguin/penguin.js");
 

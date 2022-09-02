@@ -172,6 +172,12 @@ void get_shader_unform_metadata(){
   printf("offsetof(shader_uniforms,texture)=%u\n",offsetof(shader_uniforms,texture));
 }
 
+void get_shader_attributes_metadata(){
+  printf("sizeof(shader_attributes)=%u\n",sizeof(shader_attributes));
+  printf("offsetof(shader_attributes,view)=%u\n",offsetof(shader_attributes,tex));
+  printf("offsetof(shader_attributes,vertex)=%u\n",offsetof(shader_attributes,vertex));
+  printf("offsetof(shader_attributes,normal)=%u\n",offsetof(shader_attributes,normal));
+}
 /*
 <script id="shader-vs" type="x-shader/x-vertex">
         attribute vec2 tex;
@@ -194,6 +200,8 @@ void get_shader_unform_metadata(){
 
 void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins, void* uniforms) {
   shader_uniforms* u = (shader_uniforms*)uniforms;
+  // note this approach may not work in the general case
+  // as we may have struct padding issues for attributes
   shader_attributes* a = (shader_attributes*)vertex_attribs;
 //  builtins->gl_Position = ;
 }
