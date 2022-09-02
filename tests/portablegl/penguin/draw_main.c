@@ -130,6 +130,8 @@ void show_consts(){
   printf("pgl.consts['GL_TEXTURE_WRAP_S']= %u;\n",GL_TEXTURE_WRAP_S);
   printf("pgl.consts['GL_TEXTURE_WRAP_T']= %u;\n",GL_TEXTURE_WRAP_T);
   printf("pgl.consts['GL_MIRRORED_REPEAT']= %u;\n",GL_MIRRORED_REPEAT);
+  printf("pgl.consts['GL_ARRAY_BUFFER']= %u;\n",GL_ARRAY_BUFFER);
+  printf("pgl.consts['GL_ELEMENT_ARRAY_BUFFER']= %u;\n",GL_ELEMENT_ARRAY_BUFFER);
 }
 
 typedef struct shader_uniforms

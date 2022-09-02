@@ -27,6 +27,8 @@ pgl={
   glTexParameteri: demo.get_fn("glTexParameteri"),
   create_program: demo.get_fn("create_program"),
   pglSetUniform: demo.get_fn("pglSetUniform"),
+  glGenBuffers: demo.get_fn("glGenBuffers"),
+  glBindBuffer: demo.get_fn("glBindBuffer"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -44,6 +46,8 @@ pgl.consts['GL_UNSIGNED_BYTE']= 205;
 pgl.consts['GL_TEXTURE_WRAP_S']= 121;
 pgl.consts['GL_TEXTURE_WRAP_T']= 122;
 pgl.consts['GL_MIRRORED_REPEAT']= 127;
+pgl.consts['GL_ARRAY_BUFFER']= 6;
+pgl.consts['GL_ELEMENT_ARRAY_BUFFER']= 9;
 
 /*
 uniforms:
@@ -260,10 +264,23 @@ mygl={
   },
   createBuffer: function(){
     log("createBuffer");
-    return {"type":"WebGLBuffer"};
+    var buf=new Uint32Array(1);
+    pgl.glGenBuffers(1,buf);
+    log("Created buffer: "+buf[0]);
+    return {"type":"WebGLBuffer",buffer:buf};
   },
   bindBuffer: function(target, buffer){
     log("bindBuffer target: "+target+" buffer: "+buffer)
+    var t2=0;
+    if(target===this.ARRAY_BUFFER){
+      t2=pgl.consts.GL_ARRAY_BUFFER;
+    };
+    if(target===this.ELEMENT_ARRAY_BUFFER){
+      t2=pgl.consts.GL_ELEMENT_ARRAY_BUFFER;
+    };
+    var buf=buffer.buffer[0];
+    log("-bindBuffer realbuffer: "+buf);
+    pgl.glBindBuffer(t2,buf);
   },
   bufferData: function(target, srcData, usage){
     // annoying the WebGL api uses overloaded functions
