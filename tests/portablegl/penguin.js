@@ -30,6 +30,8 @@ pgl={
   glGenBuffers: demo.get_fn("glGenBuffers"),
   glBindBuffer: demo.get_fn("glBindBuffer"),
   glBufferData: demo.get_fn("glBufferData"),
+  glVertexAttribPointer: demo.get_fn("glVertexAttribPointer"),
+  glEnableVertexAttribArray: demo.get_fn("glEnableVertexAttribArray"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -50,6 +52,12 @@ pgl.consts['GL_MIRRORED_REPEAT']= 127;
 pgl.consts['GL_ARRAY_BUFFER']= 6;
 pgl.consts['GL_ELEMENT_ARRAY_BUFFER']= 9;
 pgl.consts['GL_STATIC_DRAW']= 34;
+pgl.consts['GL_FLOAT']= 212;
+
+pgl.attribute_index={};
+pgl.attribute_index["tex"]=0;
+pgl.attribute_index["vertex"]=1;
+pgl.attribute_index["normal"]=2;
 
 /*
 uniforms:
@@ -360,9 +368,17 @@ mygl={
   },
   vertexAttribPointer: function(index, size, type, normalized, stride, offset){
     log("vertexAttribPointer index: "+index+" size: "+size+" type: "+type+" normalized: "+normalized+" stride: "+stride+" offset: "+offset);
+    var i=pgl.attribute_index[index];
+    var t2=0;
+    if(type===this.FLOAT){
+      t2=pgl.consts.GL_FLOAT;
+    };
+    pgl.glVertexAttribPointer(i,size,t2,normalized,stride,offset);
   },
   enableVertexAttribArray: function(index){
     log("enableVertexAttribArray index:"+index);
+    var i=pgl.attribute_index[index];
+    pgl.glEnableVertexAttribArray(i);
   },
   drawArrays: function(mode, first, count){
     log("drawArrays mode: "+mode+" first: "+first+" count: "+count);

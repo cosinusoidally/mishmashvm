@@ -133,6 +133,7 @@ void show_consts(){
   printf("pgl.consts['GL_ARRAY_BUFFER']= %u;\n",GL_ARRAY_BUFFER);
   printf("pgl.consts['GL_ELEMENT_ARRAY_BUFFER']= %u;\n",GL_ELEMENT_ARRAY_BUFFER);
   printf("pgl.consts['GL_STATIC_DRAW']= %u;\n",GL_STATIC_DRAW);
+  printf("pgl.consts['GL_FLOAT']= %u;\n",GL_FLOAT);
 }
 
 typedef struct shader_uniforms
