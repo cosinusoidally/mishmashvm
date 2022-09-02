@@ -153,6 +153,16 @@ typedef struct shader_uniforms
           GLuint texture;
 } shader_uniforms;
 
+typedef struct shader_attributes
+{
+//        attribute vec2 tex;
+          vec2 tex;
+//        attribute vec3 vertex;
+          vec3 vertex;
+//        attribute vec3 normal;
+          vec3 normal;
+} shader_attributes;
+
 void get_shader_unform_metadata(){
   printf("sizeof(shader_uniforms)=%u\n",sizeof(shader_uniforms));
   printf("offsetof(shader_uniforms,view)=%u\n",offsetof(shader_uniforms,view));
@@ -182,12 +192,10 @@ void get_shader_unform_metadata(){
 </script>
 */
 
-void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins, void* uniforms)
-{
-	vec4* v_attribs = vertex_attribs;
-	((vec4*)vs_output)[0] = v_attribs[4]; //color
-
-	builtins->gl_Position = mult_mat4_vec4(*((mat4*)uniforms), v_attribs[0]);
+void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins, void* uniforms) {
+  shader_uniforms* u = (shader_uniforms*)uniforms;
+  shader_attributes* a = (shader_attributes*)vertex_attribs;
+//  builtins->gl_Position = ;
 }
 
 /*
@@ -207,9 +215,8 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
 </script>
 */
 
-void shader_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms)
-{
-	builtins->gl_FragColor = ((vec4*)fs_input)[0];
+void shader_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms) {
+  builtins->gl_FragColor = ((vec4*)fs_input)[0];
 }
 
 GLuint create_program(){
