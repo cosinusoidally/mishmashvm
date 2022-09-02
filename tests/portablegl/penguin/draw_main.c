@@ -182,6 +182,14 @@ void get_shader_unform_metadata(){
 </script>
 */
 
+void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins, void* uniforms)
+{
+	vec4* v_attribs = vertex_attribs;
+	((vec4*)vs_output)[0] = v_attribs[4]; //color
+
+	builtins->gl_Position = mult_mat4_vec4(*((mat4*)uniforms), v_attribs[0]);
+}
+
 /*
 <script id="shader-fs" type="x-shader/x-fragment">
     precision mediump float;
@@ -199,9 +207,13 @@ void get_shader_unform_metadata(){
 </script>
 */
 
+void shader_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms)
+{
+	builtins->gl_FragColor = ((vec4*)fs_input)[0];
+}
 
 GLuint create_program(){
-  myshader = pglCreateProgram(smooth_vs, smooth_fs, 4, smooth, GL_FALSE);
+  myshader = pglCreateProgram(shader_vs, shader_fs, 4, smooth, GL_FALSE);
   printf("create_program %u\n",myshader);
   return myshader;
 }
