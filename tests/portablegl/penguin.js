@@ -29,6 +29,7 @@ pgl={
   pglSetUniform: demo.get_fn("pglSetUniform"),
   glGenBuffers: demo.get_fn("glGenBuffers"),
   glBindBuffer: demo.get_fn("glBindBuffer"),
+  glBufferData: demo.get_fn("glBufferData"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -48,6 +49,7 @@ pgl.consts['GL_TEXTURE_WRAP_T']= 122;
 pgl.consts['GL_MIRRORED_REPEAT']= 127;
 pgl.consts['GL_ARRAY_BUFFER']= 6;
 pgl.consts['GL_ELEMENT_ARRAY_BUFFER']= 9;
+pgl.consts['GL_STATIC_DRAW']= 34;
 
 /*
 uniforms:
@@ -285,7 +287,19 @@ mygl={
   bufferData: function(target, srcData, usage){
     // annoying the WebGL api uses overloaded functions
     // just handle the case used by penguins puzzle
-    log("bufferData target: "+target+" srcData: "+srcData+" usage: "+usage)
+    log("bufferData target: "+target+" srcData: "+srcData+" usage: "+usage);
+    var t2=0;
+    if(target===this.ARRAY_BUFFER){
+      t2=pgl.consts.GL_ARRAY_BUFFER;
+    };
+    if(target===this.ELEMENT_ARRAY_BUFFER){
+      t2=pgl.consts.GL_ELEMENT_ARRAY_BUFFER;
+    };
+    var u2=0;
+    if(usage===this.STATIC_DRAW){
+      u2=pgl.consts.GL_STATIC_DRAW;
+    };
+    pgl.glBufferData(t2,srcData.length*srcData.BYTES_PER_ELEMENT,srcData,u2);
   },
   clearColor: function(red, green, blue, alpha){
     log("clearColor red: "+red+" green: "+green+" blue: "+blue+" alpha: "+alpha)
