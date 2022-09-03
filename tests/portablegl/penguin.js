@@ -288,7 +288,10 @@ mygl={
     return {"type":"WebGLBuffer",buffer:buf};
   },
   current_buffer: 0,
-  buffer_data:{},
+  buffer_data:[],
+  current_element_buffer: 0,
+  buffer_element_data:{},
+  alt_buffer_data:[],
   bindBuffer: function(target, buffer){
     log("bindBuffer target: "+target+" buffer: "+buffer)
     var buf=buffer.buffer[0];
@@ -299,6 +302,7 @@ mygl={
     };
     if(target===this.ELEMENT_ARRAY_BUFFER){
       t2=pgl.consts.GL_ELEMENT_ARRAY_BUFFER;
+      this.current_element_buffer=buf;
     };
     log("-bindBuffer realbuffer: "+buf);
     pgl.glBindBuffer(t2,buf);
@@ -314,6 +318,7 @@ mygl={
     };
     if(target===this.ELEMENT_ARRAY_BUFFER){
       t2=pgl.consts.GL_ELEMENT_ARRAY_BUFFER;
+      this.buffer_element_data[this.current_element_buffer]=srcData;
     };
     var u2=0;
     if(usage===this.STATIC_DRAW){
@@ -403,6 +408,9 @@ mygl={
     if(mode===this.TRIANGLE_STRIP){
       m2=pgl.consts.GL_TRIANGLE_STRIP;
     };
+    if(mode===this.TRIANGLES){
+      m2=pgl.consts.GL_TRIANGLES;
+    };
     pgl.glDrawArrays(m2,first,count);
   },
   disable: function(capability){
@@ -432,12 +440,16 @@ mygl={
     };
     log("FIXME drawElements seems to be broken in portablegl")
 //    pgl.glDrawElements(m2,count, t2, offset);
+    if(this.alt_buffer_data[this.current_buffer]===undefined){
+      log("generating alt buffer for: "+this.current_buffer);
+      this.alt_buffer_data[this.current_buffer]=this.buffer_data[this.current_buffer];
+    };
     // this is a horrible hack that figures out the count of
     // triangles in the buffer by assuming the stride is 36
     // (4*9) bytes
     var c2=this.buffer_data[this.current_buffer].length/9;
     log("buffer length"+this.buffer_data[this.current_buffer].length);
-    pgl.glDrawArrays(m2,offset,c2);
+    this.drawArrays(mode,offset,c2);
   },
   texParameteri: function(target, pname, param){
     log("texParameteri target: "+target+" pname: "+pname+" param: "+param);
@@ -587,13 +599,6 @@ demo.get_fn("get_shader_attributes_metadata")();
 log("");
 // load demo
 load(test_path+"/penguin/penguin.js");
-
-Buffer_orig=Buffer;
-
-Buffer=function(pts,tex,faces){
-  log("Buffer wrapper");
-  return new Buffer_orig(pts,tex,faces);
-}
 
 //run demo
 window.events.push(webGLStart);
