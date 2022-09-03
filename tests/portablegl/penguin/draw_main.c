@@ -229,6 +229,7 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
 */
 
 void shader_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms) {
+//  printf("shader_fs called\n");
   builtins->gl_FragColor = ((vec4*)fs_input)[0];
 }
 

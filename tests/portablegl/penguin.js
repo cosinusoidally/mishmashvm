@@ -35,6 +35,7 @@ pgl={
   glDepthMask: demo.get_fn("glDepthMask"),
   glDrawArrays: demo.get_fn("glDrawArrays"),
   glDrawElements: demo.get_fn("glDrawElements"),
+  glUseProgram: demo.get_fn("glUseProgram"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -341,6 +342,7 @@ mygl={
   useProgram: function(program){
     log("useProgram program: "+program);
     log("-useProgram program number: "+program.program);
+    pgl.glUseProgram(program.program);
   },
   uniform1i: function(location, v0){
     log("uniform1i location: "+location+" v0: "+v0);
