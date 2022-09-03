@@ -425,7 +425,8 @@ mygl={
     if(type===this.UNSIGNED_SHORT){
       t2=pgl.consts.GL_UNSIGNED_SHORT;
     };
-    pgl.glDrawElements(m2,count, t2, offset);
+    log("FIXME drawElements seems to be broken in portablegl")
+//    pgl.glDrawElements(m2,count, t2, offset);
   },
   texParameteri: function(target, pname, param){
     log("texParameteri target: "+target+" pname: "+pname+" param: "+param);
