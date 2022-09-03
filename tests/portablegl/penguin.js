@@ -63,8 +63,8 @@ pgl.consts['GL_TRIANGLES']= 50;
 pgl.consts['GL_UNSIGNED_SHORT']= 208;
 
 pgl.attribute_index={};
-pgl.attribute_index["tex"]=0;
-pgl.attribute_index["vertex"]=1;
+pgl.attribute_index["tex"]=1;
+pgl.attribute_index["vertex"]=0;
 pgl.attribute_index["normal"]=2;
 
 /*
@@ -315,6 +315,7 @@ mygl={
     if(usage===this.STATIC_DRAW){
       u2=pgl.consts.GL_STATIC_DRAW;
     };
+    log("-bufferData length: "+srcData.length+" lengthbytes: "+(srcData.length*srcData.BYTES_PER_ELEMENT))
     pgl.glBufferData(t2,srcData.length*srcData.BYTES_PER_ELEMENT,srcData,u2);
   },
   clearColor: function(red, green, blue, alpha){
