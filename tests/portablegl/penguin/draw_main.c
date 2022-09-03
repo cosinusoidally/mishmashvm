@@ -206,10 +206,13 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
   shader_uniforms* u = (shader_uniforms*)uniforms;
   // note this approach may not work in the general case
   // as we may have struct padding issues for attributes
+  vec2 tex=vec4_to_vec2(((vec4*)vertex_attribs)[0]);
+  vec3 vertex=vec4_to_vec3(((vec4*)vertex_attribs)[1]);
+  vec3 normal=vec4_to_vec3(((vec4*)vertex_attribs)[2]);
   printf("shader_vs called\n");
-  print_vec2(vec4_to_vec2(((vec4*)vertex_attribs)[1]),"tex\n");
-  print_vec3(vec4_to_vec3(((vec4*)vertex_attribs)[0]),"vertex\n");
-  print_vec3(vec4_to_vec3(((vec4*)vertex_attribs)[2]),"normal\n");
+  print_vec2(tex,"tex\n");
+  print_vec3(vertex,"vertex\n");
+  print_vec3(normal,"normal\n");
 
 //  builtins->gl_Position = ;
 }

@@ -63,8 +63,8 @@ pgl.consts['GL_TRIANGLES']= 50;
 pgl.consts['GL_UNSIGNED_SHORT']= 208;
 
 pgl.attribute_index={};
-pgl.attribute_index["tex"]=1;
-pgl.attribute_index["vertex"]=0;
+pgl.attribute_index["tex"]=0;
+pgl.attribute_index["vertex"]=1;
 pgl.attribute_index["normal"]=2;
 
 /*
