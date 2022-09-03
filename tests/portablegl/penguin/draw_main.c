@@ -134,6 +134,8 @@ void show_consts(){
   printf("pgl.consts['GL_ELEMENT_ARRAY_BUFFER']= %u;\n",GL_ELEMENT_ARRAY_BUFFER);
   printf("pgl.consts['GL_STATIC_DRAW']= %u;\n",GL_STATIC_DRAW);
   printf("pgl.consts['GL_FLOAT']= %u;\n",GL_FLOAT);
+  printf("pgl.consts['GL_TRIANGLE_FAN']= %u;\n",GL_TRIANGLE_FAN);
+  printf("pgl.consts['GL_TRIANGLE_STRIP']= %u;\n",GL_TRIANGLE_STRIP);
 }
 
 typedef struct shader_uniforms
@@ -203,6 +205,7 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
   // note this approach may not work in the general case
   // as we may have struct padding issues for attributes
   shader_attributes* a = (shader_attributes*)vertex_attribs;
+  printf("shader_vs called\n");
 //  builtins->gl_Position = ;
 }
 

@@ -33,6 +33,7 @@ pgl={
   glVertexAttribPointer: demo.get_fn("glVertexAttribPointer"),
   glEnableVertexAttribArray: demo.get_fn("glEnableVertexAttribArray"),
   glDepthMask: demo.get_fn("glDepthMask"),
+  glDrawArrays: demo.get_fn("glDrawArrays"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -54,6 +55,8 @@ pgl.consts['GL_ARRAY_BUFFER']= 6;
 pgl.consts['GL_ELEMENT_ARRAY_BUFFER']= 9;
 pgl.consts['GL_STATIC_DRAW']= 34;
 pgl.consts['GL_FLOAT']= 212;
+pgl.consts['GL_TRIANGLE_FAN']= 52;
+pgl.consts['GL_TRIANGLE_STRIP']= 51;
 
 pgl.attribute_index={};
 pgl.attribute_index["tex"]=0;
@@ -383,6 +386,14 @@ mygl={
   },
   drawArrays: function(mode, first, count){
     log("drawArrays mode: "+mode+" first: "+first+" count: "+count);
+    var m2=0;
+    if(mode===this.TRIANGLE_FAN){
+      m2=pgl.consts.GL_TRIANGLE_FAN;
+    };
+    if(mode===this.TRIANGLE_STRIP){
+      m2=pgl.consts.GL_TRIANGLE_STRIP;
+    };
+    pgl.glDrawArrays(m2,first,count);
   },
   disable: function(capability){
     log("disable capability: "+capability);
