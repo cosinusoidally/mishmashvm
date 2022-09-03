@@ -34,6 +34,7 @@ pgl={
   glEnableVertexAttribArray: demo.get_fn("glEnableVertexAttribArray"),
   glDepthMask: demo.get_fn("glDepthMask"),
   glDrawArrays: demo.get_fn("glDrawArrays"),
+  glDrawElements: demo.get_fn("glDrawElements"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -57,6 +58,8 @@ pgl.consts['GL_STATIC_DRAW']= 34;
 pgl.consts['GL_FLOAT']= 212;
 pgl.consts['GL_TRIANGLE_FAN']= 52;
 pgl.consts['GL_TRIANGLE_STRIP']= 51;
+pgl.consts['GL_TRIANGLES']= 50;
+pgl.consts['GL_UNSIGNED_SHORT']= 208;
 
 pgl.attribute_index={};
 pgl.attribute_index["tex"]=0;
@@ -412,6 +415,15 @@ mygl={
   },
   drawElements: function(mode, count, type, offset){
     log("drawElements mode: "+mode+" count: "+count+" type: "+type+" offset: "+offset);
+    var m2=0;
+    if(mode===this.TRIANGLES){
+      m2=pgl.consts.GL_TRIANGLES;
+    };
+    var t2=0;
+    if(type===this.UNSIGNED_SHORT){
+      t2=pgl.consts.GL_UNSIGNED_SHORT;
+    };
+    pgl.glDrawElements(m2,count, t2, offset);
   },
   texParameteri: function(target, pname, param){
     log("texParameteri target: "+target+" pname: "+pname+" param: "+param);
