@@ -213,8 +213,10 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
   print_vec2(tex,"tex\n");
   print_vec3(vertex,"vertex\n");
   print_vec3(normal,"normal\n");
-
-//  builtins->gl_Position = ;
+  vec4 tmp = {vertex.x,vertex.y,vertex.z,1.0};
+  vec4 vertex2 = mult_mat4_vec4(u->world,tmp);
+  builtins->gl_Position = mult_mat4_vec4(u->view,vertex2);
+  print_vec4(builtins->gl_Position,"gl_Position\n");
 }
 
 /*
