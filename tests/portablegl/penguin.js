@@ -32,6 +32,7 @@ pgl={
   glBufferData: demo.get_fn("glBufferData"),
   glVertexAttribPointer: demo.get_fn("glVertexAttribPointer"),
   glEnableVertexAttribArray: demo.get_fn("glEnableVertexAttribArray"),
+  glDepthMask: demo.get_fn("glDepthMask"),
 };
 pgl.consts={};
 pgl.consts['GL_COLOR_BUFFER_BIT']= 1024;
@@ -388,6 +389,11 @@ mygl={
   },
   depthMask: function(flag){
     log("depthMask: "+flag);
+    var f=0;
+    if(flag===true){
+      f=1;
+    };
+    pgl.glDepthMask(f);
   },
   finish: function(){
     log("finish");
