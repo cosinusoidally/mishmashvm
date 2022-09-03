@@ -287,16 +287,19 @@ mygl={
     log("Created buffer: "+buf[0]);
     return {"type":"WebGLBuffer",buffer:buf};
   },
+  current_buffer: 0,
+  buffer_data:{},
   bindBuffer: function(target, buffer){
     log("bindBuffer target: "+target+" buffer: "+buffer)
+    var buf=buffer.buffer[0];
     var t2=0;
     if(target===this.ARRAY_BUFFER){
       t2=pgl.consts.GL_ARRAY_BUFFER;
+      this.current_buffer=buf;
     };
     if(target===this.ELEMENT_ARRAY_BUFFER){
       t2=pgl.consts.GL_ELEMENT_ARRAY_BUFFER;
     };
-    var buf=buffer.buffer[0];
     log("-bindBuffer realbuffer: "+buf);
     pgl.glBindBuffer(t2,buf);
   },
@@ -307,6 +310,7 @@ mygl={
     var t2=0;
     if(target===this.ARRAY_BUFFER){
       t2=pgl.consts.GL_ARRAY_BUFFER;
+      this.buffer_data[this.current_buffer]=srcData;
     };
     if(target===this.ELEMENT_ARRAY_BUFFER){
       t2=pgl.consts.GL_ELEMENT_ARRAY_BUFFER;
@@ -428,6 +432,12 @@ mygl={
     };
     log("FIXME drawElements seems to be broken in portablegl")
 //    pgl.glDrawElements(m2,count, t2, offset);
+    // this is a horrible hack that figures out the count of
+    // triangles in the buffer by assuming the stride is 36
+    // (4*9) bytes
+    var c2=this.buffer_data[this.current_buffer].length/9;
+    log("buffer length"+this.buffer_data[this.current_buffer].length);
+    pgl.glDrawArrays(m2,offset,c2);
   },
   texParameteri: function(target, pname, param){
     log("texParameteri target: "+target+" pname: "+pname+" param: "+param);
@@ -577,6 +587,13 @@ demo.get_fn("get_shader_attributes_metadata")();
 log("");
 // load demo
 load(test_path+"/penguin/penguin.js");
+
+Buffer_orig=Buffer;
+
+Buffer=function(pts,tex,faces){
+  log("Buffer wrapper");
+  return new Buffer_orig(pts,tex,faces);
+}
 
 //run demo
 window.events.push(webGLStart);
