@@ -292,6 +292,7 @@ mygl={
   current_element_buffer: 0,
   buffer_element_data:{},
   alt_buffer_data:[],
+  alt_buffer_map:[],
   bindBuffer: function(target, buffer){
     log("bindBuffer target: "+target+" buffer: "+buffer)
     var buf=buffer.buffer[0];
@@ -440,10 +441,20 @@ mygl={
     };
     log("FIXME drawElements seems to be broken in portablegl")
 //    pgl.glDrawElements(m2,count, t2, offset);
+    var c=this.current_buffer;
     if(this.alt_buffer_data[this.current_buffer]===undefined){
       log("generating alt buffer for: "+this.current_buffer);
+      // FIXME generate new buffer with array elements expanded
       this.alt_buffer_data[this.current_buffer]=this.buffer_data[this.current_buffer];
+      var buf=this.createBuffer();
+      this.bindBuffer(this.ARRAY_BUFFER,buf);
+      this.bufferData(gl.ARRAY_BUFFER, this.alt_buffer_data[c],gl.STATIC_DRAW);
+      this.alt_buffer_map[c]=buf;
+    } else {
+      this.bindBuffer(this.ARRAY_BUFFER,this.alt_buffer_map[c]);
+      log("using alt buffer: "+this.current_buffer);
     };
+
     // this is a horrible hack that figures out the count of
     // triangles in the buffer by assuming the stride is 36
     // (4*9) bytes
@@ -608,7 +619,7 @@ while(window.events[window.next]){
   delete window.events[window.next];
   window.next++;
   window.fn();
-  if(window.next>6){break};
+//  if(window.next>6){break};
 }
 
 //demo.get_fn("sdl_setup_context")();
