@@ -519,6 +519,7 @@ window.events=[];
 
 window.requestAnimFrame=function(callback){
   log("requestAnimFrame: "+callback);
+  process_events();
   window.events.push(callback);
 };
 requestAnimFrame=window.requestAnimFrame;
@@ -664,6 +665,50 @@ Buffer=function(pts,tex,faces){
 for(i in Buffer_old.prototype){
   Buffer.prototype[i]=Buffer_old.prototype[i];
 };
+
+// event handling code
+
+event_metadata = new Uint8Array(10000);
+libc.memcpy2(event_metadata,demo.get_fn("get_event_info")(),event_metadata.length);
+var out=[];
+var i=0;
+while(event_metadata[i]!==0){
+out.push(String.fromCharCode(event_metadata[i]));
+i++;
+};
+out=JSON.parse(out.join(""));
+print(JSON.stringify(out));
+event_types=out.event_types;
+keycodes=out.keycodes;
+evt=new Uint8Array(out.SDL_Event);
+evt_m=libc.malloc(evt.length);
+k_off=out.SDL_KeyboardEvent.keysym+out.SDL_keysym.sym;
+print(k_off);
+
+function get_u32(e,o){
+  return e[o]|(e[o+1]<<8)|(e[o+2]<<16)|(e[o+3]<<24);
+};
+
+function process_events(){
+  while(demo.get_fn("SDL_PollEvent")(evt_m)){
+    libc.memcpy2(evt,evt_m,evt.length);
+    var et=event_types[evt[0]];
+//    print(et);
+    if(et==="SDL_QUIT"){
+      demo.get_fn("SDL_Quit")();
+      quit();
+    };
+    if(et==="SDL_KEYDOWN"){
+      var k=keycodes[get_u32(evt,k_off)];
+      print("keydown : "+k);
+    }
+    if(et==="SDL_KEYUP"){
+      var k=keycodes[get_u32(evt,k_off)];
+      print("keyup : "+k);
+    }
+  };
+};
+
 
 //run demo
 window.events.push(webGLStart);
