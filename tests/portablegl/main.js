@@ -14,6 +14,7 @@ passthrough={
   "realloc": true,
   "roundf": true,
   "printf": true,
+  "rand": true,
 };
 
 exclude={

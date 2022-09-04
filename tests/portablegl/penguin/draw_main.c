@@ -217,6 +217,10 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
   vec4 vertex2 = mult_mat4_vec4(u->world,tmp);
   builtins->gl_Position = mult_mat4_vec4(u->view,vertex2);
   print_vec4(builtins->gl_Position,"gl_Position\n");
+  float f=0.5+0.1*(float)rand()/(float)RAND_MAX;
+//  ((vec4*)vs_output)[0]=make_vec4(0.0, f, 0.0, 1.0);
+//  ((vec4*)vs_output)[0]=make_vec4(builtins->gl_Position.x/500.0, builtins->gl_Position.y/500.0, builtins->gl_Position.z/1000.0, 1.0);
+  ((vec4*)vs_output)[0]=make_vec4(normal.x, normal.y, normal.z, 1.0);
 }
 
 /*
@@ -239,6 +243,7 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
 void shader_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms) {
 //  printf("shader_fs called\n");
   builtins->gl_FragColor = ((vec4*)fs_input)[0];
+//  builtins->gl_FragColor = make_vec4(0.0, 1.0, 0.0, 1.0);
 }
 
 GLuint create_program(){
