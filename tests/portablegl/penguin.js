@@ -560,10 +560,20 @@ throw "ERROR alert"
 function Image(){
   Object.defineProperty(this, 'src', { set(x) {
     log("Image src: "+x);
+    var extn=x.split(".")[1];
+    if(extn==="jpg"){
+      print(x+" is a JPEG, not loading");
+      return;
+    };
     this.rawdata=read(test_path+"/penguin/"+x,"binary");
     this.width=128;
     this.height=128;
     this.data=new Uint8Array(this.width*this.height*3);
+    for(i=0;i<128;i++){
+      for(j=0;j<128;j++){
+        this.data[3*(128*i+j)]=i+j;
+      }
+    }
     var that=this;
     window.events.push(function(){
       log("Image onload callback for "+x);
@@ -698,13 +708,7 @@ keyCode={
   " ": 32,
   "r":82
 };
-/*
-for(var i=0;i<26;i++){
-  var X=String.fromCharCode("A".charCodeAt(0)+i);
-  var x=String.fromCharCode("a".charCodeAt(0)+i);
-  keyCode[x]=X;
-}
-*/
+
 function process_events(){
   while(demo.get_fn("SDL_PollEvent")(evt_m)){
     libc.memcpy2(evt,evt_m,evt.length);
