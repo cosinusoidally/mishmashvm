@@ -442,15 +442,33 @@ mygl={
     log("FIXME drawElements seems to be broken in portablegl")
 //    pgl.glDrawElements(m2,count, t2, offset);
     var c=this.current_buffer;
-    if(this.alt_buffer_data[this.current_buffer]===undefined){
-      log("generating alt buffer for: "+this.current_buffer);
-      // FIXME generate new buffer with array elements expanded
-      this.alt_buffer_data[this.current_buffer]=this.buffer_data[this.current_buffer];
+    if(this.alt_buffer_data[c]===undefined){
+      log("generating alt buffer for: "+c);
+      log("current element array "+this.current_element_buffer);
+      var a=this.buffer_data[c];
+      var e=this.buffer_element_data[this.current_element_buffer];
+      log("array buffer:");
+      log(JSON.stringify(a));
+      log("element array:");
+      log(JSON.stringify(e));
+      var out=new Float32Array(9*e.length);
+      for(var i=0;i<e.length;i++){
+        for(var j=0;j<9;j++){
+//          out[(9*i)+j]=a[(9*e[i])+j];
+        }
+      };
+      log("out buffer:");
+      log(JSON.stringify(out));
+//      this.alt_buffer_data[this.current_buffer]=this.buffer_data[this.current_buffer];
+      this.alt_buffer_data[c]=out;
+      log("original buffer: "+c);
       var buf=this.createBuffer();
       this.bindBuffer(this.ARRAY_BUFFER,buf);
       this.bufferData(gl.ARRAY_BUFFER, this.alt_buffer_data[c],gl.STATIC_DRAW);
       this.alt_buffer_map[c]=buf;
+      log("using alt buffer: "+this.current_buffer);
     } else {
+      log("original buffer: "+c);
       this.bindBuffer(this.ARRAY_BUFFER,this.alt_buffer_map[c]);
       log("using alt buffer: "+this.current_buffer);
     };
@@ -459,7 +477,7 @@ mygl={
     // triangles in the buffer by assuming the stride is 36
     // (4*9) bytes
     var c2=this.buffer_data[this.current_buffer].length/9;
-    log("buffer length"+this.buffer_data[this.current_buffer].length);
+    log("buffer length"+c2);
     this.drawArrays(mode,offset,c2);
   },
   texParameteri: function(target, pname, param){
