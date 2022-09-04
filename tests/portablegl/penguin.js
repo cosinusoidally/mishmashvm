@@ -439,39 +439,8 @@ mygl={
     if(type===this.UNSIGNED_SHORT){
       t2=pgl.consts.GL_UNSIGNED_SHORT;
     };
-    log("FIXME drawElements seems to be broken in portablegl")
+// drawElements seems to be broken in portablegl so we use drawArrays instead
 //    pgl.glDrawElements(m2,count, t2, offset);
-    var c=this.current_buffer;
-    if(this.alt_buffer_data[c]===undefined){
-      log("generating alt buffer for: "+c);
-      log("current element array "+this.current_element_buffer);
-      var a=this.buffer_data[c];
-      var e=this.buffer_element_data[this.current_element_buffer];
-      log("array buffer:");
-      log(JSON.stringify(a));
-      log("element array:");
-      log(JSON.stringify(e));
-      var out=new Float32Array(9*e.length);
-      for(var i=0;i<e.length;i++){
-        for(var j=0;j<9;j++){
-//          out[(9*i)+j]=a[(9*e[i])+j];
-        }
-      };
-      log("out buffer:");
-      log(JSON.stringify(out));
-      this.alt_buffer_data[this.current_buffer]=this.buffer_data[this.current_buffer];
-//      this.alt_buffer_data[c]=out;
-      log("original buffer: "+c);
-      var buf=this.createBuffer();
-      this.bindBuffer(this.ARRAY_BUFFER,buf);
-      this.bufferData(gl.ARRAY_BUFFER, this.alt_buffer_data[c],gl.STATIC_DRAW);
-      this.alt_buffer_map[c]=buf;
-      log("using alt buffer: "+this.current_buffer);
-    } else {
-      log("original buffer: "+c);
-      this.bindBuffer(this.ARRAY_BUFFER,this.alt_buffer_map[c]);
-      log("using alt buffer: "+this.current_buffer);
-    };
 
     // this is a horrible hack that figures out the count of
     // triangles in the buffer by assuming the stride is 36
@@ -628,6 +597,73 @@ demo.get_fn("get_shader_attributes_metadata")();
 log("");
 // load demo
 load(test_path+"/penguin/penguin.js");
+
+Buffer_old=Buffer;
+
+Buffer=function(pts,tex,faces){
+                log("Buffer wrapper");
+                for(var i=0;i<tex.length;i++)
+                {
+                        if (tex[i].length<3)
+                                tex[i].push(1.0); // Add full lighting
+                }
+                var normals=new Array(tex.length);
+                for(var i=0;i<pts.length;i++)
+                {
+                        normals[i]=[0,0,1];
+                }
+                for(var i=0;i<faces.length;i++)
+                {
+                        var a = faces[i][0];
+                        var b = faces[i][1];
+                        var c = faces[i][2];
+                        var n = vec_normal(vec_cross(vec_sub(pts[b],pts[a]),vec_sub(pts[c],pts[a])));
+                        normals[a]=n;
+                        normals[b]=n;
+                        normals[c]=n;
+                }
+                var B = []
+                for(var i=0;i<pts.length;i++)
+                {
+                        extend(B,pts[i]);
+                        extend(B,tex[i]);
+                        extend(B,normals[i]);
+                }
+                var E = []
+                for(var i=0;i<faces.length;i++)
+                {
+                        for(var j=0;j<3;j++)
+                                E.push(faces[i][j]);
+                }
+                this.ntris=faces.length;
+                this.vbuf = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.vbuf);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(B), gl.STATIC_DRAW);
+                this.vbuf.numItems = pts.length;
+
+                this.ebuf = gl.createBuffer();
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ebuf);
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(E), gl.STATIC_DRAW);
+                this.ebuf.numItems = E.length;
+
+                if(faces.length){
+                  log("faces.length "+faces.length);
+                  var out=new Float32Array(9*E.length);
+                  for(var i=0;i<E.length;i++){
+                    for(var j=0;j<9;j++){
+                      out[(9*i)+j]=B[(9*E[i])+j];
+                    }
+                  }
+                  this.vbuf = gl.createBuffer();
+                  gl.bindBuffer(gl.ARRAY_BUFFER, this.vbuf);
+                  gl.bufferData(gl.ARRAY_BUFFER, out, gl.STATIC_DRAW);
+                  this.vbuf.numItems = pts.length;
+                };
+};
+
+for(i in Buffer_old.prototype){
+  Buffer.prototype[i]=Buffer_old.prototype[i];
+};
 
 //run demo
 window.events.push(webGLStart);
