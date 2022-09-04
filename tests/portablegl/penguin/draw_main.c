@@ -100,17 +100,17 @@ void init(){
 }
 
 void wrap_glClearColor(float *p){
-  printf("C glClearColor %f %f %f %f \n",p[0],p[1],p[2],p[3]);
+//  printf("C glClearColor %f %f %f %f \n",p[0],p[1],p[2],p[3]);
   glClearColor(p[0],p[1],p[2],p[3]);
 }
 
 void wrap_glDepthRange(float *p){
-  printf("C glDepthRange %f %f \n",p[0],p[1]);
+//  printf("C glDepthRange %f %f \n",p[0],p[1]);
   glDepthRange(p[0],p[1]);
 }
 
 void wrap_glClearDepth(float *p){
-  printf("C glClearDepth %f \n",p[0]);
+//  printf("C glClearDepth %f \n",p[0]);
   glClearDepth(p[0]);
 }
 void show_consts(){
@@ -209,14 +209,14 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
   vec2 tex=vec4_to_vec2(((vec4*)vertex_attribs)[0]);
   vec3 vertex=vec4_to_vec3(((vec4*)vertex_attribs)[1]);
   vec3 normal=vec4_to_vec3(((vec4*)vertex_attribs)[2]);
-  printf("shader_vs called\n");
-  print_vec2(tex,"tex\n");
-  print_vec3(vertex,"vertex\n");
-  print_vec3(normal,"normal\n");
+//  printf("shader_vs called\n");
+//  print_vec2(tex,"tex\n");
+//  print_vec3(vertex,"vertex\n");
+//  print_vec3(normal,"normal\n");
   vec4 tmp = {vertex.x,vertex.y,vertex.z,1.0};
   vec4 vertex2 = mult_mat4_vec4(u->world,tmp);
   builtins->gl_Position = mult_mat4_vec4(u->view,vertex2);
-  print_vec4(builtins->gl_Position,"gl_Position\n");
+//  print_vec4(builtins->gl_Position,"gl_Position\n");
   float f=0.5+0.1*(float)rand()/(float)RAND_MAX;
 //  ((vec4*)vs_output)[0]=make_vec4(0.0, f, 0.0, 1.0);
 //  ((vec4*)vs_output)[0]=make_vec4(builtins->gl_Position.x/500.0, builtins->gl_Position.y/500.0, builtins->gl_Position.z/1000.0, 1.0);

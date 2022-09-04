@@ -4,7 +4,7 @@ name="penguin";
 
 load(test_path+"/main.js");
 
-debug=true;
+var debug;
 
 log=function(x){
   if(debug){
