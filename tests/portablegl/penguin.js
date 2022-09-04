@@ -549,7 +549,8 @@ document.getElementById=function(n){
     log("shader-vs: "+n);
     return {"type": "x-shader/x-vertex","firstChild":{"nodeType":1,"nextSibling":{"nodeType":3,"textContent":n}}};
   };
-  throw "unsupported element name: "+n;
+  print("unsupported element name assuming it's a sound: "+n);
+  return {"play":function(){}};
 };
 function alert(x){
 print("ALERT: "+x);
@@ -689,6 +690,21 @@ function get_u32(e,o){
   return e[o]|(e[o+1]<<8)|(e[o+2]<<16)|(e[o+3]<<24);
 };
 
+keyCode={
+  "left": 37,
+  "up": 38,
+  "right": 39,
+  "down": 40,
+  " ": 32,
+  "r":82
+};
+/*
+for(var i=0;i<26;i++){
+  var X=String.fromCharCode("A".charCodeAt(0)+i);
+  var x=String.fromCharCode("a".charCodeAt(0)+i);
+  keyCode[x]=X;
+}
+*/
 function process_events(){
   while(demo.get_fn("SDL_PollEvent")(evt_m)){
     libc.memcpy2(evt,evt_m,evt.length);
@@ -700,10 +716,12 @@ function process_events(){
     };
     if(et==="SDL_KEYDOWN"){
       var k=keycodes[get_u32(evt,k_off)];
+      document.onkeydown({keyCode:keyCode[k]});
       print("keydown : "+k);
     }
     if(et==="SDL_KEYUP"){
       var k=keycodes[get_u32(evt,k_off)];
+      document.onkeyup({keyCode:keyCode[k]});
       print("keyup : "+k);
     }
   };
