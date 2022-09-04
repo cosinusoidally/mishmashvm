@@ -220,7 +220,8 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
   float f=0.5+0.1*(float)rand()/(float)RAND_MAX;
 //  ((vec4*)vs_output)[0]=make_vec4(0.0, f, 0.0, 1.0);
 //  ((vec4*)vs_output)[0]=make_vec4(builtins->gl_Position.x/500.0, builtins->gl_Position.y/500.0, builtins->gl_Position.z/1000.0, 1.0);
-  ((vec4*)vs_output)[0]=make_vec4(normal.x, normal.y, normal.z, 1.0);
+//  ((vec4*)vs_output)[0]=make_vec4(normal.x, normal.y, normal.z, 1.0);
+  ((vec2*)vs_output)[0]=tex;
 }
 
 /*
