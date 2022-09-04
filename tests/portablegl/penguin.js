@@ -459,8 +459,8 @@ mygl={
       };
       log("out buffer:");
       log(JSON.stringify(out));
-//      this.alt_buffer_data[this.current_buffer]=this.buffer_data[this.current_buffer];
-      this.alt_buffer_data[c]=out;
+      this.alt_buffer_data[this.current_buffer]=this.buffer_data[this.current_buffer];
+//      this.alt_buffer_data[c]=out;
       log("original buffer: "+c);
       var buf=this.createBuffer();
       this.bindBuffer(this.ARRAY_BUFFER,buf);
