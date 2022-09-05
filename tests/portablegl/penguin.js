@@ -22,7 +22,7 @@ pgl={
   glClearDepth: demo.get_fn("wrap_glClearDepth"),
   glGenTextures: demo.get_fn("glGenTextures"),
   glActiveTexture: demo.get_fn("glActiveTexture"),
-  glBindTexture: demo.get_fn("glBindTexture"),
+  glBindTexture: demo.get_fn("wrap_glBindTexture"),
   glTexImage2D: demo.get_fn("glTexImage2D"),
   glTexParameteri: demo.get_fn("glTexParameteri"),
   create_program: demo.get_fn("create_program"),
@@ -568,10 +568,14 @@ function Image(){
     this.rawdata=read(test_path+"/penguin/"+x,"binary");
     this.width=128;
     this.height=128;
-    this.data=new Uint8Array(this.width*this.height*3);
+    this.data=new Uint8Array(this.width*this.height*4);
     for(i=0;i<128;i++){
       for(j=0;j<128;j++){
-        this.data[3*(128*i+j)]=i+j;
+        var o=4*(128*i+j);
+        this.data[o]=0;
+        this.data[o+1]=i+j;
+        this.data[o+2]=i+j;
+        this.data[o+3]=255;
       }
     }
     var that=this;

@@ -113,6 +113,13 @@ void wrap_glClearDepth(float *p){
 //  printf("C glClearDepth %f \n",p[0]);
   glClearDepth(p[0]);
 }
+
+GLuint my_tex;
+
+void wrap_glBindTexture(GLenum target, GLuint texture){
+  my_tex=texture;
+  glBindTexture(target, texture);
+}
 void show_consts(){
   printf("pgl.consts['GL_COLOR_BUFFER_BIT']= %u;\n",GL_COLOR_BUFFER_BIT);
   printf("pgl.consts['GL_DEPTH_BUFFER_BIT']= %u;\n",GL_DEPTH_BUFFER_BIT);
@@ -243,7 +250,9 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
 
 void shader_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms) {
 //  printf("shader_fs called\n");
-  builtins->gl_FragColor = ((vec4*)fs_input)[0];
+  vec4 tex = ((vec4*)fs_input)[0];
+  builtins->gl_FragColor = tex;
+//  builtins->gl_FragColor = texture2D(my_tex,tex.x,tex.y);
 //  builtins->gl_FragColor = make_vec4(0.0, 1.0, 0.0, 1.0);
 }
 

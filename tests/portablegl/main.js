@@ -16,6 +16,7 @@ passthrough={
   "printf": true,
   "rand": true,
   "sprintf": true,
+  "floor": true,
 };
 
 exclude={
