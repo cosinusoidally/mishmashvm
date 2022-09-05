@@ -101,7 +101,7 @@ BmpDecoder.prototype.parseHeader = function() {
 BmpDecoder.prototype.parseRGBA = function() {
     var bitn = "bit" + this.bitPP;
     var len = this.width * this.height * 4;
-    this.data = new Buffer(len);
+    this.data = new Uint8Array(len);
     this[bitn]();
 };
 

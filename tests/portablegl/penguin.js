@@ -574,6 +574,59 @@ function decode_bmp(x){
         x.data[o+3]=255;
       }
     }
+    var d={data:x.rawdata,
+           i32:new Int32Array(1),
+           i16:new Int16Array(1),
+           i8:new Int8Array(1),
+           u32:new Uint32Array(1),
+           u16:new Uint16Array(1),
+           u8:new Uint8Array(1),
+           toString:function(){return "BM"},
+           readUInt32LE:function(p){
+             var o=this.data;
+             this.u32[0]=o[p]|o[p+1]<<8|o[p+2]<<16|o[p+3]<<24;
+             return this.u32[0];
+           },
+           readInt32LE:function(p){
+             var o=this.data;
+             this.i32[0]=o[p]|o[p+1]<<8|o[p+2]<<16|o[p+3]<<24;
+             return this.i32[0];
+           },
+           readUInt16LE:function(p){
+             var o=this.data;
+             this.u16[0]= o[p]|o[p+1]<<8;
+             return this.u16[0];
+           },
+           readInt16LE:function(p){
+             var o=this.data;
+             this.i16[0]= o[p]|o[p+1]<<8;
+             return this.i16[0];
+           },
+           readUInt8:function(p){
+             var o=this.data;
+             this.u8[0]= o[p];
+             return this.u8[0];
+           },
+           readInt8:function(p){
+             var o=this.data;
+             this.i8[0]= o[p];
+             return this.i8[0];
+           },
+          };
+    var dec=new BmpDecoder(d,false);
+/*
+    print(dec.data.length);
+    print(dec.width);
+    print(dec.height);
+    for(var i=0;i<dec.width*dec.height*4;i=i+4){
+      var t=x.data[i];
+      x.data[i]=x.data[i+2];
+      x.data[i]=t;
+    };
+*/
+    x.width=dec.width;
+    x.height=dec.height;
+    x.data=dec.data;
 };
 
 function Image(){
