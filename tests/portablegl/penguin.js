@@ -1,5 +1,5 @@
 print("penguin puzzle");
-print("WIP not working yet");
+
 name="penguin";
 
 load(test_path+"/main.js");
