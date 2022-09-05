@@ -639,7 +639,7 @@ function decode_bmp(x){
 };
 
 function Image(){
-  Object.defineProperty(this, 'src', { set(x) {
+  Object.defineProperty(this, 'src', { set: function(x) {
     log("Image src: "+x);
     var extn=x.split(".")[1];
     if(extn==="jpg"){
