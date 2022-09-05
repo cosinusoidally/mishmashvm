@@ -61,6 +61,7 @@ pgl.consts['GL_TRIANGLE_FAN']= 52;
 pgl.consts['GL_TRIANGLE_STRIP']= 51;
 pgl.consts['GL_TRIANGLES']= 50;
 pgl.consts['GL_UNSIGNED_SHORT']= 208;
+pgl.consts['GL_RGBA']= 138;
 
 pgl.attribute_index={};
 pgl.attribute_index["tex"]=0;
@@ -134,7 +135,7 @@ mygl={
     log("Created texture: "+tex[0]);
     // placeholder texture
     pgl.glBindTexture(pgl.consts.GL_TEXTURE_2D,tex[0]);
-    pgl.glTexImage2D(pgl.consts.GL_TEXTURE_2D,0,2,2,2,0,pgl.consts.GL_RGB,pgl.consts.GL_UNSIGNED_BYTE,new Uint8Array(32));
+    pgl.glTexImage2D(pgl.consts.GL_TEXTURE_2D,0,2,2,2,0,pgl.consts.GL_RGBA,pgl.consts.GL_UNSIGNED_BYTE,new Uint8Array(32));
     return tex[0];
   },
   activeTexture: function(texture){
@@ -189,11 +190,13 @@ mygl={
       };
       var i2=0;
       if(internalformat===this.RGB){
-        i2=pgl.consts.GL_RGB;
+        // BODGE portablegl doesn't support RGB
+        i2=pgl.consts.GL_RGBA;
       };
       var f2=0;
       if(format===this.RGB){
-        f2=pgl.consts.GL_RGB;
+        // BODGE portablegl doesn't support RGB
+        f2=pgl.consts.GL_RGBA;
       };
       var ty2=0;
       if(type===this.UNSIGNED_BYTE){
@@ -618,15 +621,21 @@ function decode_bmp(x){
     print(dec.data.length);
     print(dec.width);
     print(dec.height);
-    for(var i=0;i<dec.width*dec.height*4;i=i+4){
-      var t=x.data[i];
-      x.data[i]=x.data[i+2];
-      x.data[i]=t;
-    };
 */
     x.width=dec.width;
     x.height=dec.height;
     x.data=dec.data;
+
+// twiddle the channels as they are not in the
+// right order
+    for(var i=0;i<dec.width*dec.height*4;i=i+4){
+      x.data[i]=x.data[i+1];
+      x.data[i+1]=x.data[i+2];
+      x.data[i+2]=x.data[i+3];
+      var t=x.data[i+2];
+      x.data[i+2]=x.data[i];
+      x.data[i]=t;
+    };
 };
 
 function Image(){

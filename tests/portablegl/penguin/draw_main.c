@@ -146,6 +146,7 @@ void show_consts(){
   printf("pgl.consts['GL_TRIANGLE_STRIP']= %u;\n",GL_TRIANGLE_STRIP);
   printf("pgl.consts['GL_TRIANGLES']= %u;\n",GL_TRIANGLES);
   printf("pgl.consts['GL_UNSIGNED_SHORT']= %u;\n",GL_UNSIGNED_SHORT);
+  printf("pgl.consts['GL_RGBA']= %u;\n",GL_RGBA);
 }
 
 typedef struct shader_uniforms
