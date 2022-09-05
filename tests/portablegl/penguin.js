@@ -512,8 +512,8 @@ mygl={
 };
 
 window={};
-window.innerWidth=640;
-window.innerHeight=480;
+window.innerWidth=320;
+window.innerHeight=240;
 
 window.location={};
 location=window.location;
@@ -560,6 +560,22 @@ print("ALERT: "+x);
 throw "ERROR alert"
 };
 
+load(test_path+"/penguin/bmpdecoder.js");
+function decode_bmp(x){
+    x.width=128;
+    x.height=128;
+    x.data=new Uint8Array(x.width*x.height*4);
+    for(i=0;i<128;i++){
+      for(j=0;j<128;j++){
+        var o=4*(128*i+j);
+        x.data[o]=0;
+        x.data[o+1]=(i+j);
+        x.data[o+2]=0;
+        x.data[o+3]=255;
+      }
+    }
+};
+
 function Image(){
   Object.defineProperty(this, 'src', { set(x) {
     log("Image src: "+x);
@@ -569,18 +585,7 @@ function Image(){
       return;
     };
     this.rawdata=read(test_path+"/penguin/"+x,"binary");
-    this.width=128;
-    this.height=128;
-    this.data=new Uint8Array(this.width*this.height*4);
-    for(i=0;i<128;i++){
-      for(j=0;j<128;j++){
-        var o=4*(128*i+j);
-        this.data[o]=0;
-        this.data[o+1]=i+j;
-        this.data[o+2]=i+j;
-        this.data[o+3]=255;
-      }
-    }
+    decode_bmp(this);
     var that=this;
     window.events.push(function(){
       log("Image onload callback for "+x);

@@ -1,8 +1,8 @@
 #define PORTABLEGL_IMPLEMENTATION
 #include "portablegl.h"
 
-int WIDTH=640;
-int HEIGHT=480;
+int WIDTH=320;
+int HEIGHT=240;
 
 
 #include <stdio.h>
