@@ -114,10 +114,11 @@ void wrap_glClearDepth(float *p){
   glClearDepth(p[0]);
 }
 
-GLuint my_tex;
+GLuint my_tex=0;
 
 void wrap_glBindTexture(GLenum target, GLuint texture){
   my_tex=texture;
+//  printf("glBindTexture %d\n",texture);
   glBindTexture(target, texture);
 }
 void show_consts(){
@@ -251,8 +252,8 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
 void shader_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms) {
 //  printf("shader_fs called\n");
   vec4 tex = ((vec4*)fs_input)[0];
-  builtins->gl_FragColor = tex;
-//  builtins->gl_FragColor = texture2D(my_tex,tex.x,tex.y);
+//  builtins->gl_FragColor = tex;
+  builtins->gl_FragColor = texture2D(my_tex,tex.x,tex.y);
 //  builtins->gl_FragColor = make_vec4(0.0, 1.0, 0.0, 1.0);
 }
 

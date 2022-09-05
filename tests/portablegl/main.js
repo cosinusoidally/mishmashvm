@@ -17,6 +17,7 @@ passthrough={
   "rand": true,
   "sprintf": true,
   "floor": true,
+  "modf": true,
 };
 
 exclude={

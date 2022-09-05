@@ -132,6 +132,9 @@ mygl={
     var tex=new Uint32Array(1);
     pgl.glGenTextures(1,tex);
     log("Created texture: "+tex[0]);
+    // placeholder texture
+    pgl.glBindTexture(pgl.consts.GL_TEXTURE_2D,tex[0]);
+    pgl.glTexImage2D(pgl.consts.GL_TEXTURE_2D,0,2,2,2,0,pgl.consts.GL_RGB,pgl.consts.GL_UNSIGNED_BYTE,new Uint8Array(24));
     return tex[0];
   },
   activeTexture: function(texture){
