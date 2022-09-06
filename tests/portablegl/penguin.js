@@ -805,6 +805,16 @@ function process_events(){
   };
 };
 
+(function(){
+  var date_now=Date.now;
+
+  Date=function Date(){
+    return this;
+  };
+
+  Date.now=date_now;
+  Date.prototype.getTime=date_now;
+})();
 
 //run demo
 window.events.push(webGLStart);
