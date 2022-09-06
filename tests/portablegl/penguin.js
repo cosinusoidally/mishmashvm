@@ -23,7 +23,7 @@ pgl={
   glGenTextures: demo.get_fn("glGenTextures"),
   glActiveTexture: demo.get_fn("glActiveTexture"),
   glBindTexture: demo.get_fn("wrap_glBindTexture"),
-  glTexImage2D: demo.get_fn("glTexImage2D"),
+  glTexImage2D: demo.get_fn("wrap_glTexImage2D"),
   glTexParameteri: demo.get_fn("glTexParameteri"),
   create_program: demo.get_fn("create_program"),
   pglSetUniform: demo.get_fn("pglSetUniform"),
@@ -135,7 +135,7 @@ mygl={
     log("Created texture: "+tex[0]);
     // placeholder texture
     pgl.glBindTexture(pgl.consts.GL_TEXTURE_2D,tex[0]);
-    pgl.glTexImage2D(pgl.consts.GL_TEXTURE_2D,0,2,2,2,0,pgl.consts.GL_RGBA,pgl.consts.GL_UNSIGNED_BYTE,new Uint8Array(32));
+    pgl.glTexImage2D(new Uint32Array([pgl.consts.GL_TEXTURE_2D,0,2,2,2,0,pgl.consts.GL_RGBA,pgl.consts.GL_UNSIGNED_BYTE]),new Uint8Array(32));
     return tex[0];
   },
   activeTexture: function(texture){
@@ -202,7 +202,7 @@ mygl={
       if(type===this.UNSIGNED_BYTE){
         ty2=pgl.consts.GL_UNSIGNED_BYTE;
       };
-      pgl.glTexImage2D(t2,level,i2,pixels.width,pixels.height,0,f2,ty2,pixels.data);
+      pgl.glTexImage2D(new Uint32Array([t2,level,i2,pixels.width,pixels.height,0,f2,ty2]),pixels.data);
       return;
     };
     throw "error texImage2D variant not supported";

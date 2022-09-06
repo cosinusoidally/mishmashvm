@@ -121,6 +121,15 @@ void wrap_glBindTexture(GLenum target, GLuint texture){
 //  printf("glBindTexture %d\n",texture);
   glBindTexture(target, texture);
 }
+
+// my crude duktape js-ctypes implementation can't handle
+// the number of arguments that glTexImage2D takes. To work
+// around this we wrap glTexImage2D
+void wrap_glTexImage2D(uint32_t *a, void *pixels){
+  glTexImage2D(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],pixels);
+  return;
+}
+
 void show_consts(){
   printf("pgl.consts['GL_COLOR_BUFFER_BIT']= %u;\n",GL_COLOR_BUFFER_BIT);
   printf("pgl.consts['GL_DEPTH_BUFFER_BIT']= %u;\n",GL_DEPTH_BUFFER_BIT);
