@@ -62,6 +62,9 @@ pgl.consts['GL_TRIANGLE_STRIP']= 51;
 pgl.consts['GL_TRIANGLES']= 50;
 pgl.consts['GL_UNSIGNED_SHORT']= 208;
 pgl.consts['GL_RGBA']= 138;
+pgl.consts['GL_NEAREST']= 128;
+pgl.consts['GL_TEXTURE_MIN_FILTER']= 111;
+pgl.consts['GL_TEXTURE_MAG_FILTER']= 112;
 
 pgl.attribute_index={};
 pgl.attribute_index["tex"]=0;
@@ -468,9 +471,19 @@ mygl={
     if(pname===this.TEXTURE_WRAP_T){
       pn2=pgl.consts.GL_TEXTURE_WRAP_T;
     };
+    if(pname===this.TEXTURE_MIN_FILTER){
+      pn2=pgl.consts.GL_TEXTURE_MIN_FILTER;
+    };
+    if(pname===this.TEXTURE_MAG_FILTER){
+      pn2=pgl.consts.GL_TEXTURE_MAG_FILTER;
+    };
     var pa2=0;
     if(param===this.MIRRORED_REPEAT){
       pa2=pgl.consts.GL_MIRRORED_REPEAT;
+    };
+    if(param===this.LINEAR){
+      // swap LINEAR for NEAREST as it should be cheaper
+      pa2=pgl.consts.GL_NEAREST;
     };
     pgl.glTexParameteri(t2,pn2,pa2);
   },
