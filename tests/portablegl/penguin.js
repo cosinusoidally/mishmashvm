@@ -535,8 +535,27 @@ window.location={};
 location=window.location;
 
 window.events=[];
-
+fps=0;
+fps_count=0;
+t_last=Date.now();
+t_last2=Date.now();
 window.requestAnimFrame=function(callback){
+  t_now=Date.now();
+  fps++;
+  if(t_now-t_last>1000){
+    fps_count++;
+    if(fps_count>5){
+      print("fps: "+fps);
+      fps_count=0;
+    };
+    fps=0;
+    t_last=t_now;
+  };
+  // frame rate cap in ms (17 is approx 60Hz)
+  while(t_now-t_last2<17){
+    t_now=Date.now();
+  };
+  t_last2=t_now;
   log("requestAnimFrame: "+callback);
   process_events();
   window.events.push(callback);
