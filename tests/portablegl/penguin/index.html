@@ -1,0 +1,221 @@
+<html>
+
+<head>
+<link type="text/css" rel="stylesheet" href="stylesheets/penguins.css">
+<title>Penguins Puzzle</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+<script id="shader-vs" type="x-shader/x-vertex">	
+	attribute vec2 tex;
+	attribute vec3 vertex;
+	attribute vec3 normal;
+	varying vec2 tcoord;
+	uniform mat4 view;
+	uniform mat4 world;
+	uniform vec4 blend;
+	varying float light;
+	void main(void) {
+		vec4 normal2 = world * vec4(normal,0.0);
+		light = 0.5+max(0.0,0.5*dot(normal2.xyz,vec3(0.7,0,0.7)));
+		tcoord = tex+blend.xy;
+		vec4 vertex2 = world * vec4(vertex,1.0);
+		gl_Position = view * vertex2;
+	}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;	
+	uniform vec4 color;
+	uniform sampler2D texture;
+	varying vec2 tcoord;
+	varying float light;
+	void main(void) {
+	    mediump vec4 col = texture2D(texture,tcoord);
+		if (col.x>0.9 && col.y>0.6 && col.y<0.61 && col.z<0.1)
+			 discard;
+		gl_FragColor = col*light;
+		gl_FragColor.a = 1.0;
+	}
+</script>
+
+<script id="explshader-vs" type="x-shader/x-vertex">	
+	attribute vec2 tex;
+	attribute vec3 vertex;
+	attribute vec3 normal;
+	varying vec2 tcoord;
+	uniform mat4 view;
+	uniform mat4 world;
+	uniform vec4 blend;
+	varying float light;
+	void main(void) {
+		// blend.x gives time to simulate
+		light = 0.5+max(0.0,0.5*dot(vertex.xyz,vec3(0.7,0,0.7)));
+		tcoord = tex*0.23+vec2(0.51,0.26);
+		// Update the position
+		vec3 vt = vertex + vertex*blend.x*0.06;
+		vt[2] -= blend.x*blend.x*0.05;
+		vec4 vertex2 = world * vec4(vt,1.0);
+		vec4 pos = view * vertex2;
+		// Now we want to translate the x,y depending on tex.xy such that final position is +-0.001
+		pos.xy += 0.05*pos.z*tex.xy;
+		gl_Position = pos;
+	}
+</script>
+
+<script id="explshader-fs" type="x-shader/x-fragment">
+    precision mediump float;	
+	uniform vec4 color;
+	uniform sampler2D texture;
+	varying vec2 tcoord;
+	varying float light;
+	void main(void) {
+	    mediump vec4 col = texture2D(texture,tcoord);
+		gl_FragColor = col;
+		gl_FragColor.a = col.b*0.8;
+	}
+</script>
+
+<script id="shadowshader-vs" type="x-shader/x-vertex">	
+	attribute vec2 tex;
+	attribute vec3 vertex;
+	attribute vec3 normal;
+	varying vec2 tcoord;
+	uniform mat4 view;
+	uniform mat4 view_reflect;
+	uniform mat4 world;
+	uniform vec4 blend;
+	varying float light;
+	varying float light_dist;
+	varying vec4 reflect_pos;
+	void main(void) {
+		vec4 pos = world * vec4(vertex,1.0);
+		vec4 normal2 = world * vec4(normal,0.0);
+		light = 0.5+max(0.0,0.5*dot(normal2.xyz,vec3(0.7,0,0.7)));
+		tcoord = tex+blend.xy;
+		light_dist = (pos.z+20.0)*0.004;  // Should really be after world transform
+		//reflect_pos = view_reflect * vec4(vertex,1.0);
+		//gl_Position = view * vec4(vertex,1.0);
+		reflect_pos = view_reflect * pos;
+		gl_Position = view * pos;
+	}
+</script>
+
+<script id="shadowshader-fs" type="x-shader/x-fragment">
+    precision mediump float;	
+	uniform vec4 color;
+	uniform sampler2D texture;
+	varying vec2 tcoord;
+	varying float light;
+	varying float light_dist;
+	varying vec4 reflect_pos;
+	uniform sampler2D texture_reflect;
+	void main(void) {
+	    mediump vec4 col = texture2D(texture,tcoord);
+		if (col.x>0.9 && col.y>0.6 && col.y<0.61 && col.z<0.1)
+			 discard;
+		mediump vec4 col2;
+		vec2 reflect_sample;
+		reflect_sample = (vec2(reflect_pos.x,reflect_pos.y)*0.5)/reflect_pos.w+0.5;
+		col2 = texture2D(texture_reflect,reflect_sample);
+		col = col*light;
+		if (light_dist+0.01 < col2.r)
+			col = col * 0.5;
+		//col = vec4(col2.r,0.0,0.0,1.0);
+		//gl_FragColor = col2;
+		gl_FragColor = col;
+		gl_FragColor.a = 1.0;
+	}
+</script>
+
+<script id="sunshader-vs" type="x-shader/x-vertex">	
+	attribute vec2 tex;
+	attribute vec3 vertex;
+	attribute vec3 normal;
+	uniform mat4 world;
+	uniform mat4 view;
+	varying float light;	
+	varying vec2 tcoord;
+	void main(void) {
+		vec4 pos = world * vec4(vertex,1.0);
+		light = (pos.z+20.0)*0.004;
+		tcoord = tex;
+		gl_Position = view * pos;
+	}
+</script>
+
+<script id="sunshader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+    uniform sampler2D texture;	
+	varying vec2 tcoord;
+	varying float light;
+	void main(void) {
+	    mediump vec4 col = texture2D(texture,tcoord);
+		if (col.x>0.9 && col.y>0.6 && col.y<0.61 && col.z<0.1)
+			 discard;
+		gl_FragColor = vec4(light,light,light,1.0);
+	}
+</script>
+
+<script id="watershader-vs" type="x-shader/x-vertex">	
+    attribute vec2 tex;
+	attribute vec3 vertex;
+	//attribute vec3 normal;
+	varying vec2 tcoord;
+	varying vec2 tcoord2;
+	uniform mat4 view;
+	uniform mat4 view_reflect;
+	uniform vec4 blend;
+	varying vec4 reflect_pos;
+	void main(void) {
+		vec4 pos = vec4(vertex,1.0);
+		tcoord = tex+blend.xy;
+		tcoord2 = tex.ts+blend.zw;
+		reflect_pos = view_reflect * pos;
+		gl_Position = view * pos;
+	}
+</script>
+
+<script id="watershader-fs" type="x-shader/x-fragment">
+    precision mediump float;	
+	uniform sampler2D texture;
+	uniform sampler2D texture_reflect;
+	varying vec2 tcoord;
+	varying vec2 tcoord2;
+	varying vec4 reflect_pos;
+	void main(void) {
+		mediump vec3 eye;
+		float light2;
+		mediump vec4 col;
+		mediump vec4 col2;
+		vec2 reflect_sample;
+		col = texture2D(texture,tcoord);
+		col2 = texture2D(texture,tcoord2);
+		col=col*0.4+col2*0.6-0.5;
+		reflect_sample = (vec2(reflect_pos.x,reflect_pos.y)*0.5)/reflect_pos.w+0.5;
+		reflect_sample = vec2(reflect_sample.s+col.s*0.1,reflect_sample.t+col.t*0.1+0.005);
+		col2 = texture2D(texture_reflect,reflect_sample);
+		eye = vec3(gl_FragCoord.x-320.0+(col.r)*1000.0,gl_FragCoord.y+(col.g)*1000.0-540.0,600.0);
+		eye=normalize(eye);
+		light2=dot(eye,vec3(0.1,0.3,0.8));
+		light2=2.0*pow(light2,4.0);
+		gl_FragColor = col2*0.7+vec4(1.0,0.8,0.6,1.0)*light2;
+		gl_FragColor.a = 1.0;
+	}
+</script>
+
+<script type="text/javascript" src="penguin.js"></script>
+
+</head>
+<body onload="webGLStart();">
+<p id="output"></p>
+    <canvas id="mycanvas" style="border: none;" width="640" height="480"></canvas>
+    <br/>
+<audio id="audio1" src="sound/cheers.wav" preload="auto" autobuffer></audio>
+<audio id="splosh" src="sound/splosh.wav" preload="auto" autobuffer></audio>
+<audio id="boom" src="sound/boom.wav" preload="auto" autobuffer></audio>
+<audio id="wheee" src="sound/wheee.wav" preload="auto" autobuffer></audio>
+<audio id="whooo" src="sound/whooo.wav" preload="auto" autobuffer></audio>
+<audio id="woohoo" src="sound/woohoo.wav" preload="auto" autobuffer></audio>
+<audio id="shot" src="sound/shot.wav" preload="auto" autobuffer></audio>
+</body>
+</html>

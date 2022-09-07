@@ -21,6 +21,7 @@ tests=[
   {"path":"tests/vm","script":"vm.js","description":"vm ideas"},
   {"path":"tests/misc","script":"mem.js","description":"testing adding arbitrary memory read/write to Spidermonkey 102"},
   {"path":"tests/portablegl","script":"triangle.js","description":"Simple PortableGL test"},
+  {"path":"tests/portablegl","script":"penguin.js","description":"Penguin Puzzle PortableGL test"},
 ];
 
 print_tests=function(){
