@@ -163,7 +163,8 @@ char * get_event_info(void){
   bar+= sprintf(bar," \"%d\": \"right\",\n",SDLK_RIGHT);
   bar+= sprintf(bar," \"%d\": \"up\",\n",SDLK_UP);
   bar+= sprintf(bar," \"%d\": \"down\",\n",SDLK_DOWN);
-  bar+= sprintf(bar," \"%d\": \" \"\n",SDLK_SPACE);
+  bar+= sprintf(bar," \"%d\": \" \",\n",SDLK_SPACE);
+  bar+= sprintf(bar," \"%d\": \"backspace\"\n",SDLK_BACKSPACE);
   bar+= sprintf(bar,"}\n");
   bar+= sprintf(bar,"}\n");
   return foo;

@@ -813,8 +813,10 @@ keyCode={
   "up": 38,
   "right": 39,
   "down": 40,
+  "backspace": 8,
   " ": 32,
-  "r":82
+  "r":82,
+  "z":90
 };
 
 function process_events(){
