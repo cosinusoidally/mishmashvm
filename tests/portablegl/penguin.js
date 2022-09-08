@@ -567,7 +567,7 @@ document={};
 document.getElementById=function(n){
   if(n==="mycanvas"){
     demo.get_fn("set_size")(window.innerWidth,window.innerHeight);
-    demo.get_fn("set_scale")(1);
+    demo.get_fn("set_scale")(2);
     demo.get_fn("setup_context")();
     demo.get_fn("sdl_setup_context")();
 
