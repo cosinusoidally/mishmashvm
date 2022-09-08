@@ -855,8 +855,15 @@ t_last3=Date.now();
 
 tick=function () {
   requestAnimFrame(tick);
-  level.updateView();
-  level.update();
+  var n=Date.now();
+  // attempt to run the simulation at 60Hz
+  var r=(n-t_last3)/17;
+  t_last3=n;
+  do {
+    level.updateView();
+    level.update();
+    r--;
+  } while(r>=0);
   if (!high_quality)
     level.update();
   drawScene();
