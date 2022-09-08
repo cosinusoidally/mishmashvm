@@ -529,7 +529,7 @@ mygl={
 
 window={};
 window.innerWidth=320;
-window.innerHeight=240;
+window.innerHeight=180;
 
 window.location={};
 location=window.location;
@@ -566,6 +566,8 @@ document={};
 
 document.getElementById=function(n){
   if(n==="mycanvas"){
+    demo.get_fn("set_size")(window.innerWidth,window.innerHeight);
+    demo.get_fn("set_scale")(2);
     demo.get_fn("setup_context")();
     demo.get_fn("sdl_setup_context")();
 
@@ -811,8 +813,10 @@ keyCode={
   "up": 38,
   "right": 39,
   "down": 40,
+  "backspace": 8,
   " ": 32,
-  "r":82
+  "r":82,
+  "z":90
 };
 
 function process_events(){
@@ -847,6 +851,29 @@ function process_events(){
   Date.now=date_now;
   Date.prototype.getTime=date_now;
 })();
+
+// override tick so we can adapt it to run the simulation
+// loop at the correct frame rate
+
+t_last3=Date.now();
+
+tick=function () {
+  requestAnimFrame(tick);
+  var n=Date.now();
+  // attempt to run the simulation at 60Hz
+  var r=(n-t_last3)/17;
+  t_last3=n;
+  do {
+    level.updateView();
+    level.update();
+    r--;
+  } while(r>=0);
+  if (!high_quality)
+    level.update();
+  drawScene();
+  animate();
+};
+
 
 //run demo
 window.events.push(webGLStart);

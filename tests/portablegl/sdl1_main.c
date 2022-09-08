@@ -4,13 +4,15 @@
 
 SDL_Surface *surface;
 
+int scale=1;
+
 void sdl_cleanup() {
   SDL_Quit();
 }
 
 void sdl_setup_context() {
   SDL_Init(SDL_INIT_EVERYTHING);
-  surface=SDL_SetVideoMode(WIDTH, HEIGHT, 32, SDL_SWSURFACE);
+  surface=SDL_SetVideoMode(WIDTH*scale, HEIGHT*scale, 32, SDL_SWSURFACE);
 }
 
 
@@ -65,13 +67,40 @@ int sdl_main(void) {
 }
 
 void update(){
-    memcpy(surface->pixels,bbufpix,WIDTH*HEIGHT*4);
+    if(scale==1){
+      memcpy(surface->pixels,bbufpix,WIDTH*HEIGHT*4);
+    } else {
+      char *inp=(char *)bbufpix;
+      char *o=(char *)surface->pixels;
+      for(int j=0;j<HEIGHT;j++){
+        for(int i=0;i<WIDTH;i++){
+          for(int l=0;l<scale;l++){
+            for(int k=0;k<scale;k++){
+              o[4*(i+j*WIDTH*scale)*scale+k*4+l*WIDTH*4*scale]=inp[4*(i+j*WIDTH)];
+              o[4*(i+j*WIDTH*scale)*scale+1+k*4+l*WIDTH*4*scale]=inp[4*(i+j*WIDTH)+1];
+              o[4*(i+j*WIDTH*scale)*scale+2+k*4+l*WIDTH*4*scale]=inp[4*(i+j*WIDTH)+2];
+              o[4*(i+j*WIDTH*scale)*scale+3+k*4+l*WIDTH*4*scale]=inp[4*(i+j*WIDTH)+3];
+            }
+          }
+        }
+      }
+    }
     SDL_Flip(surface);
 };
 
 int main(int argc, char** argv)
 {
         sdl_main();
+}
+
+void set_scale(int s){
+  scale=s;
+  malloc(WIDTH*HEIGHT*4*s*s);
+}
+
+void set_size(int w,int h){
+  WIDTH=w;
+  HEIGHT=h;
 }
 
 char * get_event_info(void){
@@ -134,7 +163,8 @@ char * get_event_info(void){
   bar+= sprintf(bar," \"%d\": \"right\",\n",SDLK_RIGHT);
   bar+= sprintf(bar," \"%d\": \"up\",\n",SDLK_UP);
   bar+= sprintf(bar," \"%d\": \"down\",\n",SDLK_DOWN);
-  bar+= sprintf(bar," \"%d\": \" \"\n",SDLK_SPACE);
+  bar+= sprintf(bar," \"%d\": \" \",\n",SDLK_SPACE);
+  bar+= sprintf(bar," \"%d\": \"backspace\"\n",SDLK_BACKSPACE);
   bar+= sprintf(bar,"}\n");
   bar+= sprintf(bar,"}\n");
   return foo;
