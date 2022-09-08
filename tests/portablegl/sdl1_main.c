@@ -76,10 +76,10 @@ void update(){
         for(int i=0;i<WIDTH;i++){
           for(int l=0;l<scale;l++){
             for(int k=0;k<scale;k++){
-              o[4*(i+j*WIDTH*scale)*scale]=inp[4*(i+j*WIDTH)];
-              o[4*(i+j*WIDTH*scale)*scale+1]=inp[4*(i+j*WIDTH)+1];
-              o[4*(i+j*WIDTH*scale)*scale+2]=inp[4*(i+j*WIDTH)+2];
-              o[4*(i+j*WIDTH*scale)*scale+3]=inp[4*(i+j*WIDTH)+3];
+              o[4*(i+j*WIDTH*scale)*scale+k*4+l*WIDTH*4*scale]=inp[4*(i+j*WIDTH)];
+              o[4*(i+j*WIDTH*scale)*scale+1+k*4+l*WIDTH*4*scale]=inp[4*(i+j*WIDTH)+1];
+              o[4*(i+j*WIDTH*scale)*scale+2+k*4+l*WIDTH*4*scale]=inp[4*(i+j*WIDTH)+2];
+              o[4*(i+j*WIDTH*scale)*scale+3+k*4+l*WIDTH*4*scale]=inp[4*(i+j*WIDTH)+3];
             }
           }
         }
