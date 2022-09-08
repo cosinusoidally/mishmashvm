@@ -529,7 +529,7 @@ mygl={
 
 window={};
 window.innerWidth=320;
-window.innerHeight=240;
+window.innerHeight=180;
 
 window.location={};
 location=window.location;
@@ -566,6 +566,8 @@ document={};
 
 document.getElementById=function(n){
   if(n==="mycanvas"){
+    demo.get_fn("set_size")(window.innerWidth,window.innerHeight);
+    demo.get_fn("set_scale")(1);
     demo.get_fn("setup_context")();
     demo.get_fn("sdl_setup_context")();
 

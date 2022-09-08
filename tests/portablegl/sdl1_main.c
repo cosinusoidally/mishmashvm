@@ -4,13 +4,15 @@
 
 SDL_Surface *surface;
 
+int scale=1;
+
 void sdl_cleanup() {
   SDL_Quit();
 }
 
 void sdl_setup_context() {
   SDL_Init(SDL_INIT_EVERYTHING);
-  surface=SDL_SetVideoMode(WIDTH, HEIGHT, 32, SDL_SWSURFACE);
+  surface=SDL_SetVideoMode(WIDTH*scale, HEIGHT*scale, 32, SDL_SWSURFACE);
 }
 
 
@@ -65,13 +67,27 @@ int sdl_main(void) {
 }
 
 void update(){
-    memcpy(surface->pixels,bbufpix,WIDTH*HEIGHT*4);
+    if(scale==1){
+      memcpy(surface->pixels,bbufpix,WIDTH*HEIGHT*4);
+    } else {
+      printf("Scale up\n");
+    }
     SDL_Flip(surface);
 };
 
 int main(int argc, char** argv)
 {
         sdl_main();
+}
+
+void set_scale(int s){
+  scale=s;
+  malloc(WIDTH*HEIGHT*4*s*s);
+}
+
+void set_size(int w,int h){
+  WIDTH=w;
+  HEIGHT=h;
 }
 
 char * get_event_info(void){
