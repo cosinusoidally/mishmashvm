@@ -848,6 +848,22 @@ function process_events(){
   Date.prototype.getTime=date_now;
 })();
 
+// override tick so we can adapt it to run the simulation
+// loop at the correct frame rate
+
+t_last3=Date.now();
+
+tick=function () {
+  requestAnimFrame(tick);
+  level.updateView();
+  level.update();
+  if (!high_quality)
+    level.update();
+  drawScene();
+  animate();
+};
+
+
 //run demo
 window.events.push(webGLStart);
 window.next=0;
