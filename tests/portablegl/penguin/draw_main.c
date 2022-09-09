@@ -6,6 +6,7 @@ int HEIGHT=240;
 
 
 #include <stdio.h>
+#include <stddef.h>
 
 u32* bbufpix;
 
