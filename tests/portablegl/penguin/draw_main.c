@@ -265,8 +265,12 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
 void shader_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms) {
 //  printf("shader_fs called\n");
   vec4 tex = ((vec4*)fs_input)[0];
-  float col=((float*)fs_input)[4];
-  builtins->gl_FragColor = scale_vec4(texture2D(my_tex,tex.x,tex.y),col);
+  float light=((float*)fs_input)[4];
+  vec4 col=texture2D(my_tex,tex.x,tex.y);
+  builtins->gl_FragColor = scale_vec4(col,light);
+  if (col.x>0.9 && col.y>0.6 && col.y<0.61 && col.z<0.1){
+   builtins->discard = GL_TRUE;
+  }
 }
 
 GLuint create_program(){
