@@ -225,8 +225,6 @@ void get_shader_attributes_metadata(){
 
 void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins, void* uniforms) {
   shader_uniforms* u = (shader_uniforms*)uniforms;
-  // note this approach may not work in the general case
-  // as we may have struct padding issues for attributes
   vec2 tex=vec4_to_vec2(((vec4*)vertex_attribs)[0]);
   vec3 vertex=vec4_to_vec3(((vec4*)vertex_attribs)[1]);
   vec3 normal=vec4_to_vec3(((vec4*)vertex_attribs)[2]);
@@ -237,11 +235,7 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
   vec4 tmp = {vertex.x,vertex.y,vertex.z,1.0};
   vec4 vertex2 = mult_mat4_vec4(u->world,tmp);
   builtins->gl_Position = mult_mat4_vec4(u->view,vertex2);
-//  print_vec4(builtins->gl_Position,"gl_Position\n");
   float f=0.5+0.1*(float)rand()/(float)RAND_MAX;
-//  ((vec4*)vs_output)[0]=make_vec4(0.0, f, 0.0, 1.0);
-//  ((vec4*)vs_output)[0]=make_vec4(builtins->gl_Position.x/500.0, builtins->gl_Position.y/500.0, builtins->gl_Position.z/1000.0, 1.0);
-//  ((vec4*)vs_output)[0]=make_vec4(normal.x, normal.y, normal.z, 1.0);
   ((vec2*)vs_output)[0]=tex;
 }
 
@@ -265,9 +259,7 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
 void shader_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms) {
 //  printf("shader_fs called\n");
   vec4 tex = ((vec4*)fs_input)[0];
-//  builtins->gl_FragColor = tex;
   builtins->gl_FragColor = texture2D(my_tex,tex.x,tex.y);
-//  builtins->gl_FragColor = make_vec4(0.0, 1.0, 0.0, 1.0);
 }
 
 GLuint create_program(){
