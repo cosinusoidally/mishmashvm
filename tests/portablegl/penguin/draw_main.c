@@ -6,6 +6,7 @@ int HEIGHT=240;
 
 
 #include <stdio.h>
+#include <stddef.h>
 
 u32* bbufpix;
 
@@ -88,7 +89,7 @@ void init(){
 	glEnableVertexAttribArray(4);
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(float)*6, (void*)(sizeof(float)*3));
 
-	myshader = pglCreateProgram(smooth_vs, smooth_fs, 4, smooth, GL_FALSE);
+	myshader = pglCreateProgram(smooth_vs, smooth_fs, 8, smooth, GL_FALSE);
 
 	glUseProgram(myshader);
 
@@ -225,8 +226,6 @@ void get_shader_attributes_metadata(){
 
 void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins, void* uniforms) {
   shader_uniforms* u = (shader_uniforms*)uniforms;
-  // note this approach may not work in the general case
-  // as we may have struct padding issues for attributes
   vec2 tex=vec4_to_vec2(((vec4*)vertex_attribs)[0]);
   vec3 vertex=vec4_to_vec3(((vec4*)vertex_attribs)[1]);
   vec3 normal=vec4_to_vec3(((vec4*)vertex_attribs)[2]);
@@ -235,14 +234,16 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
 //  print_vec3(vertex,"vertex\n");
 //  print_vec3(normal,"normal\n");
   vec4 tmp = {vertex.x,vertex.y,vertex.z,1.0};
+  vec4 tmp2 = {normal.x,normal.y,normal.z,1.0};
+  vec4 normal2 = mult_mat4_vec4(u->world,tmp2);
   vec4 vertex2 = mult_mat4_vec4(u->world,tmp);
+  vec4 dir=make_vec4(0.7,0,0.7,0);
+  float t1=0.5*dot_vec4s(normal2,dir);
+  float light=clamp_01(0.5+(MAX(0,t1)));
   builtins->gl_Position = mult_mat4_vec4(u->view,vertex2);
-//  print_vec4(builtins->gl_Position,"gl_Position\n");
   float f=0.5+0.1*(float)rand()/(float)RAND_MAX;
-//  ((vec4*)vs_output)[0]=make_vec4(0.0, f, 0.0, 1.0);
-//  ((vec4*)vs_output)[0]=make_vec4(builtins->gl_Position.x/500.0, builtins->gl_Position.y/500.0, builtins->gl_Position.z/1000.0, 1.0);
-//  ((vec4*)vs_output)[0]=make_vec4(normal.x, normal.y, normal.z, 1.0);
   ((vec2*)vs_output)[0]=tex;
+  ((float*)vs_output)[4]=light;
 }
 
 /*
@@ -265,13 +266,16 @@ void shader_vs(float* vs_output, void* vertex_attribs, Shader_Builtins* builtins
 void shader_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms) {
 //  printf("shader_fs called\n");
   vec4 tex = ((vec4*)fs_input)[0];
-//  builtins->gl_FragColor = tex;
-  builtins->gl_FragColor = texture2D(my_tex,tex.x,tex.y);
-//  builtins->gl_FragColor = make_vec4(0.0, 1.0, 0.0, 1.0);
+  float light=((float*)fs_input)[4];
+  vec4 col=texture2D(my_tex,tex.x,tex.y);
+  builtins->gl_FragColor = scale_vec4(col,light);
+  if (col.x>0.9 && col.y>0.6 && col.y<0.61 && col.z<0.1){
+   builtins->discard = GL_TRUE;
+  }
 }
 
 GLuint create_program(){
-  myshader = pglCreateProgram(shader_vs, shader_fs, 4, smooth, GL_FALSE);
+  myshader = pglCreateProgram(shader_vs, shader_fs, 5, smooth, GL_FALSE);
   printf("create_program %u\n",myshader);
   return myshader;
 }
