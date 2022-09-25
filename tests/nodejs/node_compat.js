@@ -22,6 +22,27 @@ function load(x){
   eval.call(this,read(x));
 };
 
+my_ffi_call_raw=my_ffi_call;
+
+my_ffi_call=function(){
+//  print("arguments.length: "+arguments.length);
+  var args=[];
+  for(var i=0;i<arguments.length;i++){
+    var c=arguments[i];
+    if(typeof c==="string"){
+      var h=new ArrayBuffer(c.length+1);
+      var g=new Uint8Array(h);
+      for(var i=0;i<g.length-1;i++){
+        g[i]=c.charCodeAt(i);
+      };
+      print(JSON.stringify(g));
+      c=g;
+    };
+    args.push(c);
+  };
+  return my_ffi_call_raw.apply(null,args);
+};
+
 print(my_ffi_call(fn_ptr2,"libbar.so"));
 
 f="my buffer string";
