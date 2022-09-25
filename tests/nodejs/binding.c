@@ -40,7 +40,7 @@ int ctypes_getsym(uint32_t h,char *s){
 typedef uint32_t (* my_ffi_stub)(uint32_t a1,uint32_t a2,uint32_t a3,uint32_t a4,uint32_t a5,uint32_t a6,uint32_t a7,uint32_t a8);
 
 napi_value my_ffi_call(napi_env env, napi_callback_info info){
-  printf("my_ffi_call called\n");
+//  printf("my_ffi_call called\n");
   size_t argc = 8;
   napi_value args[8];
   NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
@@ -50,16 +50,16 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
   uint32_t args_n[8];
   napi_valuetype valuetype0;
   int i;
-  printf("argc: %u\n",argc);
+//  printf("argc: %u\n",argc);
   for(i=1;i<argc;i++){
     NAPI_CALL(env, napi_typeof(env, args[i], &valuetype0));
     if(valuetype0==napi_number){
       uint32_t n;
       napi_get_value_int32(env,args[i],&n);
-      printf("Number: %u\n",n);
+//      printf("Number: %u\n",n);
       args_n[i-1]=n;
     } else if(valuetype0==napi_object){
-      printf("napi_object\n");
+//      printf("napi_object\n");
       void * data;
       uint32_t byte_length;
       napi_typedarray_type type;
@@ -77,7 +77,7 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
         NAPI_CALL(env, napi_get_arraybuffer_info(env,
         args[i], &data, &byte_length));
       }
-      printf("Pointer %u\n",data);
+//      printf("Pointer %u\n",data);
       args_n[i-1]=data;
     }
     if(valuetype0==napi_external){
@@ -94,7 +94,7 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
   uint32_t ptr;
   napi_get_value_int32(env,args[0],&ptr);
 
-  printf("args_n: %u %u %u %u %u %u %u %u\n",args_n[0],args_n[1],args_n[2],args_n[3],args_n[4],args_n[5],args_n[6],args_n[7]);
+//  printf("args_n: %u %u %u %u %u %u %u %u\n",args_n[0],args_n[1],args_n[2],args_n[3],args_n[4],args_n[5],args_n[6],args_n[7]);
   __asm__("and $0xfffffff0,%esp");
   double ret=(double)(((my_ffi_stub)ptr)(args_n[0],args_n[1],args_n[2],args_n[3],args_n[4],args_n[5],args_n[6],args_n[7]));
   napi_value result;
