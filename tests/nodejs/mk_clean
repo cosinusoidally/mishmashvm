@@ -1,2 +1,2 @@
 cd lib
-rm hello.node binding.o stub.o
+rm addon.node binding.o stub.o
