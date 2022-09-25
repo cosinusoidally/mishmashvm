@@ -133,3 +133,4 @@ print("puts_ptr: "+puts_ptr);
 my_ffi_call(puts_ptr,"hello world via node.js ffi call");
 
 load("mishmashvm.js");
+test(16);
