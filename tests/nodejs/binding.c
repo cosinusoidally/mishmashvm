@@ -50,16 +50,28 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
   uint32_t args_n[8];
   napi_valuetype valuetype0;
   int i;
-  for(i=0;i<argc;i++){
+  for(i=1;i<argc;i++){
     NAPI_CALL(env, napi_typeof(env, args[i], &valuetype0));
     if(valuetype0==napi_number){
       uint32_t n;
       napi_get_value_int32(env,args[i],&n);
       printf("Number: %u\n",n);
-      args_n[i]=n;
+      args_n[i-i]=n;
     }
     if(valuetype0==napi_object){
       printf("napi_object\n");
+      void * data;
+      uint32_t byte_length;
+      napi_typedarray_type type;
+      napi_value input_buffer;
+      size_t byte_offset = 0;
+      size_t length = 0;
+      NAPI_CALL(env, napi_get_typedarray_info(env,args[i], &type, &length,
+      NULL, &input_buffer, &byte_offset));
+      NAPI_CALL(env, napi_get_arraybuffer_info(env,
+      input_buffer, &data, &byte_length));
+      printf("Pointer %u\n",data);
+      args_n[i-i]=data;
     }
     if(valuetype0==napi_external){
       printf("napi_external not supported\n");
@@ -70,10 +82,14 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
     }
   }
   for (;i < 8; i++) {
-    args_n[i]=0;
+    args_n[i-1]=0;
   }
+  uint32_t ptr;
+  napi_get_value_int32(env,args[0],&ptr);
 
-  printf("args_n: %u %u %u %u %u %u %u %u\n",args_n[0],args_n[1],args_n[2],args_n[3],args_n[4],args_n[5],args_n[6],args_n[7]);;
+  printf("args_n: %u %u %u %u %u %u %u %u\n",args_n[0],args_n[1],args_n[2],args_n[3],args_n[4],args_n[5],args_n[6],args_n[7]);
+  double ret=(double)(((my_ffi_stub)ptr)(args_n[0],args_n[1],args_n[2],args_n[3],args_n[4],args_n[5],args_n[6],args_n[7]));
+
   return 0;
 }
 
