@@ -1,1 +1,2 @@
+cd lib
 rm hello.node binding.o stub.o

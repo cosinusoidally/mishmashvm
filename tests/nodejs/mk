@@ -1,4 +1,5 @@
+cd lib
 rm hello.node binding.o stub.o
-tcc -I ./include/node/ -c binding.c
-gcc -s -I ./include/node/ -c stub.c
+tcc -I ../include/node/ -c ../binding.c
+gcc -s -I ../include/node/ -c ../stub.c
 gcc -s -shared binding.o stub.o -o hello.node
