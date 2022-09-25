@@ -52,7 +52,22 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
   int i;
   for(i=0;i<argc;i++){
     NAPI_CALL(env, napi_typeof(env, args[i], &valuetype0));
-    args_n[i]=100;
+    if(valuetype0==napi_number){
+      uint32_t n;
+      napi_get_value_int32(env,args[i],&n);
+      printf("Number: %u\n",n);
+      args_n[i]=n;
+    }
+    if(valuetype0==napi_object){
+      printf("napi_object\n");
+    }
+    if(valuetype0==napi_external){
+      printf("napi_external not supported\n");
+    }
+    if(valuetype0==napi_string){
+      printf("napi_string not supported\n");
+      return 0;
+    }
   }
   for (;i < 8; i++) {
     args_n[i]=0;
