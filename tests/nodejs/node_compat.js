@@ -22,11 +22,7 @@ function load(x){
   eval.call(this,read(x));
 };
 
-function my_ffi_call(a,b){
-  print("ptr: "+a+" arg: "+b);
-};
-
-print(my_ffi_call(fn_ptr2,get_str_address("libbar.so")));
+print(my_ffi_call(fn_ptr2,"libbar.so"));
 
 f="my buffer string";
 print(f);
@@ -35,4 +31,4 @@ for(i=0;i<g.length-1;i++){
 g[i]=f.charCodeAt(i);
 }
 print(JSON.stringify(g));
-print(my_ffi_call(fn_ptr2,get_buffer_address(g)));
+print(my_ffi_call(fn_ptr2,g));

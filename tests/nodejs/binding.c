@@ -37,11 +37,20 @@ int ctypes_getsym(uint32_t h,char *s){
   return p;
 }
 
-napi_value get_str_address(napi_env env, napi_callback_info info){
-  return 0;
-}
+typedef uint32_t (* my_ffi_stub)(uint32_t a1,uint32_t a2,uint32_t a3,uint32_t a4,uint32_t a5,uint32_t a6,uint32_t a7,uint32_t a8);
 
-napi_value get_buffer_address(napi_env env, napi_callback_info info){
+napi_value my_ffi_call(napi_env env, napi_callback_info info){
+  printf("my_ffi_call called\n");
+  size_t argc = 8;
+  napi_value args[8];
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
+
+//  NAPI_ASSERT(env, argc >= 2, "Wrong number of arguments");
+
+  napi_valuetype valuetype0;
+  for(int i=0;i<argc;i++){
+    NAPI_CALL(env, napi_typeof(env, args[i], &valuetype0));
+  }
   return 0;
 }
 
@@ -83,12 +92,8 @@ napi_value RunCallback(napi_env env, napi_callback_info info) {
 
   napi_value fn;
   NAPI_CALL(env,
-    napi_create_function(env, "get_str_address", -1, get_str_address, NULL, &fn));
-  napi_set_named_property(env,global,"get_str_address",fn);
-
-  NAPI_CALL(env,
-    napi_create_function(env, "get_buffer_address", -1, get_buffer_address, NULL, &fn));
-  napi_set_named_property(env,global,"get_buffer_address",fn);
+    napi_create_function(env, "my_ffi_call", -1, my_ffi_call, NULL, &fn));
+  napi_set_named_property(env,global,"my_ffi_call",fn);
 
   return NULL;
 }
