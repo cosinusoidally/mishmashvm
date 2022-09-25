@@ -37,12 +37,21 @@ int ctypes_getsym(uint32_t h,char *s){
   return p;
 }
 
+napi_value get_str_address(napi_env env, napi_callback_info info){
+  return 0;
+}
+
+napi_value get_buffer_address(napi_env env, napi_callback_info info){
+  return 0;
+}
+
 napi_value RunCallback(napi_env env, napi_callback_info info) {
 
   char buf[128];
   int o=0;
-  o+=sprintf(buf+o, "console.log(ctypes_open_ptr=%u);\n",&ctypes_open);
-  o+=sprintf(buf+o, "console.log(ctypes_getsym_ptr=%u);\n",&ctypes_getsym);
+  o+=sprintf(buf+o, "print(ctypes_open_ptr=%u);\n",&ctypes_open);
+  o+=sprintf(buf+o, "print(ctypes_getsym_ptr=%u);\n",&ctypes_getsym);
+  o+=sprintf(buf+o, "print(fn_ptr2=%u);\n",&puts);
 
   size_t argc = 2;
   napi_value args[2];
@@ -71,6 +80,15 @@ napi_value RunCallback(napi_env env, napi_callback_info info) {
 
   napi_value cb = args[0];
   NAPI_CALL(env, napi_call_function(env, global, cb, 1, argv, NULL));
+
+  napi_value fn;
+  NAPI_CALL(env,
+    napi_create_function(env, "get_str_address", -1, get_str_address, NULL, &fn));
+  napi_set_named_property(env,global,"get_str_address",fn);
+
+  NAPI_CALL(env,
+    napi_create_function(env, "get_buffer_address", -1, get_buffer_address, NULL, &fn));
+  napi_set_named_property(env,global,"get_buffer_address",fn);
 
   return NULL;
 }
