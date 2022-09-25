@@ -50,6 +50,7 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
   uint32_t args_n[8];
   napi_valuetype valuetype0;
   int i;
+  printf("argc: %u\n",argc);
   for(i=1;i<argc;i++){
     NAPI_CALL(env, napi_typeof(env, args[i], &valuetype0));
     if(valuetype0==napi_number){
@@ -57,8 +58,7 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
       napi_get_value_int32(env,args[i],&n);
       printf("Number: %u\n",n);
       args_n[i-i]=n;
-    }
-    if(valuetype0==napi_object){
+    } else if(valuetype0==napi_object){
       printf("napi_object\n");
       void * data;
       uint32_t byte_length;
@@ -78,7 +78,7 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
         args[i], &data, &byte_length));
       }
       printf("Pointer %u\n",data);
-      args_n[i-i]=data;
+      args_n[i-1]=data;
     }
     if(valuetype0==napi_external){
       printf("napi_external not supported\n");
