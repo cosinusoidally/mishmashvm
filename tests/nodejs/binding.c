@@ -57,7 +57,7 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
       uint32_t n;
       napi_get_value_int32(env,args[i],&n);
       printf("Number: %u\n",n);
-      args_n[i-i]=n;
+      args_n[i-1]=n;
     } else if(valuetype0==napi_object){
       printf("napi_object\n");
       void * data;
