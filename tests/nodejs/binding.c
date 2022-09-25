@@ -97,8 +97,9 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
   printf("args_n: %u %u %u %u %u %u %u %u\n",args_n[0],args_n[1],args_n[2],args_n[3],args_n[4],args_n[5],args_n[6],args_n[7]);
   __asm__("and $0xfffffff0,%esp");
   double ret=(double)(((my_ffi_stub)ptr)(args_n[0],args_n[1],args_n[2],args_n[3],args_n[4],args_n[5],args_n[6],args_n[7]));
-
-  return 0;
+  napi_value result;
+  napi_create_double(env, ret, &result);
+  return result;
 }
 
 napi_value RunCallback(napi_env env, napi_callback_info info) {
