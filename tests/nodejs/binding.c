@@ -66,10 +66,17 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
       napi_value input_buffer;
       size_t byte_offset = 0;
       size_t length = 0;
-      NAPI_CALL(env, napi_get_typedarray_info(env,args[i], &type, &length,
-      NULL, &input_buffer, &byte_offset));
-      NAPI_CALL(env, napi_get_arraybuffer_info(env,
-      input_buffer, &data, &byte_length));
+      bool is_typedarray = false;
+      napi_is_typedarray(env, args[i], &is_typedarray);
+      if(is_typedarray){
+        NAPI_CALL(env, napi_get_typedarray_info(env,args[i], &type, &length,
+        NULL, &input_buffer, &byte_offset));
+        NAPI_CALL(env, napi_get_arraybuffer_info(env,
+        input_buffer, &data, &byte_length));
+      } else {
+        NAPI_CALL(env, napi_get_arraybuffer_info(env,
+        args[i], &data, &byte_length));
+      }
       printf("Pointer %u\n",data);
       args_n[i-i]=data;
     }

@@ -26,9 +26,12 @@ print(my_ffi_call(fn_ptr2,"libbar.so"));
 
 f="my buffer string";
 print(f);
-g=new Uint8Array(f.length+1);
+h=new ArrayBuffer(f.length+1);
+g=new Uint8Array(h);
 for(i=0;i<g.length-1;i++){
 g[i]=f.charCodeAt(i);
 }
 print(JSON.stringify(g));
 print(my_ffi_call(fn_ptr2,g));
+print("Try array buffer print");
+print(my_ffi_call(fn_ptr2,h));
