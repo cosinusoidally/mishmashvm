@@ -6,3 +6,4 @@ stdout.txt
 *.exe
 *.dll
 *.swp
+*.node
