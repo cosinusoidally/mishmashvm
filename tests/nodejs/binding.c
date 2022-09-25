@@ -47,10 +47,18 @@ napi_value my_ffi_call(napi_env env, napi_callback_info info){
 
 //  NAPI_ASSERT(env, argc >= 2, "Wrong number of arguments");
 
+  uint32_t args_n[8];
   napi_valuetype valuetype0;
-  for(int i=0;i<argc;i++){
+  int i;
+  for(i=0;i<argc;i++){
     NAPI_CALL(env, napi_typeof(env, args[i], &valuetype0));
+    args_n[i]=100;
   }
+  for (;i < 8; i++) {
+    args_n[i]=0;
+  }
+
+  printf("args_n: %u %u %u %u %u %u %u %u\n",args_n[0],args_n[1],args_n[2],args_n[3],args_n[4],args_n[5],args_n[6],args_n[7]);;
   return 0;
 }
 
