@@ -4,7 +4,46 @@
 #include "binding.h"
 #include <string.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <dlfcn.h>
+#include <stdint.h>
+
+#define LIN
+
+void* L[8];
+uint32_t H=0;
+
+int ctypes_open(char *s){
+  printf("Opening lib: %s\n",s);
+#ifdef LIN
+  void *p=dlopen(s,RTLD_LAZY);
+#else
+  void *p=LoadLibrary(s);
+#endif
+  printf("p=%u\n",p);
+  if(p!=NULL){
+    L[H]=p;
+    H++;
+    return H;
+  };
+  return 0;
+}
+
+int ctypes_getsym(uint32_t h,char *s){
+  uint32_t p;
+  printf("C Looking up: %s in %u\n",s,h);
+  p=(uint32_t)dlsym(L[h-1],s);
+  return p;
+}
+
 napi_value RunCallback(napi_env env, napi_callback_info info) {
+
+  char buf[128];
+  int o=0;
+  o+=sprintf(buf+o, "console.log(ctypes_open_ptr=%u);\n",&ctypes_open);
+  o+=sprintf(buf+o, "console.log(ctypes_getsym_ptr=%u);\n",&ctypes_getsym);
+
   size_t argc = 2;
   napi_value args[2];
   NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
@@ -23,7 +62,7 @@ napi_value RunCallback(napi_env env, napi_callback_info info) {
       "Additional arguments should be undefined.");
 
   napi_value argv[1];
-  const char* str = "hello world";
+  char* str = buf;
   size_t str_len = strlen(str);
   NAPI_CALL(env, napi_create_string_utf8(env, str, str_len, argv));
 
