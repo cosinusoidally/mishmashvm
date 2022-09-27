@@ -131,7 +131,7 @@ ctypes.cast=function(x,y){
   print("UNHANDLED");
   throw "unhandled";
 };
-
+/*
 ff="libc.so.6";
 my_libc=my_ffi_call(ctypes_open_ptr,ff);
 print("my_libc "+my_libc);
@@ -141,6 +141,6 @@ puts_ptr=my_ffi_call(ctypes_getsym_ptr,my_libc,sym);
 print("puts_ptr: "+puts_ptr);
 
 my_ffi_call(puts_ptr,"hello world via node.js ffi call");
-
+*/
 load("mishmashvm.js");
 test(16);
