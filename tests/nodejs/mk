@@ -1,5 +1,5 @@
 cd lib
-rm addon.node binding.o stub.o
-tcc -I ../include/node/ -c ../binding.c
-gcc -s -I ../include/node/ -c ../stub.c
-gcc -s -shared binding.o stub.o -o addon.node -ldl
+rm addon_linux.node binding.o stub.o
+tcc -I .. -I ../include/node/ -c ../binding_linux.c
+gcc -I ../include/node/ -c ../stub.c
+gcc -shared binding_linux.o stub.o -o addon_linux.node -ldl

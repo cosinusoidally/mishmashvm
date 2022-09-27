@@ -1,10 +1,20 @@
 fs=require("fs");
+os=require("os");
 
 print=function(x){
   console.log(x);
 };
 
-a=require("./lib/addon.node");
+plat=os.platform();
+
+print(plat);
+if(plat==="linux"){
+  a=require("./lib/addon_linux.node");
+};
+
+if(plat==="win32"){
+  a=require("./lib/addon_win32.node");
+};
 
 a.RunCallback(function(msg) {
   eval(msg);

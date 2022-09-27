@@ -1,2 +1,2 @@
 cd lib
-rm addon.node binding.o stub.o
+rm addon_win32.node addon_linux.node binding.o stub.o
