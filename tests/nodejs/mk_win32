@@ -4,4 +4,4 @@ cd lib
 rm addon_win32.node binding_win32.o stub.o
 i386-win32-tcc -I .. -I ../include/node/ -c ../binding_win32.c
 i386-win32-tcc -I ../include/node/ -c ../stub.c
-i386-win32-tcc -shared binding_win32.o stub.o -o addon_win32.node
+i386-win32-tcc -shared ../node.def binding_win32.o stub.o -o addon_win32.node
