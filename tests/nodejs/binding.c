@@ -4,13 +4,6 @@
 #include "binding.h"
 #include <string.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <dlfcn.h>
-#include <stdint.h>
-
-#define LIN
-
 void* L[8];
 uint32_t H=0;
 
