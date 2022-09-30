@@ -118,6 +118,8 @@ BOOL WINAPI DllMain (HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 #endif
 
 /********************************************************/
+// HACK MMVM undef CONFIG_TCC_SEMLOCK as not supported
+#undef CONFIG_TCC_SEMLOCK
 #ifndef CONFIG_TCC_SEMLOCK
 #define WAIT_SEM()
 #define POST_SEM()

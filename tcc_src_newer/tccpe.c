@@ -736,10 +736,11 @@ static int pe_write(struct pe_info *pe)
     pe_fwrite(&pf.sum, sizeof (DWORD), &pf);
 
     fclose (pf.op);
+/* HACK MMVM do not use chmod as not supported on win32
 #ifndef _WIN32
     chmod(pe->filename, 0777);
 #endif
-
+*/
     if (2 == pe->s1->verbose)
         printf("-------------------------------\n");
     if (pe->s1->verbose)

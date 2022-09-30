@@ -2478,7 +2478,8 @@ static void parse_number(const char *p)
             }
             *q = '\0';
             t = toup(ch);
-            errno = 0;
+// HACK MMVM do not init errno
+//            errno = 0;
             if (t == 'F') {
                 ch = *p++;
                 tok = TOK_CFLOAT;
