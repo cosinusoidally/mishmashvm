@@ -22,6 +22,7 @@ tests=[
   {"path":"tests/misc","script":"mem.js","description":"testing adding arbitrary memory read/write to Spidermonkey 102"},
   {"path":"tests/portablegl","script":"triangle.js","description":"Simple PortableGL test"},
   {"path":"tests/portablegl","script":"penguin.js","description":"Penguin Puzzle PortableGL test"},
+  {"path":"tests/nodejs","script":"napi_win32_build.js","description":"build win32 nodejs addon"},
 ];
 
 print_tests=function(){
