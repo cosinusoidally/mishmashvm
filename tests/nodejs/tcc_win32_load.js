@@ -1,5 +1,5 @@
 print("tcc_win32 load");
-tcc_src="../tcc_src_new";
+tcc_src="tcc_src_newer";
 load("lib/gen_wrap.js");
 libtcc1=mm.decode_elf(read("libc_portable_proto/tcc_bin/libtcc1.o","binary"));
 
