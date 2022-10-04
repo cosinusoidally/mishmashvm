@@ -2,7 +2,7 @@ load("tcc_em.js");
 FS.mkdir("include");
 FS.mkdir("include/node");
 f={
-  "stub.c":"../tests/nodejs/stub.c",
+  "bootstrap.c":"../tests/nodejs/bootstrap.c",
   "binding.c":"../tests/nodejs/binding.c",
   "binding_linux.c":"../tests/nodejs/binding_linux.c",
   "common.h":"../tests/nodejs/common.h",
@@ -13,15 +13,8 @@ f={
 for(i in f){
   FS.writeFile(i, read(f[i]));
 };
-args="-DMMVM_USE_INIT -c stub.c -I . -I include/node/ -o out.o"
+args="-c bootstrap.c -I . -I include/node/ -o out.o"
 args=args.split(" ");
 print(JSON.stringify(args));
 Module.arguments=args;
-compile("../tests/nodejs/lib/stub.o");
-/*
-args="-c binding_linux.c -I . -I include/node/ -o out.o"
-args=args.split(" ");
-print(JSON.stringify(args));
-Module.arguments=args;
-compile("../tests/nodejs/lib/binding_linux.o");
-*/
+compile("../tests/nodejs/lib/addon_linux.o");
