@@ -17,4 +17,4 @@ args="-c bootstrap.c -I . -I include/node/ -o out.o"
 args=args.split(" ");
 print(JSON.stringify(args));
 Module.arguments=args;
-compile("../tests/nodejs/lib/addon_linux.o");
+compile("../tests/nodejs/lib/addon_linux.node");
