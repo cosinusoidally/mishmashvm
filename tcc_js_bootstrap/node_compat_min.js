@@ -46,4 +46,15 @@ libc.fclose=function(stream){
   fs.closeSync(stream);
 };
 
+try{
+  if(plat==="linux"){
+    a=require("../tests/nodejs/lib/addon_linux.node");
+  };
+} catch(e){
+  if(process.argv[2]!=="04_mk_nodejs_addon.js"){
+    print("No nodejs addon, building");
+    child_process=require("child_process");
+    child_process.spawnSync("js",["04_mk_nodejs_addon.js"]);
+  }
+};
 load(process.argv[2]);
