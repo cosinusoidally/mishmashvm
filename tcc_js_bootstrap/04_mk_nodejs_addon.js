@@ -13,7 +13,8 @@ f={
 for(i in f){
   FS.writeFile(i, read(f[i]));
 };
-args="-c bootstrap.c -I . -I include/node/ -o out.o"
+//args="-c bootstrap.c -I . -I include/node/ -o out.o"
+args="-nostdinc -nostdlib -I /usr/include/:/usr/include/i386-linux-gnu/:/tmp/tcc/lib/tcc/include/ -shared bootstrap.c -I . -I include/node/ -o out.o"
 args=args.split(" ");
 print(JSON.stringify(args));
 Module.arguments=args;
