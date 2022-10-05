@@ -22,7 +22,20 @@ obj_name="../tests/nodejs/lib/addon.o";
 compile(obj_name);
 
 mm={};
+ctypes={};
+ctypes.voidptr_t=function(){return 0};
+libc.mmap=function(){
+  print("mmap called");
+  return 0;
+}
+libc.malloc=function(){
+  print("malloc called");
+  return 0;
+}
+libc.memcpy=function(){
+  return 0;
+}
 load("../lib/elf_loader.js");
 
 obj=mm.decode_elf(read(obj_name,"binary"));
-print(JSON.stringify(obj.exports,null,"  "));
+print(JSON.stringify(obj.und,null,"  "));
