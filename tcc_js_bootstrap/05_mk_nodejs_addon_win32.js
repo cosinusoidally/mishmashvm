@@ -18,7 +18,11 @@ args="-nostdinc -nostdlib -I /usr/include/:/usr/include/i386-linux-gnu/:/tmp/tcc
 args=args.split(" ");
 print(JSON.stringify(args));
 Module.arguments=args;
-compile("../tests/nodejs/lib/addon.o");
+obj_name="../tests/nodejs/lib/addon.o";
+compile(obj_name);
 
 mm={};
 load("../lib/elf_loader.js");
+
+obj=mm.decode_elf(read(obj_name,"binary"));
+print(JSON.stringify(obj.exports,null,"  "));
