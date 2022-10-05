@@ -19,3 +19,6 @@ args=args.split(" ");
 print(JSON.stringify(args));
 Module.arguments=args;
 compile("../tests/nodejs/lib/addon.o");
+
+mm={};
+load("../lib/elf_loader.js");
