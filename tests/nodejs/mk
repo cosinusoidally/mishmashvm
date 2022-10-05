@@ -1,0 +1,7 @@
+echo "Note you need a newer version of tcc than ships with mmvm, eg http://archive.ubuntu.com/ubuntu/pool/universe/t/tcc/tcc_0.9.27+git20200814.62c30a4a.orig.tar.bz2"
+echo "If you are using that newer version this should build ok"
+cd lib
+rm addon_linux.node binding_linux.o stub.o
+tcc -I .. -I ../include/node/ -c ../binding_linux.c
+tcc -I ../include/node/ -c ../stub.c
+tcc -shared binding_linux.o stub.o -o addon_linux.node -ldl
