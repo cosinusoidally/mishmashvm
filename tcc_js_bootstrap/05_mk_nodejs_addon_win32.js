@@ -285,6 +285,12 @@ for(var i=0;i<ex.length;i++){
 
 // this is a hack to strip out a bunch of crap glibc adds to our binary
 ctypes_open_off=syms["ctypes_open"].address;
+
+// dummy imports
+obj.imports=[];
+// do relocations
+obj.relocate_all();
+
 text=obj.sections[".text"].raw;
 for(i=0;i<text.length-ctypes_open_off;i++){
   out[ts.PointerToRawData+i]=text[i+ctypes_open_off];
