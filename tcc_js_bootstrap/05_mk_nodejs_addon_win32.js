@@ -24,13 +24,19 @@ compile(obj_name);
 mm={};
 ctypes={};
 ctypes.voidptr_t=function(){return 0};
+
+mmap_base=0;
 libc.mmap=function(){
   print("mmap called");
-  return 0;
-}
+  return mmap_base;
+};
+malloc_i=0;
+malloc_bases=[0,0,8192,8192+1792];
 libc.malloc=function(){
   print("malloc called");
-  return 0;
+  var r=malloc_bases[malloc_i];
+  malloc_i++;
+  return r;
 }
 libc.memcpy=function(){
   return 0;
@@ -286,6 +292,12 @@ for(var i=0;i<ex.length;i++){
 // this is a hack to strip out a bunch of crap glibc adds to our binary
 ctypes_open_off=syms["ctypes_open"].address;
 
+// load the object code again since we need to shift the load address
+// by ctypes_open_off bytes
+ImageBase=0x10000000;
+mmap_base=ImageBase+4096-ctypes_open_off;
+
+obj=mm.decode_elf(read(obj_name,"binary"));
 // dummy imports
 obj.imports=[];
 // do relocations
