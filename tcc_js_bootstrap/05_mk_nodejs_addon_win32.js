@@ -303,6 +303,36 @@ thunk_off=0x1078;
 for(var i=0;i<thunks.length;i++){
   out[i+thunk_off]=thunks[i];
 };
+
+imp={
+  relocate_all:function(){print("dummy relocate called")},
+  exports: [
+    {"st_name":"printf","address":0x10001e78},
+    {"st_name":"dlopen","address":0x10001e80},
+    {"st_name":"dlsym","address":0x10001e88},
+    {"st_name":"","address":0x10001e90},
+  ]
+};
+
+
+link=function(x){
+  var exports={};
+  for(var i=0;i<x.length;i++){
+    for(var j=0;j<x[i].exports.length;j++){
+      var k=x[i].exports[j];
+      exports[k.st_name]=k;
+    }
+  }
+  var o={};
+  o.exports=exports;
+  for(var i=0;i<x.length;i++){
+    x[i].imports=exports;
+    x[i].relocate_all();
+  }
+  return o;
+};
+
+
 syms={};
 ex=obj.exports;
 for(var i=0;i<ex.length;i++){
@@ -317,10 +347,7 @@ ctypes_open_off=syms["ctypes_open"].address;
 mmap_base=ImageBase+4096-ctypes_open_off;
 
 obj=mm.decode_elf(read(obj_name,"binary"));
-// dummy imports
-obj.imports=[];
-// do relocations
-obj.relocate_all();
+lnk=link([obj,imp]);
 
 syms={};
 ex=obj.exports;
