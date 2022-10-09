@@ -277,6 +277,19 @@ for(i=0;i<data.length;i++){
   out[ds.PointerToRawData+i]=data[i];
 };
 
+syms={};
+ex=obj.exports;
+for(var i=0;i<ex.length;i++){
+  syms[ex[i].st_name]=ex[i];
+};
+
+// this is a hack to strip out a bunch of crap glibc adds to our binary
+ctypes_open_off=syms["ctypes_open"].address;
+text=obj.sections[".text"].raw;
+for(i=0;i<text.length-ctypes_open_off;i++){
+  out[ts.PointerToRawData+i]=text[i+ctypes_open_off];
+};
+
 try{
   fs.writeFileSync("../tests/nodejs/lib/addon_win32.node",out);
 } catch(e){
