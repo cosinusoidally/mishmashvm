@@ -296,7 +296,7 @@ thunks=[
 0xff,0x25,0x9c,0x23,0x00,0x10,0x00,0x00,0xff,0x25,0xa0,0x23,0x00,0x10,0x00,0x00,
 0xff,0x25,0xa4,0x23,0x00,0x10,0x00,0x00,0xff,0x25,0xa8,0x23,0x00,0x10,0x00,0x00,
 0xff,0x25,0xac,0x23,0x00,0x10,0x00,0x00,0xff,0x25,0x60,0x23,0x00,0x10,0x00,0x00,
-0xff,0x25,0xb0,0x23,0x00,0x10,0x00
+0xff,0x25,0xb0,0x23,0x00,0x10,0x00,0x00
 ];
 
 thunk_off=0x1078;
@@ -304,17 +304,53 @@ for(var i=0;i<thunks.length;i++){
   out[i+thunk_off]=thunks[i];
 };
 
+
+// fixme should calculate dlopen/dlsym address
 imp={
   relocate_all:function(){print("dummy relocate called")},
   exports: [
-    {"st_name":"printf","address":0x10001e78},
     {"st_name":"dlopen","address":0x10001e80},
     {"st_name":"dlsym","address":0x10001e88},
-    {"st_name":"","address":0x10001e90},
   ]
 };
 
+function get_str(a,o){
+  print(o);
+  var c;
+  var t=[];
+  while((c=a[o])!==0){
+    t.push(String.fromCharCode(c));
+    o++;
+  };
+  return t.join("");
+};
 
+function to_virtual(s,a){
+  return a+s.VirtualAddress-s.PointerToRawData;
+
+};
+iat_d=iat.Data;
+m={};
+for(var i=0;i<iat_d.length;i=i+4){
+  var o=get_u32(iat_d,i);
+  var e={};
+  if(o!==0){
+    m[ImageBase+to_virtual(ds,iat_off+i)]=get_str(hnt, f_off(ds,o+2)-hnt_base);
+//    imp.exports.push({st_name:"foo",address:hexo)});
+    print(hex(o));
+  }
+};
+
+im=imp.exports;
+for(var i=0;i<thunks.length;i=i+8){
+  var a=ImageBase+to_virtual(ts,thunk_off+i);
+  var o=get_u32(thunks,i+2);
+  print([hex(a),hex(o),m[o]]);
+  im.push({st_name:m[o],address:a});
+};
+
+print(JSON.stringify(imp,null,"  "));
+print(JSON.stringify(m,null,"  "));
 link=function(x){
   var exports={};
   for(var i=0;i<x.length;i++){
