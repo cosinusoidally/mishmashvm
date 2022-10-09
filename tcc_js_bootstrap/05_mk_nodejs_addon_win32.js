@@ -39,7 +39,7 @@ libc.memcpy=function(){
 load("../lib/elf_loader.js");
 
 obj=mm.decode_elf(read(obj_name,"binary"));
-print(JSON.stringify(obj.und,null,"  "));
+//print(JSON.stringify(obj.und,null,"  "));
 
 out=new Uint8Array(7168);
 
@@ -80,4 +80,23 @@ header=[
 for(var i=0;i<header.length;i++){
 out[i]=header[i];
 };
+
+Export_Table = {
+  "VirtualAddress": 9728,
+  "Size": 91
+};
+Import_Table = {
+  "VirtualAddress": 8960,
+  "Size": 80
+};
+Base_Relocation_Table = {
+  "VirtualAddress": 12288,
+  "Size":0,
+  data: []
+};
+IAT = {
+  "VirtualAddress": 9040,
+  "Size": 104
+};
+
 fs.writeFileSync("../tests/nodejs/lib/addon_win32.node",out);
