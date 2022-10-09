@@ -189,9 +189,6 @@ print("Base_Relocation_Table f_off: "+hex(brt_off));
 iat_off=f_off(ds,IAT.VirtualAddress);
 print("IAT f_off: "+hex(iat_off));
 
-for(var i=0;i<et.Size;i++){
-  out[i+et_off]=et.Data[i];
-};
 
 for(var i=0;i<it.Size;i++){
   out[i+it_off]=it.Data[i];
@@ -390,6 +387,38 @@ ex=obj.exports;
 for(var i=0;i<ex.length;i++){
   syms[ex[i].st_name]=ex[i];
 };
+Export_Directory_Table = {
+  "Export_Flags": 0,
+  "Time_Date_Stamp": 0,
+  "Major_Version": 0,
+  "Minor_Version": 0,
+  "Name_RVA": 9778,
+  "Ordinal_Base": 1,
+  "Address_Table_Entries": 1,
+  "Number_of_Name_Pointers": 1,
+  "Export_Address_Table_RVA": 9768,
+  "Name_Pointer_RVA": 9772,
+  "Ordinal_Table_RVA": 9776
+}
+edt=Export_Directory_Table;
+
+// fill in export table
+for(var i=0;i<et.Size;i++){
+  out[i+et_off]=et.Data[i];
+};
+
+function w_u32(i,o,x){
+i[o]=(x&0xFF);
+i[o+1]=((x>>>8)&0xFF);
+i[o+2]=((x>>>16)&0xFF);
+i[o+3]=((x>>>24)&0xFF);
+}
+
+init=f_off(ds,edt.Export_Address_Table_RVA);
+
+print("edt old: "+hex(get_u32(out,init)));
+w_u32(out,init,syms["napi_register_module_v1"].address-ImageBase);
+print("edt new: "+hex(get_u32(out,init)));
 
 // zero out the entrypoint as we do no have any init code
 AddressOfEntryPoint_off=168;
