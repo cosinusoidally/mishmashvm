@@ -51,10 +51,13 @@ try{
     a=require("../tests/nodejs/lib/addon_linux.node");
   };
 } catch(e){
+print(process.argv[2]);
   if(process.argv[2]!=="04_mk_nodejs_addon.js"){
+  if(process.argv[2]!=="05_mk_nodejs_addon_win32.js"){
     print("No nodejs addon, building");
     child_process=require("child_process");
     child_process.spawnSync("js",["04_mk_nodejs_addon.js"]);
+  }
   }
 };
 load(process.argv[2]);
