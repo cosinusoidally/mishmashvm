@@ -98,5 +98,61 @@ IAT = {
   "VirtualAddress": 9040,
   "Size": 104
 };
+Section_Headers = {
+  ".text": {
+    "Name": ".text",
+    "VirtualSize": 3888,
+    "VirtualAddress": 4096,
+    "SizeOfRawData": 4096,
+    "PointerToRawData": 512,
+    "PointerToRelocations": 0,
+    "PointerToLinenumbers": 0,
+    "NumberOfRelocations": 0,
+    "NumberOfLinenumbers": 0,
+    "Characteristics": 1610612768
+  },
+  ".data": {
+    "Name": ".data",
+    "VirtualSize": 1660,
+    "VirtualAddress": 8192,
+    "SizeOfRawData": 2048,
+    "PointerToRawData": 4608,
+    "PointerToRelocations": 0,
+    "PointerToLinenumbers": 0,
+    "NumberOfRelocations": 0,
+    "NumberOfLinenumbers": 0,
+    "Characteristics": -1073741760
+  },
+  ".reloc": {
+    "Name": ".reloc",
+    "VirtualSize": 132,
+    "VirtualAddress": 12288,
+    "SizeOfRawData": 512,
+    "PointerToRawData": 6656,
+    "PointerToRelocations": 0,
+    "PointerToLinenumbers": 0,
+    "NumberOfRelocations": 0,
+    "NumberOfLinenumbers": 0,
+    "Characteristics": 1107296320
+  }
+};
+ts=Section_Headers[".text"];
+ds=Section_Headers[".data"];
+rs=Section_Headers[".reloc"];
+
+function f_off(s,a){
+  return a-s.VirtualAddress+s.PointerToRawData;
+};
+function hex(x){
+  return "0x"+x.toString(16);
+};
+et_off=f_off(ds,Export_Table.VirtualAddress);
+print("Export_Table f_off: "+hex(et_off));
+it_off=f_off(ds,Import_Table.VirtualAddress);
+print("Import_Table f_off: "+hex(it_off));
+brt_off=f_off(rs,Base_Relocation_Table.VirtualAddress);
+print("Base_Relocation_Table f_off: "+hex(brt_off));
+iat_off=f_off(ds,IAT.VirtualAddress);
+print("IAT f_off: "+hex(iat_off));
 
 fs.writeFileSync("../tests/nodejs/lib/addon_win32.node",out);
