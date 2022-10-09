@@ -19,8 +19,7 @@ args=args.split(" ");
 print(JSON.stringify(args));
 Module.arguments=args;
 obj_name="../tests/nodejs/lib/addon.o";
-// HACK temp skip testing
-//compile(obj_name);
+compile(obj_name);
 
 mm={};
 ctypes={};
@@ -272,4 +271,14 @@ hnt_base=0x1620;
 for(var i=0;i<hnt.length;i++){
   out[i+hnt_base]=hnt[i];
 };
-fs.writeFileSync("../tests/nodejs/lib/addon_win32.node",out);
+
+data=obj.sections[".data"].raw;
+for(i=0;i<data.length;i++){
+  out[ds.PointerToRawData+i]=data[i];
+};
+
+try{
+  fs.writeFileSync("../tests/nodejs/lib/addon_win32.node",out);
+} catch(e){
+  print("couldn't use fs, we must be in SM");
+}
