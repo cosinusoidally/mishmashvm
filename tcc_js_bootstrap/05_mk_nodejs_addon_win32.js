@@ -391,6 +391,15 @@ for(var i=0;i<ex.length;i++){
   syms[ex[i].st_name]=ex[i];
 };
 
+// zero out the entrypoint as we do no have any init code
+AddressOfEntryPoint_off=168;
+out[AddressOfEntryPoint_off]=0;
+out[AddressOfEntryPoint_off+1]=0;
+out[AddressOfEntryPoint_off+2]=0;
+out[AddressOfEntryPoint_off+3]=0;
+print("AddressOfEntryPoint: "+get_u32(out,AddressOfEntryPoint_off));
+
+
 text=obj.sections[".text"].raw;
 for(i=0;i<text.length-ctypes_open_off;i++){
   out[ts.PointerToRawData+i]=text[i+ctypes_open_off];
