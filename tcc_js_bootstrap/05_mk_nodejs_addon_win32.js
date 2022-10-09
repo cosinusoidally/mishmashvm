@@ -187,5 +187,12 @@ for(var i=0;i<et.Size;i++){
   out[i+et_off]=et.Data[i];
 };
 
+for(var i=0;i<it.Size;i++){
+  out[i+it_off]=it.Data[i];
+};
+
+for(var i=0;i<iat.Size;i++){
+  out[i+iat_off]=iat.Data[i];
+};
 
 fs.writeFileSync("../tests/nodejs/lib/addon_win32.node",out);
