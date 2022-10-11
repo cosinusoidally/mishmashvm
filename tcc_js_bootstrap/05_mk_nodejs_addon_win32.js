@@ -149,7 +149,7 @@ Optional_Header={
   SizeOfCode: {offset:4,size:4,value:0x1000},
   SizeOfInitializedData : {offset:8,size:4,value:0xa00},
   SizeOfUninitializedData : {offset:12,size:4,value:0},
-  AddressOfEntryPoint : {offset:16,size:4,value:0x1e38},
+  AddressOfEntryPoint : {offset:16,size:4,value:0},
   BaseOfCode : {offset:20,size:4,value:0x1000},
   BaseOfData : {offset:24,size:4,value:0x2000},
   ImageBase : {offset:28,size:4,value:0x10000000},
@@ -597,15 +597,6 @@ init=f_off(ds,edt.Export_Address_Table_RVA);
 print("edt old: "+hex(get_u32(out,init)));
 w_u32(out,init,syms["napi_register_module_v1"].address-ImageBase);
 print("edt new: "+hex(get_u32(out,init)));
-
-// zero out the entrypoint as we do no have any init code
-AddressOfEntryPoint_off=168;
-out[AddressOfEntryPoint_off]=0;
-out[AddressOfEntryPoint_off+1]=0;
-out[AddressOfEntryPoint_off+2]=0;
-out[AddressOfEntryPoint_off+3]=0;
-print("AddressOfEntryPoint: "+get_u32(out,AddressOfEntryPoint_off));
-
 
 text=obj.sections[".text"].raw;
 for(i=0;i<text.length-ctypes_open_off;i++){
