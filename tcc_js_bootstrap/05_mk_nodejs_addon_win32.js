@@ -254,7 +254,18 @@ for(var i=0;i<iat.Size;i++){
   out[i+ilt_off]=iat.Data[i];
 };
 
-Hint_Name_Table_pretty="msvcrt.dll\x00\x00\x00printf\x00\x00\x00sprintf\x00\x00\x00puts\x00\x00\x00strlen\x00\x00\x00memset\x00kernel32.dll\x00\x00\x00LoadLibraryA\x00\x00\x00GetProcAddress\x00node.exe\x00\x00\x00napi_get_cb_info\x00\x00\x00napi_get_last_error_info\x00\x00\x00napi_is_exception_pending\x00\x00\x00napi_throw_error\x00\x00\x00napi_typeof\x00\x00\x00napi_get_value_int32\x00\x00\x00napi_is_typedarray\x00\x00\x00napi_get_typedarray_info\x00\x00\x00napi_get_arraybuffer_info\x00\x00\x00napi_create_double\x00\x00\x00napi_create_string_utf8\x00\x00\x00napi_get_global\x00\x00\x00napi_call_function\x00\x00\x00napi_create_function\x00\x00\x00napi_set_named_property\x00\x00\x00napi_define_properties\x00\x00\x00\x00\x00\x00";
+Hint_Name_Table_pretty="msvcrt.dll\x00\x00\x00printf\x00\x00\x00sprintf\
+\x00\x00\x00puts\x00\x00\x00strlen\x00\x00\x00memset\x00kernel32.dll\
+\x00\x00\x00LoadLibraryA\x00\x00\x00GetProcAddress\x00node.exe\
+\x00\x00\x00napi_get_cb_info\x00\x00\x00napi_get_last_error_info\
+\x00\x00\x00napi_is_exception_pending\x00\x00\x00napi_throw_error\
+\x00\x00\x00napi_typeof\x00\x00\x00napi_get_value_int32\
+\x00\x00\x00napi_is_typedarray\x00\x00\x00napi_get_typedarray_info\
+\x00\x00\x00napi_get_arraybuffer_info\x00\x00\x00napi_create_double\
+\x00\x00\x00napi_create_string_utf8\x00\x00\x00napi_get_global\
+\x00\x00\x00napi_call_function\x00\x00\x00napi_create_function\
+\x00\x00\x00napi_set_named_property\x00\x00\x00napi_define_properties\
+\x00\x00\x00\x00\x00\x00";
 
 Hint_Name_Table_new=[];
 
