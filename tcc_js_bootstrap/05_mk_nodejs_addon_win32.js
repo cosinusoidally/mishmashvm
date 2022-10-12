@@ -122,7 +122,7 @@ COFF_File_Header_offset=e_lfanew+4;
 
 write_struct=function(a,o,s){
   var l=0;
-  for(i in s){
+  for(var i in s){
     var v=s[i];
     if(v.size===1){
       a[o+v.offset]=v.value;
@@ -346,9 +346,6 @@ for(var i=0;i<header.length;i++){
 out[i]=header[i];
 };
 
-for(var i=0;i<it.Size;i++){
-  out[i+it_off]=it.Data[i];
-};
 
 for(var i=0;i<iat.Size;i++){
   out[i+iat_off]=iat.Data[i];
@@ -376,6 +373,57 @@ for(var i=0;i<3;i++){
   t.Import_Address_Table_RVA=get_u32(d,xo);
   xo+=4;
   idt.push(t);
+};
+
+idt_pretty=[
+  {
+    "Import_Lookup_Table_RVA": 9144,
+    "Date_Time_Stamp": 0,
+    "Forwarder_Chain": 0,
+    "Name_RVA": 9248,
+    "Import_Address_Table_RVA": 9040
+  },
+  {
+    "Import_Lookup_Table_RVA": 9168,
+    "Date_Time_Stamp": 0,
+    "Forwarder_Chain": 0,
+    "Name_RVA": 9303,
+    "Import_Address_Table_RVA": 9064
+  },
+  {
+    "Import_Lookup_Table_RVA": 9180,
+    "Date_Time_Stamp": 0,
+    "Forwarder_Chain": 0,
+    "Name_RVA": 9348,
+    "Import_Address_Table_RVA": 9076
+  }
+]
+idt_struct={
+  Import_Lookup_Table_RVA: {offset:0,size:4,value:0},
+  Date_Time_Stamp: {offset:4,size:4,value:0},
+  Forwarder_Chain: {offset:8,size:4,value:0},
+  Name_RVA: {offset:12,size:4,value:0},
+  Import_Address_Table_RVA: {offset:16,size:4,value:0}
+};
+
+idt_data=[];
+for(var i=0;i<it.Size;i++){
+  idt_data[i]=0;
+}
+
+for(var i=0;i<idt_pretty.length;i++){
+  print("i="+i);
+  var c=idt_pretty[i];
+  for(j in c){
+    idt_struct[j].value=c[j];
+  };
+  write_struct(idt_data,i*20,idt_struct);
+};
+
+blah=compare(it.Data,idt_data);
+for(var i=0;i<it.Size;i++){
+//  out[i+it_off]=it.Data[i];
+  out[i+it_off]=idt_data[i];
 };
 
 print(JSON.stringify(idt,null,"  "));
@@ -608,3 +656,4 @@ try{
 } catch(e){
   print("couldn't use fs, we must be in SM");
 }
+print(blah);
