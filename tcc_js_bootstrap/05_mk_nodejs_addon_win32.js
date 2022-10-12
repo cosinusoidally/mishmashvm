@@ -243,14 +243,14 @@ for(i in et_struct){print(i+":"+(et_struct[i].value-et.VirtualAddress))};
 print("");
 Import_Table = {
   "dd_offset":1,
-  "VirtualAddress": 8960,
+  "VirtualAddress": 0x2300,
   "Size": 80,
 };
 it=Import_Table;
 write_dd(opt_head_raw,it);
 Base_Relocation_Table = {
   "dd_offset":5,
-  "VirtualAddress": 12288,
+  "VirtualAddress": 0x3000,
   "Size":132,
   "Data": []
 };
@@ -258,7 +258,7 @@ brt=Base_Relocation_Table;
 write_dd(opt_head_raw,brt);
 IAT = {
   "dd_offset":12,
-  "VirtualAddress": 9040,
+  "VirtualAddress": 0x2350,
   "Size": 104,
   "Data":[
 0x2b,0x24,0x00,0x00,0x34,0x24,0x00,0x00,0x3e,0x24,0x00,0x00,0x45,0x24,0x00,0x00,
