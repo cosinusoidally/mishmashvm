@@ -121,6 +121,10 @@ COFF_File_Header={
 COFF_File_Header_offset=e_lfanew+4;
 
 w_str=function(a,o,s){
+  s=s.split("");
+  for(var i=0;i<s.length;i++){
+    a[o+i]=char(s[i]);
+  };
   return;
 };
 
