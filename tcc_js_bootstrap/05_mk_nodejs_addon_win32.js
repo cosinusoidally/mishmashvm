@@ -516,36 +516,12 @@ for(i=0;i<data.length;i++){
 
 thunks_pretty=[];
 
-thunks_addresses=[
-  0x10002350,
-  0x10002368,
-  0x1000236c,
-  0x10002374,
-  0x10002378,
-  0x1000237c,
-  0x10002380,
-  0x10002384,
-  0x10002388,
-  0x1000238c,
-  0x10002390,
-  0x10002394,
-  0x10002398,
-  0x10002354,
-  0x10002358,
-  0x1000235c,
-  0x1000239c,
-  0x100023a0,
-  0x100023a4,
-  0x100023a8,
-  0x100023ac,
-  0x10002360,
-  0x100023b0
-];
-
 t2=[];
 for(var i=0;i<mp.length;i++){
 t2.push(mp[i].iat_address);
 };
+
+thunks_addresses=t2;
 
 blah=compare(thunks_addresses,t2);
 
