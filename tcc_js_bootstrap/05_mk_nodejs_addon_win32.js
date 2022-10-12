@@ -275,6 +275,32 @@ write_dd(opt_head_raw,iat);
 
 append(hp,opt_head_raw);
 
+mp=[
+{"thunk_address":0x10001e78,"iat_address":0x10002350,"iat_value":0x242b,"symbol_name":"printf"},
+{"thunk_address":0x10001e80,"iat_address":0x10002368,"iat_value":0x2464,"symbol_name":"LoadLibraryA"},
+{"thunk_address":0x10001e88,"iat_address":0x1000236c,"iat_value":0x2473,"symbol_name":"GetProcAddress"},
+{"thunk_address":0x10001e90,"iat_address":0x10002374,"iat_value":0x248d,"symbol_name":"napi_get_cb_info"},
+{"thunk_address":0x10001e98,"iat_address":0x10002378,"iat_value":0x24a0,"symbol_name":"napi_get_last_error_info"},
+{"thunk_address":0x10001ea0,"iat_address":0x1000237c,"iat_value":0x24bb,"symbol_name":"napi_is_exception_pending"},
+{"thunk_address":0x10001ea8,"iat_address":0x10002380,"iat_value":0x24d7,"symbol_name":"napi_throw_error"},
+{"thunk_address":0x10001eb0,"iat_address":0x10002384,"iat_value":0x24ea,"symbol_name":"napi_typeof"},
+{"thunk_address":0x10001eb8,"iat_address":0x10002388,"iat_value":0x24f8,"symbol_name":"napi_get_value_int32"},
+{"thunk_address":0x10001ec0,"iat_address":0x1000238c,"iat_value":0x250f,"symbol_name":"napi_is_typedarray"},
+{"thunk_address":0x10001ec8,"iat_address":0x10002390,"iat_value":0x2524,"symbol_name":"napi_get_typedarray_info"},
+{"thunk_address":0x10001ed0,"iat_address":0x10002394,"iat_value":0x253f,"symbol_name":"napi_get_arraybuffer_info"},
+{"thunk_address":0x10001ed8,"iat_address":0x10002398,"iat_value":0x255b,"symbol_name":"napi_create_double"},
+{"thunk_address":0x10001ee0,"iat_address":0x10002354,"iat_value":0x2434,"symbol_name":"sprintf"},
+{"thunk_address":0x10001ee8,"iat_address":0x10002358,"iat_value":0x243e,"symbol_name":"puts"},
+{"thunk_address":0x10001ef0,"iat_address":0x1000235c,"iat_value":0x2445,"symbol_name":"strlen"},
+{"thunk_address":0x10001ef8,"iat_address":0x1000239c,"iat_value":0x2570,"symbol_name":"napi_create_string_utf8"},
+{"thunk_address":0x10001f00,"iat_address":0x100023a0,"iat_value":0x258a,"symbol_name":"napi_get_global"},
+{"thunk_address":0x10001f08,"iat_address":0x100023a4,"iat_value":0x259c,"symbol_name":"napi_call_function"},
+{"thunk_address":0x10001f10,"iat_address":0x100023a8,"iat_value":0x25b1,"symbol_name":"napi_create_function"},
+{"thunk_address":0x10001f18,"iat_address":0x100023ac,"iat_value":0x25c8,"symbol_name":"napi_set_named_property"},
+{"thunk_address":0x10001f20,"iat_address":0x10002360,"iat_value":0x244e,"symbol_name":"memset"},
+{"thunk_address":0x10001f28,"iat_address":0x100023b0,"iat_value":0x25e2,"symbol_name":"napi_define_properties"}];
+
+
 Section_Headers = {
   ".text": {
     "Name": ".text",
@@ -516,6 +542,13 @@ thunks_addresses=[
   0x100023b0
 ];
 
+t2=[];
+for(var i=0;i<mp.length;i++){
+t2.push(mp[i].iat_address);
+};
+
+blah=compare(thunks_addresses,t2);
+
 for(var i=0;i<thunks_addresses.length;i++){
   //jmp is 0xFF 0x25
   thunks_pretty.push(0xFF);
@@ -565,7 +598,7 @@ for(var i=0;i<iat_d.length;i=i+4){
   var o=get_u32(iat_d,i);
   var e={};
   if(o!==0){
-    m[ImageBase+to_virtual(ds,iat_off+i)]=get_str(hnt, f_off(ds,o+2)-hnt_base);
+    m[ImageBase+to_virtual(ds,iat_off+i)]=[o,get_str(hnt, f_off(ds,o+2)-hnt_base)];
 //    imp.exports.push({st_name:"foo",address:hexo)});
     print(hex(o));
   }
@@ -575,8 +608,10 @@ im=imp.exports;
 for(var i=0;i<thunks.length;i=i+8){
   var a=ImageBase+to_virtual(ts,thunk_off+i);
   var o=get_u32(thunks,i+2);
-  print([hex(a),hex(o),m[o]]);
-  im.push({st_name:m[o],address:a});
+  var t={thunk_address:hex(a),iat_address:hex(o),iat_value:hex(m[o][0]),symbol_name:m[o][1]};
+//  print([hex(a),hex(o),hex(m[o][0]),m[o][1]]);
+  print('{"thunk_address":'+t.thunk_address+',"iat_address":'+t.iat_address+',"iat_value":'+t.iat_value+',"symbol_name":"'+t.symbol_name+'"},');
+  im.push({st_name:m[o][1],address:a});
 };
 
 print(JSON.stringify(imp,null,"  "));
@@ -672,3 +707,4 @@ try{
 } catch(e){
   print("couldn't use fs, we must be in SM");
 }
+print(blah);
