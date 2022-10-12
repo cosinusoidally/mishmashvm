@@ -230,8 +230,8 @@ et_struct={
   Address_Table_Entries : {offset:20,size:4,value:1},
   Number_of_Name_Pointers : {offset:24,size:4,value:1},
   Export_Address_Table_RVA : {offset:28,size:4,value:0x2628},
-  Name_Pointer_RVA : {offset:0,size:32,value:0x262c},
-  Ordinal_Table_RVA : {offset:0,size:36,value:0x1d28},
+  Name_Pointer_RVA : {offset:32,size:4,value:0x262c},
+  Ordinal_Table_RVA : {offset:36,size:4,value:0x2630},
 };
 
 write_struct(et_data,0,et_struct);
