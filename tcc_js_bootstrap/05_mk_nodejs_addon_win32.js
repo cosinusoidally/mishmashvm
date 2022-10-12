@@ -415,26 +415,32 @@ function get_u32(x,o){
   return x[0+o]+(x[1+o]<<8)+(x[2+o]<<16)+(x[3+o]<<24);
 };
 
+imported_dlls={
+  "msvcrt.dll":0x2420,
+  "kernel32.dll":0x2457,
+  "node.exe":0x2484,
+};
+
 idt_pretty=[
   {
     "Import_Lookup_Table_RVA": 9144,
     "Date_Time_Stamp": 0,
     "Forwarder_Chain": 0,
-    "Name_RVA": 9248,
+    "Name_RVA": imported_dlls["msvcrt.dll"],
     "Import_Address_Table_RVA": 9040
   },
   {
     "Import_Lookup_Table_RVA": 9168,
     "Date_Time_Stamp": 0,
     "Forwarder_Chain": 0,
-    "Name_RVA": 9303,
+    "Name_RVA": imported_dlls["kernel32.dll"],
     "Import_Address_Table_RVA": 9064
   },
   {
     "Import_Lookup_Table_RVA": 9180,
     "Date_Time_Stamp": 0,
     "Forwarder_Chain": 0,
-    "Name_RVA": 9348,
+    "Name_RVA": imported_dlls["node.exe"],
     "Import_Address_Table_RVA": 9076
   }
 ]
@@ -482,6 +488,23 @@ for(var i=0;i<iat.Size;i++){
   out[i+ilt_off]=iat.Data[i];
 };
 
+hnt_base=0x1620;
+
+h2=[];
+for(var i=0;i<480;i++){
+h2.push(0);
+};
+for(var i=0;i<mp.length;i++){
+  o=mp[i].iat_value-to_virtual(ds,hnt_base)+2;
+  w_str(h2,o,mp[i].symbol_name);
+};
+
+for(i in imported_dlls){
+  w_str(h2,imported_dlls[i]-to_virtual(ds,hnt_base),i);
+}
+
+h2=h2.map(to_char).join("");
+
 Hint_Name_Table_pretty="msvcrt.dll\x00\x00\x00printf\x00\x00\x00sprintf\
 \x00\x00\x00puts\x00\x00\x00strlen\x00\x00\x00memset\x00kernel32.dll\
 \x00\x00\x00LoadLibraryA\x00\x00\x00GetProcAddress\x00node.exe\
@@ -504,7 +527,6 @@ for(var i=0;i<Hint_Name_Table_pretty.length;i++){
 Hint_Name_Table=Hint_Name_Table_new;
 
 hnt=Hint_Name_Table;
-hnt_base=0x1620;
 for(var i=0;i<hnt.length;i++){
   out[i+hnt_base]=hnt[i];
 };
@@ -681,3 +703,4 @@ try{
 } catch(e){
   print("couldn't use fs, we must be in SM");
 }
+print(h2===Hint_Name_Table_pretty);
