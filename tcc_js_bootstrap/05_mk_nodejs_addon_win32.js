@@ -62,7 +62,9 @@ var compare = function(a,b){
     return "error";
   };
   for(var i=0;i<a.length;i++){
-    if(a[i]!==b[i]){return "error";};
+    if(a[i]!==b[i]){
+      return "compare error at:"+i;
+    };
   };
   return "ok";
 };
@@ -246,7 +248,10 @@ et_struct={
   Export_Address_Table_RVA : {offset:28,size:4,value:0x2628},
   Name_Pointer_RVA : {offset:32,size:4,value:0x262c},
   Ordinal_Table_RVA : {offset:36,size:4,value:0x2630},
+  Export_Name_Pointer_Table: {offset:40,size:4,value:0x1d28},
+  Name_Pointer_Table: {offset:44,size:4,value:0x2643},
   Name: {offset:50,size:4,value:"addon_win32.node"},
+  Export_Name: {offset:67,size:4,value:"napi_register_module_v1"},
 };
 
 write_struct(et_data,0,et_struct);
