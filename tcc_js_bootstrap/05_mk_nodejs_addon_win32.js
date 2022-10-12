@@ -120,20 +120,30 @@ COFF_File_Header={
 }
 COFF_File_Header_offset=e_lfanew+4;
 
+w_str=function(a,o,s){
+  return;
+};
+
 write_struct=function(a,o,s){
   var l=0;
   for(var i in s){
     var v=s[i];
-    if(v.size===1){
-      a[o+v.offset]=v.value;
+    if(typeof v.value==="number"){
+      if(v.size===1){
+        a[o+v.offset]=v.value;
+      };
+      if(v.size===2){
+        w_u16(a,o+v.offset,v.value);
+      };
+      if(v.size===4){
+        w_u32(a,o+v.offset,v.value);
+      };
+      l=l+v.size;
     };
-    if(v.size===2){
-      w_u16(a,o+v.offset,v.value);
-    };
-    if(v.size===4){
-      w_u32(a,o+v.offset,v.value);
-    };
-    l=l+v.size;
+    if(typeof v.value==="string"){
+      w_str(a,o+v.offset,v.value);
+      l=l+v.value.length;
+    }
   };
   return l;
 };
@@ -204,8 +214,8 @@ Export_Table = {
 0x28,0x26,0x00,0x00,
 0x2c,0x26,0x00,0x00,
 0x30,0x26,0x00,0x00,
-0x28,0x1d,0x00,0x00,
 
+0x28,0x1d,0x00,0x00,
 0x43,0x26,0x00,0x00,
 0x00,0x00,0x61,0x64,0x64,0x6f,0x6e,0x5f,0x77,0x69,0x6e,0x33,0x32,0x2e,0x6e,0x6f,
 0x64,0x65,0x00,0x6e,0x61,0x70,0x69,0x5f,0x72,0x65,0x67,0x69,0x73,0x74,0x65,0x72,
@@ -232,13 +242,15 @@ et_struct={
   Export_Address_Table_RVA : {offset:28,size:4,value:0x2628},
   Name_Pointer_RVA : {offset:32,size:4,value:0x262c},
   Ordinal_Table_RVA : {offset:36,size:4,value:0x2630},
+  Name: {offset:50,size:4,value:"addon_win32.node"},
 };
 
 write_struct(et_data,0,et_struct);
 
 blah=compare(et.Data,et_data);
-
-
+print("\net_struct stuff:");
+for(i in et_struct){print(i+":"+(et_struct[i].value-et.VirtualAddress))};
+print("");
 Import_Table = {
   "dd_offset":1,
   "VirtualAddress": 8960,
