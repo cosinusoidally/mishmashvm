@@ -168,7 +168,7 @@ Optional_Header={
   AddressOfEntryPoint : {offset:16,size:4,value:0},
   BaseOfCode : {offset:20,size:4,value:0x1000},
   BaseOfData : {offset:24,size:4,value:0x2000},
-  ImageBase : {offset:28,size:4,value:0x10000000},
+  ImageBase : {offset:28,size:4,value:ImageBase},
   SectionAlignment : {offset:32,size:4,value:0x1000},
   FileAlignment : {offset:36,size:4,value:0x200},
   MajorOperatingSystemVersion : {offset:40,size:2,value:0x04},
@@ -685,6 +685,30 @@ print("edt new: "+hex(get_u32(out,init)));
 text=obj.sections[".text"].raw;
 for(i=0;i<text.length-ctypes_open_off;i++){
   out[ts.PointerToRawData+i]=text[i+ctypes_open_off];
+};
+
+// relocations
+
+w_u32(out,brt_off,0x1000);
+
+relocs=[];
+obj.sections[".rel.text"].dec.forEach(
+  function(x){
+    if(x.type==="R_386_32"){
+      x.r_offset=x.r_offset-ctypes_open_off;
+      relocs.push(x);
+    }
+  });
+for(var i=0;i<mp.length;i++){
+  relocs.push({r_offset:(mp[i].thunk_address+2-ImageBase-ts.VirtualAddress)});
+}
+
+w_u32(out,brt_off+4,2*relocs.length+8+2);
+
+for(var i=0;i<relocs.length;i++){
+  relocs[i]=0x3000+relocs[i].r_offset;
+  w_u16(out,brt_off+8+i*2,relocs[i]);
+  print(hex(relocs[i]));
 };
 
 try{
