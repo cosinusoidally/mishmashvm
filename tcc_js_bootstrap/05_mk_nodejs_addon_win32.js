@@ -687,6 +687,27 @@ for(i=0;i<text.length-ctypes_open_off;i++){
   out[ts.PointerToRawData+i]=text[i+ctypes_open_off];
 };
 
+// relocations
+
+w_u16(out,brt_off,1);
+
+relocs=[];
+obj.sections[".rel.text"].dec.forEach(
+  function(x){
+    if(x.type==="R_386_32"){
+      x.r_offset=x.r_offset-ctypes_open_off;
+      relocs.push(x);
+    }
+  });
+for(var i=0;i<mp.length;i++){
+  relocs.push({r_offset:(mp[i].thunk_address+2-ImageBase-ts.VirtualAddress)});
+}
+
+for(var i=0;i<relocs.length;i++){
+  relocs[i]=0x3000+relocs[i].r_offset;
+  w_u16(out,brt_off+2+i*2,relocs[i]);
+};
+
 try{
   fs.writeFileSync("../tests/nodejs/lib/addon_win32.node",out);
 } catch(e){
