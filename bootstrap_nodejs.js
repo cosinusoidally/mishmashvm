@@ -1,4 +1,4 @@
-console.log("Bootstrapping using node.js. Requires node.js >= 12.x");
+console.log("Bootstrapping using node.js. Requires node.js >= 10.x");
 
 process=require("process");
 child_process=require("child_process");
