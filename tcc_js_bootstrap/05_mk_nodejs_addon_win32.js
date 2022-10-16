@@ -689,7 +689,7 @@ for(i=0;i<text.length-ctypes_open_off;i++){
 
 // relocations
 
-w_u16(out,brt_off,1);
+w_u32(out,brt_off,0x1000);
 
 relocs=[];
 obj.sections[".rel.text"].dec.forEach(
@@ -703,9 +703,11 @@ for(var i=0;i<mp.length;i++){
   relocs.push({r_offset:(mp[i].thunk_address+2-ImageBase-ts.VirtualAddress)});
 }
 
+w_u32(out,brt_off+4,relocs.length);
+
 for(var i=0;i<relocs.length;i++){
   relocs[i]=0x3000+relocs[i].r_offset;
-  w_u16(out,brt_off+2+i*2,relocs[i]);
+  w_u16(out,brt_off+8+i*2,relocs[i]);
 };
 
 try{
