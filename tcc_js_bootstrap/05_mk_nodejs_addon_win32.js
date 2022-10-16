@@ -703,11 +703,12 @@ for(var i=0;i<mp.length;i++){
   relocs.push({r_offset:(mp[i].thunk_address+2-ImageBase-ts.VirtualAddress)});
 }
 
-w_u32(out,brt_off+4,relocs.length);
+w_u32(out,brt_off+4,relocs.length+8);
 
 for(var i=0;i<relocs.length;i++){
   relocs[i]=0x3000+relocs[i].r_offset;
   w_u16(out,brt_off+8+i*2,relocs[i]);
+  print(hex(relocs[i]));
 };
 
 try{
