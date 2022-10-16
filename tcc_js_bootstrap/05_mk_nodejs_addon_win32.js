@@ -168,7 +168,7 @@ Optional_Header={
   AddressOfEntryPoint : {offset:16,size:4,value:0},
   BaseOfCode : {offset:20,size:4,value:0x1000},
   BaseOfData : {offset:24,size:4,value:0x2000},
-  ImageBase : {offset:28,size:4,value:0x10000000},
+  ImageBase : {offset:28,size:4,value:ImageBase},
   SectionAlignment : {offset:32,size:4,value:0x1000},
   FileAlignment : {offset:36,size:4,value:0x200},
   MajorOperatingSystemVersion : {offset:40,size:2,value:0x04},
