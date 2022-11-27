@@ -71,4 +71,5 @@ gen_argv=function(ar){
 }
 
 print("exec: "+process.execPath);
-nspr.PR_CreateProcess(process.execPath,gen_argv("js --version"),0,0);
+nspr.PR_CreateProcess(process.execPath,gen_argv("js "+test_path+"/process1.js"),0,0);
+nspr.PR_CreateProcess(process.execPath,gen_argv("js "+test_path+"/process2.js"),0,0);
