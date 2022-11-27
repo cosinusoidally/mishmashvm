@@ -31,13 +31,13 @@ if(plat==="linux32"){
 if(plat==="win32"){
   print("loading win32 nspr");
   nspr.lib=ctypes.open("nss3.dll");
-  kernel32.GetProcessImageFileNameA=kernel32.lib.declare("GetProcessImageFileNameA",
+  kernel32.GetModuleFileNameA=kernel32.lib.declare("GetModuleFileNameA",
                                                         ctypes.default_abi,
                                                         ctypes.uint32_t,
                                                         ctypes.uint32_t,ctypes.voidptr_t,ctypes.uint32_t);
-  kernel32.GetProcessImageFileNameA(0,buf,buf.length);
+  kernel32.GetModuleFileNameA(0,buf,buf.length);
   process.execPath=buf_to_string(buf);
-}
+};
 
 nspr.PR_CreateProcess=nspr.lib.declare("PR_CreateProcess",ctypes.default_abi,
                                    ctypes.uint32_t,
