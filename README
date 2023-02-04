@@ -1,6 +1,6 @@
 mishmashvm - adding a self hosted C JIT compiler to a JavaScript VM
 
-Unless otherwise indicated all code in this repo is (C) Liam Wilson 2022 and
+Unless otherwise indicated all code in this repo is (C) 2022-2023 Liam Wilson and
 licensed under the LGPL v2.1 (a copy of which exists under tcc_src/COPYING).
 This repo includes code from various other projects (the Tiny C Compiler,
 Duktape, jsmpeg, glibc headers, etc) license info for those project are
