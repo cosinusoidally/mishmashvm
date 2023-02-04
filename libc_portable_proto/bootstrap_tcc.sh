@@ -29,4 +29,15 @@ js 02.js
 echo "Building libtcc1.o (stage 3)"
 js 03.js
 
+echo "building libc wrapper/stubs (stage 1)"
+
+./bootstrap_libc.sh
+
+mv my_libc.o.new my_libc.o
+mv stubs.o.new stubs.o
+
+echo "building libc wrapper/stubs (stage 2)"
+
+./bootstrap_libc.sh
+
 js 04_check_sha256.js

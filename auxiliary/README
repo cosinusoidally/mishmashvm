@@ -3,6 +3,6 @@ Auxiliary stuff in this dir:
 js_nodejs_wrapper.sh a wrapper around nodejs to bootstrap mmvm under nodejs
 rename as "js" and put in your path to use.
 
-boostrap_with_gcc.sh an alternative first stage bootstrap via gcc.
-Experimental not currently recommended as it somehow produces a slightly
-different tcc binary.
+bootstrap_with_gcc.sh an alternative first stage bootstrap via gcc. Currently
+still relies on a js shell but uses gcc to create the initial tcc_boot3.o rather
+than using the Emscripten generated version of tcc.

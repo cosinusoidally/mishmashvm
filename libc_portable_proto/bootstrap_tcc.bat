@@ -37,4 +37,17 @@ echo "Building tcc (stage 3)"
 echo "Building libtcc1.o (stage 3)"
 %start_cmd% %js_cmd% 03.js
 
+echo "building libc wrapper/stubs (stage 1)"
+
+call "bootstrap_libc.bat"
+
+del my_libc.o
+del stubs.o
+move my_libc.o.new my_libc.o
+move stubs.o.new stubs.o
+
+echo "building libc wrapper/stubs (stage 2)"
+
+call "bootstrap_libc.bat"
+
 %start_cmd% %js_cmd% 04_check_sha256.js
