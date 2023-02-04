@@ -2,3 +2,5 @@ Auxiliary stuff in this dir:
 
 js_nodejs_wrapper.sh a wrapper around nodejs to bootstrap mmvm under nodejs
 rename as "js" and put in your path to use.
+
+boostrap_with_gcc.sh an alternative first stage bootstrap via gcc.
