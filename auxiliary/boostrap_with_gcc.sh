@@ -12,6 +12,7 @@ INCS="-I ../includes/tmp/tcc/lib/tcc/include/ -I ../includes/usr/include/i386-li
 
 ./tcc_linux.exe -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/ ${INCS} -o out.o
 
+# the following shouldn't be necessary, but can be useful for testing
 #rm tcc_linux.exe
 #gcc out.o -o tcc_linux.exe -lm -ldl
 
