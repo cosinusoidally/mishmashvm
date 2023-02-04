@@ -57,4 +57,15 @@ run("02.js");
 console.log("Building libtcc1.o (stage 3)");
 run("03.js");
 
+console.log("building libc wrapper/stubs (stage 1)");
+run("mk_libc.js");
+run("mk_stubs.js");
+
+fs.writeFileSync("my_libc.o", fs.readFileSync("my_libc.o.new"));
+fs.writeFileSync("stubs.o", fs.readFileSync("stubs.o.new"));
+
+console.log("building libc wrapper/stubs (stage 2)");
+run("mk_libc.js");
+run("mk_stubs.js");
+
 run("04_check_sha256.js");
