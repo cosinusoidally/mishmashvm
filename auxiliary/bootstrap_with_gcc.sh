@@ -3,7 +3,7 @@ BUILD_FLAGS='tcc_src/tcc.c -DCONFIG_TRIPLET="i386-linux-gnu" -DTCC_TARGET_I386 -
 set -e
 cd ../tcc_js_bootstrap
 echo "build tcc_linux.exe"
-gcc -m32 $BUILD_FLAGS -lm -ldl
+gcc $BUILD_FLAGS -lm -ldl
 
 
 echo "build tcc_boot3.o"
