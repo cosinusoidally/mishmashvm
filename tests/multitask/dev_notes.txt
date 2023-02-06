@@ -1,0 +1,6 @@
+2022-11-27
+
+Aim of the game here is to create multiple JavaScript processes. To do this we
+will use nspr.
+
+

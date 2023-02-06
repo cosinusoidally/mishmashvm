@@ -23,6 +23,8 @@ tests=[
   {"path":"tests/portablegl","script":"triangle.js","description":"Simple PortableGL test"},
   {"path":"tests/portablegl","script":"penguin.js","description":"Penguin Puzzle PortableGL test"},
   {"path":"tests/nodejs","script":"napi_win32_build.js","description":"build win32 nodejs addon"},
+  {"path":"tests/nodejs","script":"napi_linux_build.js","description":"build Linux nodejs addon (TODO implement this)"},
+  {"path":"tests/multitask","script":"multi.js","description":"multitasking demo"},
 ];
 
 print_tests=function(){

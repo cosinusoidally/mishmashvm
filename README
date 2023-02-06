@@ -1,6 +1,6 @@
 mishmashvm - adding a self hosted C JIT compiler to a JavaScript VM
 
-Unless otherwise indicated all code in this repo is (C) Liam Wilson 2022 and
+Unless otherwise indicated all code in this repo is (C) 2022-2023 Liam Wilson and
 licensed under the LGPL v2.1 (a copy of which exists under tcc_src/COPYING).
 This repo includes code from various other projects (the Tiny C Compiler,
 Duktape, jsmpeg, glibc headers, etc) license info for those project are
@@ -125,14 +125,13 @@ It will print a load of stuff to the command line as it works. Once all is done
 you should see the following:
 
 0e8e02c852a11ebec585650d3c6fa5917fb51d7b66dd1d458d3e51680c660964 my_libc.o
-no such file: my_libc.o.new
+0e8e02c852a11ebec585650d3c6fa5917fb51d7b66dd1d458d3e51680c660964 my_libc.o.new
 0cdb519efb42f22eba96bf90407e10b87868355e1d793d3a70271f09d47aa403 stubs.o
-no such file: stubs.o.new
+0cdb519efb42f22eba96bf90407e10b87868355e1d793d3a70271f09d47aa403 stubs.o.new
 59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o
 59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o.new
-9a9d8861ec0c93a219abb8587770a04a5314ce332187c9631f37a3b7bbde6469 tcc_bin/tcc_boot3.o
-9a9d8861ec0c93a219abb8587770a04a5314ce332187c9631f37a3b7bbde6469 tcc_bin/tcc_boot3.o.new
-
+b64ff3010f2de6eb50762169fc5309b66ef704924cfc21648e7b75f088af3365 tcc_bin/tcc_boot3.o
+b64ff3010f2de6eb50762169fc5309b66ef704924cfc21648e7b75f088af3365 tcc_bin/tcc_boot3.o.new
 
 my_libc.o is some wrapper code to provide win32/Linux libc compatibility
 stubs.o provides a bunch of dummy symbols to the elf loader
@@ -197,13 +196,13 @@ change into your mishmashvm and then run ./bootstrap.sh
 At the end, if that all went well, you should see:
 
 0e8e02c852a11ebec585650d3c6fa5917fb51d7b66dd1d458d3e51680c660964 my_libc.o
-no such file: my_libc.o.new
+0e8e02c852a11ebec585650d3c6fa5917fb51d7b66dd1d458d3e51680c660964 my_libc.o.new
 0cdb519efb42f22eba96bf90407e10b87868355e1d793d3a70271f09d47aa403 stubs.o
-no such file: stubs.o.new
+0cdb519efb42f22eba96bf90407e10b87868355e1d793d3a70271f09d47aa403 stubs.o.new
 59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o
 59483d03266a9eadb84ceafaf4ed8a37e5a5231aaf773f296a7ca097679307b3 tcc_bin/libtcc1.o.new
-9a9d8861ec0c93a219abb8587770a04a5314ce332187c9631f37a3b7bbde6469 tcc_bin/tcc_boot3.o
-9a9d8861ec0c93a219abb8587770a04a5314ce332187c9631f37a3b7bbde6469 tcc_bin/tcc_boot3.o.new
+b64ff3010f2de6eb50762169fc5309b66ef704924cfc21648e7b75f088af3365 tcc_bin/tcc_boot3.o
+b64ff3010f2de6eb50762169fc5309b66ef704924cfc21648e7b75f088af3365 tcc_bin/tcc_boot3.o.new
 
 The eagle eyed may notice that the above sha256sums are the same as the
 sha256sums on win32. That is because we are using exactly the same compiler on

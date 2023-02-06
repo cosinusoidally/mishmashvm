@@ -85680,7 +85680,7 @@ include_files.map(function(x){
 //  print("/"+x+"  tcc_src/"+x);
 //  FS.mkdir(x);
 try{
-  FS.writeFile("/tcc_src/"+x,read("tcc_src/"+x));
+  FS.writeFile("/tcc_src/"+x,read("tcc_src/"+x,"binary"),{encoding:"binary"});
 } catch (e){
 //  print("missing file");
 }
@@ -85706,7 +85706,7 @@ include_files.map(function(x){
 //  print("/"+x+"  ../includes/"+x);
 //  FS.mkdir(x);
 try{
-  FS.writeFile("/"+x,read("../includes/"+x));
+  FS.writeFile("/"+x,read("../includes/"+x,"binary"),{encoding:"binary"});
 } catch (e){
 //  print("missing file");
 }
