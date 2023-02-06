@@ -1,7 +1,7 @@
 print("Run the quake1 engine");
 print("you need the engine source in ../quake1_src and id1 pak files in ../quake1_data/id1 (relative to the root of mishmashvm)");
 
-mm.reserve_stack(800000);
+mm.reserve_stack(1000000);
 
 quake1_src=test_path+"/quake1_src";
 quake1_data="../quake1_data";
