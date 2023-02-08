@@ -73,3 +73,28 @@ TASKS:
 - write enough of a Linux syscall emulation layer to be able to serve the int
   0x80 calls from hex0
 - verify that the output has the same hash
+
+Once we have hex0 running the next step is to get kaem running:
+
+TASKS:
+- implement any missing x86 instructions to allow kaem to run
+- expand the Linux syscall emulation layer to support extra syscalls
+- fork/exec support will mean being able to create multiple instances of the x86
+  emulator
+- filesystem implementation (RAM based)
+- create sha256sums of the artifaccts in x86/artifact and x86/bin so we can
+  compare the output of an emulate build vs a native build. hashes should be
+  identical.
+- In virtual filesystem place hex0 and kaem binaries in
+  bootstrap-seeds/POSIX/x86/ as hex0-seed and kaem-optional-seed respectively
+- run bootstrap-seeds/POSIX/x86/kaem-optional-seed
+- flesh out x86 and Linux syscall emulation layer until all x86/bin binaries
+  have been built
+- verify the sha256sums match the native build (this should happen automatically
+  if the emulated build gets to the very end)
+- optional ability to pause to process and save state to disk. I imaging the
+  initial emulator will be slow so it will be useful to be able to do
+  incremental builds
+- optional ability to save the build artifacts/binaries as real files. Slightly
+  different to the last task as the last task is more about doing a memony/disk
+  dump of the whole virtual system.
