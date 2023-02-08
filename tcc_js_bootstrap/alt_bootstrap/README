@@ -1,0 +1,30 @@
+This is the beginnings of an alternative bootstrap method that avoids the need
+for the Emscripten compiled version of tcc. This alt method does not yet work.
+
+Rough plan (all the below must be made to run on Linux and win32):
+
+stage0-posix gets us from 2 hex seeds all the way up to a primitive c compiler
+
+either:
+- use gnu mes method from live-bootstrap to take us from M2-Planet to
+  tcc-0.9.26
+- cut down tcc-0.9.26 to the point where it can build with M2-Planet. This
+  will be a big job. The benefit of doing this is to speed up the bootstrap
+  process
+
+tcc-0.9.26 from live-bootstrap
+
+tcc-0.9.27 plus live-bootstrap patches
+
+tcc-0.9.27 (mishmashvm version)
+
+https://github.com/fosslinux/live-bootstrap contains code that can be used to
+build tcc-0.9.26 and tcc-0.9.27
+
+Note I will also need a libc. Not decided on this one yet. Some potential
+options are:
+
+- bring in musl from live-bootstrap
+- JS polyfill implementation
+
+Detailed plan:
