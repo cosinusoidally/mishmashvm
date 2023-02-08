@@ -1,6 +1,11 @@
 This is the beginnings of an alternative bootstrap method that avoids the need
 for the Emscripten compiled version of tcc. This alt method does not yet work.
 
+The eventual plan for this alt method is to build the whole system purely from
+source starting with the hex encoded stage0 bootstrap seeds (which generate an
+initial ~1KB worth of binaries that are capable of starting the source based
+boostrap process).
+
 Rough plan (all the below must be made to run on Linux and win32):
 
 stage0-posix gets us from 2 hex seeds all the way up to a primitive c compiler
@@ -19,7 +24,9 @@ tcc-0.9.27 plus live-bootstrap patches
 tcc-0.9.27 (mishmashvm version)
 
 https://github.com/fosslinux/live-bootstrap contains code that can be used to
-build tcc-0.9.26 and tcc-0.9.27
+build tcc-0.9.26 and tcc-0.9.27 . live-bootstrap can go from the 1KB seeds all
+the way up to gcc and the linux kernel, all purely from source. I do not plan
+to go that far, I only plan to go as far as tcc-0.9.27.
 
 Note I will also need a libc. Not decided on this one yet. Some potential
 options are:
@@ -28,3 +35,41 @@ options are:
 - JS polyfill implementation
 
 Detailed plan:
+
+Initially run whole process under jsshell. Eventually I may get to the point
+where I can boostrap all the way up until duktape from the hex seeds, but
+that's probably a long way away.
+
+To start the bootstrap we need 2 things (binary seeds). These seeds are provided
+in hex encoded form:
+
+stage0-posix/x86/hex0_x86.hex0 (a hex encoded i386 ELF file that is able to
+convert hex encoded files into binary data files)
+
+stage0-posix/x86/kaem-minimal.hex0 this is a primitive command shell similar to
+a very cut down version of bash. This is used to script the rest of the build
+process.
+
+To turn the hex seeds into binary seeds we need the binary version of the
+hex0_x86.hex0 seed. There is a loop here, we essentially need the binary versino
+of hex0_x86.hex0 to turn the hex version into a binary. To break this loop we
+will need some JS code that can do this for us.
+
+
+TASKS:
+- Write some JS code that can convert from hex0 to binary (DONE)
+- turn stage0-posix/x86/hex0_x86.hex0 into a binary (DONE)
+- turn stage0-posix/x86/kaem-minimal.hex0 into a binary (DONE)
+- check the sha256 sums of the generated files match the real sha256sums of
+  hex0 and kaem-0
+
+Next we need to run the generatd hex0 and get it to regenerate itself. To do
+this we must:
+
+TASKS:
+- write a minimal elf loader capable of loading the file into a JS array and
+  locating the entrypoint
+- write an x86 emulator in JS that is capable of executing hex0
+- write enough of a Linux syscall emulation layer to be able to serve the int
+  0x80 calls from hex0
+- verify that the output has the same hash
