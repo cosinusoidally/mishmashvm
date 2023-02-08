@@ -61,7 +61,7 @@ TASKS:
 - turn stage0-posix/x86/hex0_x86.hex0 into a binary (DONE)
 - turn stage0-posix/x86/kaem-minimal.hex0 into a binary (DONE)
 - check the sha256 sums of the generated files match the real sha256sums of
-  hex0 and kaem-0
+  hex0 and kaem-0 (DONE)
 
 Next we need to run the generatd hex0 and get it to regenerate itself. To do
 this we must:
