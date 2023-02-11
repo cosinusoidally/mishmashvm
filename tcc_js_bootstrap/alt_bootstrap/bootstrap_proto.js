@@ -405,6 +405,41 @@ ins4[0xba]=function(){
   eip=eip+4;
 };
 
+var unimp5=function(){
+ throw "Unimplemented: "+vr8(vmem,eip).toString(16)+vr8(vmem,eip+1).toString(16);
+};
+var ins5=[];
+for(var i=0;i<256;i++){
+  ins5[i]=unimp5;
+};
+
+ins[0x85]=function(){
+  ins5[vr8(vmem,eip+1)]();
+};
+
+ins5[0xc0]=function(){
+  print("test   %eax,%eax");
+  var r=eax&eax;
+  if(r==0){
+    ZF=1;
+  } else {
+    ZF=0;
+  };
+  eip=eip+2;
+};
+
+var unimp6=function(){
+ throw "Unimplemented: "+vr8(vmem,eip).toString(16)+vr8(vmem,eip+1).toString(16);
+};
+var ins6=[];
+for(var i=0;i<256;i++){
+  ins6[i]=unimp6;
+};
+
+ins[0x74]=function(){
+  ins6[vr8(vmem,eip+1)]();
+};
+
 // initialize registers:
 var eax=0;
 var ecx=0;
@@ -415,9 +450,11 @@ var ebp=0;
 var esi=0;
 var edi=0;
 
-var EFLAGS_IF=0x200;
+var IF=1;
 
-var eflags=0x200;
+var ZF=0;
+
+// var eflags=0x200;
 
 // initialize stack (TODO generate the initial program stack correctly by
 // generating it based on command parameters)
@@ -465,7 +502,7 @@ print("ebp            "+(to_hex(ebp)));
 print("esi            "+(to_hex(esi)));
 print("edi            "+(to_hex(edi)));
 print("eip            "+(to_hex(eip)));
-print("eflags         "+(to_hex(eflags))+" "+(decode_eflags(eflags)));
+print("eflags         [ IF="+IF+" ZF="+ZF+" ]");
 };
 
 // syscalls:
