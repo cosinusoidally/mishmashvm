@@ -188,7 +188,9 @@ var vw8=function(vmem,o,b){
   throw "pagefault oob write";
 };
 var vr32=function(vmem,o){
-  return (vr8(vmem,o)|vr8(vmem,o+1)|vr8(vmem,o+2)|vr8(vmem,o+3));
+  var d=[vr8(vmem,o),vr8(vmem,o+1),vr8(vmem,o+2),vr8(vmem,o+3)];
+  print(d.map(function(x){return x.toString(16)}));
+  return (d[0]+(d[1]<<8)+(d[2]<<16)+(d[3]<<24));
 };
 
 /*
@@ -231,7 +233,8 @@ ins[0x58]=function(){
 };
 ins[0x5b]=function(){
   print("pop    %ebx");
-  unimp();
+  ebx=vr32(vmem,esp);
+  esp=esp+4;
   eip++;
 };
 
@@ -303,23 +306,40 @@ var edi=0;
 // initialize stack (TODO generate the initial program stack correctly by
 // generating it based on command parameters)
 
-var stack_in=[0x03, 0x00, 0x00, 0x00, 0x3b, 0xd7, 0xff,0xff];
+var stack_in=[
+0x03, 0x00, 0x00, 0x00, 0x3b, 0xd7, 0xff, 0xff,
+0x7e, 0xd7, 0xff, 0xff, 0x92, 0xd7, 0xff, 0xff
+];
 
 for(var i=0;i<stack_in.length;i++){
   vw8(vmem,esp+i,stack_in[i]);
 };
 
+// toString(16) doesn't do quit wheat you expect:
+// js> ebx
+// -10370
+// js> ebx.toString(16)
+// "-2882"
+// rather than figure that out just create a to_hex function:
+
+to_hex=function(x){
+ return "0x"+
+        (("00"+((x>>>24)&0xFF).toString(16)).slice(-2))+
+        (("00"+((x>>>16)&0xFF).toString(16)).slice(-2))+
+        (("00"+((x>>>8)&0xFF).toString(16)).slice(-2))+
+        (("00"+(x&0xFF).toString(16)).slice(-2));
+};
 // create something like info registers from gdb:
 var info_registers=function(){
-print("eax            0x"+(eax.toString(16)));
-print("ecx            0x"+(ecx.toString(16)));
-print("edx            0x"+(edx.toString(16)));
-print("ebx            0x"+(ebx.toString(16)));
-print("esp            0x"+(esp.toString(16)));
-print("ebp            0x"+(ebp.toString(16)));
-print("esi            0x"+(esi.toString(16)));
-print("edi            0x"+(edi.toString(16)));
-print("eip            0x"+(eip.toString(16)));
+print("eax            "+(to_hex(eax)));
+print("ecx            "+(to_hex(ecx)));
+print("edx            "+(to_hex(edx)));
+print("ebx            "+(to_hex(ebx)));
+print("esp            "+(to_hex(esp)));
+print("ebp            "+(to_hex(ebp)));
+print("esi            "+(to_hex(esi)));
+print("edi            "+(to_hex(edi)));
+print("eip            "+(to_hex(eip)));
 };
 go();
 info_registers();
