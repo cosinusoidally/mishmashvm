@@ -193,6 +193,11 @@ var vr32=function(vmem,o){
   return (d[0]+(d[1]<<8)+(d[2]<<16)+(d[3]<<24));
 };
 
+var vr16=function(vmem,o){
+  var d=[vr8(vmem,o),vr8(vmem,o+1)];
+  return (d[0]+(d[1]<<8));
+};
+
 var vw32=function(vmem,o,v){
   vw8(vmem,o,v&0xff);
   vw8(vmem,o+1,(v>>>8)&0xff);
@@ -268,10 +273,18 @@ ins2[0xd2]=function(){
   eip=eip+2;
 };
 
+var sign_extend8 = function(x){
+  if(x&8){
+    x=x|0xFFFFFF00;
+  };
+  return x;
+};
+
 ins[0x6a]=function(){
-  print("push   $0x"+(vr8(vmem,eip+1).toString(16)));
+  var v=sign_extend8(vr8(vmem,eip+1));
+  print("push   $0x"+v.toString(16));
   esp=esp-4;
-  vw32(vmem,esp,vr8(vmem,eip+1));
+  vw32(vmem,esp,v);
   eip=eip+2;
 };
 
@@ -284,6 +297,13 @@ ins[0xcd]=function(){
     throw "unsupported syscall: "+eax;
   };
   eip=eip+2;
+};
+
+ins[0x5d]=function(){
+  print("pop    %ebp");
+  ebp=vr32(vmem,esp);
+  esp=esp+4;
+  eip++;
 };
 
 var unimp3=function(){
@@ -302,6 +322,38 @@ ins3[0xc6]=function(){
   print("mov    %eax,%esi");
   esi=eax;
   eip=eip+2;
+};
+
+ins3[0xc2]=function(){
+  print("mov    %eax,%edx");
+  eax=edx;
+  eip=eip+2;
+};
+
+var unimp4=function(){
+ throw "Unimplemented: "+vr8(vmem,eip).toString(16)+vr8(vmem,eip+1).toString(16);
+};
+var ins4=[];
+for(var i=0;i<256;i++){
+  ins4[i]=unimp4;
+};
+
+ins[0x66]=function(){
+  ins4[vr8(vmem,eip+1)]();
+};
+
+ins4[0xb9]=function(){
+  var v=vr16(vmem,eip+2);
+  print("mov    $0x"+(v.toString(16))+",%cx");
+  ecx=v;
+  eip=eip+4;
+};
+
+ins4[0xba]=function(){
+  var v=vr16(vmem,eip+2);
+  print("mov    $0x"+(v.toString(16))+",%dx");
+  edx=v;
+  eip=eip+4;
 };
 
 // initialize registers:
