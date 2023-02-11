@@ -278,7 +278,11 @@ ins[0x6a]=function(){
 
 ins[0xcd]=function(){
   print("int   $0x"+(vr8(vmem,eip+1).toString(16)));
-  unimp();
+  if(eax===5){
+    syscall_open();
+  } else {
+    throw "unsupported syscall: "+eax;
+  };
   eip=eip+2;
 };
 
@@ -296,7 +300,7 @@ ins[0x89]=function(){
 
 ins3[0xc6]=function(){
   print("mov    %eax,%esi");
-  unimp();
+  esi=eax;
   eip=eip+2;
 };
 
@@ -348,5 +352,19 @@ print("esi            "+(to_hex(esi)));
 print("edi            "+(to_hex(edi)));
 print("eip            "+(to_hex(eip)));
 };
+
+// syscalls:
+
+
+// this is the current highest file descriptor
+var fd=2;
+
+var syscall_open = function(){
+  print("syscall_open called");
+  fd++;
+  eax=fd;
+};
+
+
 go();
 info_registers();
