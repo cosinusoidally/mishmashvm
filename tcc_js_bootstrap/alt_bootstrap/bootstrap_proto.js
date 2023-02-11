@@ -273,6 +273,12 @@ ins2[0xd2]=function(){
   eip=eip+2;
 };
 
+ins2[0xff]=function(){
+  print("xor    %edi,%edi");
+  edi=0;
+  eip=eip+2;
+};
+
 var sign_extend8 = function(x){
   if(x&8){
     x=x|0xFFFFFF00;
