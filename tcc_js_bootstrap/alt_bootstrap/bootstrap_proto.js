@@ -328,6 +328,8 @@ ins[0xcd]=function(){
   print("int   $0x"+(vr8(vmem,eip+1).toString(16)));
   if(eax===5){
     syscall_open();
+  } else if(eax===3){
+    syscall_read();
   } else {
     throw "unsupported syscall: "+eax;
   };
@@ -464,6 +466,37 @@ var syscall_open = function(){
   eax=fd;
 };
 
+var outp=[];
+
+var fds=[
+  null,
+  null,
+  null,
+  [0,read("stage0-posix/x86/hex0_x86.hex0","binary")],
+  [0,outp]
+];
+
+var syscall_read = function(){
+  var fd=ebx;
+  var  buf=ecx;
+  var  count=edx;
+  print("syscall_read called fd:"+fd+" buf:"+buf+" count:"+count);
+  if(count>1){
+    throw "only support reads of 1 byte";
+  };
+  var fdo=fds[fd];
+
+  for(var i=0;i<count;i++){
+    if(i>=fdo[1].length){
+      eax=0;
+      return;
+    }
+    vw8(vmem,buf,fdo[1][i]);
+    fdo[0]++;
+    buf++;
+  };
+  eax=1;
+};
 
 go();
 info_registers();
