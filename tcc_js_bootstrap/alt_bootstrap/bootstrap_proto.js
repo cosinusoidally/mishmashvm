@@ -361,7 +361,19 @@ ins3[0xc6]=function(){
 
 ins3[0xc2]=function(){
   print("mov    %eax,%edx");
-  eax=edx;
+  edx=eax;
+  eip=eip+2;
+};
+
+ins3[0xe1]=function(){
+  print("mov    %esp,%ecx");
+  ecx=esp;
+  eip=eip+2;
+};
+
+ins3[0xf3]=function(){
+  print("mov    %esi,%ebx");
+  ebx=esi;
   eip=eip+2;
 };
 
