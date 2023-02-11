@@ -415,6 +415,10 @@ var ebp=0;
 var esi=0;
 var edi=0;
 
+var EFLAGS_IF=0x200;
+
+var eflags=0x200;
+
 // initialize stack (TODO generate the initial program stack correctly by
 // generating it based on command parameters)
 
@@ -441,6 +445,15 @@ to_hex=function(x){
         (("00"+((x>>>8)&0xFF).toString(16)).slice(-2))+
         (("00"+(x&0xFF).toString(16)).slice(-2));
 };
+
+var decode_eflags = function(eflags){
+  var r=[];
+  if(eflags & EFLAGS_IF){
+    r.push("IF");
+  };
+  return "[ "+r.join(" ")+" ]";
+};
+
 // create something like info registers from gdb:
 var info_registers=function(){
 print("eax            "+(to_hex(eax)));
@@ -452,6 +465,7 @@ print("ebp            "+(to_hex(ebp)));
 print("esi            "+(to_hex(esi)));
 print("edi            "+(to_hex(edi)));
 print("eip            "+(to_hex(eip)));
+print("eflags         "+(to_hex(eflags))+" "+(decode_eflags(eflags)));
 };
 
 // syscalls:
