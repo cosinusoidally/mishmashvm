@@ -249,6 +249,35 @@ ins[0x5b]=function(){
   eip++;
 };
 
+ins[0x5a]=function(){
+  print("pop    %edx");
+  edx=vr32(vmem,esp);
+  esp=esp+4;
+  eip++;
+};
+
+ins[0xe8]=function(){
+  var t=eip+vr32(vmem,eip+1)+5;
+  print("call   "+to_hex(t));
+  esp=esp-4;
+  vw32(vmem,esp,eip+5);
+  eip=t;
+};
+
+ins[0x52]=function(){
+  print("push    %edx");
+  esp=esp-4;
+  vw32(vmem,esp,edx);
+  eip++;
+};
+
+ins[0x53]=function(){
+  print("push    %ebx");
+  esp=esp-4;
+  vw32(vmem,esp,ebx);
+  eip++;
+};
+
 var unimp2=function(){
  throw "Unimplemented: "+vr8(vmem,eip).toString(16)+vr8(vmem,eip+1).toString(16);
 };
