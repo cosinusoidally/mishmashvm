@@ -193,6 +193,12 @@ var vr32=function(vmem,o){
   return (d[0]+(d[1]<<8)+(d[2]<<16)+(d[3]<<24));
 };
 
+var vw32=function(vmem,o,v){
+  vw8(vmem,o,v&0xff);
+  vw8(vmem,o+1,(v>>>8)&0xff);
+  vw8(vmem,o+2,(v>>16)&0xff);
+  vw8(vmem,o+3,(v>>>24)&0xff);
+};
 /*
 Now I should be able to start decoding and running instructions. I'll build the
 implemented instruction incrementally so initially I can start with all
@@ -252,19 +258,20 @@ ins[0x31]=function(){
 
 ins2[0xc9]=function(){
   print("xor    %ecx,%ecx");
-  unimp();
+  ecx=0;
   eip=eip+2;
 };
 
 ins2[0xd2]=function(){
   print("xor    %edx,%edx");
-  unimp();
+  edx=0;
   eip=eip+2;
 };
 
 ins[0x6a]=function(){
   print("push   $0x"+(vr8(vmem,eip+1).toString(16)));
-  unimp();
+  esp=esp-4;
+  vw32(vmem,esp,vr8(vmem,eip+1));
   eip=eip+2;
 };
 
