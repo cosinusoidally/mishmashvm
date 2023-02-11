@@ -154,20 +154,6 @@ read/write funtions that look up the given virtual address in either mm or stack
 
 something a bit like:
 
-let have vmem look something like:
-vmem=[
-  [stack_base, stack]
-  [p_paddr, mm]
-]
-
-vr8 =function(vmem,o){
-  for(var i=0;i<vmem.length;i++){
-    if(o>=vmem[i][0]){
-      return r8(vmem[i][1],o-vmem[i][0])
-    }
-  };
-  // error out
-}
 */
 var stack=[];
 var stack_size=1024*1024; // just give us a meg
@@ -181,7 +167,7 @@ var vmem=[
 ];
 
 var vr8=function(vmem,o){
-   var p;
+  var p;
   for(var i=0;i<vmem.length;i++){
     p=vmem[i];
     if(o>=p[0]){
@@ -189,6 +175,20 @@ var vr8=function(vmem,o){
     };
   };
   throw "pagefault";
+};
+
+var vw8=function(vmem,o,b){
+  var p;
+  for(var i=0;i<vmem.length;i++){
+    p=vmem[i];
+    if(o>=p[0]){
+      return w8(p[1],o-p[0],b);
+    };
+  };
+  throw "pagefault oob write";
+};
+var vr32=function(vmem,o){
+  return (vr8(vmem,o)|vr8(vmem,o+1)|vr8(vmem,o+2)|vr8(vmem,o+3));
 };
 
 /*
@@ -225,7 +225,8 @@ var go = function(){
 };
 ins[0x58]=function(){
   print("pop    %eax");
-  unimp();
+  eax=vr32(vmem,esp);
+  esp=esp+4;
   eip++;
 };
 ins[0x5b]=function(){
@@ -299,6 +300,15 @@ var ebp=0;
 var esi=0;
 var edi=0;
 
+// initialize stack (TODO generate the initial program stack correctly by
+// generating it based on command parameters)
+
+var stack_in=[0x03, 0x00, 0x00, 0x00, 0x3b, 0xd7, 0xff,0xff];
+
+for(var i=0;i<stack_in.length;i++){
+  vw8(vmem,esp+i,stack_in[i]);
+};
+
 // create something like info registers from gdb:
 var info_registers=function(){
 print("eax            0x"+(eax.toString(16)));
@@ -309,6 +319,7 @@ print("esp            0x"+(esp.toString(16)));
 print("ebp            0x"+(ebp.toString(16)));
 print("esi            0x"+(esi.toString(16)));
 print("edi            0x"+(edi.toString(16)));
+print("eip            0x"+(eip.toString(16)));
 };
 go();
 info_registers();
