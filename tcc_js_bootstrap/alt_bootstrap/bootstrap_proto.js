@@ -224,11 +224,11 @@ var go = function(){
   };
 };
 ins[0x58]=function(){
-  print("pop %eax");
+  print("pop    %eax");
   eip++;
 };
 ins[0x5b]=function(){
-  print("pop %ebx");
+  print("pop    %ebx");
   eip++;
 };
 
@@ -243,4 +243,43 @@ for(var i=0;i<256;i++){
 ins[0x31]=function(){
   ins2[vr8(vmem,eip+1)]();
 };
+
+ins2[0xc9]=function(){
+  print("xor    %ecx,%ecx");
+  eip=eip+2;
+};
+
+ins2[0xd2]=function(){
+  print("xor    %edx,%edx");
+  eip=eip+2;
+};
+
+ins[0x6a]=function(){
+  print("push   $0x"+(vr8(vmem,eip+1).toString(16)));
+  eip=eip+2;
+};
+
+
+ins[0xcd]=function(){
+  print("int   $0x"+(vr8(vmem,eip+1).toString(16)));
+  eip=eip+2;
+};
+
+var unimp3=function(){
+ throw "Unimplemented: "+vr8(vmem,eip).toString(16)+vr8(vmem,eip+1).toString(16);
+};
+var ins3=[];
+for(var i=0;i<256;i++){
+  ins3[i]=unimp3;
+};
+
+ins[0x89]=function(){
+  ins3[vr8(vmem,eip+1)]();
+};
+
+ins3[0xc6]=function(){
+  print("mov    %eax,%esi");
+  eip=eip+2;
+};
+
 go();
