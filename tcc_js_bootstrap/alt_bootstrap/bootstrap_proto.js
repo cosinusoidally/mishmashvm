@@ -190,3 +190,57 @@ var vr8=function(vmem,o){
   };
   throw "pagefault";
 };
+
+/*
+Now I should be able to start decoding and running instructions. I'll build the
+implemented instruction incrementally so initially I can start with all
+instructions replaced with a single unimplemented instrution that just throws an
+error. The aim of the game is then:
+
+run
+throw error
+implement instruction
+rinse repeat until the whole program runs
+*/
+
+var ins=[];
+var unimp=function(){
+ throw "Unimplemented: "+vr8(vmem,eip).toString(16);
+};
+for(var i=0;i<256;i++){
+  ins[i]=unimp;
+};
+
+var step=function(){
+   ins[vr8(vmem,eip)]();
+};
+var go = function(){
+  try{
+    while(1){
+      step();
+    }
+  } catch(e){
+    print(e);
+  };
+};
+ins[0x58]=function(){
+  print("pop %eax");
+  eip++;
+};
+ins[0x5b]=function(){
+  print("pop %ebx");
+  eip++;
+};
+
+var unimp2=function(){
+ throw "Unimplemented: "+vr8(vmem,eip).toString(16)+vr8(vmem,eip+1).toString(16);
+};
+var ins2=[];
+for(var i=0;i<256;i++){
+  ins2[i]=unimp2;
+};
+
+ins[0x31]=function(){
+  ins2[vr8(vmem,eip+1)]();
+};
+go();
