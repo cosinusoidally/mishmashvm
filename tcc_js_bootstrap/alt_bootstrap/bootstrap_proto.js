@@ -225,10 +225,12 @@ var go = function(){
 };
 ins[0x58]=function(){
   print("pop    %eax");
+  unimp();
   eip++;
 };
 ins[0x5b]=function(){
   print("pop    %ebx");
+  unimp();
   eip++;
 };
 
@@ -246,22 +248,26 @@ ins[0x31]=function(){
 
 ins2[0xc9]=function(){
   print("xor    %ecx,%ecx");
+  unimp();
   eip=eip+2;
 };
 
 ins2[0xd2]=function(){
   print("xor    %edx,%edx");
+  unimp();
   eip=eip+2;
 };
 
 ins[0x6a]=function(){
   print("push   $0x"+(vr8(vmem,eip+1).toString(16)));
+  unimp();
   eip=eip+2;
 };
 
 
 ins[0xcd]=function(){
   print("int   $0x"+(vr8(vmem,eip+1).toString(16)));
+  unimp();
   eip=eip+2;
 };
 
@@ -279,7 +285,30 @@ ins[0x89]=function(){
 
 ins3[0xc6]=function(){
   print("mov    %eax,%esi");
+  unimp();
   eip=eip+2;
 };
 
+// initialize registers:
+var eax=0;
+var ecx=0;
+var edx=0;
+var ebx=0;
+var esp=0xffffd5f0; // taken from gdb, should really calculate
+var ebp=0;
+var esi=0;
+var edi=0;
+
+// create something like info registers from gdb:
+var info_registers=function(){
+print("eax            0x"+(eax.toString(16)));
+print("ecx            0x"+(ecx.toString(16)));
+print("edx            0x"+(edx.toString(16)));
+print("ebx            0x"+(ebx.toString(16)));
+print("esp            0x"+(esp.toString(16)));
+print("ebp            0x"+(ebp.toString(16)));
+print("esi            0x"+(esi.toString(16)));
+print("edi            0x"+(edi.toString(16)));
+};
 go();
+info_registers();
