@@ -101,22 +101,23 @@ The stack
 // bytes at arbitrary offsets. I am avoiding using typed arrays in order to
 // allow the code to also work on very simple JS vms (eg mujs).
 
-var w_8 = function(a,o,v){
-  print();
+var w8 = function(a,o,v){
   var s=o&3;
-  print(s);
   o=(o>>>2);
   var c=a[o];
-  print(c);
   var b=[c & 0xff,(c>>>8) & 0xff,(c>>>16)&0xff,(c>>>24) &0xff];
-  print(b)
   b[s]=v &0xff;
-  print(b);
-  a[o]=(b[0]+(b[1]<<8)+(b[2]<<16)+(b[2]<<24))|0;
-  print(a[o]);
+  a[o]=(b[0]+(b[1]<<8)+(b[2]<<16)+(b[3]<<24))|0;
 };
-var w_32 = function(a,o,v){
 
+var r8 = function(a,o){
+  var s=o&3;
+  o=(o>>>2);
+  if(o<a.length){
+    return (a[o] >>> (8*s))& 0xFF;
+  } else {
+    throw "pagefault oob";
+  }
 };
 // lets call our main memory region mm (main mem)
 var mm=[];
@@ -125,5 +126,67 @@ var zero_mem = function(m,n){
     m[i]=0;
   };
 };
-zero_mem(mm,128*1024); // populate initial memory
+zero_mem(mm,256*1024); // populate initial memory
 
+// load hex0 into memory
+for(var i=0;i<hex0.length;i++){
+  w8(mm,i,hex0[i]);
+};
+
+var hex0_check=[];
+for(var i=0;i<hex0.length;i++){
+  hex0_check[i]=r8(mm,i);
+};
+print("check if memory matches hex0: "+ (root.sha256(hex0)===
+root.sha256(hex0_check)));
+
+// hex0 physical load address is:
+var p_paddr=0x08048000;
+// entrypoint of hex0 is 0x8048054
+var eip=0x8048054
+
+print("first instruction of hex0 is: " +(r8(mm,eip-p_paddr).toString(16)));
+
+/*
+We are essentially goint to end up with virtual memory in JS. To simplify lets
+have only 2 "pages" first "page" is mm. second page is the stack. We then have
+read/write funtions that look up the given virtual address in either mm or stack
+
+something a bit like:
+
+let have vmem look something like:
+vmem=[
+  [stack_base, stack]
+  [p_paddr, mm]
+]
+
+vr8 =function(vmem,o){
+  for(var i=0;i<vmem.length;i++){
+    if(o>=vmem[i][0]){
+      return r8(vmem[i][1],o-vmem[i][0])
+    }
+  };
+  // error out
+}
+*/
+var stack=[];
+var stack_size=1024*1024; // just give us a meg
+zero_mem(stack,stack_size/4);
+stack_base=0xFFFFFFFF-stack_size;
+
+
+var vmem=[
+  [stack_base,stack],
+  [p_paddr,mm]
+];
+
+var vr8=function(vmem,o){
+   var p;
+  for(var i=0;i<vmem.length;i++){
+    p=vmem[i];
+    if(o>=p[0]){
+      return r8(p[1],o-p[0]);
+    };
+  };
+  throw "pagefault";
+};
