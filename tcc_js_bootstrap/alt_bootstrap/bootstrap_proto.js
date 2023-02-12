@@ -432,12 +432,15 @@ ins[0x85]=function(){
 
 ins5[0xc0]=function(){
   print("test   %eax,%eax");
-  var r=eax&eax;
-  if(r==0){
+  var t=eax&eax;
+  SF=(t>>>7) &1;
+  if(t==0){
     ZF=1;
   } else {
     ZF=0;
   };
+  CF=0;
+  OF=0;
   eip=eip+2;
 };
 
@@ -491,8 +494,10 @@ var esi=0;
 var edi=0;
 
 var IF=1;
-
 var ZF=0;
+var SF=0;
+var CF=0;
+var OF=0;
 
 // var eflags=0x200;
 
