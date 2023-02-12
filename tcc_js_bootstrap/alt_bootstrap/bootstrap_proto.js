@@ -227,10 +227,15 @@ for(var i=0;i<256;i++){
 var step=function(){
    ins[vr8(vmem,eip)]();
 };
+var cycles=0;
 var go = function(){
   try{
     while(1){
+      cycles++;
+      print();
+      info_registers();
       step();
+      print("cycles: "+cycles);
     }
   } catch(e){
     print(e);
@@ -577,7 +582,7 @@ var syscall_read = function(){
       eax=0;
       return;
     }
-    vw8(vmem,buf,fdo[1][i]);
+    vw8(vmem,buf,fdo[1][fdo[0]]);
     fdo[0]++;
     buf++;
   };
