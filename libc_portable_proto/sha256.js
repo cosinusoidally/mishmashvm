@@ -7,7 +7,6 @@
  * @license MIT
  */
 /*jslint bitwise: true */
-print("got here");
 AMD=true;
 var root;
 sha256=(function () {

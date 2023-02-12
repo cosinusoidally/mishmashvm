@@ -1,0 +1,136 @@
+This is the beginnings of an alternative bootstrap method that avoids the need
+for the Emscripten compiled version of tcc. This alt method does not yet work.
+
+The eventual plan for this alt method is to build the whole system purely from
+source starting with the hex encoded stage0 bootstrap seeds (which generate an
+initial ~1KB worth of binaries that are capable of starting the source based
+boostrap process).
+
+Rough plan (all the below must be made to run on Linux and win32):
+
+stage0-posix gets us from 2 hex seeds all the way up to a primitive c compiler
+
+either:
+- use gnu mes method from live-bootstrap to take us from M2-Planet to
+  tcc-0.9.26
+- cut down tcc-0.9.26 to the point where it can build with M2-Planet. This
+  will be a big job. The benefit of doing this is to speed up the bootstrap
+  process
+
+tcc-0.9.26 from live-bootstrap
+
+tcc-0.9.27 plus live-bootstrap patches
+
+tcc-0.9.27 (mishmashvm (mmvm) version)
+
+https://github.com/fosslinux/live-bootstrap contains code that can be used to
+build tcc-0.9.26 and tcc-0.9.27 . live-bootstrap can go from the 1KB seeds all
+the way up to gcc and the linux kernel, all purely from source. I do not plan
+to go that far, I only plan to go as far as tcc-0.9.27.
+
+Note I will also need a libc. Not decided on this one yet. Some potential
+options are:
+
+- bring in musl from live-bootstrap
+- JS polyfill implementation
+
+Detailed plan:
+
+Initially run whole process under jsshell. Eventually I may get to the point
+where I can boostrap all the way up until duktape from the hex seeds, but
+that's probably a long way away.
+
+With the JS code I will avoid any JS code above what is supported by mujs. This
+is to give the ability to bootstrap on a simple JS vm (with one eye on the idea
+that eventually maybe a JS vm can be introduced at an earlier stage in the
+bootstrap process). This means no use of typed arrays. This should not be too
+bad of a constraint as the earlier bootstrap phases are integer only (so I
+should be able to just optimise the x86 emulator for 32 bit ints without having
+to worry about tricky cases where doubles and ints are mixed together).
+
+To start the bootstrap we need 2 things (binary seeds). These seeds are provided
+in hex encoded form:
+
+stage0-posix/x86/hex0_x86.hex0 (a hex encoded i386 ELF file that is able to
+convert hex encoded files into binary data files)
+
+stage0-posix/x86/kaem-minimal.hex0 this is a primitive command shell similar to
+a very cut down version of bash. This is used to script the rest of the build
+process.
+
+To turn the hex seeds into binary seeds we need the binary version of the
+hex0_x86.hex0 seed. There is a loop here, we essentially need the binary versino
+of hex0_x86.hex0 to turn the hex version into a binary. To break this loop we
+will need some JS code that can do this for us.
+
+
+TASKS:
+- Write some JS code that can convert from hex0 to binary (DONE)
+- turn stage0-posix/x86/hex0_x86.hex0 into a binary (DONE)
+- turn stage0-posix/x86/kaem-minimal.hex0 into a binary (DONE)
+- check the sha256 sums of the generated files match the real sha256sums of
+  hex0 and kaem-0 (DONE)
+
+Next we need to run the generatd hex0 and get it to regenerate itself. To do
+this we must:
+
+TASKS:
+- write a minimal elf loader capable of loading the file into a JS array and
+  locating the entrypoint
+- write an x86 emulator in JS that is capable of executing hex0
+- write enough of a Linux syscall emulation layer to be able to serve the int
+  0x80 calls from hex0
+- verify that the output has the same hash
+
+Once we have hex0 running the next step is to get kaem running:
+
+TASKS:
+- implement any missing x86 instructions to allow kaem to run
+- expand the Linux syscall emulation layer to support extra syscalls
+- fork/exec support will mean being able to create multiple instances of the x86
+  emulator
+- filesystem implementation (RAM based)
+- create sha256sums of the artifaccts in x86/artifact and x86/bin so we can
+  compare the output of an emulate build vs a native build. hashes should be
+  identical.
+- In virtual filesystem place hex0 and kaem binaries in
+  bootstrap-seeds/POSIX/x86/ as hex0-seed and kaem-optional-seed respectively
+- run bootstrap-seeds/POSIX/x86/kaem-optional-seed
+- flesh out x86 and Linux syscall emulation layer until all x86/bin binaries
+  have been built
+- verify the sha256sums match the native build (this should happen automatically
+  if the emulated build gets to the very end)
+- optional ability to pause to process and save state to disk. I imaging the
+  initial emulator will be slow so it will be useful to be able to do
+  incremental builds
+- optional ability to save the build artifacts/binaries as real files. Slightly
+  different to the last task as the last task is more about doing a memony/disk
+  dump of the whole virtual system.
+
+At this point we will have a simple C compiler that is capable of building Linux
+execuatbles. From this point on there are a couple of big tasks:
+
+TASKS:
+- bridge the gap between the M2 tools and tcc-0.9.26 (lets call it phase 2)
+- get tcc-0.9.26 running under mishmashvm both native and emulated  (lets call
+  this phase 3)
+
+Phase 2 plan:
+
+tbc will probably need some experimenting. Couple of ideas:
+
+run tcc .26 through the preprocessor and then manually simplify the result to
+the m2 tools dialect. Make sure this version produces bit identical output with
+the non preprocessed version (see shortcut mentioned in phase 3, should get
+same but same bit identical output as that). When simplifying document all the
+internal data structures and the tcc codebase itself.
+
+Phase 3 plan:
+
+Shortcut for testing this phase before others are ready. Use live-bootstrap and
+mes to build the initial copy of .26, take this version and 3 stage bootstrap
+under itself under mmvm. Repeat 3 stage bootstrap via mmvm itself and see if the
+hashes match.
+
+Bootstrap from tcc-0.2.26 to the mmvm version of tcc-0.9.27 (get to the same
+output as tcc_em.js then kick off the rest of the standard bootstrap)
