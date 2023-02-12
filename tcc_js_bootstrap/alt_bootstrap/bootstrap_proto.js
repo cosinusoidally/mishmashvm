@@ -550,11 +550,40 @@ ins[0x3c]=function(){
 ins[0x2c]=function(){
   var r=sign_extend8(vr8(vmem,eip+1));
   var al=sign_extend8(eax&0xFF);
-  print("cmp    $0x"+r.toString(16)+",%al");
+  print("sub    $0x"+r.toString(16)+",%al");
   var res=(al-r)|0;
   sub_setflags(res);
   eax=res&0xFF;
   eip=eip+2;
+};
+
+var unimp6=function(){
+ throw "Unimplemented: "+vr8(vmem,eip).toString(16)+vr8(vmem,eip+1).toString(16);
+};
+var ins6=[];
+for(var i=0;i<256;i++){
+  ins6[i]=unimp6;
+};
+
+ins[0xc1]=function(){
+  ins6[vr8(vmem,eip+1)]();
+};
+
+ins6[0xe7]=function(){
+  var c=vr8(vmem,eip+2);
+  print("shl    $0x"+c.toString(16)+",%edi");
+  var r=edi;
+  var tc= c & 0x1F;
+  while(tc!==0){
+    CF=r>>>31;
+    r=r<<1;
+    tc=tc-1;
+  };
+  if((c & 0x1F) ===1){
+    OF = (r>>>31) ^CF;
+  }
+  edi=r;
+  eip=eip+3;
 };
 
 // initialize registers:
