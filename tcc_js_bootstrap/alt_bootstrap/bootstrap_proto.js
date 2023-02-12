@@ -322,6 +322,12 @@ ins2[0xdb]=function(){
   eip=eip+2;
 };
 
+ins2[0xed]=function(){
+  print("xor    %ebp,%ebp");
+  ebp=0;
+  eip=eip+2;
+};
+
 var sign_extend8 = function(x){
   if(x&0x80){
     x=x|0xFFFFFF00;
@@ -392,6 +398,12 @@ ins3[0xe1]=function(){
 ins3[0xf3]=function(){
   print("mov    %esi,%ebx");
   ebx=esi;
+  eip=eip+2;
+};
+
+ins3[0xc7]=function(){
+  print("mov    %eax,%edi");
+  edi=eax;
   eip=eip+2;
 };
 
@@ -494,6 +506,12 @@ ins[0x7d]=function(){
   } else {
     eip=eip+2;
   };
+};
+
+ins[0xeb]=function(){
+  var o=eip+sign_extend8(vr8(vmem,eip+1))+2;
+  print("jmp    "+to_hex(o));
+  eip=o;
 };
 
 ins[0xc3]=function(){
