@@ -309,7 +309,7 @@ ins2[0xff]=function(){
 };
 
 var sign_extend8 = function(x){
-  if(x&8){
+  if(x&0x80){
     x=x|0xFFFFFF00;
   };
   return x;
