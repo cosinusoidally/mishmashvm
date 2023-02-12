@@ -433,9 +433,7 @@ ins[0x85]=function(){
   ins5[vr8(vmem,eip+1)]();
 };
 
-ins5[0xc0]=function(){
-  print("test   %eax,%eax");
-  var t=eax&eax;
+var test_common = function(t){
   SF=(t>>>7) &1;
   if(t==0){
     ZF=1;
@@ -444,6 +442,17 @@ ins5[0xc0]=function(){
   };
   CF=0;
   OF=0;
+};
+
+ins5[0xc0]=function(){
+  print("test   %eax,%eax");
+  test_common(eax&eax);
+  eip=eip+2;
+};
+
+ins5[0xed]=function(){
+  print("test   %ebp,%ebp");
+  test_common(ebp&ebp);
   eip=eip+2;
 };
 
@@ -471,6 +480,16 @@ ins[0x7c]=function(){
   var o=eip+sign_extend8(vr8(vmem,eip+1))+2;
   print("jl     "+to_hex(o));
   if(SF!==OF){
+    eip=o;
+  } else {
+    eip=eip+2;
+  };
+};
+
+ins[0x7d]=function(){
+  var o=eip+sign_extend8(vr8(vmem,eip+1))+2;
+  print("jge    "+to_hex(o));
+  if(SF==OF){
     eip=o;
   } else {
     eip=eip+2;
@@ -507,6 +526,16 @@ ins[0x3c]=function(){
   print("cmp    $0x"+r.toString(16)+",%al");
   var res=(al-r)|0;
   sub_setflags(res);
+  eip=eip+2;
+};
+
+ins[0x2c]=function(){
+  var r=sign_extend8(vr8(vmem,eip+1));
+  var al=sign_extend8(eax&0xFF);
+  print("cmp    $0x"+r.toString(16)+",%al");
+  var res=(al-r)|0;
+  sub_setflags(res);
+  eax=res&0xFF;
   eip=eip+2;
 };
 
