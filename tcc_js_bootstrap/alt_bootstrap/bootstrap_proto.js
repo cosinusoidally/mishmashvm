@@ -308,6 +308,12 @@ ins2[0xff]=function(){
   eip=eip+2;
 };
 
+ins2[0xdb]=function(){
+  print("xor    %ebx,%ebx");
+  ebx=0;
+  eip=eip+2;
+};
+
 var sign_extend8 = function(x){
   if(x&0x80){
     x=x|0xFFFFFF00;
@@ -330,6 +336,8 @@ ins[0xcd]=function(){
     syscall_open();
   } else if(eax===3){
     syscall_read();
+  } else if(eax===1){
+    syscall_exit();
   } else {
     throw "unsupported syscall: "+eax;
   };
@@ -576,6 +584,11 @@ var syscall_read = function(){
   print("offset: "+fdo[0]);
   eax=1;
 };
+
+var syscall_exit = function(){
+  exit_code=ebx;
+  print("syscall_exit: "+exit_code);
+}
 
 go();
 info_registers();
