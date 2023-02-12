@@ -438,6 +438,16 @@ ins[0x74]=function(){
   };
 };
 
+ins[0x75]=function(){
+  var o=eip+sign_extend8(vr8(vmem,eip+1))+2;
+  print("jne     "+to_hex(o));
+  if(!ZF){
+    eip=o;
+  } else {
+    eip=eip+2;
+  };
+};
+
 ins[0xc3]=function(){
   print("ret");
   eip=vr32(vmem,esp);
@@ -555,7 +565,7 @@ var syscall_read = function(){
   var fdo=fds[fd];
 
   for(var i=0;i<count;i++){
-    if(i>=fdo[1].length){
+    if(fdo[0]>=fdo[1].length){
       eax=0;
       return;
     }
@@ -563,6 +573,7 @@ var syscall_read = function(){
     fdo[0]++;
     buf++;
   };
+  print("offset: "+fdo[0]);
   eax=1;
 };
 
