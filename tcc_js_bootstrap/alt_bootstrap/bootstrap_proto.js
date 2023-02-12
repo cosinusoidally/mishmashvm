@@ -214,6 +214,9 @@ run
 throw error
 implement instruction
 rinse repeat until the whole program runs
+
+Good refererence for x86 instructions are:
+https://c9x.me/x86/
 */
 
 var ins=[];
@@ -458,6 +461,16 @@ ins[0x75]=function(){
   var o=eip+sign_extend8(vr8(vmem,eip+1))+2;
   print("jne     "+to_hex(o));
   if(!ZF){
+    eip=o;
+  } else {
+    eip=eip+2;
+  };
+};
+
+ins[0x7c]=function(){
+  var o=eip+sign_extend8(vr8(vmem,eip+1))+2;
+  print("jl     "+to_hex(o));
+  if(SF!==OF){
     eip=o;
   } else {
     eip=eip+2;
