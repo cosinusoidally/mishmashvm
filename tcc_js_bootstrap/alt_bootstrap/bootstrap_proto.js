@@ -483,16 +483,30 @@ ins[0xc3]=function(){
   esp=esp+4;
 };
 
-ins[0x3c]=function(){
-  var r=vr8(vmem,eip+1);
-  var al=eax&0xFF;
-  print("cmp    $0x"+r.toString(16)+",%al");
-  var res=al-r;
+var sub_setflags = function(res){
   if(res===0){
     ZF=1;
   } else {
     ZF=0;
   };
+  if(res<0){
+    SF=1;
+  } else {
+    SF=0;
+  };
+  if(res>127 || res<-128){
+    OF=1;
+  } else {
+    OF=0;
+  };
+}
+
+ins[0x3c]=function(){
+  var r=sign_extend8(vr8(vmem,eip+1));
+  var al=sign_extend8(eax&0xFF);
+  print("cmp    $0x"+r.toString(16)+",%al");
+  var res=(al-r)|0;
+  sub_setflags(res);
   eip=eip+2;
 };
 
