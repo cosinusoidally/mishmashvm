@@ -520,7 +520,7 @@ ins[0xc3]=function(){
   esp=esp+4;
 };
 
-var sub_setflags = function(res){
+var arith8_setflags = function(res){
   if(res===0){
     ZF=1;
   } else {
@@ -543,7 +543,7 @@ ins[0x3c]=function(){
   var al=sign_extend8(eax&0xFF);
   print("cmp    $0x"+r.toString(16)+",%al");
   var res=(al-r)|0;
-  sub_setflags(res);
+  arith8_setflags(res);
   eip=eip+2;
 };
 
@@ -552,7 +552,7 @@ ins[0x2c]=function(){
   var al=sign_extend8(eax&0xFF);
   print("sub    $0x"+r.toString(16)+",%al");
   var res=(al-r)|0;
-  sub_setflags(res);
+  arith8_setflags(res);
   eax=res&0xFF;
   eip=eip+2;
 };
