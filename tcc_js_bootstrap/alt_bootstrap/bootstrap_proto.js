@@ -428,16 +428,33 @@ ins5[0xc0]=function(){
   eip=eip+2;
 };
 
-var unimp6=function(){
- throw "Unimplemented: "+vr8(vmem,eip).toString(16)+vr8(vmem,eip+1).toString(16);
-};
-var ins6=[];
-for(var i=0;i<256;i++){
-  ins6[i]=unimp6;
+ins[0x74]=function(){
+  var o=eip+sign_extend8(vr8(vmem,eip+1))+2;
+  print("je     "+to_hex(o));
+  if(ZF){
+    eip=o;
+  } else {
+    eip=eip+2;
+  };
 };
 
-ins[0x74]=function(){
-  ins6[vr8(vmem,eip+1)]();
+ins[0xc3]=function(){
+  print("ret");
+  eip=vr32(vmem,esp);
+  esp=esp+4;
+};
+
+ins[0x3c]=function(){
+  var r=vr8(vmem,eip+1);
+  var al=eax&0xFF;
+  print("cmp    $0x"+r.toString(16)+",%al");
+  var res=al-r;
+  if(res===0){
+    ZF=1;
+  } else {
+    ZF=0;
+  };
+  eip=eip+2;
 };
 
 // initialize registers:
