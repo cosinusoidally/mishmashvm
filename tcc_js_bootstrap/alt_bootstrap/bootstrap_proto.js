@@ -407,6 +407,12 @@ ins3[0xc7]=function(){
   eip=eip+2;
 };
 
+ins3[0xd3]=function(){
+  print("mov    %edx,%ebx");
+  ebx=edx;
+  eip=eip+2;
+};
+
 var unimp4=function(){
  throw "Unimplemented: "+vr8(vmem,eip).toString(16)+vr8(vmem,eip+1).toString(16);
 };
@@ -584,6 +590,51 @@ ins6[0xe7]=function(){
   }
   edi=r;
   eip=eip+3;
+};
+
+var unimp7=function(){
+ throw "Unimplemented: "+vr8(vmem,eip).toString(16)+vr8(vmem,eip+1).toString(16);
+};
+var ins7=[];
+for(var i=0;i<256;i++){
+  ins7[i]=unimp7;
+};
+
+ins[0x01]=function(){
+  ins7[vr8(vmem,eip+1)]();
+};
+
+var arith32_setflags = function(res){
+  if(res===0){
+    ZF=1;
+  } else {
+    ZF=0;
+  };
+  if(res<0){
+    SF=1;
+  } else {
+    SF=0;
+  };
+  if(res>2147483647 || res<-2147483648){
+    OF=1;
+  } else {
+    OF=0;
+  };
+};
+
+ins7[0xf8]=function(){
+  print("add    %edi,%eax");
+  eax=((eax)|0)+((edi|0));
+  arith32_setflags(eax);
+  // FIXME this might not be right
+  eax=eax|0;
+  eip=eip+2;
+};
+
+ins[0x4d]=function(){
+  print("dec    %ebp");
+  ebp=(ebp-1)|0;
+  eip=eip+1;
 };
 
 // initialize registers:
