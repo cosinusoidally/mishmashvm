@@ -357,6 +357,8 @@ ins[0xcd]=function(){
     syscall_open();
   } else if(eax===3){
     syscall_read();
+  } else if(eax===4){
+    syscall_write();
   } else if(eax===1){
     syscall_exit();
   } else {
@@ -761,5 +763,29 @@ var syscall_exit = function(){
   print("syscall_exit: "+exit_code);
 }
 
+var syscall_write = function(){
+  var fd=ebx;
+  var  buf=ecx;
+  var  count=edx;
+  print("syscall_write called fd:"+fd+" buf:"+buf+" count:"+count);
+  if(count>1){
+    throw "only support reads of 1 byte";
+  };
+  var fdo=fds[fd];
+  fdo[1][fdo[0]]=vr8(vmem,buf);
+  fdo[0]++;
+  print("offset: "+fdo[0]);
+  eax=1;
+};
+
 go();
 info_registers();
+print("hex0_emu length:" +outp.length);
+print(outp);
+print();
+print("hex0 length: "+hex0.length);
+print(hex0);
+
+outp_sha256=root.sha256(outp);
+print();
+print("hex0 sha256: "+outp_sha256+" "+(outp_sha256===hex0_sha256_expected));
