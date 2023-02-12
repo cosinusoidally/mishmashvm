@@ -272,6 +272,13 @@ ins[0xe8]=function(){
   eip=t;
 };
 
+ins[0x50]=function(){
+  print("push    %eax");
+  esp=esp-4;
+  vw32(vmem,esp,eax);
+  eip++;
+};
+
 ins[0x52]=function(){
   print("push    %edx");
   esp=esp-4;
