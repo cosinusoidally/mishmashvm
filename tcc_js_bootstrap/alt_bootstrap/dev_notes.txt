@@ -8,7 +8,7 @@ level of functionality as the original. It has the following properties:
 - optional logging (off by default, which may explain the x100 performance
   boost)
 - neater code using nested switch statements
-- has the ability to instatiate multiple emulated x86 "processes" each with
+- has the ability to instantiate multiple emulated x86 "processes" each with
   their own memory
 
 Improvements for next version:
