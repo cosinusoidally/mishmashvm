@@ -325,6 +325,30 @@ var new_process=function(){
         vw32(esp,eip+5);
         eip=t;
         break;
+      case 0x52:
+        if(dbg){
+          print("push    %edx");
+        };
+        esp=esp-4;
+        vw32(esp,edx);
+        eip++;
+        break;
+      case 0x5a:
+        if(dbg){
+          print("pop    %edx");
+        };
+        edx=vr32(esp);
+        esp=esp+4;
+        eip++;
+        break;
+      case 0x53:
+        if(dbg){
+          print("push    %ebx");
+        };
+        esp=esp-4;
+        vw32(esp,ebx);
+        eip++;
+        break;
       default:
         throw "unimplemented: " + b1.toString(16);
     };
