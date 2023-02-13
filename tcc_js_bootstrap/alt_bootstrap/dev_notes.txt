@@ -1,4 +1,24 @@
 --------------------------------------------------------------------------------
+2023-02-13
+
+bootstrap_proto2.js is an improved version of bootstrap_proto.js with the same
+level of functionality as the original. It has the following properties:
+
+- faster by x100
+- optional logging (off by default, which may explain the x100 performance
+  boost)
+- neater code using nested switch statements
+- has the ability to instatiate multiple emulated x86 "processes" each with
+  their own memory
+
+Improvements for next version:
+
+- proper filesystem implementation, enough to actually open the correct files
+  for reading an writing. Filesystem should be in memory.
+- emulate a shared "kernel" that provides OS services to all virtual processes
+- proper argc/argv creation on process start.
+
+--------------------------------------------------------------------------------
 2023-02-12
 
 bootstrap_proto.js contains a very rough x86 emulator that is capable of loading
