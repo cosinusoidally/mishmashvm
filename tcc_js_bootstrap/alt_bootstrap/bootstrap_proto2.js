@@ -96,12 +96,59 @@ var new_process=function(){
   var add_mem=function(m){
     vmem.push(m);
   };
+
+  var vr8=function(o){
+    var p;
+    for(var i=0;i<vmem.length;i++){
+      p=vmem[i];
+      if(o>=p[0]){
+        return r8(p[1],o-p[0]);
+      };
+    };
+    throw "pagefault";
+  };
+
+  var vw8=function(o,b){
+    var p;
+    for(var i=0;i<vmem.length;i++){
+      p=vmem[i];
+      if(o>=p[0]){
+        return w8(p[1],o-p[0],b);
+      };
+    };
+    throw "pagefault oob write";
+  };
+
+  var vr32=function(o){
+    var d=[vr8(o),vr8(o+1),vr8(o+2),vr8(o+3)];
+//    print(d.map(function(x){return x.toString(16)}));
+    return (d[0]+(d[1]<<8)+(d[2]<<16)+(d[3]<<24));
+  };
+
+  var vr16=function(o){
+    var d=[vr8(o),vr8(o+1)];
+    return (d[0]+(d[1]<<8));
+  };
+
+  var vw32=function(o,v){
+    vw8(o,v&0xff);
+    vw8(o+1,(v>>>8)&0xff);
+    vw8(o+2,(v>>16)&0xff);
+    vw8(o+3,(v>>>24)&0xff);
+  };
+
   return {
     add_mem: add_mem,
     set_eip: function(x){eip=x},
     get_eip: function(){return eip},
     set_esp: function(x){esp=x},
-    get_esp: function(){return esp}
+    get_esp: function(){return esp},
+    vr8: vr8,
+    vw8: vw8,
+    vr16: vr16,
+    vr32: vr32,
+    vw32: vw32,
+
   };
 }
 
@@ -111,6 +158,20 @@ hex0_img=parse_elf(hex0);
 
 hp.add_mem([hex0_img.p_paddr,hex0_img.mem]);
 hp.set_eip(hex0_img.entry);
+hp.set_esp(0xffffd5d0); // bodge lifted from gdb
+
+// initialize stack (TODO generate the initial program stack correctly by
+// generating it based on command parameters)
+
+var stack_in=[
+0x03, 0x00, 0x00, 0x00, 0x3b, 0xd7, 0xff, 0xff,
+0x7e, 0xd7, 0xff, 0xff, 0x92, 0xd7, 0xff, 0xff
+];
+
+for(var i=0;i<stack_in.length;i++){
+  hp.vw8(hp.get_esp()+i,stack_in[i]);
+};
+
 
 
 // belt and braces, check memory:
@@ -119,6 +180,3 @@ for(var i=0;i<hex0.length;i++){
   hex0_check[i]=r8(hex0_img.mem,i);
 };
 print("check if memory matches hex0: "+ (root.sha256(hex0)=== root.sha256(hex0_check)));
-
-
-
