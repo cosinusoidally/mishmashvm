@@ -27,6 +27,9 @@ kaem_sha256=root.sha256(kaem);
 kaem_sha256_expected="4fd5d6d7f1ac4708c06df2bf7e0b7f6dc45a493ac100e14fc52172929b807f5e";
 print("kaem sha256: "+kaem_sha256+" "+(kaem_sha256===kaem_sha256_expected));
 
+// dummy for now:
+var kernel={};
+
 var parse_elf=function(e){
   var mm=[];
   var zero_mem = function(m,n){
@@ -618,6 +621,10 @@ var new_process=function(){
     [0,outp]
   ];
 
+  kernel.fs={
+    "foo":outp
+  };
+
   var syscall_read = function(){
     var fd=ebx;
     var  buf=ecx;
@@ -746,7 +753,6 @@ var info_registers = function(p){
 };
 
 hp.set_dbg(true);
-
 
 try{
   var r;
