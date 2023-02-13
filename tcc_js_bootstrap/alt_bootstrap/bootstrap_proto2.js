@@ -147,6 +147,8 @@ var new_process=function(){
     vw8(o+3,(v>>>24)&0xff);
   };
 
+  // run a single i386 instruction:
+
   var step=function(){
     var b1=vr8(eip);
     switch(b1){
@@ -232,7 +234,9 @@ var info_registers = function(p){
 hp.set_dbg(true);
 
 try{
-  hp.step();
+  while(1){
+    hp.step();
+  };
 } catch (e) {
   print(e);
 };
