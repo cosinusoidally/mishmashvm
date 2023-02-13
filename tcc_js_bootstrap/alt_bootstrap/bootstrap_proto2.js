@@ -96,13 +96,14 @@ var new_process=function(){
   var add_mem=function(m){
     vmem.push(m);
   };
-
+  var _r8=r8;
+  var _w8=w8;
   var vr8=function(o){
     var p;
     for(var i=0;i<vmem.length;i++){
       p=vmem[i];
       if(o>=p[0]){
-        return r8(p[1],o-p[0]);
+        return _r8(p[1],o-p[0]);
       };
     };
     throw "pagefault";
@@ -113,7 +114,7 @@ var new_process=function(){
     for(var i=0;i<vmem.length;i++){
       p=vmem[i];
       if(o>=p[0]){
-        return w8(p[1],o-p[0],b);
+        return _w8(p[1],o-p[0],b);
       };
     };
     throw "pagefault oob write";
