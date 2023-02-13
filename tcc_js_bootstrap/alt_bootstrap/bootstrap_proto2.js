@@ -752,7 +752,7 @@ var info_registers = function(p){
   print("eflags        FIXME");
 };
 
-hp.set_dbg(true);
+hp.set_dbg(false);
 
 try{
   var r;
@@ -769,3 +769,11 @@ try{
   print(e);
 };
 info_registers(hp);
+
+print();
+print("done");
+hex0_emu=kernel.fs["foo"]
+print("hex0_emu length:" +hex0_emu.length);
+outp_sha256=root.sha256(hex0_emu);
+print();
+print("hex0 sha256: "+outp_sha256+" "+(outp_sha256===hex0_sha256_expected));
