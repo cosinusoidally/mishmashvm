@@ -92,6 +92,8 @@ var new_process=function(){
   var esi=0;
   var edi=0;
 
+  var int_no=0;
+
   var dbg=false;
 
   var stack=[];
@@ -205,10 +207,46 @@ var new_process=function(){
         vw32(esp,v);
         eip=eip+2;
         break;
+      case 0xcd:
+        int_no=vr8(eip+1);
+        if(dbg){
+          print("int   $0x"+int_no.toString(16));
+        };
+        eip=eip+2;
+        return 1;
+        break;
       default:
         throw "unimplemented: " + b1.toString(16);
     };
+    return 0;
   };
+
+  var syscall=function(){
+    if(eax===5){
+      syscall_open();
+    } else if(eax===3){
+      syscall_read();
+    } else if(eax===4){
+      syscall_write();
+    } else if(eax===1){
+      syscall_exit();
+    } else {
+      throw "unsupported syscall: "+eax;
+    };
+  };
+
+  // this is the current highest file descriptor
+  var fd=2;
+
+  var syscall_open = function(){
+    if(dbg){
+      print("syscall_open called");
+    };
+    fd++;
+    eax=fd;
+  };
+
+  var running=true;
 
   return {
     add_mem: add_mem,
@@ -224,6 +262,8 @@ var new_process=function(){
     get_esi: function(){return esi},
     get_edi: function(){return edi},
 
+    get_int_no: function(){return int_no},
+
     vr8: vr8,
     vw8: vw8,
     vr16: vr16,
@@ -231,6 +271,8 @@ var new_process=function(){
     vw32: vw32,
     step: step,
     set_dbg: function(x){dbg=x},
+    syscall: syscall,
+    is_running: function(){return running;},
   };
 }
 
@@ -278,10 +320,18 @@ var info_registers = function(p){
 
 hp.set_dbg(true);
 
+
 try{
-  while(1){
-    hp.step();
-  };
+  var r;
+  while(hp.is_running()){
+    while((r=hp.step())===0){
+    };
+    if(hp.get_int_no()===0x80){
+      hp.syscall();
+    } else {
+      throw "unsupported interrupt";
+    };
+  }
 } catch (e) {
   print(e);
 };
