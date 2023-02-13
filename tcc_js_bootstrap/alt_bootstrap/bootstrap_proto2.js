@@ -83,8 +83,17 @@ var to_hex=function(x){
 };
 
 var new_process=function(){
-  var eip=0;
+  var eax=0;
+  var ecx=0;
+  var edx=0;
+  var ebx=0;
   var esp=0;
+  var ebp=0;
+  var esi=0;
+  var edi=0;
+
+  var dbg=false;
+
   var stack=[];
   var stack_size=1024*1024; // just give us a meg
   zero_mem(stack,stack_size/4);
@@ -141,6 +150,14 @@ var new_process=function(){
   var step=function(){
     var b1=vr8(eip);
     switch(b1){
+      case 0x58:
+        if(dbg){
+          print("pop    %eax");
+        };
+        eax=vr32(esp);
+        esp=esp+4;
+        eip++;
+        break;
       default:
         throw "unimplemented: " + b1.toString(16);
     };
@@ -149,15 +166,24 @@ var new_process=function(){
   return {
     add_mem: add_mem,
     set_eip: function(x){eip=x},
-    get_eip: function(){return eip},
     set_esp: function(x){esp=x},
+    get_eip: function(){return eip},
     get_esp: function(){return esp},
+    get_eax: function(){return eax},
+    get_ecx: function(){return ecx},
+    get_edx: function(){return edx},
+    get_ebx: function(){return ebx},
+    get_ebp: function(){return ebp},
+    get_esi: function(){return esi},
+    get_edi: function(){return edi},
+
     vr8: vr8,
     vw8: vw8,
     vr16: vr16,
     vr32: vr32,
     vw32: vw32,
     step: step,
+    set_dbg: function(x){dbg=x},
   };
 }
 
@@ -190,8 +216,24 @@ for(var i=0;i<hex0.length;i++){
 };
 print("check if memory matches hex0: "+ (root.sha256(hex0)=== root.sha256(hex0_check)));
 
+var info_registers = function(p){
+  print("eax            "+(to_hex(p.get_eax())));
+  print("ecx            "+(to_hex(p.get_ecx())));
+  print("edx            "+(to_hex(p.get_edx())));
+  print("ebx            "+(to_hex(p.get_ebx())));
+  print("esp            "+(to_hex(p.get_esp())));
+  print("ebp            "+(to_hex(p.get_ebp())));
+  print("esi            "+(to_hex(p.get_esi())));
+  print("edi            "+(to_hex(p.get_edi())));
+  print("eip            "+(to_hex(p.get_eip())));
+  print("eflags        FIXME");
+};
+
+hp.set_dbg(true);
+
 try{
   hp.step();
 } catch (e) {
   print(e);
 };
+info_registers(hp);
