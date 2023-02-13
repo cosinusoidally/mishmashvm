@@ -76,15 +76,19 @@ this we must:
 
 TASKS:
 - write a minimal elf loader capable of loading the file into a JS array and
-  locating the entrypoint
-- write an x86 emulator in JS that is capable of executing hex0
+  locating the entrypoint (hacky incomplete loader done)
+- write an x86 emulator in JS that is capable of executing hex0 (DONE)
 - write enough of a Linux syscall emulation layer to be able to serve the int
-  0x80 calls from hex0
-- verify that the output has the same hash
+  0x80 calls from hex0 (DONE)
+- verify that the output has the same hash (DONE)
+- improve performance of x86 emulation
+- rewrite the x86 emulation to improve the code quality
 
 Once we have hex0 running the next step is to get kaem running:
 
 TASKS:
+- improve the elf loader (the old version is a complete bodge that can't really
+  even be called an elf loader)
 - implement any missing x86 instructions to allow kaem to run
 - expand the Linux syscall emulation layer to support extra syscalls
 - fork/exec support will mean being able to create multiple instances of the x86

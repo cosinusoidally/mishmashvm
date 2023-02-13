@@ -1,0 +1,31 @@
+--------------------------------------------------------------------------------
+2023-02-12
+
+bootstrap_proto.js contains a very rough x86 emulator that is capable of loading
+and running hex0 (is it also capable of converting hex0 to a binary). This
+version can run hex0 to completion and verify the correct hash is generated.
+Current issues:
+
+- it's far too slow. It took about 30s to run on my slow machine
+- it spits out too much log info whilst it runs. This is possibly one of the
+  reasons for the slowness as after each instruction it dumps the decoded
+  instruction and the cpu state to standard out.
+- some instruction are not 100% correctly implemented
+- code is a mess.
+
+Improvements for next version:
+
+- use nested switch statements decode the instructions. This should be cleaner
+  than using arrays of functions.
+  One thing to note though is that simpler js VMs internally convert switches to
+  if else chains, which may be less efficient
+- optional debug logging
+- fix instruction implementations
+- create a way to have multiple heaps
+- a real elf loader (or at least an incremental improvement)
+- properly setting up the stack on process load (argc argv)
+- better syscall emulation.
+
+The target for the next version is to be able to run kaem and spawn child
+processes (which will be virtualised inside the same js process). Should then be
+able to kick off the kaem.x86 script at the root of stage0-posix.
