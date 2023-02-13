@@ -215,6 +215,86 @@ var new_process=function(){
         eip=eip+2;
         return 1;
         break;
+      case 0x89:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xc6:
+            if(dbg){
+              print("mov    %eax,%esi");
+            };
+            esi=eax;
+            eip=eip+2;
+            break;
+          case 0xc2:
+            if(dbg){
+              print("mov    %eax,%edx");
+            };
+            edx=eax;
+            eip=eip+2;
+            break;
+          case 0xe1:
+            if(dbg){
+              print("mov    %esp,%ecx");
+            };
+            ecx=esp;
+            eip=eip+2;
+            break;
+          case 0xf3:
+            if(dbg){
+              print("mov    %esi,%ebx");
+            };
+            ebx=esi;
+            eip=eip+2;
+            break;
+          case 0xc7:
+            if(dbg){
+              print("mov    %eax,%edi");
+            };
+            edi=eax;
+            eip=eip+2;
+            break;
+          case 0xd3:
+            if(dbg){
+              print("mov    %edx,%ebx");
+            };
+            ebx=edx;
+            eip=eip+2;
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
+      case 0x66:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xb9:
+            var v=vr16(eip+2);
+            if(dbg){
+              print("mov    $0x"+(v.toString(16))+",%cx");
+            };
+            ecx=v;
+            eip=eip+4;
+            break;
+          case 0xba:
+            var v=vr16(eip+2);
+            if(dbg){
+              print("mov    $0x"+(v.toString(16))+",%dx");
+            };
+            edx=v;
+            eip=eip+4;
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
+      case 0x5d:
+        if(dbg){
+          print("pop    %ebp");
+        };
+        ebp=vr32(esp);
+        esp=esp+4;
+        eip++;
+        break;
       default:
         throw "unimplemented: " + b1.toString(16);
     };
