@@ -28,10 +28,23 @@ kaem_sha256_expected="4fd5d6d7f1ac4708c06df2bf7e0b7f6dc45a493ac100e14fc52172929b
 print("kaem sha256: "+kaem_sha256+" "+(kaem_sha256===kaem_sha256_expected));
 
 var parse_elf=function(e){
-   return {
+  var mm=[];
+  var zero_mem = function(m,n){
+    for(var i=0;i<n;i++){
+      m[i]=0;
+    };
+  };
+  zero_mem(mm,256*1024); // populate initial memory
+
+  for(var i=0;i<e.length;i++){
+    w8(mm,i,e[i]);
+  };
+
+  return {
     entry:   0x08048054,
     p_paddr: 0x08048000,
-   };
+    mem: mm
+  };
 };
 
 var zero_mem = function(m,n){
@@ -39,6 +52,27 @@ var zero_mem = function(m,n){
     m[i]=0;
   };
 };
+
+var w8 = function(a,o,v){
+  var s=o&3;
+  o=(o>>>2);
+  var c=a[o];
+  var b=[c & 0xff,(c>>>8) & 0xff,(c>>>16)&0xff,(c>>>24) &0xff];
+  b[s]=v &0xff;
+  a[o]=(b[0]+(b[1]<<8)+(b[2]<<16)+(b[3]<<24))|0;
+};
+
+var r8 = function(a,o){
+  var s=o&3;
+  o=(o>>>2);
+  if(o<a.length){
+    return (a[o] >>> (8*s))& 0xFF;
+  } else {
+    throw "pagefault oob";
+  }
+};
+
+
 
 var to_hex=function(x){
  return "0x"+
@@ -77,3 +111,14 @@ hex0_img=parse_elf(hex0);
 
 hp.add_mem([hex0_img.p_paddr,hex0_img.mem]);
 hp.set_eip(hex0_img.entry);
+
+
+// belt and braces, check memory:
+hex0_check=[];
+for(var i=0;i<hex0.length;i++){
+  hex0_check[i]=r8(hex0_img.mem,i);
+};
+print("check if memory matches hex0: "+ (root.sha256(hex0)=== root.sha256(hex0_check)));
+
+
+
