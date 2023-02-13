@@ -21,7 +21,8 @@ Improvements for next version:
   if else chains, which may be less efficient
 - optional debug logging
 - fix instruction implementations
-- create a way to have multiple heaps
+- create a way to have multiple cpu memories (emulating the address spaces of
+  multiple Linux processes)
 - a real elf loader (or at least an incremental improvement)
 - properly setting up the stack on process load (argc argv)
 - better syscall emulation.
