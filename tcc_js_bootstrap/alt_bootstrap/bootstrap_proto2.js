@@ -194,6 +194,27 @@ var new_process=function(){
             edx=0;
             eip=eip+2;
             break;
+          case 0xff:
+            if(dbg){
+              print("xor    %edi,%edi");
+            };
+            edi=0;
+            eip=eip+2;
+            break;
+          case 0xdb:
+            if(dbg){
+              print("xor    %ebx,%ebx");
+            };
+            ebx=0;
+            eip=eip+2;
+            break;
+          case 0xed:
+            if(dbg){
+              print("xor    %ebp,%ebp");
+            };
+            ebp=0;
+            eip=eip+2;
+            break;
           default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
@@ -294,6 +315,15 @@ var new_process=function(){
         ebp=vr32(esp);
         esp=esp+4;
         eip++;
+        break;
+      case 0xe8:
+        var t=eip+vr32(eip+1)+5;
+        if(dbg){
+          print("call   "+to_hex(t));
+        };
+        esp=esp-4;
+        vw32(esp,eip+5);
+        eip=t;
         break;
       default:
         throw "unimplemented: " + b1.toString(16);
