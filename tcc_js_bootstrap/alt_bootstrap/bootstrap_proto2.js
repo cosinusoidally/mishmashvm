@@ -147,6 +147,13 @@ var new_process=function(){
     vw8(o+3,(v>>>24)&0xff);
   };
 
+  var sign_extend8 = function(x){
+    if(x&0x80){
+      x=x|0xFFFFFF00;
+    };
+    return x;
+  };
+
   // run a single i386 instruction:
 
   var step=function(){
@@ -159,6 +166,44 @@ var new_process=function(){
         eax=vr32(esp);
         esp=esp+4;
         eip++;
+        break;
+      case 0x5b:
+        if(dbg){
+          print("pop    %ebx");
+        };
+        ebx=vr32(esp);
+        esp=esp+4;
+        eip++;
+        break;
+      case 0x31:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xc9:
+            if(dbg){
+              print("xor    %ecx,%ecx");
+            };
+            ecx=0;
+            eip=eip+2;
+            break;
+          case 0xd2:
+            if(dbg){
+              print("xor    %edx,%edx");
+            };
+            edx=0;
+            eip=eip+2;
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
+      case 0x6a:
+        var v=sign_extend8(vr8(eip+1));
+        if(dbg){
+          print("push   $0x"+v.toString(16));
+        };
+        esp=esp-4;
+        vw32(esp,v);
+        eip=eip+2;
         break;
       default:
         throw "unimplemented: " + b1.toString(16);
