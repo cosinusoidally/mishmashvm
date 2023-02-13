@@ -138,6 +138,14 @@ var new_process=function(){
     vw8(o+3,(v>>>24)&0xff);
   };
 
+  var step=function(){
+    var b1=vr8(eip);
+    switch(b1){
+      default:
+        throw "unimplemented: " + b1.toString(16);
+    };
+  };
+
   return {
     add_mem: add_mem,
     set_eip: function(x){eip=x},
@@ -149,7 +157,7 @@ var new_process=function(){
     vr16: vr16,
     vr32: vr32,
     vw32: vw32,
-
+    step: step,
   };
 }
 
@@ -181,3 +189,9 @@ for(var i=0;i<hex0.length;i++){
   hex0_check[i]=r8(hex0_img.mem,i);
 };
 print("check if memory matches hex0: "+ (root.sha256(hex0)=== root.sha256(hex0_check)));
+
+try{
+  hp.step();
+} catch (e) {
+  print(e);
+};
