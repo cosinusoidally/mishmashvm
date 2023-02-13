@@ -441,6 +441,89 @@ var new_process=function(){
         eax=res&0xFF;
         eip=eip+2;
         break;
+      case 0x7d:
+        var o=eip+sign_extend8(vr8(eip+1))+2;
+        if(dbg){
+          print("jge    "+to_hex(o));
+        };
+        if(SF==OF){
+          eip=o;
+        } else {
+          eip=eip+2;
+        };
+        break;
+      case 0xeb:
+        var o=eip+sign_extend8(vr8(eip+1))+2;
+        if(dbg){
+          print("jmp    "+to_hex(o));
+        };
+        eip=o;
+        break;
+      case 0xc1:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xe7:
+            var c=vr8(eip+2);
+            if(dbg){
+              print("shl    $0x"+c.toString(16)+",%edi");
+            };
+            var r=edi;
+            var tc = c & 0x1F;
+            while(tc!==0){
+              CF=r>>>31;
+              r=r<<1;
+              tc=tc-1;
+            };
+            if((c & 0x1F) ===1){
+              OF = (r>>>31) ^CF;
+            };
+            edi=r;
+            eip=eip+3;
+            break;
+          case 0xFFFF:
+            if(dbg){
+            };
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
+      case 0x01:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xF8:
+            if(dbg){
+              print("add    %edi,%eax");
+            };
+            eax=((eax)|0)+((edi|0));
+            arith32_setflags(eax);
+            // FIXME this might not be right
+            eax=eax|0;
+            eip=eip+2;
+            break;
+          case 0xFFFF:
+            if(dbg){
+            };
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
+      case 0x4d:
+        if(dbg){
+          print("dec    %ebp");
+        };
+        ebp=(ebp-1)|0;
+        eip=eip+1;
+        break;
+      case 0x50:
+        if(dbg){
+          print("push    %eax");
+        };
+        esp=esp-4;
+        vw32(esp,eax);
+        eip++;
+        break;
       case 0xFFFF:
         if(dbg){
         };
@@ -480,6 +563,23 @@ var new_process=function(){
     };
   };
 
+  var arith32_setflags = function(res){
+    if(res===0){
+      ZF=1;
+    } else {
+      ZF=0;
+    };
+    if(res<0){
+      SF=1;
+    } else {
+      SF=0;
+    };
+    if(res>2147483647 || res<-2147483648){
+      OF=1;
+    } else {
+      OF=0;
+    };
+  };
 
   var syscall=function(){
     if(eax===5){
