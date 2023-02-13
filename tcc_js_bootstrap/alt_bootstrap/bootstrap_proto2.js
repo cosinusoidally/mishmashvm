@@ -83,6 +83,7 @@ var to_hex=function(x){
 };
 
 var new_process=function(){
+  // registers
   var eax=0;
   var ecx=0;
   var edx=0;
@@ -91,6 +92,14 @@ var new_process=function(){
   var ebp=0;
   var esi=0;
   var edi=0;
+
+  // flags
+
+  var IF=1;
+  var ZF=0;
+  var SF=0;
+  var CF=0;
+  var OF=0;
 
   var int_no=0;
 
@@ -350,11 +359,127 @@ var new_process=function(){
         vw32(esp,ebx);
         eip++;
         break;
+      case 0x85:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xc0:
+            if(dbg){
+              print("test   %eax,%eax");
+            };
+            test_common(eax&eax);
+            eip=eip+2;
+            break;
+          case 0xed:
+            if(dbg){
+              print("test   %ebp,%ebp");
+            };
+            test_common(ebp&ebp);
+            eip=eip+2;
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
+      case 0x74:
+        var o=eip+sign_extend8(vr8(eip+1))+2;
+        if(dbg){
+          print("je     "+to_hex(o));
+        };
+        if(ZF){
+          eip=o;
+        } else {
+          eip=eip+2;
+        };
+        break;
+      case 0xc3:
+        if(dbg){
+          print("ret");
+        };
+        eip=vr32(esp);
+        esp=esp+4;
+        break;
+      case 0x3c:
+        var r=sign_extend8(vr8(eip+1));
+        if(dbg){
+          print("cmp    $0x"+r.toString(16)+",%al");
+        };
+        var al=sign_extend8(eax&0xFF);
+        var res=(al-r)|0;
+        arith8_setflags(res);
+        eip=eip+2;
+        break;
+      case 0x75:
+        var o=eip+sign_extend8(vr8(eip+1))+2;
+        if(dbg){
+          print("jne     "+to_hex(o));
+        };
+        if(!ZF){
+          eip=o;
+        } else {
+          eip=eip+2;
+        };
+        break;
+      case 0x7c:
+        var o=eip+sign_extend8(vr8(eip+1))+2;
+        if(dbg){
+          print("jl     "+to_hex(o));
+        };
+        if(SF!==OF){
+          eip=o;
+        } else {
+          eip=eip+2;
+        };
+        break;
+      case 0x2c:
+        var r=sign_extend8(vr8(eip+1));
+        var al=sign_extend8(eax&0xFF);
+        if(dbg){
+          print("sub    $0x"+r.toString(16)+",%al");
+        };
+        var res=(al-r)|0;
+        arith8_setflags(res);
+        eax=res&0xFF;
+        eip=eip+2;
+        break;
+      case 0xFFFF:
+        if(dbg){
+        };
+        break;
       default:
         throw "unimplemented: " + b1.toString(16);
     };
     return 0;
   };
+
+  var test_common = function(t){
+    SF=(t>>>7) &1;
+    if(t==0){
+      ZF=1;
+    } else {
+      ZF=0;
+    };
+    CF=0;
+    OF=0;
+  };
+
+  var arith8_setflags = function(res){
+    if(res===0){
+      ZF=1;
+    } else {
+      ZF=0;
+    };
+    if(res<0){
+      SF=1;
+    } else {
+      SF=0;
+    };
+    if(res>127 || res<-128){
+      OF=1;
+    } else {
+      OF=0;
+    };
+  };
+
 
   var syscall=function(){
     if(eax===5){
