@@ -95,6 +95,7 @@ var new_process=function(){
   var int_no=0;
 
   var dbg=false;
+  var exit_code=1;
 
   var stack=[];
   var stack_size=1024*1024; // just give us a meg
@@ -369,7 +370,7 @@ var new_process=function(){
     };
   };
 
-  // this is the current highest file descriptor
+  // FIXME HACK this is the current highest file descriptor
   var fd=2;
 
   var syscall_open = function(){
@@ -379,6 +380,73 @@ var new_process=function(){
     fd++;
     eax=fd;
   };
+
+
+  // FIXME proper filesystem
+  var outp=[];
+
+  var fds=[
+    null,
+    null,
+    null,
+    [0,read("stage0-posix/x86/hex0_x86.hex0","binary")],
+    [0,outp]
+  ];
+
+  var syscall_read = function(){
+    var fd=ebx;
+    var  buf=ecx;
+    var  count=edx;
+    if(dbg){
+      print("syscall_read called fd:"+fd+" buf:"+buf+" count:"+count);
+    };
+    if(count>1){
+      throw "only support reads of 1 byte";
+    };
+    var fdo=fds[fd];
+
+    for(var i=0;i<count;i++){
+      if(fdo[0]>=fdo[1].length){
+        eax=0;
+        return;
+      }
+      vw8(buf,fdo[1][fdo[0]]);
+      fdo[0]++;
+      buf++;
+    };
+    if(dbg){
+      print("offset: "+fdo[0]);
+    };
+    eax=1;
+  };
+
+  var syscall_exit = function(){
+    exit_code=ebx;
+    if(dbg){
+      print("syscall_exit: "+exit_code);
+    };
+    running=false;
+  }
+
+  var syscall_write = function(){
+    var fd=ebx;
+    var  buf=ecx;
+    var  count=edx;
+    if(dbg){
+      print("syscall_write called fd:"+fd+" buf:"+buf+" count:"+count);
+    };
+    if(count>1){
+      throw "only support reads of 1 byte";
+    };
+    var fdo=fds[fd];
+    fdo[1][fdo[0]]=vr8(buf);
+    fdo[0]++;
+    if(dbg){
+      print("offset: "+fdo[0]);
+    };
+    eax=1;
+  };
+
 
   var running=true;
 
