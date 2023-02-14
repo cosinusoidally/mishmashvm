@@ -120,6 +120,9 @@ var new_process=function(){
   var _r8=r8;
   var _w8=w8;
   var vr8=function(o){
+    if(o>>>31){
+      o=(o&0x7fffffff)+2147483648;
+    };
     var p;
     for(var i=0;i<vmem.length;i++){
       p=vmem[i];
@@ -131,6 +134,9 @@ var new_process=function(){
   };
 
   var vw8=function(o,b){
+    if(o>>>31){
+      o=(o&0x7fffffff)+2147483648;
+    };
     var p;
     for(var i=0;i<vmem.length;i++){
       p=vmem[i];
@@ -583,6 +589,16 @@ var new_process=function(){
 
   var running=true;
 
+  // read a null terminated string from memory
+  var read_c_string=function(x){
+    var o=[];
+    var c;
+    while((c=vr8(ebx))!==0){
+      o.push(c);
+    };
+    return o.join("");
+  };
+
   var pid;
   return {
     add_mem: add_mem,
@@ -612,6 +628,7 @@ var new_process=function(){
 
     set_pid: function(x){pid=x;},
     get_pid: function(){return pid;},
+    read_c_string: read_c_string,
   };
 }
 
@@ -660,14 +677,14 @@ var info_registers = function(p){
 hp.set_dbg(false);
 
 var kernel=(function(){
-//  var dbg=false;
+  var dbg=true;
 
   // FIXME HACK this is the current highest file descriptor
   var fd=2;
 
   var syscall_open = function(p){
     if(dbg){
-      print("syscall_open called");
+      print("syscall_open called: "+p.read_c_string(p.get_eax()));
     };
     fd++;
     p.set_eax(fd);
