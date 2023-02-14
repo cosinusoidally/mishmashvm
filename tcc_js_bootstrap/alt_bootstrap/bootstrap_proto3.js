@@ -607,6 +607,13 @@ var new_process=function(){
     };
     vw8(x+i,0);
   };
+  var alloca=function(x){
+    if(!(x===((x>>>2)<<2))){
+      x=4+((x>>>2)<<2);
+    };
+    esp=esp-x;
+    return esp;
+  };
 
   var pid;
   return {
@@ -639,6 +646,7 @@ var new_process=function(){
     get_pid: function(){return pid;},
     read_c_string: read_c_string,
     write_c_string: write_c_string,
+    alloca: alloca,
   };
 }
 
