@@ -742,15 +742,15 @@ var kernel=(function(){
       file=[];
       fs.foo=file;
     };
-    fds.push([0,file]);
-    p.set_eax(fds.length-1);
+    p.fds.push([0,file]);
+    p.set_eax(p.fds.length-1);
   };
 
 
 
   // FIXME proper filesystem
 
-fds=[
+hp.fds=[
     null,
     null,
     null,
@@ -769,7 +769,7 @@ fds=[
     if(count>1){
       throw "only support reads of 1 byte";
     };
-    var fdo=fds[fd];
+    var fdo=p.fds[fd];
 
     for(var i=0;i<count;i++){
       if(fdo[0]>=fdo[1].length){
@@ -804,7 +804,7 @@ fds=[
     if(count>1){
       throw "only support reads of 1 byte";
     };
-    var fdo=fds[fd];
+    var fdo=p.fds[fd];
     fdo[1][fdo[0]]=p.vr8(buf);
     fdo[0]++;
     if(dbg){
