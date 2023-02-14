@@ -654,6 +654,7 @@ var new_process=function(){
     write_c_string: write_c_string,
     alloca: alloca,
     push32: push32,
+    terminate: function(){running=false;},
   };
 }
 
@@ -730,28 +731,32 @@ var kernel=(function(){
   var fd=2;
 
   var syscall_open = function(p){
+    var fn=p.read_c_string(p.get_ebx());
 //    if(dbg){
       print("syscall_open called: "+p.read_c_string(p.get_ebx()));
 //    };
-    fd++;
-    p.set_eax(fd);
+    var file;
+    try{
+      file=read("stage0-posix/"+fn,"binary");
+    } catch(e) {
+      file=[];
+      fs.foo=file;
+    };
+    fds.push([0,file]);
+    p.set_eax(fds.length-1);
   };
 
 
 
   // FIXME proper filesystem
-  var outp=[];
 
-  var fds=[
+fds=[
     null,
     null,
     null,
-    [0,read("stage0-posix/x86/hex0_x86.hex0","binary")],
-    [0,outp]
   ];
 
   var fs={
-    "foo":outp
   };
 
   var syscall_read = function(p){
@@ -783,10 +788,10 @@ var kernel=(function(){
 
   var syscall_exit = function(p){
     exit_code=p.get_ebx();
-    if(dbg){
+//    if(dbg){
       print("syscall_exit: "+exit_code);
-    };
-    running=false;
+//    };
+    p.terminate();
   }
 
   var syscall_write = function(p){
