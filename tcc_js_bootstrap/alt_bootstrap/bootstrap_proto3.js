@@ -615,6 +615,11 @@ var new_process=function(){
     return esp;
   };
 
+  var push32=function(x){
+    alloca(4);
+    vw32(esp,x);
+  };
+
   var pid;
   return {
     add_mem: add_mem,
@@ -647,6 +652,7 @@ var new_process=function(){
     read_c_string: read_c_string,
     write_c_string: write_c_string,
     alloca: alloca,
+    push32: push32,
   };
 }
 
@@ -657,12 +663,27 @@ hex0_img=parse_elf(hex0);
 hp.add_mem([hex0_img.p_paddr,hex0_img.mem]);
 hp.set_eip(hex0_img.entry);
 
+hp.set_esp(0xffffdffc); // bodge shouldn't hard code
 // set up initial stack
 var argc=3;
 var arg0="bootstrap-seeds/POSIX/x86/hex0-seed";
-var arg1="./x86/hex0_x86.hex0";
-var arg2="./x86/artifact/hex0";
+var arg0_p=hp.alloca(arg0.length+1);
+hp.write_c_string(arg0_p,arg0);
 
+var arg1="./x86/hex0_x86.hex0";
+var arg1_p=hp.alloca(arg1.length+1);
+hp.write_c_string(arg1_p,arg1);
+
+var arg2="./x86/artifact/hex0";
+var arg2_p=hp.alloca(arg2.length+1);
+hp.write_c_string(arg2_p,arg1);
+
+hp.push32(arg2_p);
+hp.push32(arg1_p);
+hp.push32(arg0_p);
+hp.push32(argc);
+
+/*
 hp.set_esp(0xffffd5d0); // bodge lifted from gdb
 
 // initialize stack (TODO generate the initial program stack correctly by
@@ -676,7 +697,7 @@ var stack_in=[
 for(var i=0;i<stack_in.length;i++){
   hp.vw8(hp.get_esp()+i,stack_in[i]);
 };
-
+*/
 
 
 // belt and braces, check memory:
@@ -809,6 +830,7 @@ var kernel=(function(){
 
   hp.write_c_string(0xffffd77e,"./x86/hex0_x86.hex0");
 var run=function(){
+  info_registers(hp);
   try{
     var r;
     while(hp.is_running()){
