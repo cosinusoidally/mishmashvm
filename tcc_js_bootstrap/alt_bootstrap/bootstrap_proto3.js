@@ -382,6 +382,13 @@ var new_process=function(){
             test_common(ebp&ebp);
             eip=eip+2;
             break;
+          case 0xdb:
+            if(dbg){
+              print("test   %ebx,%ebx");
+            };
+            test_common(ebx&ebx);
+            eip=eip+2;
+            break;
           default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
@@ -529,6 +536,13 @@ var new_process=function(){
         esp=esp-4;
         vw32(esp,eax);
         eip++;
+        break;
+      case 0xbb:
+        ebx=vr32(eip+1);
+        if(dbg){
+          print("mov    $"+to_hex(ebx)+",%ebx");
+        };
+        eip=eip+5;
         break;
       case 0xFFFF:
         if(dbg){
@@ -866,6 +880,7 @@ var run2=function(){
   pr.push32(0);
   pr.push32(0);
   pr.push32(0);
+  pr.set_dbg(true);
   process_table.push(pr);
   pr.set_pid(process_table.length-1);
   info_registers(pr);
