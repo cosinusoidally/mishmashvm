@@ -109,7 +109,7 @@ var new_process=function(){
   var stack=[];
   var stack_size=1024*1024; // just give us a meg
   zero_mem(stack,stack_size/4);
-  stack_base=0xFFFFFFFF-stack_size;
+  var stack_base=0xFFFFE000-stack_size;
   var vmem=[
     [stack_base,stack],
   ];
@@ -648,6 +648,13 @@ hex0_img=parse_elf(hex0);
 
 hp.add_mem([hex0_img.p_paddr,hex0_img.mem]);
 hp.set_eip(hex0_img.entry);
+
+// set up initial stack
+var argc=3;
+var arg0="bootstrap-seeds/POSIX/x86/hex0-seed";
+var arg1="./x86/hex0_x86.hex0";
+var arg2="./x86/artifact/hex0";
+
 hp.set_esp(0xffffd5d0); // bodge lifted from gdb
 
 // initialize stack (TODO generate the initial program stack correctly by
