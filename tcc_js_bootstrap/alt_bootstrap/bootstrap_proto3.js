@@ -404,6 +404,17 @@ var new_process=function(){
           eip=eip+2;
         };
         break;
+      case 0x7e:
+        var o=eip+sign_extend8(vr8(eip+1))+2;
+        if(dbg){
+          print("jle    "+to_hex(o));
+        };
+        if((ZF===1) || (SF!==OF)){
+          eip=o;
+        } else {
+          eip=eip+2;
+        };
+        break;
       case 0xc3:
         if(dbg){
           print("ret");
@@ -542,6 +553,14 @@ var new_process=function(){
         if(dbg){
           print("mov    $"+to_hex(ebx)+",%ebx");
         };
+        eip=eip+5;
+        break;
+      case 0xa3:
+        var o=vr32(eip+1);
+        if(dbg){
+          print("mov    %eax,"+to_hex(o));
+        };
+        vw32(o,eax);
         eip=eip+5;
         break;
       case 0xFFFF:
@@ -881,6 +900,7 @@ var run2=function(){
   pr.push32(0);
   pr.push32(0);
   pr.set_dbg(true);
+  pr.fds=[null,null,null];
   process_table.push(pr);
   pr.set_pid(process_table.length-1);
   info_registers(pr);
