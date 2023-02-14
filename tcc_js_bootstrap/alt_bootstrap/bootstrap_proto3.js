@@ -829,7 +829,7 @@ hp.fds=[
     };
   };
 
-  var process_table=[
+  process_table=[
   ];
   process_table.push(hp);
   hp.set_pid(0);
@@ -853,13 +853,48 @@ var run=function(){
   info_registers(hp);
 };
 
+
+var run2=function(){
+  print();
+  print("trying to run kaem");
+  var pr=new_process();
+  var img=parse_elf(kaem);
+
+  pr.add_mem([img.p_paddr,img.mem]);
+  pr.set_eip(img.entry);
+  pr.set_esp(0xffffdffc);
+  pr.push32(0);
+  pr.push32(0);
+  pr.push32(0);
+  process_table.push(pr);
+  pr.set_pid(process_table.length-1);
+  info_registers(pr);
+  try{
+    var r;
+    while(pr.is_running()){
+      while((r=pr.step())===0){
+      };
+      if(hp.get_int_no()===0x80){
+        syscall(pr.get_pid());
+      } else {
+        throw "unsupported interrupt";
+      };
+    }
+  } catch (e) {
+    print(e);
+  };
+  info_registers(pr);
+};
+
 return {
   run: run,
+  run2: run2,
   fs: fs,
 };
 })();
 
 kernel.run();
+kernel.run2();
 
 print();
 print("done");
