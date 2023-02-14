@@ -601,6 +601,7 @@ var new_process=function(){
 
   // write a null terminated string to memory
   var write_c_string=function(x,s){
+    print("writing string: "+s);
     s=s.split("");
     for(var i=0;i<s.length;i++){
       vw8(x+i,s[i].charCodeAt(0));
@@ -676,7 +677,7 @@ hp.write_c_string(arg1_p,arg1);
 
 var arg2="./x86/artifact/hex0";
 var arg2_p=hp.alloca(arg2.length+1);
-hp.write_c_string(arg2_p,arg1);
+hp.write_c_string(arg2_p,arg2);
 
 hp.push32(arg2_p);
 hp.push32(arg1_p);
@@ -828,7 +829,6 @@ var kernel=(function(){
   process_table.push(hp);
   hp.set_pid(0);
 
-  hp.write_c_string(0xffffd77e,"./x86/hex0_x86.hex0");
 var run=function(){
   info_registers(hp);
   try{
