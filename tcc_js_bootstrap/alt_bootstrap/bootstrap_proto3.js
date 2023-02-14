@@ -27,9 +27,6 @@ kaem_sha256=root.sha256(kaem);
 kaem_sha256_expected="4fd5d6d7f1ac4708c06df2bf7e0b7f6dc45a493ac100e14fc52172929b807f5e";
 print("kaem sha256: "+kaem_sha256+" "+(kaem_sha256===kaem_sha256_expected));
 
-// dummy for now:
-var kernel={};
-
 var parse_elf=function(e){
   var mm=[];
   var zero_mem = function(m,n){
@@ -584,108 +581,14 @@ var new_process=function(){
     };
   };
 
-  var syscall=function(){
-    if(eax===5){
-      syscall_open();
-    } else if(eax===3){
-      syscall_read();
-    } else if(eax===4){
-      syscall_write();
-    } else if(eax===1){
-      syscall_exit();
-    } else {
-      throw "unsupported syscall: "+eax;
-    };
-  };
-
-  // FIXME HACK this is the current highest file descriptor
-  var fd=2;
-
-  var syscall_open = function(){
-    if(dbg){
-      print("syscall_open called");
-    };
-    fd++;
-    eax=fd;
-  };
-
-
-  // FIXME proper filesystem
-  var outp=[];
-
-  var fds=[
-    null,
-    null,
-    null,
-    [0,read("stage0-posix/x86/hex0_x86.hex0","binary")],
-    [0,outp]
-  ];
-
-  kernel.fs={
-    "foo":outp
-  };
-
-  var syscall_read = function(){
-    var fd=ebx;
-    var  buf=ecx;
-    var  count=edx;
-    if(dbg){
-      print("syscall_read called fd:"+fd+" buf:"+buf+" count:"+count);
-    };
-    if(count>1){
-      throw "only support reads of 1 byte";
-    };
-    var fdo=fds[fd];
-
-    for(var i=0;i<count;i++){
-      if(fdo[0]>=fdo[1].length){
-        eax=0;
-        return;
-      }
-      vw8(buf,fdo[1][fdo[0]]);
-      fdo[0]++;
-      buf++;
-    };
-    if(dbg){
-      print("offset: "+fdo[0]);
-    };
-    eax=1;
-  };
-
-  var syscall_exit = function(){
-    exit_code=ebx;
-    if(dbg){
-      print("syscall_exit: "+exit_code);
-    };
-    running=false;
-  }
-
-  var syscall_write = function(){
-    var fd=ebx;
-    var  buf=ecx;
-    var  count=edx;
-    if(dbg){
-      print("syscall_write called fd:"+fd+" buf:"+buf+" count:"+count);
-    };
-    if(count>1){
-      throw "only support reads of 1 byte";
-    };
-    var fdo=fds[fd];
-    fdo[1][fdo[0]]=vr8(buf);
-    fdo[0]++;
-    if(dbg){
-      print("offset: "+fdo[0]);
-    };
-    eax=1;
-  };
-
-
   var running=true;
 
+  var pid;
   return {
     add_mem: add_mem,
     set_eip: function(x){eip=x},
     set_esp: function(x){esp=x},
+    set_eax: function(x){eax=x},
     get_eip: function(){return eip},
     get_esp: function(){return esp},
     get_eax: function(){return eax},
@@ -705,8 +608,10 @@ var new_process=function(){
     vw32: vw32,
     step: step,
     set_dbg: function(x){dbg=x},
-    syscall: syscall,
     is_running: function(){return running;},
+
+    set_pid: function(x){pid=x;},
+    get_pid: function(){return pid;},
   };
 }
 
@@ -754,21 +659,137 @@ var info_registers = function(p){
 
 hp.set_dbg(false);
 
-try{
-  var r;
-  while(hp.is_running()){
-    while((r=hp.step())===0){
+var kernel=(function(){
+//  var dbg=false;
+
+  // FIXME HACK this is the current highest file descriptor
+  var fd=2;
+
+  var syscall_open = function(p){
+    if(dbg){
+      print("syscall_open called");
     };
-    if(hp.get_int_no()===0x80){
-      hp.syscall();
-    } else {
-      throw "unsupported interrupt";
+    fd++;
+    p.set_eax(fd);
+  };
+
+
+
+  // FIXME proper filesystem
+  var outp=[];
+
+  var fds=[
+    null,
+    null,
+    null,
+    [0,read("stage0-posix/x86/hex0_x86.hex0","binary")],
+    [0,outp]
+  ];
+
+  var fs={
+    "foo":outp
+  };
+
+  var syscall_read = function(p){
+    var fd=p.get_ebx();
+    var  buf=p.get_ecx();
+    var  count=p.get_edx();
+    if(dbg){
+      print("syscall_read called fd:"+fd+" buf:"+buf+" count:"+count);
     };
+    if(count>1){
+      throw "only support reads of 1 byte";
+    };
+    var fdo=fds[fd];
+
+    for(var i=0;i<count;i++){
+      if(fdo[0]>=fdo[1].length){
+        p.set_eax(0);
+        return;
+      }
+      p.vw8(buf,fdo[1][fdo[0]]);
+      fdo[0]++;
+      buf++;
+    };
+    if(dbg){
+      print("offset: "+fdo[0]);
+    };
+    p.set_eax(1);
+  };
+
+  var syscall_exit = function(p){
+    exit_code=p.get_ebx();
+    if(dbg){
+      print("syscall_exit: "+exit_code);
+    };
+    running=false;
   }
-} catch (e) {
-  print(e);
+
+  var syscall_write = function(p){
+    var fd=p.get_ebx();
+    var  buf=p.get_ecx();
+    var  count=p.get_edx();
+    if(dbg){
+      print("syscall_write called fd:"+fd+" buf:"+buf+" count:"+count);
+    };
+    if(count>1){
+      throw "only support reads of 1 byte";
+    };
+    var fdo=fds[fd];
+    fdo[1][fdo[0]]=p.vr8(buf);
+    fdo[0]++;
+    if(dbg){
+      print("offset: "+fdo[0]);
+    };
+    p.set_eax(1);
+  };
+
+  var syscall=function(pid){
+    var proc=process_table[pid];
+    var eax=proc.get_eax();
+    if(eax===5){
+      syscall_open(proc);
+    } else if(eax===3){
+      syscall_read(proc);
+    } else if(eax===4){
+      syscall_write(proc);
+    } else if(eax===1){
+      syscall_exit(proc);
+    } else {
+      throw "unsupported syscall: "+eax;
+    };
+  };
+
+  var process_table=[
+  ];
+  process_table.push(hp);
+  hp.set_pid(0);
+
+var run=function(){
+  try{
+    var r;
+    while(hp.is_running()){
+      while((r=hp.step())===0){
+      };
+      if(hp.get_int_no()===0x80){
+        syscall(hp.get_pid());
+      } else {
+        throw "unsupported interrupt";
+      };
+    }
+  } catch (e) {
+    print(e);
+  };
+  info_registers(hp);
 };
-info_registers(hp);
+
+return {
+  run: run,
+  fs: fs,
+};
+})();
+
+kernel.run();
 
 print();
 print("done");
