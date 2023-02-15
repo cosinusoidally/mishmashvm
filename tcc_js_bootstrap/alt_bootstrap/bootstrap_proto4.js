@@ -355,6 +355,14 @@ var new_process=function(){
         vw32(esp,eip+5);
         eip=t;
         break;
+      case 0x51:
+        if(dbg){
+          print("push    %ecx");
+        };
+        esp=esp-4;
+        vw32(esp,ecx);
+        eip++;
+        break;
       case 0x52:
         if(dbg){
           print("push    %edx");
@@ -539,6 +547,16 @@ var new_process=function(){
             eax=eax|0;
             eip=eip+2;
             break;
+          case 0xc3:
+            if(dbg){
+              print("add    %eax,%ebx");
+            };
+            ebx=((ebx)|0)+((eax|0));
+            arith32_setflags(ebx);
+            // FIXME this might not be right
+            ebx=ebx|0;
+            eip=eip+2;
+            break;
           case 0xFFFF:
             if(dbg){
             };
@@ -576,6 +594,29 @@ var new_process=function(){
         };
         vw32(o,eax);
         eip=eip+5;
+        break;
+      case 0xa1:
+        var o=vr32(eip+1);
+        if(dbg){
+          print("mov    "+to_hex(o)+",%eax");
+        };
+        eax=vr32(o);
+        eip=eip+5;
+        break;
+      case 0x8b:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0x1d:
+            var o=vr32(eip+2);
+            if(dbg){
+              print("mov    "+to_hex(o)+",%ebx");
+            };
+            ebx=vr32(o);
+            eip=eip+6;
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
         break;
       case 0xFFFF:
         if(dbg){
@@ -868,7 +909,7 @@ hp.fds=[
     if(addr===0){
       p.set_eax(p.get_brk());
     } else {
-      throw "setting brk failed: "+to_hex(brk);
+      throw "setting brk failed: "+to_hex(addr);
     }
   }
 
