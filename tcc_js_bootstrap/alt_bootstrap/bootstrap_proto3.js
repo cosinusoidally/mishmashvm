@@ -896,8 +896,13 @@ var run2=function(){
   pr.add_mem([img.p_paddr,img.mem]);
   pr.set_eip(img.entry);
   pr.set_esp(0xffffdffc);
+  //envp[0/1]? null
   pr.push32(0);
+  //argv[1] or envp[0]? null
   pr.push32(0);
+  //argv[0] null
+  pr.push32(0);
+  // argc not sure if this should really be 0
   pr.push32(0);
   pr.set_dbg(true);
   pr.fds=[null,null,null];
