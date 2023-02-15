@@ -34,15 +34,18 @@ var parse_elf=function(e){
       m[i]=0;
     };
   };
-  zero_mem(mm,256*1024); // populate initial memory
+  zero_mem(mm,(4096+Math.floor(e.length/4096))/4); // populate initial memory
 
   for(var i=0;i<e.length;i++){
     w8(mm,i,e[i]);
   };
-
+  var p_paddr=0x08048000;
+  var  size=mm.length*4;
   return {
     entry:   0x08048054,
     p_paddr: 0x08048000,
+    size: size,
+    brk: p_paddr+size,
     mem: mm
   };
 };
@@ -114,8 +117,12 @@ var new_process=function(){
     [stack_base,stack],
   ];
 
+
+  var brk;
+  var img_size;
   var add_mem=function(m){
-    vmem.push(m);
+    brk=m.brk;
+    vmem.push([m.p_paddr,m.mem]);
   };
   var _r8=r8;
   var _w8=w8;
@@ -274,6 +281,13 @@ var new_process=function(){
               print("mov    %esp,%ecx");
             };
             ecx=esp;
+            eip=eip+2;
+            break;
+          case 0xe5:
+            if(dbg){
+              print("mov    %esp,%ebp");
+            };
+            ebp=esp;
             eip=eip+2;
             break;
           case 0xf3:
@@ -670,6 +684,9 @@ var new_process=function(){
     get_esi: function(){return esi},
     get_edi: function(){return edi},
 
+    get_brk: function(){return brk},
+    set_brk: function(x){brk=x;},
+
     get_int_no: function(){return int_no},
 
     vr8: vr8,
@@ -695,7 +712,7 @@ var hp=new_process();
 
 hex0_img=parse_elf(hex0);
 
-hp.add_mem([hex0_img.p_paddr,hex0_img.mem]);
+hp.add_mem(hex0_img);
 hp.set_eip(hex0_img.entry);
 
 hp.set_esp(0xffffdffc); // bodge shouldn't hard code
@@ -846,6 +863,15 @@ hp.fds=[
     p.set_eax(1);
   };
 
+  var syscall_brk = function(p){
+    var addr=p.get_ebx();
+    if(addr===0){
+      p.set_eax(p.get_brk());
+    } else {
+      throw "setting brk failed: "+to_hex(brk);
+    }
+  }
+
   var syscall=function(pid){
     var proc=process_table[pid];
     var eax=proc.get_eax();
@@ -857,6 +883,8 @@ hp.fds=[
       syscall_write(proc);
     } else if(eax===1){
       syscall_exit(proc);
+    } else if(eax===45){
+      syscall_brk(proc);
     } else {
       throw "unsupported syscall: "+eax;
     };
@@ -890,10 +918,10 @@ var run=function(){
 var run2=function(){
   print();
   print("trying to run kaem");
-  var pr=new_process();
+  pr=new_process();
   var img=parse_elf(kaem);
 
-  pr.add_mem([img.p_paddr,img.mem]);
+  pr.add_mem(img);
   pr.set_eip(img.entry);
   pr.set_esp(0xffffdffc);
   //envp[0/1]? null
