@@ -656,6 +656,30 @@ var new_process=function(){
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
         break;
+      case 0x83:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xc1:
+              print("wooooo");
+            var o=vr8(eip+2);
+            if(dbg){
+              print("add    $"+to_hex(o)+",%ecx");
+              print("wooooo");
+            };
+            ecx=ecx+o;
+            arith32_setflags(ecx);
+            // FIXME this might not be right
+            ecx=ecx|0;
+            eip=eip+3;
+            break;
+          case 0xFFFF:
+            if(dbg){
+            };
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
       case 0x39:
         var b2=vr8(eip+1);
         switch(b2){
