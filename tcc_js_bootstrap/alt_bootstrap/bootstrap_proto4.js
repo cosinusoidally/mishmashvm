@@ -492,7 +492,7 @@ var new_process=function(){
         var b2=vr8(eip+1);
         switch(b2){
           case 0x84:
-            var o=eip+(vr32(eip+2))+6;
+            var o=eip+((vr32(eip+2))|0)+6;
             if(dbg){
               print("je     "+to_hex(o));
             };
