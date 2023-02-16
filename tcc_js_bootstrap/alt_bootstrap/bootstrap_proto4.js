@@ -488,6 +488,24 @@ var new_process=function(){
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
         break;
+      case 0x0f:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0x84:
+            var o=eip+(vr32(eip+2))+6;
+            if(dbg){
+              print("je     "+to_hex(o));
+            };
+            if(ZF){
+              eip=o;
+            } else {
+              eip=eip+6;
+            };
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
       case 0x74:
         var o=eip+sign_extend8(vr8(eip+1))+2;
         if(dbg){
