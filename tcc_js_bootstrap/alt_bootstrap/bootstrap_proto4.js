@@ -359,7 +359,6 @@ var new_process=function(){
             ebx=edx;
             eip=eip+2;
             break;
-          default:
           case 0xd9:
             if(dbg){
               print("mov    %ebx,%ecx");
@@ -367,6 +366,21 @@ var new_process=function(){
             ecx=ebx;
             eip=eip+2;
             break;
+          case 0xc1:
+            if(dbg){
+              print("mov    %eax,%ecx");
+            };
+            ecx=eax;
+            eip=eip+2;
+            break;
+          case 0xd8:
+            if(dbg){
+              print("mov    %ebx,%eax");
+            };
+            eax=ebx;
+            eip=eip+2;
+            break;
+          default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
         break;
@@ -477,6 +491,9 @@ var new_process=function(){
             var b3=vr8(eip+2);
             switch(b3){
               case 0x24:
+                if(dbg){
+                  print("lea    (%esp),%ecx");
+                };
                 ecx=esp;
                 eip=eip+3;
                 break
@@ -1114,6 +1131,7 @@ var run=function(){
 
 
 var run2=function(){
+  dbg=true;
   print();
   print("trying to run kaem");
   pr=new_process();
@@ -1131,7 +1149,7 @@ var run2=function(){
   // argc not sure if this should really be 0
   pr.push32(0);
   pr.set_dbg(true);
-  pr.fds=[null,null,null];
+  pr.fds=[null,[0,[]],null];
   process_table.push(pr);
   pr.set_pid(process_table.length-1);
   info_registers(pr);
