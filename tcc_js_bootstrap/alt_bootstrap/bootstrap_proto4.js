@@ -380,6 +380,34 @@ var new_process=function(){
             eax=ebx;
             eip=eip+2;
             break;
+          case 0xda:
+            if(dbg){
+              print("mov    %ebx,%edx");
+            };
+            edx=ebx;
+            eip=eip+2;
+            break;
+          case 0x01:
+            if(dbg){
+              print("mov    %eax,(%ecx)");
+            };
+            vw32(ecx,eax);
+            eip=eip+2;
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
+      case 0x88:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0x01:
+            if(dbg){
+              print("mov    %al,(%ecx)");
+            };
+            vw32(ecx,eax&0xFF);
+            eip=eip+2;
+            break;
           default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
@@ -706,6 +734,17 @@ var new_process=function(){
             ecx=ecx|0;
             eip=eip+3;
             break;
+          case 0xc3:
+            var o=vr8(eip+2);
+            if(dbg){
+              print("add    $"+to_hex(o)+",%ebx");
+            };
+            ebx=ebx+o;
+            arith32_setflags(ebx);
+            // FIXME this might not be right
+            ebx=ebx|0;
+            eip=eip+3;
+            break;
           case 0xFFFF:
             if(dbg){
             };
@@ -787,6 +826,13 @@ var new_process=function(){
             };
             ebx=vr32(o);
             eip=eip+6;
+            break;
+          case 0x03:
+            if(dbg){
+              print("mov    (%ebx),%eax");
+            };
+            eax=vr32(ebx);
+            eip=eip+2;
             break;
           default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
