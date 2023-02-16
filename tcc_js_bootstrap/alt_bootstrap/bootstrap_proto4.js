@@ -120,10 +120,28 @@ var new_process=function(){
 
   var brk;
   var img_size;
+  var heap;
   var add_mem=function(m){
     brk=m.brk;
+    heap=m.mem;
     vmem.push([m.p_paddr,m.mem]);
   };
+
+  var set_brk=function(addr){
+    print("set_brk "+to_hex(addr));
+    // FIXME probably not right as ints are signed
+    if(addr>brk){
+      var d=Math.floor(addr-brk)/4;
+      if(d&3){
+        d++;
+      };
+      for(var i=0;i<d;i++){
+        heap.push(0);
+      };
+    };
+    brk=addr;
+  };
+
   var _r8=r8;
   var _w8=w8;
   var vr8=function(o){
@@ -726,7 +744,7 @@ var new_process=function(){
     get_edi: function(){return edi},
 
     get_brk: function(){return brk},
-    set_brk: function(x){brk=x;},
+    set_brk: set_brk,
 
     get_int_no: function(){return int_no},
 
@@ -909,7 +927,7 @@ hp.fds=[
     if(addr===0){
       p.set_eax(p.get_brk());
     } else {
-      throw "setting brk failed: "+to_hex(addr);
+      p.set_brk(addr);
     }
   }
 
