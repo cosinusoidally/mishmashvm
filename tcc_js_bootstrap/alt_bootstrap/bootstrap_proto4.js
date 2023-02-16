@@ -656,6 +656,24 @@ var new_process=function(){
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
         break;
+      case 0x39:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xcb:
+            if(dbg){
+              print("cmp    %ecx,%ebx");
+            };
+            arith32_setflags((((ebx)|0)-((ecx|0)))|0);
+            eip=eip+2;
+            break;
+          case 0xFFFF:
+            if(dbg){
+            };
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
       case 0x4d:
         if(dbg){
           print("dec    %ebp");
