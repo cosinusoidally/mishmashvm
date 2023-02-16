@@ -210,6 +210,14 @@ var new_process=function(){
         esp=esp+4;
         eip++;
         break;
+      case 0x59:
+        if(dbg){
+          print("pop    %ecx");
+        };
+        ecx=vr32(esp);
+        esp=esp+4;
+        eip++;
+        break;
       case 0x5b:
         if(dbg){
           print("pop    %ebx");
@@ -221,6 +229,13 @@ var new_process=function(){
       case 0x31:
         var b2=vr8(eip+1);
         switch(b2){
+          case 0xc0:
+            if(dbg){
+              print("xor    %eax,%eax");
+            };
+            eax=0;
+            eip=eip+2;
+            break;
           case 0xc9:
             if(dbg){
               print("xor    %ecx,%ecx");
@@ -294,6 +309,13 @@ var new_process=function(){
             edx=eax;
             eip=eip+2;
             break;
+          case 0xc3:
+            if(dbg){
+              print("mov    %eax,%ebx");
+            };
+            ebx=eax;
+            eip=eip+2;
+            break;
           case 0xe1:
             if(dbg){
               print("mov    %esp,%ecx");
@@ -322,6 +344,14 @@ var new_process=function(){
             edi=eax;
             eip=eip+2;
             break;
+          case 0x1d:
+            var o=vr32(eip+2);
+            if(dbg){
+              print("mov    %ebx,"+to_hex(o));
+            };
+            vw32(o,ebx);
+            eip=eip+6;
+            break;
           case 0xd3:
             if(dbg){
               print("mov    %edx,%ebx");
@@ -330,6 +360,13 @@ var new_process=function(){
             eip=eip+2;
             break;
           default:
+          case 0xd9:
+            if(dbg){
+              print("mov    %ebx,%ecx");
+            };
+            ecx=ebx;
+            eip=eip+2;
+            break;
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
         break;
@@ -428,6 +465,24 @@ var new_process=function(){
             };
             test_common(ebx&ebx);
             eip=eip+2;
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
+      case 0x8d:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0x0c:
+            var b3=vr8(eip+2);
+            switch(b3){
+              case 0x24:
+                ecx=esp;
+                eip=eip+3;
+                break
+              default:
+              throw "unimplemented: " + to_hex((b1<<16)+(b2<<8)+b3);
+            };
             break;
           default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
