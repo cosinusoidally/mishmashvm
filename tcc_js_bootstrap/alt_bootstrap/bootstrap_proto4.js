@@ -656,15 +656,32 @@ var new_process=function(){
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
         break;
+      case 0x8a:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0x03:
+            var r=vr8(ebx);
+            if(dbg){
+              print("mov    (%ebx),%al");
+            };
+            eax=r;
+            eip=eip+2;
+            break;
+          case 0xFFFF:
+            if(dbg){
+            };
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
       case 0x83:
         var b2=vr8(eip+1);
         switch(b2){
           case 0xc1:
-              print("wooooo");
             var o=vr8(eip+2);
             if(dbg){
               print("add    $"+to_hex(o)+",%ecx");
-              print("wooooo");
             };
             ecx=ecx+o;
             arith32_setflags(ecx);
@@ -717,6 +734,13 @@ var new_process=function(){
         ebx=vr32(eip+1);
         if(dbg){
           print("mov    $"+to_hex(ebx)+",%ebx");
+        };
+        eip=eip+5;
+        break;
+      case 0xb8:
+        eax=vr32(eip+1);
+        if(dbg){
+          print("mov    $"+to_hex(eax)+",%eax");
         };
         eip=eip+5;
         break;
