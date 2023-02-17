@@ -103,6 +103,7 @@ var new_process=function(){
   var ebp=0;
   var esi=0;
   var edi=0;
+  var eip=0;
 
   // flags
 
@@ -943,11 +944,52 @@ var new_process=function(){
   };
 
   var pid;
+
+  var get_state=function(){
+    return {
+      vmem: vmem,
+      eax: eax,
+      ecx: ecx,
+      edx: edx,
+      ebx: ebx,
+      esp: esp,
+      ebp: ebp,
+      esi: esi,
+      edi: edi,
+      eip: eip,
+      IF: IF,
+      ZF: ZF,
+      SF: SF,
+      CF: CF,
+      OF: OF,
+      brk: brk,
+    };
+  };
+
+
+  var set_vmem=function(x){
+    heap=x[1][1]; // FIXME hacky
+    vmem=x;
+  };
+
   return {
     add_mem: add_mem,
     set_eip: function(x){eip=x},
     set_esp: function(x){esp=x},
     set_eax: function(x){eax=x},
+    set_ecx: function(x){ecx=x},
+    set_edx: function(x){edx=x},
+    set_ebx: function(x){ebx=x},
+    set_ebp: function(x){ebp=x},
+    set_esi: function(x){esi=x},
+    set_edi: function(x){edi=x},
+
+    set_IF: function(x){IF=x},
+    set_ZF: function(x){ZF=x},
+    set_SF: function(x){SF=x},
+    set_CF: function(x){CF=x},
+    set_OF: function(x){OF=x},
+
     get_eip: function(){return eip},
     get_esp: function(){return esp},
     get_eax: function(){return eax},
@@ -982,6 +1024,8 @@ var new_process=function(){
     alloca: alloca,
     push32: push32,
     terminate: function(){running=false;},
+    get_state: get_state,
+    set_vmem: set_vmem,
   };
 }
 
@@ -1149,8 +1193,61 @@ hp.fds=[
     }
   }
 
+  var get_empty_proc=function(){
+    for(var i=0;i<process_table.length;i++){
+      var p=process_table[i];
+      if(p.get_status()==="empty"){
+        return p;
+      };
+    };
+    throw "No empty procs";
+  };
+
   var syscall_fork = function(p){
     print("syscall_fork called by pid: "+p.get_pid());
+    var pn=get_empty_proc();
+    print("found empty proc: "+pn.get_pid());
+    var s=p.get_state();
+    print(s.vmem.length);
+    var vmem_new=[];
+    for(var i=0;i<s.vmem.length;i++){
+      print(i);
+      var m=s.vmem[i];
+      vmem_new.push([m[0],m[1].map(function(x){return x;})]);
+    };
+    s.vmem=vmem_new;
+
+    // copy over registers
+    pn.set_eax(s.eax);
+    pn.set_ecx(s.ecx);
+    pn.set_edx(s.edx);
+    pn.set_ebx(s.ebx);
+    pn.set_esp(s.esp);
+    pn.set_ebp(s.ebp);
+    pn.set_esi(s.esi);
+    pn.set_edi(s.edi);
+    pn.set_eip(s.eip);
+    pn.set_IF(s.IF);
+    pn.set_ZF(s.ZF);
+    pn.set_SF(s.SF);
+    pn.set_CF(s.CF);
+    pn.set_OF(s.OF);
+
+    pn.set_vmem(s.vmem);
+
+    pn.set_brk(s.brk);
+
+    print();
+    print("pid: "+p.get_pid());
+    info_registers(p);
+    print();
+    print("pid: "+pn.get_pid());
+    info_registers(pn);
+    print();
+
+    // start up the procs
+    p.set_status("running");
+    pn.set_status("running");
     throw "fork implementation incomplete";
   };
 
@@ -1294,6 +1391,7 @@ var run3=function(){
     };
   };
   } catch(e){
+    print(e);
     info_registers(p);
   };
 };
