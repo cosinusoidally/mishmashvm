@@ -85,7 +85,15 @@ var to_hex=function(x){
         (("00"+(x&0xFF).toString(16)).slice(-2));
 };
 
+
+_print=print;
 var new_process=function(){
+  // for debug logging
+
+  var print=function(x){
+    _print("pid: "+pid+", "+to_hex(eip)+": "+x);
+  };
+
   // registers
   var eax=0;
   var ecx=0;
@@ -200,7 +208,6 @@ var new_process=function(){
   };
 
   // run a single i386 instruction:
-
   var step=function(){
     if(status!=="running"){
       return 0;
@@ -1142,6 +1149,11 @@ hp.fds=[
     }
   }
 
+  var syscall_fork = function(p){
+    print("syscall_fork called by pid: "+p.get_pid());
+    throw "fork implementation incomplete";
+  };
+
   var syscall=function(pid){
     var proc=process_table[pid];
     var eax=proc.get_eax();
@@ -1155,6 +1167,8 @@ hp.fds=[
       syscall_exit(proc);
     } else if(eax===45){
       syscall_brk(proc);
+    } else if(eax===2){
+      syscall_fork(proc);
     } else {
       throw "unsupported syscall: "+eax;
     };
@@ -1254,8 +1268,7 @@ var run3=function(){
   pr.push32(0);
   pr.set_dbg(true);
   pr.fds=[null,[0,[]],null];
-  process_table.push(pr);
-  pr.set_pid(process_table.length-1);
+  pr.set_pid(0);
   info_registers(pr);
   pr.set_status("running");
 
