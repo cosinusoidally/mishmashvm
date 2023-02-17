@@ -1283,6 +1283,10 @@ hp.fds=[
     p.set_status("waiting");
   };
 
+  var syscall_execve = function(p){
+    print("syscall_execve called by: "+p.get_pid());
+    throw "syscall_execve not fully implemented";
+  };
   var syscall=function(pid){
     var proc=process_table[pid];
     var eax=proc.get_eax();
@@ -1303,6 +1307,8 @@ hp.fds=[
       syscall_fork(proc);
     } else if(eax===7){
       syscall_waitpid(proc);
+    } else if(eax===11){
+      syscall_execve(proc);
     } else {
       throw "pid: "+pid+" unsupported syscall: "+eax;
     };
@@ -1455,3 +1461,4 @@ print("hex0 sha256: "+outp_sha256+" "+(outp_sha256===hex0_sha256_expected));
 */
 
 kernel.run3();
+pt=process_table;
