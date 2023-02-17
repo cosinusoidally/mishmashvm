@@ -1,4 +1,63 @@
 --------------------------------------------------------------------------------
+2023-02-16
+
+bootstrap_proto4.js can run kaem up until the point where it calls fork. I now
+also have brk implemented to allocate memory from the os.
+
+Next version bootstrap_proto5.js will:
+
+- implement fork. This requires the ability to clone an existing process.
+- have the ability to run multiple processes
+
+For fork I will need something like:
+
+foo=proc.get_state();
+foo2=kernel.fork_state(foo);
+proc2.set_state(foo2);
+
+The fork_state will copy the heap,stack,register,brk value etc but preserve open
+file descriptors.
+
+Question: how does stdin, stdout, stderror work with forks? Currently I only
+have a crude implementation of stdout (just an array that is pushed to whenever
+a byte is written to stdout).
+
+For multiple processes I'm thinking that I have a process_table (say pt) having
+a fixed number of preallocated procs (lets say 8 initially). Then the process of
+running multiple procs is just cycling through pt and calling the step method.
+Something a bit like:
+
+pt=[p1,p2,p3,p4,p5,p6];
+
+for(var i=0;i<pt.length;i++){
+  pt[i].step();
+};
+
+If a process is stopped for whatever reason (waiting for a syscall, triggered a
+syscall, dead, etc) then it simply does nothing when step is called.
+
+Once each process has been stepped then we process the syscalls:
+
+for(var i=0;i<pt.length;i++){
+  var p=pt[i];
+  if(p.process_state()==="syscall"){
+    p.set_state("wait_syscall_result");
+    kernel.syscall(p);
+  };
+};
+
+states will be something along the lines of:
+"running"
+"syscall"
+"syscall_wait_result"
+"dead"
+
+When starting a process we would just scan through pt, find a dead process and
+then recycle it with set_state()
+
+processes would start off in a "dead" state
+
+--------------------------------------------------------------------------------
 2023-02-13
 
 bootstrap_proto2.js is an improved version of bootstrap_proto.js with the same
