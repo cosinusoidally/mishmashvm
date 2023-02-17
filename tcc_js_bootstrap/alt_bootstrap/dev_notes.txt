@@ -1,4 +1,18 @@
 --------------------------------------------------------------------------------
+2023-02-17
+
+bootstrap_proto5.js is able to run multiple virtual processes created via fork.
+The bootstrap process gets as far as spawning a child proc and calling execve.
+Next steps for bootstrap_proto6.js are:
+
+- implement execve
+- implement an in memory filesystem
+
+Note the current waitpid implementation is incompete. I need to have some way of
+waking up the process at the correct time. Currently the process will just go to
+sleep forever.
+
+--------------------------------------------------------------------------------
 2023-02-16
 
 bootstrap_proto4.js can run kaem up until the point where it calls fork. I now
