@@ -1158,6 +1158,7 @@ hp.fds=[
     } else {
       throw "unsupported syscall: "+eax;
     };
+    proc.set_status("running");
   };
 
   process_table=[
@@ -1236,11 +1237,35 @@ var run3=function(){
     process_table[i]= p;
   };
 
+
+  // setup PID 0 (kaem process)
+  var img=parse_elf(kaem);
+  var pr=process_table[0];
+  pr.add_mem(img);
+  pr.set_eip(img.entry);
+  pr.set_esp(0xffffdffc);
+  //envp[0/1]? null
+  pr.push32(0);
+  //argv[1] or envp[0]? null
+  pr.push32(0);
+  //argv[0] null
+  pr.push32(0);
+  // argc not sure if this should really be 0
+  pr.push32(0);
+  pr.set_dbg(true);
+  pr.fds=[null,[0,[]],null];
+  process_table.push(pr);
+  pr.set_pid(process_table.length-1);
+  info_registers(pr);
+  pr.set_status("running");
+
   var work=true;
+  try {
   while(work){
     var p
     for(var i =0;i<process_table.length;i++){
-      process_table[i].step();
+      p=process_table[i];
+      p.step();
     };
     work=false;
     for(var i =0;i<process_table.length;i++){
@@ -1248,11 +1273,15 @@ var run3=function(){
       var s=p.get_status();
       if(s==="syscall"){
         syscall(p.get_pid());
-      }
+      };
+      s=p.get_status();
       if(s==="running"){
         work=true;
       };
     };
+  };
+  } catch(e){
+    info_registers(p);
   };
 };
 
