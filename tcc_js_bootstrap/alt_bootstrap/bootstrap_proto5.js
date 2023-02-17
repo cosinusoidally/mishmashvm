@@ -401,6 +401,13 @@ var new_process=function(){
             edx=ebx;
             eip=eip+2;
             break;
+          case 0xea:
+            if(dbg){
+              print("mov    %ebp,%edx");
+            };
+            edx=ebp;
+            eip=eip+2;
+            break;
           case 0x01:
             if(dbg){
               print("mov    %eax,(%ecx)");
@@ -855,6 +862,13 @@ var new_process=function(){
             eax=vr32(ebx);
             eip=eip+2;
             break;
+          case 0x1b:
+            if(dbg){
+              print("mov    (%ebx),%ebx");
+            };
+            ebx=vr32(ebx);
+            eip=eip+2;
+            break;
           default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
@@ -1202,7 +1216,7 @@ hp.fds=[
   }
 
   var get_empty_proc=function(){
-    for(var i=0;i<process_table.length;i++){
+    for(var i=1;i<process_table.length;i++){
       var p=process_table[i];
       if(p.get_status()==="empty"){
         return p;
@@ -1225,8 +1239,10 @@ hp.fds=[
     };
     s.vmem=vmem_new;
 
+    p.set_eax(pn.get_pid());
+
     // copy over registers
-    pn.set_eax(s.eax);
+    pn.set_eax(0); // eax must be set to 0 as this is the child
     pn.set_ecx(s.ecx);
     pn.set_edx(s.edx);
     pn.set_ebx(s.ebx);
@@ -1262,7 +1278,8 @@ hp.fds=[
   };
 
   var syscall_waitpid = function(p){
-    print("syscall_waitpid called by: "+p.get_pid());
+    var wait_on=p.get_ebx();
+    print("syscall_waitpid called by: "+p.get_pid()+" waiting on pid:"+wait_on);
     p.set_status("waiting");
   };
 
@@ -1360,7 +1377,7 @@ var run2=function(){
 var run3=function(){
   process_table=[
   ];
-  for(var i=0;i<8;i++){
+  for(var i=0;i<9;i++){
     var p=new_process();
     p.set_pid(i);
     p.set_status("empty");
@@ -1368,9 +1385,9 @@ var run3=function(){
   };
 
 
-  // setup PID 0 (kaem process)
+  // setup PID 1 (kaem process)
   var img=parse_elf(kaem);
-  var pr=process_table[0];
+  var pr=process_table[1];
   pr.add_mem(img);
   pr.set_eip(img.entry);
   pr.set_esp(0xffffdffc);
@@ -1384,7 +1401,7 @@ var run3=function(){
   pr.push32(0);
   pr.set_dbg(true);
   pr.fds=[null,[0,[]],null];
-  pr.set_pid(0);
+  pr.set_pid(1);
   info_registers(pr);
   pr.set_status("running");
 
@@ -1392,12 +1409,12 @@ var run3=function(){
   try {
   while(work){
     var p
-    for(var i =0;i<process_table.length;i++){
+    for(var i =1;i<process_table.length;i++){
       p=process_table[i];
       p.step();
     };
     work=false;
-    for(var i =0;i<process_table.length;i++){
+    for(var i =1;i<process_table.length;i++){
       p=process_table[i];
       var s=p.get_status();
       if(s==="syscall"){
