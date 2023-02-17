@@ -104,6 +104,8 @@ var new_process=function(){
   var CF=0;
   var OF=0;
 
+  var status;
+
   var int_no=0;
 
   var dbg=false;
@@ -200,6 +202,9 @@ var new_process=function(){
   // run a single i386 instruction:
 
   var step=function(){
+    if(status!=="running"){
+      return 0;
+    };
     var b1=vr8(eip);
     switch(b1){
       case 0x58:
@@ -290,6 +295,7 @@ var new_process=function(){
           print("int   $0x"+int_no.toString(16));
         };
         eip=eip+2;
+        status="syscall";
         return 1;
         break;
       case 0x89:
@@ -948,6 +954,9 @@ var new_process=function(){
     get_brk: function(){return brk},
     set_brk: set_brk,
 
+    get_status: function(){return status},
+    set_status: function(x){status=x},
+
     get_int_no: function(){return int_no},
 
     vr8: vr8,
@@ -1216,13 +1225,46 @@ var run2=function(){
   info_registers(pr);
 };
 
+
+var run3=function(){
+  process_table=[
+  ];
+  for(var i=0;i<8;i++){
+    var p=new_process();
+    p.set_pid(i);
+    p.set_status("empty");
+    process_table[i]= p;
+  };
+
+  var work=true;
+  while(work){
+    var p
+    for(var i =0;i<process_table.length;i++){
+      process_table[i].step();
+    };
+    work=false;
+    for(var i =0;i<process_table.length;i++){
+      p=process_table[i];
+      var s=p.get_status();
+      if(s==="syscall"){
+        syscall(p.get_pid());
+      }
+      if(s==="running"){
+        work=true;
+      };
+    };
+  };
+};
+
 return {
   run: run,
   run2: run2,
+  run3: run3,
   fs: fs,
 };
 })();
 
+/*
 kernel.run();
 kernel.run2();
 
@@ -1233,3 +1275,6 @@ print("hex0_emu length:" +hex0_emu.length);
 outp_sha256=root.sha256(hex0_emu);
 print();
 print("hex0 sha256: "+outp_sha256+" "+(outp_sha256===hex0_sha256_expected));
+*/
+
+kernel.run3();
