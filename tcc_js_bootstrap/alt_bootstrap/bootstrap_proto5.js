@@ -807,6 +807,13 @@ var new_process=function(){
         };
         eip=eip+5;
         break;
+      case 0xb9:
+        ecx=vr32(eip+1);
+        if(dbg){
+          print("mov    $"+to_hex(ecx)+",%ecx");
+        };
+        eip=eip+5;
+        break;
       case 0xb8:
         eax=vr32(eip+1);
         if(dbg){
@@ -963,6 +970,7 @@ var new_process=function(){
       CF: CF,
       OF: OF,
       brk: brk,
+      dbg: dbg,
     };
   };
 
@@ -1237,6 +1245,8 @@ hp.fds=[
 
     pn.set_brk(s.brk);
 
+    pn.set_dbg(s.dbg);
+
     print();
     print("pid: "+p.get_pid());
     info_registers(p);
@@ -1248,12 +1258,20 @@ hp.fds=[
     // start up the procs
     p.set_status("running");
     pn.set_status("running");
-    throw "fork implementation incomplete";
+//    throw "fork implementation incomplete";
+  };
+
+  var syscall_waitpid = function(p){
+    print("syscall_waitpid called by: "+p.get_pid());
+    p.set_status("waiting");
   };
 
   var syscall=function(pid){
     var proc=process_table[pid];
     var eax=proc.get_eax();
+    // resume process by default. The syscalls may suspend the process again if
+    // the syscall needs to wait
+    proc.set_status("running");
     if(eax===5){
       syscall_open(proc);
     } else if(eax===3){
@@ -1266,10 +1284,11 @@ hp.fds=[
       syscall_brk(proc);
     } else if(eax===2){
       syscall_fork(proc);
+    } else if(eax===7){
+      syscall_waitpid(proc);
     } else {
-      throw "unsupported syscall: "+eax;
+      throw "pid: "+pid+" unsupported syscall: "+eax;
     };
-    proc.set_status("running");
   };
 
   process_table=[
@@ -1392,6 +1411,7 @@ var run3=function(){
   };
   } catch(e){
     print(e);
+    print("error in pid: "+p.get_pid());
     info_registers(p);
   };
 };
