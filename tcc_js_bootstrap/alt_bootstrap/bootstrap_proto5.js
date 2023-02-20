@@ -1285,6 +1285,23 @@ hp.fds=[
 
   var syscall_execve = function(p){
     print("syscall_execve called by: "+p.get_pid());
+    var filename=p.read_c_string(p.get_ebx());
+    var ptr=p.get_ecx();
+    print("syscall_execve filename: "+filename);
+    var argv=[];
+    var arg_p;
+    while(arg_p=p.vr32(ptr)){
+      argv.push(p.read_c_string(arg_p));
+      ptr=ptr+4;
+    };
+    var envp=[];
+    var env_p;
+    while(env_p=p.vr32(ptr)){
+      envp.push(p.read_c_string(env_p));
+      ptr=ptr+4;
+    };
+    print("syscall_execve argv: "+JSON.stringify(argv));
+    print("syscall_execve envp: "+JSON.stringify(envp));
     throw "syscall_execve not fully implemented";
   };
   var syscall=function(pid){
