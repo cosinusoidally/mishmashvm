@@ -1416,18 +1416,25 @@ var run3=function(){
   pr.add_mem(img);
   pr.set_eip(img.entry);
   pr.set_esp(0xffffdffc);
-  // last envp must be null
   var filename="./bootstrap-seeds/POSIX/x86/kaem-optional-seed";
   var filename_l=filename.length+1;
   var filename_p=p.alloca(filename_l);
-  var envp="FOO=bar";
-  var envp_l=envp.length+1;
-  envp_p=pr.alloca(envp_l);
-  pr.write_c_string(envp_p,envp);
   p.write_c_string(filename_p,filename);
+  var envps=["COLUMNS=80","PWD=/","LINES=32"];
+  var envp=[];
+  for(var i=0;i<envps.length;i++){
+    var x=envps[i];
+    var envp_l=x.length+1;
+    envp_p=pr.alloca(envp_l);
+    pr.write_c_string(envp_p,x);
+    envp.push(envp_p);
+  };
+  // last envp must be null
   pr.push32(0);
-  //envp[0]
-  pr.push32(envp_p);
+  //envp
+  for(var i=0;i<envp.length;i++){
+    pr.push32(envp[i]);
+  };
   //argv[1] must be null (since we have only 1 argument)
   pr.push32(0);
   //argv[0] filename
