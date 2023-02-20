@@ -1285,6 +1285,7 @@ hp.fds=[
 
   var syscall_execve = function(p){
     print("syscall_execve called by: "+p.get_pid());
+    info_registers(p);
     var filename=p.read_c_string(p.get_ebx());
     var ptr=p.get_ecx();
     print("syscall_execve filename: "+filename);
@@ -1294,6 +1295,7 @@ hp.fds=[
       argv.push(p.read_c_string(arg_p));
       ptr=ptr+4;
     };
+    var ptr=p.get_edx();
     var envp=[];
     var env_p;
     while(env_p=p.vr32(ptr)){
@@ -1414,14 +1416,24 @@ var run3=function(){
   pr.add_mem(img);
   pr.set_eip(img.entry);
   pr.set_esp(0xffffdffc);
-  //envp[0/1]? null
+  // last envp must be null
+  var filename="./bootstrap-seeds/POSIX/x86/kaem-optional-seed";
+  var filename_l=filename.length+1;
+  var filename_p=p.alloca(filename_l);
+  var envp="FOO=bar";
+  var envp_l=envp.length+1;
+  envp_p=pr.alloca(envp_l);
+  pr.write_c_string(envp_p,envp);
+  p.write_c_string(filename_p,filename);
   pr.push32(0);
-  //argv[1] or envp[0]? null
+  //envp[0]
+  pr.push32(envp_p);
+  //argv[1] must be null (since we have only 1 argument)
   pr.push32(0);
-  //argv[0] null
-  pr.push32(0);
-  // argc not sure if this should really be 0
-  pr.push32(0);
+  //argv[0] filename
+  pr.push32(filename_p);
+  // argc
+  pr.push32(1);
   pr.set_dbg(true);
   pr.fds=[null,[0,[]],null];
   pr.set_pid(1);
