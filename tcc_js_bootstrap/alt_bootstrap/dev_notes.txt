@@ -1,4 +1,19 @@
 --------------------------------------------------------------------------------
+2023-02-21
+
+bootstrap_proto6.js has an implementation of execve. Bootstrap process now runs
+up until the end of the first invocation of hex0 (3 procs running, 2x execve).
+It fails to run further as the waitpid implementation is not yet complete.
+
+For next version:
+
+- more complete virtual filesystem implementation. Current version is just a
+  stub. Need to load vfs into ram and also fix up syscall_open to use vfs
+  properly.
+- fix exit and waitpid so processes in a waitpid call will wake up when the
+  process they are watching exits.
+
+--------------------------------------------------------------------------------
 2023-02-17
 
 bootstrap_proto5.js is able to run multiple virtual processes created via fork.
