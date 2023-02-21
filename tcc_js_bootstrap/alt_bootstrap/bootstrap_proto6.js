@@ -1496,5 +1496,30 @@ print();
 print("hex0 sha256: "+outp_sha256+" "+(outp_sha256===hex0_sha256_expected));
 */
 
+var vfs=(function(){
+
+  var files={};
+
+  var init=function(){
+    writeFile("./bootstrap-seeds/POSIX/x86/kaem-optional-seed",kaem);
+  };
+
+  var readFile=function(filename){
+    return files[filename];
+  };
+
+  var writeFile=function(filename,arr){
+    files[filename]=arr;
+  };
+
+  init();
+
+  return {
+    readFile: readFile,
+    writeFile: writeFile
+  };
+})();
+
+
 kernel.run3();
 pt=process_table;
