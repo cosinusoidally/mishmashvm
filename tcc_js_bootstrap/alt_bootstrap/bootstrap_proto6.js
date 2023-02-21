@@ -1132,6 +1132,7 @@ var kernel=(function(){
     try{
       file=read("stage0-posix/"+fn,"binary");
     } catch(e) {
+      print("creating a dummy output: "+fn);
       file=[];
       fs.foo=file;
     };
@@ -1296,16 +1297,61 @@ hp.fds=[
       ptr=ptr+4;
     };
     var ptr=p.get_edx();
-    var envp=[];
+    var envps=[];
     var env_p;
     while(env_p=p.vr32(ptr)){
-      envp.push(p.read_c_string(env_p));
+      envps.push(p.read_c_string(env_p));
       ptr=ptr+4;
     };
+    var argc=argv.length;
+    print("syscall_execve argc: "+JSON.stringify(argc));
     print("syscall_execve argv: "+JSON.stringify(argv));
-    print("syscall_execve envp: "+JSON.stringify(envp));
-    throw "syscall_execve not fully implemented";
+    print("syscall_execve envp: "+JSON.stringify(envps));
+
+    var img=parse_elf(vfs.readFile(filename));
+    var pr=new_process();
+    process_table[p.get_pid()]=pr;
+    pr.set_pid(p.get_pid());
+    pr.add_mem(img);
+    pr.set_eip(img.entry);
+    pr.set_esp(0xffffdffc);
+    var envp=[];
+    for(var i=0;i<envps.length;i++){
+      var x=envps[i];
+      var envp_l=x.length+1;
+      envp_p=pr.alloca(envp_l);
+      pr.write_c_string(envp_p,x);
+      envp.push(envp_p);
+    };
+    var argvp=[];
+    for(var i=argv.length-1;i>-1;i--){
+      var x=argv[i];
+      var argv_l=x.length+1;
+      argv_p=pr.alloca(argv_l);
+      pr.write_c_string(argv_p,x);
+      argvp.push(argv_p);
+    };
+    // last envp must be null
+    pr.push32(0);
+    //envp
+    for(var i=0;i<envp.length;i++){
+      pr.push32(envp[i]);
+    };
+    //last argv must be null (since we have only 1 argument)
+    pr.push32(0);
+    //argv[0] filename
+    for(var i=0;i<argvp.length;i++){
+      pr.push32(argvp[i]);
+    };
+    // argc
+    pr.push32(argc);
+    pr.set_dbg(true);
+    pr.fds=[null,[0,[]],null];
+    info_registers(pr);
+    pr.set_status("running");
+//    throw "syscall_execve not fully implemented";
   };
+
   var syscall=function(pid){
     var proc=process_table[pid];
     var eax=proc.get_eax();
@@ -1502,6 +1548,7 @@ var vfs=(function(){
 
   var init=function(){
     writeFile("./bootstrap-seeds/POSIX/x86/kaem-optional-seed",kaem);
+    writeFile("./bootstrap-seeds/POSIX/x86/hex0-seed",hex0);
   };
 
   var readFile=function(filename){
@@ -1519,7 +1566,6 @@ var vfs=(function(){
     writeFile: writeFile
   };
 })();
-
 
 kernel.run3();
 pt=process_table;
