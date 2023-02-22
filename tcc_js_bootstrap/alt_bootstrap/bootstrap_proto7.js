@@ -574,6 +574,17 @@ var new_process=function(){
               eip=eip+6;
             };
             break;
+          case 0xb6:
+            var b3=vr8(eip+2);
+            switch(b3){
+              case 0xc0:
+                eax=eax&0xFF;
+                eip=eip+3;
+                break;
+              default:
+              throw "unimplemented: " + b1.toString(16)+b2.toString(16)+b3.toString(16);
+            };
+            break;
           default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
