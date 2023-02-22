@@ -813,6 +813,13 @@ var new_process=function(){
         vw32(esp,eax);
         eip++;
         break;
+      case 0xba:
+        edx=vr32(eip+1);
+        if(dbg){
+          print("mov    $"+to_hex(ebx)+",%edx");
+        };
+        eip=eip+5;
+        break;
       case 0xbb:
         ebx=vr32(eip+1);
         if(dbg){
@@ -1303,7 +1310,7 @@ hp.fds=[
   var syscall_execve = function(p){
     print("syscall_execve called by: "+p.get_pid());
     info_registers(p);
-    var filename=p.get_cwd()+"/"+p.read_c_string(p.get_ebx());
+    var filename=vfs.mk_absolute(p.get_cwd()+"/"+p.read_c_string(p.get_ebx()));
     var ptr=p.get_ecx();
     print("syscall_execve filename: "+filename);
     var argv=[];
@@ -1365,6 +1372,9 @@ hp.fds=[
     pr.fds=[null,[0,[]],null];
     info_registers(pr);
     pr.set_status("running");
+    if(filename==="/x86/artifact/hex1"){
+      pr.set_dbg(true);
+    };
 //    throw "syscall_execve not fully implemented";
   };
 
