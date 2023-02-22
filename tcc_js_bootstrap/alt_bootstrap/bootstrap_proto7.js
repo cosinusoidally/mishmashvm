@@ -143,7 +143,9 @@ var new_process=function(){
   };
 
   var set_brk=function(addr){
-    print("set_brk "+to_hex(addr));
+    if(dbg){
+      print("set_brk "+to_hex(addr));
+    };
     // FIXME probably not right as ints are signed
     if(addr>brk){
       var d=Math.floor(addr-brk)/4;
@@ -1359,7 +1361,7 @@ hp.fds=[
     };
     // argc
     pr.push32(argc);
-    pr.set_dbg(true);
+    pr.set_dbg(false);
     pr.fds=[null,[0,[]],null];
     info_registers(pr);
     pr.set_status("running");
@@ -1436,7 +1438,7 @@ var run2=function(){
   pr.push32(0);
   // argc not sure if this should really be 0
   pr.push32(0);
-  pr.set_dbg(true);
+  pr.eet_dbg(false);
   pr.fds=[null,[0,[]],null];
   process_table.push(pr);
   pr.set_pid(process_table.length-1);
@@ -1501,7 +1503,7 @@ var run3=function(){
   pr.push32(filename_p);
   // argc
   pr.push32(1);
-  pr.set_dbg(true);
+  pr.set_dbg(false);
   pr.fds=[null,[0,[]],null];
   pr.set_pid(1);
   info_registers(pr);
