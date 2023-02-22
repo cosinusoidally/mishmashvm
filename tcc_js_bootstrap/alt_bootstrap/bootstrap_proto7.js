@@ -816,7 +816,7 @@ var new_process=function(){
       case 0xba:
         edx=vr32(eip+1);
         if(dbg){
-          print("mov    $"+to_hex(ebx)+",%edx");
+          print("mov    $"+to_hex(edx)+",%edx");
         };
         eip=eip+5;
         break;
@@ -824,6 +824,27 @@ var new_process=function(){
         ebx=vr32(eip+1);
         if(dbg){
           print("mov    $"+to_hex(ebx)+",%ebx");
+        };
+        eip=eip+5;
+        break;
+      case 0xbd:
+        ebp=vr32(eip+1);
+        if(dbg){
+          print("mov    $"+to_hex(ebp)+",%ebp");
+        };
+        eip=eip+5;
+        break;
+      case 0xbe:
+        esi=vr32(eip+1);
+        if(dbg){
+          print("mov    $"+to_hex(esi)+",%esi");
+        };
+        eip=eip+5;
+        break;
+      case 0xbf:
+        edi=vr32(eip+1);
+        if(dbg){
+          print("mov    $"+to_hex(edi)+",%edi");
         };
         eip=eip+5;
         break;
