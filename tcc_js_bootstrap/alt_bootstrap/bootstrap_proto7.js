@@ -1185,8 +1185,18 @@ hp.fds=[
 //    if(dbg){
       print("syscall_exit: "+exit_code);
 //    };
-    p.terminate();
-  }
+    p.set_status("empty");
+    var pid=p.get_pid();
+    for(var i=1;i<process_table.length;i++){
+      var pn=process_table[i];
+      var wake_on=pn.get_ebx();
+      var pn_status=pn.get_status();
+      print("pn status: "+pn_status+" wake_on: "+wake_on);
+      if((pn_status==="waiting") && (wake_on===pid)){
+        pn.set_status("running");
+      };
+    };
+  };
 
   var syscall_write = function(p){
     var fd=p.get_ebx();
@@ -1513,9 +1523,18 @@ var run3=function(){
         work=true;
       };
     };
+    // go around again in case a process has been woken up
+    for(var i =1;i<process_table.length;i++){
+      p=process_table[i];
+      s=p.get_status();
+      if(s==="running"){
+        work=true;
+      };
+    };
   };
   } catch(e){
     print(e);
+    print(e.stack);
     print("error in pid: "+p.get_pid());
     info_registers(p);
   };
