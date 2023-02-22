@@ -1131,13 +1131,10 @@ var kernel=(function(){
 //    if(dbg){
       print("syscall_open called: "+p.read_c_string(p.get_ebx()));
 //    };
-    var file;
-    try{
-      file=read("stage0-posix/"+fn,"binary");
-    } catch(e) {
-      print("creating a dummy output: "+fn);
-      file=[];
-      fs.foo=file;
+    var file=vfs.readFile(p.get_cwd()+fn);
+    if(file===undefined){
+      vfs.writeFile(p.get_cwd()+fn,[]);
+      file=vfs.readFile(p.get_cwd()+fn);
     };
     p.fds.push([0,file]);
     p.set_eax(p.fds.length-1);
