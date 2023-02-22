@@ -1550,8 +1550,15 @@ var vfs=(function(){
   var files={};
 
   var init=function(){
+    print("loading all stage0-posix files");
     writeFile("./bootstrap-seeds/POSIX/x86/kaem-optional-seed",kaem);
     writeFile("./bootstrap-seeds/POSIX/x86/hex0-seed",hex0);
+    f_names=read("filelist.txt").split("\n");
+    // there is an empty newline at the end of the file
+    f_names.pop();
+    f_names.map(function(x){
+      writeFile(x,read("stage0-posix/"+x,"binary"));
+    });
   };
 
   var mk_absolute=function(filename){
