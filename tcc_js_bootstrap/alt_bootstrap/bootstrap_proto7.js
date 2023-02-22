@@ -1,5 +1,7 @@
 load("../../libc_portable_proto/sha256.js");
 
+written_files=[];
+
 hex0_to_array=function(x){
   var a=x.split("\n").
   map(function(x){return x.split(";")[0]}).
@@ -1131,10 +1133,12 @@ var kernel=(function(){
 //    if(dbg){
       print("syscall_open called: "+p.read_c_string(p.get_ebx()));
 //    };
-    var file=vfs.readFile(p.get_cwd()+fn);
+    var filename=p.get_cwd()+fn;
+    var file=vfs.readFile(filename);
     if(file===undefined){
-      vfs.writeFile(p.get_cwd()+fn,[]);
-      file=vfs.readFile(p.get_cwd()+fn);
+      vfs.writeFile(filename,[]);
+      file=vfs.readFile(filename);
+      written_files.push(vfs.mk_absolute(filename));
     };
     p.fds.push([0,file]);
     p.set_eax(p.fds.length-1);
@@ -1609,7 +1613,8 @@ var vfs=(function(){
 
   return {
     readFile: readFile,
-    writeFile: writeFile
+    writeFile: writeFile,
+    mk_absolute: mk_absolute,
   };
 })();
 
@@ -1620,12 +1625,9 @@ art_a=read("artifact.sha256sums").split("\n").map(function(x){return x.split("  
 art_a.pop();
 
 art={};
-art_a.map(function(x){art[x[1]]=x[0]});
+art_a.map(function(x){art[vfs.mk_absolute(x[1])]=x[0]});
 
-[
-"x86/artifact/hex0",
-"x86/artifact/kaem-0",
-].map(function(x){
+written_files.map(function(x){
   try{
     print();
     print(x);
