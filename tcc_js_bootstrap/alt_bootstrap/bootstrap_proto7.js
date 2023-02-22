@@ -867,7 +867,7 @@ var new_process=function(){
         if(dbg){
           print("mov    "+to_hex(o)+",%al");
         };
-        eax=o&0xFF;
+        eax=vr32(o)&0xFF;
         eip=eip+5;
         break;
       case 0xa3:
