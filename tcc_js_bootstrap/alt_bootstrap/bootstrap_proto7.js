@@ -1596,3 +1596,23 @@ var vfs=(function(){
 
 kernel.run3();
 pt=process_table;
+
+art_a=read("artifact.sha256sums").split("\n").map(function(x){return x.split("  ")});
+art_a.pop();
+
+art={};
+art_a.map(function(x){art[x[1]]=x[0]});
+
+[
+"x86/artifact/hex0",
+"x86/artifact/kaem-0",
+].map(function(x){
+  try{
+    print();
+    print(x);
+    print(root.sha256(vfs.readFile(x)));
+    print(art[x]);
+  } catch(e){
+    print(e);
+  };
+});
