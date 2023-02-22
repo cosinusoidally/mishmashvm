@@ -120,6 +120,8 @@ var new_process=function(){
   var dbg=false;
   var exit_code=1;
 
+  var cwd="/";
+
   var stack=[];
   var stack_size=1024*1024; // just give us a meg
   zero_mem(stack,stack_size/4);
@@ -1048,6 +1050,7 @@ var new_process=function(){
     terminate: function(){running=false;},
     get_state: get_state,
     set_vmem: set_vmem,
+    get_cwd: function(){return cwd;},
   };
 }
 
@@ -1287,7 +1290,7 @@ hp.fds=[
   var syscall_execve = function(p){
     print("syscall_execve called by: "+p.get_pid());
     info_registers(p);
-    var filename=p.read_c_string(p.get_ebx());
+    var filename=p.get_cwd()+"/"+p.read_c_string(p.get_ebx());
     var ptr=p.get_ecx();
     print("syscall_execve filename: "+filename);
     var argv=[];
@@ -1551,11 +1554,31 @@ var vfs=(function(){
     writeFile("./bootstrap-seeds/POSIX/x86/hex0-seed",hex0);
   };
 
+  var mk_absolute=function(filename){
+    var fn_abs=[];
+    f=filename.split("/");
+    for(var i=0;i<f.length;i++){
+      var c=f[i];
+      if((c===".")|| (c==="")){
+        // do nothing
+      } else if(c===".."){
+        fn_abs.pop();
+      } else {
+        fn_abs.push(c);
+      }
+    };
+    return "/"+(fn_abs.join("/"));
+  };
+
   var readFile=function(filename){
+    filename=mk_absolute(filename);
+    print("vfs.readFile: "+filename);
     return files[filename];
   };
 
   var writeFile=function(filename,arr){
+    filename=mk_absolute(filename);
+    print("vfs.writeFile: "+filename);
     files[filename]=arr;
   };
 
