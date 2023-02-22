@@ -862,6 +862,14 @@ var new_process=function(){
         };
         eip=eip+5;
         break;
+      case 0xa0:
+        var o=vr32(eip+1);
+        if(dbg){
+          print("mov    "+to_hex(o)+",%al");
+        };
+        eax=o&0xFF;
+        eip=eip+5;
+        break;
       case 0xa3:
         var o=vr32(eip+1);
         if(dbg){
