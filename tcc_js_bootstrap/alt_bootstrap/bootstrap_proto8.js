@@ -957,6 +957,22 @@ var new_process=function(){
             eax=r;
             eip=eip+2;
             break;
+          case 0x01:
+            var r=vr8(ecx);
+            if(dbg){
+              print("mov    (%ecx),%al");
+            };
+            eax=r;
+            eip=eip+2;
+            break;
+          case 0x1a:
+            var r=vr8(edx);
+            if(dbg){
+              print("mov    (%edx),%al");
+            };
+            eax=r;
+            eip=eip+2;
+            break;
           case 0xFFFF:
             if(dbg){
             };
@@ -1281,6 +1297,14 @@ var new_process=function(){
             };
             ecx=vr32(ebx);
             eip=eip+2;
+            break;
+          case 0x56:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    0x"+(o.toString(16))+"(%esi),%edx");
+            };
+            edx=vr32(esi+o);
+            eip=eip+3;
             break;
           default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
