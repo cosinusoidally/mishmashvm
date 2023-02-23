@@ -245,6 +245,22 @@ var new_process=function(){
         esp=esp+4;
         eip++;
         break;
+      case 0x5e:
+        if(dbg){
+          print("pop    %esi");
+        };
+        esi=vr32(esp);
+        esp=esp+4;
+        eip++;
+        break;
+      case 0x5f:
+        if(dbg){
+          print("pop    %edi");
+        };
+        edi=vr32(esp);
+        esp=esp+4;
+        eip++;
+        break;
       case 0x29:
         var b2=vr8(eip+1);
         switch(b2){
@@ -332,6 +348,13 @@ var new_process=function(){
       case 0x89:
         var b2=vr8(eip+1);
         switch(b2){
+          case 0xc5:
+            if(dbg){
+              print("mov    %eax,%ebp");
+            };
+            ebp=eax;
+            eip=eip+2;
+            break;
           case 0xc6:
             if(dbg){
               print("mov    %eax,%esi");
@@ -533,6 +556,22 @@ var new_process=function(){
         };
         esp=esp-4;
         vw32(esp,ebx);
+        eip++;
+        break;
+      case 0x56:
+        if(dbg){
+          print("push    %esi");
+        };
+        esp=esp-4;
+        vw32(esp,esi);
+        eip++;
+        break;
+      case 0x57:
+        if(dbg){
+          print("push    %edi");
+        };
+        esp=esp-4;
+        vw32(esp,edi);
         eip++;
         break;
       case 0x85:
@@ -1599,7 +1638,7 @@ hp.fds=[
     pr.fds=[null,[0,[]],null];
     info_registers(pr);
     pr.set_status("running");
-    if(filename==="/x86/artifact/hex1"){
+    if(filename==="/x86/artifact/hex2-0"){
       pr.set_dbg(true);
     };
 //    throw "syscall_execve not fully implemented";
