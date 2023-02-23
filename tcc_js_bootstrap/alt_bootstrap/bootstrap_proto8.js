@@ -732,12 +732,38 @@ var new_process=function(){
             var b3=vr8(eip+2);
             switch(b3){
               case 0xc0:
+                if(dbg){
+                  print("movzbl %al,%eax");
+                };
                 eax=eax&0xFF;
+                eip=eip+3;
+                break;
+              case 0xdb:
+                if(dbg){
+                  print("movzbl %bl,%ebx");
+                };
+                ebx=ebx&0xFF;
                 eip=eip+3;
                 break;
               default:
               throw "unimplemented: " + b1.toString(16)+b2.toString(16)+b3.toString(16);
             };
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
+      case 0x38:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xd8:
+            if(dbg){
+              print("cmp    %bl,%al");
+            };
+            var al=sign_extend8(eax&0xFF);
+            var res=(al-sign_extend8(ebx&0xFF))|0;
+            arith8_setflags(res);
+            eip=eip+2;
             break;
           default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
@@ -1068,6 +1094,15 @@ var new_process=function(){
             arith32_setflags(ebp);
             eip=eip+3;
             break;
+          case 0xfe:
+            var r=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("cmp    $"+to_hex(r)+",%esi");
+            };
+            esi=(esi-r)|0;
+            arith32_setflags(esi);
+            eip=eip+3;
+            break;
           case 0xf9:
             var r=sign_extend8(vr8(eip+2));
             if(dbg){
@@ -1296,6 +1331,13 @@ var new_process=function(){
               print("mov    (%ebx),%ecx");
             };
             ecx=vr32(ebx);
+            eip=eip+2;
+            break;
+          case 0x36:
+            if(dbg){
+              print("mov    (%esi),%esi");
+            };
+            esi=vr32(esi);
             eip=eip+2;
             break;
           case 0x56:
