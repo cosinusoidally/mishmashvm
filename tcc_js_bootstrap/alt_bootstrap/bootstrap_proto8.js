@@ -390,6 +390,13 @@ var new_process=function(){
             ebp=esp;
             eip=eip+2;
             break;
+          case 0xe8:
+            if(dbg){
+              print("mov    %ebp,%eax");
+            };
+            eax=ebp;
+            eip=eip+2;
+            break;
           case 0xf3:
             if(dbg){
               print("mov    %esi,%ebx");
@@ -480,6 +487,13 @@ var new_process=function(){
               print("mov    %al,(%ecx)");
             };
             vw32(ecx,eax&0xFF);
+            eip=eip+2;
+            break;
+          case 0x03:
+            if(dbg){
+              print("mov    %al,(%ebx)");
+            };
+            vw32(ebx,eax&0xFF);
             eip=eip+2;
             break;
           default:
@@ -654,6 +668,17 @@ var new_process=function(){
               print("jl     "+to_hex(o));
             };
             if(SF!==OF){
+              eip=o;
+            } else {
+              eip=eip+6;
+            };
+            break;
+          case 0x8f:
+            var o=eip+((vr32(eip+2))|0)+6;
+            if(dbg){
+              print("jg     "+to_hex(o));
+            };
+            if((SF===0) && (SF===OF)){
               eip=o;
             } else {
               eip=eip+6;
@@ -910,6 +935,24 @@ var new_process=function(){
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
           };
         break;
+      case 0x81:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xc3:
+            var o=vr32(eip+2);
+            if(dbg){
+              print("add    $"+to_hex(o)+",%ebx");
+            };
+            ebx=(ebx|0)+(o|0);
+            arith32_setflags(ebx);
+            // FIXME this might not be right
+            ebx=ebx|0;
+            eip=eip+6;
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+          };
+        break;
       case 0x83:
         var b2=vr8(eip+1);
         switch(b2){
@@ -929,6 +972,15 @@ var new_process=function(){
             };
             ebp=(ebp-r)|0;
             arith32_setflags(ebp);
+            eip=eip+3;
+            break;
+          case 0xf9:
+            var r=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("cmp    $"+to_hex(r)+",%ecx");
+            };
+            ecx=(ecx-r)|0;
+            arith32_setflags(ecx);
             eip=eip+3;
             break;
           case 0xc1:
@@ -951,6 +1003,17 @@ var new_process=function(){
             arith32_setflags(ebx);
             // FIXME this might not be right
             ebx=ebx|0;
+            eip=eip+3;
+            break;
+          case 0xc5:
+            var o=vr8(eip+2);
+            if(dbg){
+              print("add    $"+to_hex(o)+",%ebp");
+            };
+            ebp=ebp+o;
+            arith32_setflags(ebp);
+            // FIXME this might not be right
+            ebp=ebp|0;
             eip=eip+3;
             break;
           case 0xc7:
@@ -1132,6 +1195,13 @@ var new_process=function(){
               print("mov    (%ebx),%ebx");
             };
             ebx=vr32(ebx);
+            eip=eip+2;
+            break;
+          case 0x0b:
+            if(dbg){
+              print("mov    (%ebx),%ecx");
+            };
+            ecx=vr32(ebx);
             eip=eip+2;
             break;
           default:
