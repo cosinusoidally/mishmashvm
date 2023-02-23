@@ -245,6 +245,23 @@ var new_process=function(){
         esp=esp+4;
         eip++;
         break;
+      case 0x29:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xf8:
+            if(dbg){
+              print("sub    %edi,%eax");
+            };
+            eax=(eax|0)-(edi|0);
+            arith32_setflags(eax);
+            // FIXME this might not be right
+            eax=eax|0;
+            eip=eip+2;
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
       case 0x31:
         var b2=vr8(eip+1);
         switch(b2){
@@ -718,6 +735,24 @@ var new_process=function(){
       case 0xc1:
         var b2=vr8(eip+1);
         switch(b2){
+          case 0xe6:
+            var c=vr8(eip+2);
+            if(dbg){
+              print("shl    $0x"+c.toString(16)+",%esi");
+            };
+            var r=esi;
+            var tc = c & 0x1F;
+            while(tc!==0){
+              CF=r>>>31;
+              r=r<<1;
+              tc=tc-1;
+            };
+            if((c & 0x1F) ===1){
+              OF = (r>>>31) ^CF;
+            };
+            esi=r;
+            eip=eip+3;
+            break;
           case 0xe7:
             var c=vr8(eip+2);
             if(dbg){
@@ -783,6 +818,16 @@ var new_process=function(){
             arith32_setflags(ebx);
             // FIXME this might not be right
             ebx=ebx|0;
+            eip=eip+2;
+            break;
+          case 0xf0:
+            if(dbg){
+              print("add    %esi,%eax");
+            };
+            eax=((eax)|0)+((esi|0));
+            arith32_setflags(eax);
+            // FIXME this might not be right
+            eax=eax|0;
             eip=eip+2;
             break;
           case 0xFFFF:
@@ -994,6 +1039,14 @@ var new_process=function(){
         eax=vr32(o)&0xFF;
         eip=eip+5;
         break;
+      case 0xa2:
+        var o=vr32(eip+1);
+        if(dbg){
+          print("mov    %eax,"+to_hex(o));
+        };
+        vw32(o,eax&0xFF);
+        eip=eip+5;
+        break;
       case 0xa3:
         var o=vr32(eip+1);
         if(dbg){
@@ -1026,6 +1079,13 @@ var new_process=function(){
               print("mov    (%ebx),%eax");
             };
             eax=vr32(ebx);
+            eip=eip+2;
+            break;
+          case 0x00:
+            if(dbg){
+              print("mov    (%eax),%eax");
+            };
+            eax=vr32(eax);
             eip=eip+2;
             break;
           case 0x1b:
@@ -1327,7 +1387,7 @@ hp.fds=[
       print("syscall_read called fd:"+fd+" buf:"+buf+" count:"+count);
     };
     if(count>1){
-      throw "only support reads of 1 byte";
+      throw "only support reads of 1 byte attempted to read: "+count;
     };
     var fdo=p.fds[fd];
 
@@ -1371,12 +1431,13 @@ hp.fds=[
     if(dbg){
       print("syscall_write called fd:"+fd+" buf:"+buf+" count:"+count);
     };
-    if(count>1){
-      throw "only support reads of 1 byte";
-    };
     var fdo=p.fds[fd];
-    fdo[1][fdo[0]]=p.vr8(buf);
-    fdo[0]++;
+    var i=0;
+    while(i<count){
+      fdo[1][fdo[0]]=p.vr8(buf+i);
+      fdo[0]++;
+      i++;
+    };
     if(dbg){
       print("offset: "+fdo[0]);
     };
@@ -1458,6 +1519,19 @@ hp.fds=[
     var wait_on=p.get_ebx();
     print("syscall_waitpid called by: "+p.get_pid()+" waiting on pid:"+wait_on);
     p.set_status("waiting");
+  };
+
+  var syscall_lseek = function(p){
+    var fd=p.get_ebx();
+    var offset=p.get_ecx();
+    var whence=p.get_edx();
+    print("syscall_lseek called by: "+p.get_pid()+" fd: "+fd+
+    " offset: "+offset+" whence: "+whence);
+    if(whence!==0){
+      throw "syscall_lseek whence not 0 (not implemented)";
+    };
+    p.fds[fd][0]=offset;
+    p.set_eax(offset);
   };
 
   var syscall_execve = function(p){
@@ -1553,6 +1627,8 @@ hp.fds=[
       syscall_waitpid(proc);
     } else if(eax===11){
       syscall_execve(proc);
+    } else if(eax===19){
+      syscall_lseek(proc);
     } else {
       throw "pid: "+pid+" unsupported syscall: "+eax;
     };
