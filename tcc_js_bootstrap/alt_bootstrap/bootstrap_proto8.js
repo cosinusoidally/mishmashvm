@@ -1664,6 +1664,9 @@ hp.fds=[
 //    if(dbg){
       print("syscall_exit: "+exit_code);
 //    };
+    if(exit_code!==0){
+      throw "process error";
+    };
     p.set_status("empty");
     var pid=p.get_pid();
     for(var i=1;i<process_table.length;i++){
