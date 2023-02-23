@@ -1,4 +1,29 @@
 --------------------------------------------------------------------------------
+2023-02-22
+
+bootstrap_proto7.js is able to get as far as:
+Phase-2b Build catm from hex2 :
+./x86/artifact/hex2-0 ./x86/catm_x86.hex2 ./x86/artifact/catm
+
+Next steps are a case of grinding through and adding all required instructions
+in order to be able to run hex2-0 to completion.
+
+Current version has a vfs implementation and has a working version of waitpid to
+allow processes to wake up in response to a child terminating (which is what
+allows kaem scripts to continue after a build step completes).
+
+This version also verifies the sha256sums of the intermediate build artifacts to
+confirm that the emulated bootstrap is producing identical output to the native
+bootstrap.
+
+Next version:
+
+- implement all required instructions to allow hex2-0 to run to completion
+- print out error message if build artifact sha256sums do not match (currently
+  it just prints out the sha256sum and the end user must confirm they match by
+  eye).
+
+--------------------------------------------------------------------------------
 2023-02-21
 
 bootstrap_proto6.js has an implementation of execve. Bootstrap process now runs
