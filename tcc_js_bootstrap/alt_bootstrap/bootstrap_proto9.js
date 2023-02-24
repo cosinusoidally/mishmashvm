@@ -358,6 +358,13 @@ var new_process=function(){
       case 0x89:
         var b2=vr8(eip+1);
         switch(b2){
+          case 0x03:
+            if(dbg){
+              print("mov    %eax,(%ebx)");
+            };
+            vw32(ebx,eax);
+            eip=eip+2;
+            break;
           case 0x0b:
             if(dbg){
               print("mov    %ecx,(%ebx)");
@@ -378,6 +385,14 @@ var new_process=function(){
               print("mov    %edi,"+to_hex(o)+"(%eax)");
             };
             vw32(eax+o,edi);
+            eip=eip+3;
+            break;
+          case 0x41:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    %eax,"+to_hex(o)+"(%ecx)");
+            };
+            vw32(ecx+o,eax);
             eip=eip+3;
             break;
           case 0x42:
@@ -1316,6 +1331,13 @@ var new_process=function(){
             arith32_setflags((((ebx)|0)-((ecx|0)))|0);
             eip=eip+2;
             break;
+          case 0xd8:
+            if(dbg){
+              print("cmp    %ebx,%eax");
+            };
+            arith32_setflags((((eax)|0)-((ebx|0)))|0);
+            eip=eip+2;
+            break;
           case 0xd9:
             if(dbg){
               print("cmp    %ebx,%ecx");
@@ -1463,6 +1485,20 @@ var new_process=function(){
             eax=vr32(eax);
             eip=eip+2;
             break;
+          case 0x01:
+            if(dbg){
+              print("mov    (%ecx),%eax");
+            };
+            eax=vr32(ecx);
+            eip=eip+2;
+            break;
+          case 0x09:
+            if(dbg){
+              print("mov    (%ecx),%ecx");
+            };
+            ecx=vr32(ecx);
+            eip=eip+2;
+            break;
           case 0x1b:
             if(dbg){
               print("mov    (%ebx),%ebx");
@@ -1492,12 +1528,36 @@ var new_process=function(){
             edx=vr32(esi+o);
             eip=eip+3;
             break;
+          case 0x40:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    0x"+(o.toString(16))+"(%eax),%eax");
+            };
+            eax=vr32(eax+o);
+            eip=eip+3;
+            break;
+          case 0x41:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    0x"+(o.toString(16))+"(%ecx),%eax");
+            };
+            eax=vr32(ecx+o);
+            eip=eip+3;
+            break;
           case 0x46:
             var o=sign_extend8(vr8(eip+2));
             if(dbg){
               print("mov    0x"+(o.toString(16))+"(%esi),%eax");
             };
             eax=vr32(esi+o);
+            eip=eip+3;
+            break;
+          case 0x58:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    0x"+(o.toString(16))+"(%eax),%ebx");
+            };
+            ebx=vr32(eax+o);
             eip=eip+3;
             break;
           default:
@@ -2010,7 +2070,7 @@ hp.fds=[
     info_registers(pr);
     pr.set_status("running");
     if(filename==="/x86/artifact/M0"){
-      pr.set_dbg(true);
+//      pr.set_dbg(true);
     };
 //    throw "syscall_execve not fully implemented";
   };
