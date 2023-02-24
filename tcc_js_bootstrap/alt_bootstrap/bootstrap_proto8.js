@@ -839,6 +839,15 @@ var new_process=function(){
         arith8_setflags(res);
         eip=eip+2;
         break;
+      case 0x3d:
+        var r=vr32(eip+1);
+        if(dbg){
+          print("cmp    $"+to_hex(r)+",%eax");
+        };
+        var res=(eax|0)-(r|0);
+        arith32_setflags(res);
+        eip=eip+5;
+        break;
       case 0x75:
         var o=eip+sign_extend8(vr8(eip+1))+2;
         if(dbg){
@@ -1689,14 +1698,16 @@ hp.fds=[
     if(dbg){
       print("syscall_read called fd:"+fd+" buf:"+buf+" count:"+count);
     };
+/*
     if(count>1){
       throw "only support reads of 1 byte attempted to read: "+count;
     };
+*/
     var fdo=p.fds[fd];
 
     for(var i=0;i<count;i++){
       if(fdo[0]>=fdo[1].length){
-        p.set_eax(0);
+        p.set_eax(i);
         return;
       }
       p.vw8(buf,fdo[1][fdo[0]]);
@@ -1706,7 +1717,7 @@ hp.fds=[
     if(dbg){
       print("offset: "+fdo[0]);
     };
-    p.set_eax(1);
+    p.set_eax(count);
   };
 
   var syscall_exit = function(p){
