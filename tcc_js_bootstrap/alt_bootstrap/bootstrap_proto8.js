@@ -1916,7 +1916,7 @@ hp.fds=[
     pr.fds=[null,[0,[]],null];
     info_registers(pr);
     pr.set_status("running");
-    if(filename==="/x86/artifact/catm"){
+    if(filename==="/x86/artifact/M0"){
       pr.set_dbg(true);
     };
 //    throw "syscall_execve not fully implemented";
