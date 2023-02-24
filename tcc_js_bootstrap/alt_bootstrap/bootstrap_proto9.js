@@ -1127,6 +1127,14 @@ var new_process=function(){
       case 0x8a:
         var b2=vr8(eip+1);
         switch(b2){
+          case 0x02:
+            var r=vr8(edx);
+            if(dbg){
+              print("mov    (%edx),%al");
+            };
+            eax=r;
+            eip=eip+2;
+            break;
           case 0x03:
             var r=vr8(ebx);
             if(dbg){
@@ -1293,6 +1301,17 @@ var new_process=function(){
             };
             ecx=(ecx-r)|0;
             arith32_setflags(ecx);
+            eip=eip+3;
+            break;
+          case 0xc0:
+            var o=vr8(eip+2);
+            if(dbg){
+              print("add    $"+to_hex(o)+",%eax");
+            };
+            eax=eax+o;
+            arith32_setflags(eax);
+            // FIXME this might not be right
+            eax=eax|0;
             eip=eip+3;
             break;
           case 0xc1:
