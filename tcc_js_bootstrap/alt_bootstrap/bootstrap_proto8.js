@@ -480,6 +480,20 @@ var new_process=function(){
             ecx=ebx;
             eip=eip+2;
             break;
+          case 0xf9:
+            if(dbg){
+              print("mov    %edi,%ecx");
+            };
+            ecx=edi;
+            eip=eip+2;
+            break;
+          case 0xfb:
+            if(dbg){
+              print("mov    %edi,%ebx");
+            };
+            ebx=edi;
+            eip=eip+2;
+            break;
           case 0xc1:
             if(dbg){
               print("mov    %eax,%ecx");
@@ -1891,7 +1905,7 @@ hp.fds=[
     pr.fds=[null,[0,[]],null];
     info_registers(pr);
     pr.set_status("running");
-    if(filename==="/x86/artifact/hex2-0"){
+    if(filename==="/x86/artifact/catm"){
       pr.set_dbg(true);
     };
 //    throw "syscall_execve not fully implemented";
