@@ -1210,6 +1210,15 @@ var new_process=function(){
             arith32_setflags(eax);
             eip=eip+3;
             break;
+          case 0xfa:
+            var r=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("cmp    $"+to_hex(r)+",%edx");
+            };
+            edx=(edx-r)|0;
+            arith32_setflags(edx);
+            eip=eip+3;
+            break;
           case 0xfb:
             var r=sign_extend8(vr8(eip+2));
             if(dbg){
@@ -1499,6 +1508,13 @@ var new_process=function(){
             ecx=vr32(ecx);
             eip=eip+2;
             break;
+          case 0x12:
+            if(dbg){
+              print("mov    (%edx),%edx");
+            };
+            edx=vr32(edx);
+            eip=eip+2;
+            break;
           case 0x1b:
             if(dbg){
               print("mov    (%ebx),%ebx");
@@ -1544,12 +1560,28 @@ var new_process=function(){
             eax=vr32(ecx+o);
             eip=eip+3;
             break;
+          case 0x42:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    0x"+(o.toString(16))+"(%edx),%eax");
+            };
+            eax=vr32(edx+o);
+            eip=eip+3;
+            break;
           case 0x46:
             var o=sign_extend8(vr8(eip+2));
             if(dbg){
               print("mov    0x"+(o.toString(16))+"(%esi),%eax");
             };
             eax=vr32(esi+o);
+            eip=eip+3;
+            break;
+          case 0x48:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    0x"+(o.toString(16))+"(%eax),%ecx");
+            };
+            ecx=vr32(eax+o);
             eip=eip+3;
             break;
           case 0x58:
