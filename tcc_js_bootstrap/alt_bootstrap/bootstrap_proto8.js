@@ -994,9 +994,9 @@ var new_process=function(){
           case 0x1a:
             var r=vr8(edx);
             if(dbg){
-              print("mov    (%edx),%al");
+              print("mov    (%edx),%bl");
             };
-            eax=r;
+            ebx=r;
             eip=eip+2;
             break;
           case 0xFFFF:
