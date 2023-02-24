@@ -1057,6 +1057,24 @@ var new_process=function(){
             eax=r;
             eip=eip+3;
             break;
+          case 0xe8:
+            var c=vr8(eip+2);
+            if(dbg){
+              print("shr    $0x"+c.toString(16)+",%eax");
+            };
+            var r=eax;
+            var tc = c & 0x1F;
+            while(tc!==0){
+              CF=r&1;
+              r=r>>>1;
+              tc=tc-1;
+            };
+            if((c & 0x1F) ===1){
+              OF = (r>>>31);
+            };
+            eax=r;
+            eip=eip+3;
+            break;
           case 0xFFFF:
             if(dbg){
             };
