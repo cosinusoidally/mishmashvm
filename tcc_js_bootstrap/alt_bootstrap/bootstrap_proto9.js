@@ -403,6 +403,14 @@ var new_process=function(){
             vw32(edx+o,eax);
             eip=eip+3;
             break;
+          case 0x4a:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    %ecx,"+to_hex(o)+"(%edx)");
+            };
+            vw32(edx+o,ecx);
+            eip=eip+3;
+            break;
           case 0x6e:
             var o=sign_extend8(vr8(eip+2));
             if(dbg){
@@ -1590,6 +1598,14 @@ var new_process=function(){
               print("mov    0x"+(o.toString(16))+"(%eax),%ebx");
             };
             ebx=vr32(eax+o);
+            eip=eip+3;
+            break;
+          case 0x59:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    0x"+(o.toString(16))+"(%ecx),%ebx");
+            };
+            ebx=vr32(ecx+o);
             eip=eip+3;
             break;
           default:
