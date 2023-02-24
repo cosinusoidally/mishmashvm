@@ -380,6 +380,14 @@ var new_process=function(){
             vw32(eax+o,edi);
             eip=eip+3;
             break;
+          case 0x42:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    %eax,"+to_hex(o)+"(%edx)");
+            };
+            vw32(edx+o,eax);
+            eip=eip+3;
+            break;
           case 0x6e:
             var o=sign_extend8(vr8(eip+2));
             if(dbg){
@@ -393,6 +401,20 @@ var new_process=function(){
               print("mov    %eax,%ebp");
             };
             ebp=eax;
+            eip=eip+2;
+            break;
+          case 0xcb:
+            if(dbg){
+              print("mov    %ecx,%ebx");
+            };
+            ebx=ecx;
+            eip=eip+2;
+            break;
+          case 0xd0:
+            if(dbg){
+              print("mov    %edx,%eax");
+            };
+            eax=edx;
             eip=eip+2;
             break;
           case 0xd5:
@@ -604,6 +626,13 @@ var new_process=function(){
               print("mov    %al,(%ebx)");
             };
             vw32(ebx,eax&0xFF);
+            eip=eip+2;
+            break;
+          case 0x0a:
+            if(dbg){
+              print("mov    %cl,(%edx)");
+            };
+            vw32(edx,ecx&0xFF);
             eip=eip+2;
             break;
           default:
@@ -1285,6 +1314,13 @@ var new_process=function(){
               print("cmp    %ecx,%ebx");
             };
             arith32_setflags((((ebx)|0)-((ecx|0)))|0);
+            eip=eip+2;
+            break;
+          case 0xd9:
+            if(dbg){
+              print("cmp    %ebx,%ecx");
+            };
+            arith32_setflags((((ecx)|0)-((ebx|0)))|0);
             eip=eip+2;
             break;
           case 0xFFFF:
