@@ -1141,6 +1141,20 @@ var new_process=function(){
             ecx=r;
             eip=eip+2;
             break;
+          case 0x04:
+            var b3=vr8(eip+2);
+            switch(b3){
+              case 0x0b:
+                if(dbg){
+                  print("mov    (%ebx,%ecx,1),%al");
+                };
+                eax=(eax&0xFFFFFF00)+((vr32(ebx+ecx))&0xFF);
+                eip=eip+3;
+                break;
+              default:
+              throw "unimplemented: " + to_hex((b1<<16)+(b2<<8)+b3);
+            };
+            break;
           case 0xFFFF:
             if(dbg){
             };
