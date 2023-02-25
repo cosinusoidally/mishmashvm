@@ -115,6 +115,18 @@ var new_process=function(){
   var CF=0;
   var OF=0;
 
+  var get_flags=function(){
+    return (IF|(ZF<<1)|(SF<<2)|(CF<<3)|(OF<<4));
+  };
+
+  var load_flags=function(F){
+     IF=F&1;
+     ZF=(F>>>1)&1;
+     SF=(F>>>2)&1;
+     CF=(F>>>3)&1;
+     OF=(F>>>4)&1;
+  };
+
   var status;
 
   var int_no=0;
@@ -1249,6 +1261,15 @@ var new_process=function(){
       case 0x83:
         var b2=vr8(eip+1);
         switch(b2){
+          case 0xe0:
+            var r=vr8(eip+2);
+            if(dbg){
+              print("and    $"+to_hex(r)+",%eax");
+            };
+            eax=(eax&r)|0;
+            arith32_setflags(eax);
+            eip=eip+3;
+            break;
           case 0xe8:
             var r=sign_extend8(vr8(eip+2));
             if(dbg){
@@ -1662,6 +1683,24 @@ var new_process=function(){
           default:
             throw "unimplemented: " + b1.toString(16)+b2.toString(16);
         };
+        break;
+      case 0x9c:
+        if(dbg){
+          print("pushf");
+        };
+        var F=get_flags();
+        esp=esp-4;
+        vw32(esp,F);
+        eip++;
+        break;
+      case 0x9d:
+        if(dbg){
+          print("popf");
+        };
+        var F=vr32(esp);
+        load_flags(F);
+        esp=esp+4;
+        eip++;
         break;
       case 0xFFFF:
         if(dbg){
