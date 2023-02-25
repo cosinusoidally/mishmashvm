@@ -1352,6 +1352,15 @@ var new_process=function(){
             arith32_setflags(eax);
             eip=eip+3;
             break;
+          case 0xe9:
+            var r=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("sub    $"+to_hex(r)+",%ecx");
+            };
+            ecx=(ecx-r)|0;
+            arith32_setflags(ecx);
+            eip=eip+3;
+            break;
           case 0xfa:
             var r=sign_extend8(vr8(eip+2));
             if(dbg){
