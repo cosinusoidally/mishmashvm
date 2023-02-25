@@ -409,6 +409,14 @@ var new_process=function(){
             vw32(edx,ebp);
             eip=eip+2;
             break;
+          case 0x58:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    %ebx,"+to_hex(o)+"(%eax)");
+            };
+            vw32(eax+o,ebx);
+            eip=eip+3;
+            break;
           case 0x78:
             var o=sign_extend8(vr8(eip+2));
             if(dbg){
@@ -971,6 +979,15 @@ var new_process=function(){
         };
         eip=vr32(esp);
         esp=esp+4;
+        break;
+      case 0x93:
+        if(dbg){
+          print("xchg   %eax,%ebx");
+        };
+        var t=eax;
+        eax=ebx;
+        ebx=t;
+        eip=eip+1;
         break;
       case 0x3c:
         var r=sign_extend8(vr8(eip+1));
@@ -1728,6 +1745,14 @@ var new_process=function(){
               print("mov    0x"+(o.toString(16))+"(%edx),%eax");
             };
             eax=vr32(edx+o);
+            eip=eip+3;
+            break;
+          case 0x43:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    0x"+(o.toString(16))+"(%ebx),%eax");
+            };
+            eax=vr32(ebx+o);
             eip=eip+3;
             break;
           case 0x46:
