@@ -423,6 +423,14 @@ var new_process=function(){
             vw32(edx+o,ecx);
             eip=eip+3;
             break;
+          case 0x59:
+            var o=sign_extend8(vr8(eip+2));
+            if(dbg){
+              print("mov    %ebx,"+to_hex(o)+"(%ecx)");
+            };
+            vw32(ecx+o,ebx);
+            eip=eip+3;
+            break;
           case 0x6e:
             var o=sign_extend8(vr8(eip+2));
             if(dbg){
@@ -836,6 +844,17 @@ var new_process=function(){
               eip=eip+6;
             };
             break;
+          case 0x86:
+            var o=eip+((vr32(eip+2))|0)+6;
+            if(dbg){
+              print("jbe     "+to_hex(o));
+            };
+            if((CF===1) || (ZF===1)){
+              eip=o;
+            } else {
+              eip=eip+6;
+            };
+            break;
           case 0x8c:
             var o=eip+((vr32(eip+2))|0)+6;
             if(dbg){
@@ -983,6 +1002,17 @@ var new_process=function(){
           print("sub    $0x"+r.toString(16)+",%al");
         };
         var res=(al-r)|0;
+        arith8_setflags(res);
+        eax=res&0xFF;
+        eip=eip+2;
+        break;
+      case 0x04:
+        var r=sign_extend8(vr8(eip+1));
+        var al=sign_extend8(eax&0xFF);
+        if(dbg){
+          print("add    $0x"+r.toString(16)+",%al");
+        };
+        var res=(al+r)|0;
         arith8_setflags(res);
         eax=res&0xFF;
         eip=eip+2;
@@ -1163,6 +1193,22 @@ var new_process=function(){
             eax=r;
             eip=eip+2;
             break;
+          case 0x08:
+            var r=vr8(eax);
+            if(dbg){
+              print("mov    (%eax),%cl");
+            };
+            ecx=r;
+            eip=eip+2;
+            break;
+          case 0x18:
+            var r=vr8(eax);
+            if(dbg){
+              print("mov    (%eax),%bl");
+            };
+            ebx=r;
+            eip=eip+2;
+            break;
           case 0x1a:
             var r=vr8(edx);
             if(dbg){
@@ -1178,6 +1224,15 @@ var new_process=function(){
             };
             ecx=r;
             eip=eip+2;
+            break;
+          case 0x4b:
+            var o=sign_extend8(vr8(eip+2));
+            var r=vr8(ebx+o);
+            if(dbg){
+              print("mov    0x"+x.toString(16)+"(%ebx),%cl");
+            };
+            ecx=r;
+            eip=eip+3;
             break;
           case 0x04:
             var b3=vr8(eip+2);
