@@ -273,6 +273,24 @@ var new_process=function(){
         esp=esp+4;
         eip++;
         break;
+      case 0x6b:
+        var b2=vr8(eip+1);
+        switch(b2){
+          case 0xc0:
+            var o=sign_extend8(eip+2);
+            if(dbg){
+              print("imul   $0x"+o.toString(16)+",%eax,%eax");
+            };
+            eax=(eax|0)*o;
+            arith32_setflags(eax);
+            // FIXME this might not be right
+            eax=eax|0;
+            eip=eip+3;
+            break;
+          default:
+            throw "unimplemented: " + b1.toString(16)+b2.toString(16);
+        };
+        break;
       case 0x29:
         var b2=vr8(eip+1);
         switch(b2){
