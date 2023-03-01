@@ -31,6 +31,10 @@ ld=function(){
   load("alt_step.js");
 };
 
+var hex_byte=function(x){
+  return (x&255).toString(16);
+};
+
 alt_step=function(p){
   var print=function(x){
     _print("pid: "+pid+", "+to_hex(get_eip())+": "+x);
@@ -58,12 +62,11 @@ alt_step=function(p){
   var push_generic=function(r){
   };
 
-  var pop_generic=function(r){
-    var reg=r[0]&7;
-    // 58 + rd POP r32 Pop top of stack into dword register
-    print("POP_r32_"+reg_name32(reg));
+  var INT_imm8=function(r){
+    // B8 + rd MOV reg32,imm32 Move immediate dword to register
+    print("INT_imm8 "+hex_byte(vr8(eip)));
     decoded=true;
-    set_eip(eip+1);
+    set_eip(eip+2);
   };
 
   var MOV_reg32_imm32=function(r){
@@ -73,6 +76,15 @@ alt_step=function(p){
     decoded=true;
     set_eip(eip+5);
   };
+
+  var POP_r32=function(r){
+    var reg=r[0]&7;
+    // 58 + rd POP r32 Pop top of stack into dword register
+    print("POP_r32_"+reg_name32(reg));
+    decoded=true;
+    set_eip(eip+1);
+  };
+
 
   var step=function(){
     eip=get_eip();
@@ -99,15 +111,15 @@ alt_step=function(p){
 // 0123 53 PUSH_EBX
 // 0127 57 PUSH_EDI
 // 0130 58 POP_EAX
-    [0x58, pop_generic],
+    [0x58, POP_r32],
 // 0131 59 POP_ECX
-    [0x59, pop_generic],
+    [0x59, POP_r32],
 // 0132 5A POP_EDX
-    [0x5A, pop_generic],
+    [0x5A, POP_r32],
 // 0133 5B POP_EBX
-    [0x5B, pop_generic],
+    [0x5B, POP_r32],
 // 0137 5F POP_EDI
-    [0x5F, pop_generic],
+    [0x5F, POP_r32],
 // 0153 0300 6BC0 IMULI8_EAX
 // 0203 0300 83C0 ADDI8_EAX
 // 0203 0301 83C1 ADDI8_ECX
@@ -189,6 +201,7 @@ alt_step=function(p){
 // 0301 0350 C1E8 SHRI8_EAX
 // 0303 C3 RET
 // 0315 0200 CD80 INT_80
+    [0xCD, INT_imm8],
 // 0350 E8 CALL32
 // 0351 E9 JMP32
   ];
@@ -200,7 +213,7 @@ alt_step=function(p){
     };
   };
   if(decoded===false){
-    print("unimplemented instruction:"+to_hex(b1));
+    print("unimplemented instruction:"+hex_byte(b1));
     throw "";
   };
   }
