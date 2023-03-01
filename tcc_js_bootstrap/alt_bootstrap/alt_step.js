@@ -1,7 +1,59 @@
-alt_step=function(p){
+new_dummy=function(){
+  print("New dummy proc");
+  var alt;
   var step=function(){
-    print("alt_step2");
+    if(alt){
+      return alt();
+    };
+  };
 
+  var p=pt[3];
+
+  var set_step=function(s){
+    alt=s(p);
+  };
+
+  return {
+    step: step,
+    set_step: set_step,
+    get_eip:p.get_eip,
+    get_pid:p.get_pid,
+    vr8:p.vr8,
+    vr32:p.vr32,
+
+  };
+};
+dummy=new_dummy();
+
+
+ld=function(){
+  load("alt_step.js");
+};
+
+alt_step=function(p){
+  var print=function(x){
+    _print("pid: "+pid+", "+to_hex(eip)+": "+x);
+  };
+  var eip;
+  var pid=p.get_pid();
+  var vr8=p.vr8;
+  var vr32=p.vr32;
+
+  var get_eip=p.get_eip;
+
+  var push_generic=function(r){
+  };
+
+  var pop_generic=function(r){
+  };
+
+  var step=function(){
+    eip=get_eip();
+    print("alt_step");
+    var b1=vr8(eip);
+    print(to_hex(b1));
+    var decoded=false;
+    var ops=[
 // 0001 0303 01C3 ADD_EAX_to_EBX
 // 0001 0310 01C8 ADD_ECX_to_EAX
 // 0004 04 ADDI8_AL
@@ -105,6 +157,20 @@ alt_step=function(p){
 // 0315 0200 CD80 INT_80
 // 0350 E8 CALL32
 // 0351 E9 JMP32
+  ];
+  for(var i=0;i<ops.length;i++){
+    if(ops[i][0]===b1){
+      print("decoded first byte");
+    };
+  };
+  if(decoded===false){
+    throw "unimplemented instruction";
+  };
   }
   return step;
+};
+dummy.set_step(alt_step);
+var eip=dummy.get_eip();
+while((dummy.get_eip()-eip)<100){
+dummy.step();
 };

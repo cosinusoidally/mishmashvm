@@ -2595,34 +2595,4 @@ written_files.map(function(x){
   };
 });
 
-new_dummy=function(){
-  print("New dummy proc");
-  var alt;
-  var step=function(){
-    if(alt){
-      return alt();
-    };
-  };
-  var p={
-  };
-  var set_step=function(s){
-    alt=s(p);
-  };
-
-  return {
-    step: step,
-    set_step: set_step
-  };
-};
-
-dummy=new_dummy();
-
 load("alt_step.js");
-dummy.set_step(alt_step);
-
-dummy.step();
-
-ld=function(){
-  load("alt_step.js");
-  dummy.set_step(alt_step);
-};
