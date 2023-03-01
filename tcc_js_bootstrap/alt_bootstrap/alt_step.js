@@ -64,15 +64,22 @@ alt_step=function(p){
 
   var INT_imm8=function(r){
     // B8 + rd MOV reg32,imm32 Move immediate dword to register
-    print("INT_imm8 "+hex_byte(vr8(eip)));
+    print("INT_imm8 "+hex_byte(vr8(eip+1)));
     decoded=true;
     set_eip(eip+2);
+  };
+
+  var MOV_moffs32_EAX=function(r){
+    // A3 MOV moffs32,EAX Move EAX to (seg:offset)
+    print("MOV_moffs32_EAX "+to_hex(vr32(eip+1)));
+    decoded=true;
+    set_eip(eip+5);
   };
 
   var MOV_reg32_imm32=function(r){
     var reg=r[0]&7;
     // B8 + rd MOV reg32,imm32 Move immediate dword to register
-    print("MOV_reg32_imm32_"+reg_name32(reg));
+    print("MOV_reg32_imm32_"+reg_name32(reg)+" "+to_hex(vr32(eip+1)));
     decoded=true;
     set_eip(eip+5);
   };
@@ -187,6 +194,7 @@ alt_step=function(p){
 // 0234 9C PUSH_FLAGS
 // 0235 9D POP_FLAGS
 // 0243 A3 STORE32_Absolute32_eax
+    [0xA3, MOV_moffs32_EAX],
 // 0270 B8 LOADI32_EAX
     [0xB8, MOV_reg32_imm32],
 // 0271 B9 LOADI32_ECX
