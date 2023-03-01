@@ -32,7 +32,7 @@ ld=function(){
 };
 
 var hex_byte=function(x){
-  return (x&255).toString(16);
+  return ("00"+(x&255).toString(16)).slice(-2);
 };
 
 alt_step=function(p){
@@ -92,10 +92,44 @@ alt_step=function(p){
     set_eip(eip+1);
   };
 
+  var modrm_reg_opcode=function(x){
+    return  (x>>>3)&7;
+  };
+
+  var get_mode=function(x){
+    var mod=(x>>>6)&3;
+    var rm=x&7;
+    print("mod: "+mod+" rm: "+rm);
+    var modes=[];
+    modes[3]=["EAX"];
+    var mode=modes[mod][rm];
+    if(mode!==undefined){
+      return mode;
+    };
+    throw "undefined mode";
+  };
+
+  var CMP_rm32_imm8=function(mode){
+    // 83 /7 ib CMP r/m32,imm8 Compare sign extended immediate byte to r/m dword
+    print("CMP_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    set_eip(eip+3);
+  };
+
+  var _83=function(r){
+    var op=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    print("0x83 class extra opcode:"+op);
+    if(op===7){
+      CMP_rm32_imm8(mode);
+      decoded=true;
+    };
+  };
+
 
   var step=function(){
     eip=get_eip();
     b1=vr8(eip);
+    b2=vr8(eip+1);
     var ops=[
 // 0001 0303 01C3 ADD_EAX_to_EBX
 // 0001 0310 01C8 ADD_ECX_to_EAX
@@ -128,6 +162,7 @@ alt_step=function(p){
 // 0137 5F POP_EDI
     [0x5F, POP_r32],
 // 0153 0300 6BC0 IMULI8_EAX
+    [0x83, _83],
 // 0203 0300 83C0 ADDI8_EAX
 // 0203 0301 83C1 ADDI8_ECX
 // 0203 0302 83C2 ADDI8_EDX
@@ -221,7 +256,7 @@ alt_step=function(p){
     };
   };
   if(decoded===false){
-    print("unimplemented instruction:"+hex_byte(b1));
+    print("unimplemented instruction:"+hex_byte(b1)+" "+hex_byte(b2));
     throw "";
   };
   }
