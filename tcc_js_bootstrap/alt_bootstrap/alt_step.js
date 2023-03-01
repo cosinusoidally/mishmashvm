@@ -76,6 +76,15 @@ alt_step=function(p){
     set_eip(eip+5);
   };
 
+  var MOV_rm32_r32=function(r){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 89 /r MOV r/m32,r32 Move dword register to r/m dword
+    print("MOV_rm32_r32_"+mode+"_"+reg_name32(reg));
+    decoded=true;
+    set_eip(eip+2);
+  };
+
   var MOV_reg32_imm32=function(r){
     var reg=r[0]&7;
     // B8 + rd MOV reg32,imm32 Move immediate dword to register
@@ -101,12 +110,18 @@ alt_step=function(p){
     var rm=x&7;
     print("mod: "+mod+" rm: "+rm);
     var modes=[];
-    modes[3]=["EAX"];
+    modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
     var mode=modes[mod][rm];
     if(mode!==undefined){
       return mode;
     };
     throw "undefined mode";
+  };
+
+  var CALL_rel32=function(){
+    print("CALL_rel32 "+to_hex(vr32(eip+1)));
+    decoded=true;
+    set_eip(eip+5);
   };
 
   var CMP_rm32_imm8=function(mode){
@@ -197,6 +212,7 @@ alt_step=function(p){
 // 0203 0377 83FF CMPI8_EDI
 // 0210 0003 8803 STORE8_al_into_Address_EBX
 // 0210 0012 880A STORE8_cl_into_Address_EDX
+    [0x89, MOV_rm32_r32],
 // 0211 0001 8901 STORE32_EAX_into_Address_ECX
 // 0211 0003 8903 STORE32_EAX_into_Address_EBX
 // 0211 0052 892A STORE32_EBP_into_Address_EDX
@@ -267,6 +283,7 @@ alt_step=function(p){
 // 0315 0200 CD80 INT_80
     [0xCD, INT_imm8],
 // 0350 E8 CALL32
+    [0xE8, CALL_rel32],
 // 0351 E9 JMP32
   ];
   decoded=false;
@@ -288,7 +305,7 @@ dummy.set_eip(0x08048054);
 var eip=dummy.get_eip();
 
 try{
-while((dummy.get_eip()-eip)<100){
+while((dummy.get_eip()-eip)<300){
 dummy.step();
 };
 } catch (e){
