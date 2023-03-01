@@ -101,6 +101,14 @@ alt_step=function(p){
     set_eip(eip+1);
   };
 
+  var PUSH_r32=function(r){
+    var reg=r[0]&7;
+    // 50 + /r PUSH r32 Push register dword
+    print("PUSH_r32_"+reg_name32(reg));
+    decoded=true;
+    set_eip(eip+1);
+  };
+
   var modrm_reg_opcode=function(x){
     return  (x>>>3)&7;
   };
@@ -183,10 +191,15 @@ alt_step=function(p){
 // 0071 0331 39D9 CMP_EBX_ECX
 // 0074 3C CMPI8_AL
 // 0120 50 PUSH_EAX
+    [0x50, PUSH_r32],
 // 0121 51 PUSH_ECX
+    [0x51, PUSH_r32],
 // 0122 52 PUSH_EDX
+    [0x52, PUSH_r32],
 // 0123 53 PUSH_EBX
+    [0x53, PUSH_r32],
 // 0127 57 PUSH_EDI
+    [0x57, PUSH_r32],
 // 0130 58 POP_EAX
     [0x58, POP_r32],
 // 0131 59 POP_ECX
@@ -305,7 +318,7 @@ dummy.set_eip(0x08048054);
 var eip=dummy.get_eip();
 
 try{
-while((dummy.get_eip()-eip)<300){
+while(dummy.get_eip()<0x0804823a){
 dummy.step();
 };
 } catch (e){
