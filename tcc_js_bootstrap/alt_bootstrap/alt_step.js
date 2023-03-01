@@ -125,6 +125,26 @@ alt_step=function(p){
     };
   };
 
+  var JNLE_rel32=function(){
+    // 0F 8F cw/cd JNLE rel16/32 Jump near if not less or equal (ZF=0 and SF=OF)
+    print("JNLE_rel32 "+to_hex(vr32(eip+2)));
+    decoded=true;
+    set_eip(eip+6);
+  };
+
+  var ops_0f=[
+      [0x8F, JNLE_rel32],
+  ];
+
+  var _0f=function(r){
+    print("0x0f prefix");
+    for(var i=0;i<ops_0f.length;i++){
+      var op=ops_0f[i];
+      if(op[0]===b2){
+        op[1](op);
+      };
+    };
+  };
 
   var step=function(){
     eip=get_eip();
@@ -135,6 +155,7 @@ alt_step=function(p){
 // 0001 0310 01C8 ADD_ECX_to_EAX
 // 0004 04 ADDI8_AL
 // 0017 0204 0F84 JE32
+    [0x0F, _0f],
 // 0017 0205 0F85 JNE32
 // 0017 0206 0F86 JBE32
 // 0017 0214 0F8C JL32
