@@ -74,6 +74,12 @@ alt_step=function(p){
     set_eip(eip+2);
   };
 
+  var ADD_rm32_r32=function(){
+    print("ADD_rm32_r32_");
+    decoded=true;
+    set_eip(eip+2);
+  };
+
   var MOV_moffs32_EAX=function(r){
     // A3 MOV moffs32,EAX Move EAX to (seg:offset)
     print("MOV_moffs32_EAX "+to_hex(vr32(eip+1)));
@@ -85,11 +91,30 @@ alt_step=function(p){
     var reg=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
     // 89 /r MOV r/m32,r32 Move dword register to r/m dword
-    print("MOV_rm32_r32_"+mode+"_"+reg_name32(reg));
+    extra="";
+    if(disp!==0){
+      var extra=" "+to_hex(vr32(eip+2));
+    };
+    print("MOV_rm32_r32_"+mode+"_"+reg_name32(reg)+extra);
     decoded=true;
-    set_eip(eip+2);
+    set_eip(eip+2+disp);
   };
 
+
+  var disp=0;
+
+  var MOV_r32_rm32=function(r){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 8B /r MOV r32,r/32 Move dword register to r/m dword
+    extra="";
+    if(disp!==0){
+      var extra=" "+to_hex(vr32(eip+2));
+    };
+    print("MOV_r32_rm32_"+reg_name32(reg)+"_"+mode+extra);
+    decoded=true;
+    set_eip(eip+2+disp);
+  };
   var MOV_reg32_imm32=function(r){
     var reg=r[0]&7;
     // B8 + rd MOV reg32,imm32 Move immediate dword to register
@@ -123,13 +148,29 @@ alt_step=function(p){
     var rm=x&7;
     print("mod: "+mod+" rm: "+rm);
     var modes=[];
-    modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--] [--]","disp32","[ESI]","[EDI]"];
+    modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
+    modes[1]=["disp8[EAX]","disp8[ECX]","disp8[EDX]","disp8[EBX]","[--][--]","disp8[EBP]","disp8[ESI]","disp8[EDI]"];
     modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
     var mode=modes[mod][rm];
+    if(mode==="disp32"){
+      disp=4;
+    };
+    if(mode.split("[")[0]==="disp8"){
+      disp=1;
+    };
     if(mode!==undefined){
       return mode;
     };
     throw "undefined mode";
+  };
+
+  var LEA_r32_m=function(){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 8D /r LEA r32,m 2 Store effective address for m in register r32
+    print("LEA_r32_m_"+reg_name32(reg)+"_"+mode);
+    set_eip(eip+3);
+    decoded=true;
   };
 
   var CALL_rel32=function(){
@@ -173,6 +214,12 @@ alt_step=function(p){
     set_eip(eip+6);
   };
 
+  var JNE_rel32=function(){
+    print("JNE_rel32 "+to_hex(vr32(eip+2)));
+    decoded=true;
+    set_eip(eip+6);
+  };
+
   var JE_rel32=function(){
     // 0F 84 cw/cd JE rel16/32 Jump near if equal (ZF=1)
     print("JE_rel32 "+to_hex(vr32(eip+2)));
@@ -193,6 +240,7 @@ alt_step=function(p){
   var ops_0f=[
       [0x8F, JNLE_rel32],
       [0x84, JE_rel32],
+      [0x85, JNE_rel32],
       [0xb6, MOVZX_r32_rm8],
   ];
 
@@ -211,8 +259,10 @@ alt_step=function(p){
     b1=vr8(eip);
     b2=vr8(eip+1);
     b3=vr8(eip+2);
+    disp=0;
     var ops=[
 // 0001 0303 01C3 ADD_EAX_to_EBX
+    [0x01, ADD_rm32_r32],
 // 0001 0310 01C8 ADD_ECX_to_EAX
 // 0004 04 ADDI8_AL
 // 0017 0204 0F84 JE32
@@ -299,6 +349,7 @@ alt_step=function(p){
 // 0212 0032 8A1A LOAD8_BL_from_EDX
 // 0212 0113 8A4B LOAD8_CL_from_EBX_Immediate8
 // 0213 0000 8B00 LOAD32_EAX_from_EAX
+    [0x8B, MOV_r32_rm32],
 // 0213 0001 8B01 LOAD32_EAX_from_ECX
 // 0213 0011 8B09 LOAD32_ECX_from_ECX
 // 0213 0013 8B0B LOAD32_ECX_from_EBX
@@ -313,6 +364,7 @@ alt_step=function(p){
 // 0213 0130 8B58 LOAD32_EBX_from_EAX_Immediate8
 // 0213 0131 8B59 LOAD32_EBX_from_ECX_Immediate8
 // 0215 0014 0044 8D0C24 LEA32_ECX_from_esp
+    [0x8D, LEA_r32_m],
 // 0223 93 XCHG_EAX_EBX
 // 0234 9C PUSH_FLAGS
 // 0235 9D POP_FLAGS
