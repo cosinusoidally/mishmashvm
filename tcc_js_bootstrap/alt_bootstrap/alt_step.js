@@ -165,6 +165,20 @@ alt_step=function(p){
     set_eip(eip+1);
   };
 
+  var PUSHFD=function(r){
+    // 9C PUSHFD Push EFLAGS
+    print("PUSHF");
+    decoded=true;
+    set_eip(eip+1);
+  };
+
+  var POPFD=function(r){
+    // 9D POPFD Pop top of stack into EFLAGS
+    print("POPFD");
+    decoded=true;
+    set_eip(eip+1);
+  };
+
   var modrm_reg_opcode=function(x){
     return  (x>>>3)&7;
   };
@@ -215,6 +229,13 @@ alt_step=function(p){
     print("RET");
     decoded=true;
     set_eip(eip+1);
+  };
+
+  var CMP_AL_imm8=function(){
+    print("CMP_AL_imm8 "+hex_byte(vr8(eip+1)));
+    // 3C ib CMP AL,imm8 Compare immediate byte to AL
+    decoded=true;
+    set_eip(eip+2);
   };
 
   var CMP_rm32_r32=function(r){
@@ -354,6 +375,7 @@ alt_step=function(p){
 // 0071 0330 39D8 CMP_EBX_EAX
 // 0071 0331 39D9 CMP_EBX_ECX
 // 0074 3C CMPI8_AL
+    [0x3C, CMP_AL_imm8],
 // 0120 50 PUSH_EAX
     [0x50, PUSH_r32],
 // 0121 51 PUSH_ECX
@@ -445,7 +467,9 @@ alt_step=function(p){
     [0x8D, LEA_r32_m],
 // 0223 93 XCHG_EAX_EBX
 // 0234 9C PUSH_FLAGS
+    [0x9C, PUSHFD],
 // 0235 9D POP_FLAGS
+    [0x9D, POPFD],
 // 0243 A3 STORE32_Absolute32_eax
     [0xA3, MOV_moffs32_EAX],
 // 0270 B8 LOADI32_EAX
