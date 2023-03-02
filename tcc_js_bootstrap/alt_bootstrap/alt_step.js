@@ -74,6 +74,12 @@ alt_step=function(p){
     set_eip(eip+2);
   };
 
+  var ADD_AL_imm8=function(r){
+    // 04 ib ADD AL,imm8 2 Add immediate byte to AL
+    print("ADD_AL_imm8 "+hex_byte(vr8(eip+1)));
+    decoded=true;
+    set_eip(eip+2);
+  };
   var ADD_rm32_r32=function(){
     print("ADD_rm32_r32_");
     decoded=true;
@@ -374,6 +380,11 @@ alt_step=function(p){
     set_eip(eip+6);
   };
 
+  var JBE_rel32=function(){
+    print("JBE_rel32 "+to_hex(vr32(eip+2)));
+    decoded=true;
+    set_eip(eip+6);
+  };
 
   var MOVZX_r32_rm8 = function(){
     var reg=modrm_reg_opcode(b3);
@@ -388,6 +399,7 @@ alt_step=function(p){
       [0x8F, JNLE_rel32],
       [0x84, JE_rel32],
       [0x85, JNE_rel32],
+      [0x86, JBE_rel32],
       [0x8C, JL_rel32],
       [0xb6, MOVZX_r32_rm8],
   ];
@@ -413,6 +425,7 @@ alt_step=function(p){
     [0x01, ADD_rm32_r32],
 // 0001 0310 01C8 ADD_ECX_to_EAX
 // 0004 04 ADDI8_AL
+    [0x04, ADD_AL_imm8],
 // 0017 0204 0F84 JE32
     [0x0F, _0f],
 // 0017 0205 0F85 JNE32
@@ -579,7 +592,7 @@ dummy.step();
 print();
 dummy.set_eip(0x080482bb);
 print("staring at:"+to_hex(dummy.get_eip()));
-while(dummy.get_eip()<0x08048647){
+while(dummy.get_eip()<0x08048645){
 dummy.step();
 };
 } catch (e){
