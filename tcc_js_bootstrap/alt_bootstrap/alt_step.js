@@ -123,7 +123,7 @@ alt_step=function(p){
     var rm=x&7;
     print("mod: "+mod+" rm: "+rm);
     var modes=[];
-    modes[2]=[];
+    modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--] [--]","disp32","[ESI]","[EDI]"];
     modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
     var mode=modes[mod][rm];
     if(mode!==undefined){
@@ -136,6 +136,18 @@ alt_step=function(p){
     print("CALL_rel32 "+to_hex(vr32(eip+1)));
     decoded=true;
     set_eip(eip+5);
+  };
+
+  var JMP_rel32=function(){
+    print("JMP_rel32 "+to_hex(vr32(eip+1)));
+    decoded=true;
+    set_eip(eip+5);
+  };
+
+  var RET=function(){
+    print("RET");
+    decoded=true;
+    set_eip(eip+1);
   };
 
   var CMP_rm32_imm8=function(mode){
@@ -319,11 +331,13 @@ alt_step=function(p){
 // 0301 0340 C1E0 SHLI8_EAX
 // 0301 0350 C1E8 SHRI8_EAX
 // 0303 C3 RET
+    [0xC3, RET],
 // 0315 0200 CD80 INT_80
     [0xCD, INT_imm8],
 // 0350 E8 CALL32
     [0xE8, CALL_rel32],
 // 0351 E9 JMP32
+    [0xE9, JMP_rel32],
   ];
   decoded=false;
   for(var i=0;i<ops.length;i++){
