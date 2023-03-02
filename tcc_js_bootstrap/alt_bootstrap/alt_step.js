@@ -59,6 +59,11 @@ alt_step=function(p){
     return regs[x];
   };
 
+  var reg_name8=function(x){
+    var regs=["AL","CL","DL","BL"];
+    return regs[x];
+  };
+
   var push_generic=function(r){
   };
 
@@ -118,6 +123,7 @@ alt_step=function(p){
     var rm=x&7;
     print("mod: "+mod+" rm: "+rm);
     var modes=[];
+    modes[2]=[];
     modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
     var mode=modes[mod][rm];
     if(mode!==undefined){
@@ -155,8 +161,27 @@ alt_step=function(p){
     set_eip(eip+6);
   };
 
+  var JE_rel32=function(){
+    // 0F 84 cw/cd JE rel16/32 Jump near if equal (ZF=1)
+    print("JE_rel32 "+to_hex(vr32(eip+2)));
+    decoded=true;
+    set_eip(eip+6);
+  };
+
+
+  var MOVZX_r32_rm8 = function(){
+    var reg=modrm_reg_opcode(b3);
+    var mode=get_mode(b3);
+    // 0F B6 /r MOVZX r32,r/m8 Move byte to dword, zero-extend
+    print("MOVZX_r32_rm8_"+mode+"_"+reg_name8(reg));
+    decoded=true;
+    set_eip(eip+3);
+  };
+
   var ops_0f=[
       [0x8F, JNLE_rel32],
+      [0x84, JE_rel32],
+      [0xb6, MOVZX_r32_rm8],
   ];
 
   var _0f=function(r){
@@ -173,6 +198,7 @@ alt_step=function(p){
     eip=get_eip();
     b1=vr8(eip);
     b2=vr8(eip+1);
+    b3=vr8(eip+2);
     var ops=[
 // 0001 0303 01C3 ADD_EAX_to_EBX
 // 0001 0310 01C8 ADD_ECX_to_EAX
