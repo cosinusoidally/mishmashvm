@@ -126,6 +126,19 @@ alt_step=function(p){
     set_eip(eip+2+disp);
   };
 
+  var IMUL_r32_rm32_imm8=function(r){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 6B /r ib IMUL r32,r/m32,imm8 dword register <- r/m32 * sign-extended immediate byte
+    extra="";
+    if(disp!==0){
+      var extra=" "+to_hex(vr32(eip+2));
+    };
+    print("IMUL_r32_rm32_imm8_"+reg_name32(reg)+"_"+mode+extra+" "+hex_byte(vr8(eip+disp+2)));
+    decoded=true;
+    set_eip(eip+2+disp+1);
+  };
+
 
   var disp=0;
 
@@ -401,8 +414,9 @@ alt_step=function(p){
 // 0137 5F POP_EDI
     [0x5F, POP_r32],
 // 0153 0300 6BC0 IMULI8_EAX
-    [0x83, _83],
+    [0x6B, IMUL_r32_rm32_imm8 ],
 // 0203 0300 83C0 ADDI8_EAX
+    [0x83, _83],
 // 0203 0301 83C1 ADDI8_ECX
 // 0203 0302 83C2 ADDI8_EDX
 // 0203 0303 83C3 ADDI8_EBX
