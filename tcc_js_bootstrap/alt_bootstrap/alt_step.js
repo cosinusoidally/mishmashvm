@@ -256,6 +256,32 @@ alt_step=function(p){
     };
   };
 
+  var SHL_rm32_imm8=function(mode){
+    // C1 /4 ib SHL r/m32,imm8 3/7 Multiply r/m dword by 2, imm8 times
+    print("SHL_rm32_imm8 "+hex_byte((vr8(eip+2))));
+    set_eip(eip+3);
+  };
+
+  var SHR_rm32_imm8=function(mode){
+    //C1 /5 ib SHR r/m32,imm8 3/7 Unsigned divide r/m dword by 2, imm8 times
+    print("SHR_rm32_imm8 "+hex_byte((vr8(eip+2))));
+    set_eip(eip+3);
+  };
+
+  var _c1=function(r){
+    var op=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    print("0xc1 class extra opcode:"+op);
+    if(op===5){
+      SHR_rm32_imm8(mode);
+      decoded=true;
+    };
+    if(op===4){
+      SHL_rm32_imm8(mode);
+      decoded=true;
+    };
+  };
+
   var JNLE_rel32=function(){
     // 0F 8F cw/cd JNLE rel16/32 Jump near if not less or equal (ZF=0 and SF=OF)
     print("JNLE_rel32 "+to_hex(vr32(eip+2)));
@@ -433,6 +459,7 @@ alt_step=function(p){
 // 0277 BF LOADI32_EDI
     [0xBF, MOV_reg32_imm32],
 // 0301 0340 C1E0 SHLI8_EAX
+    [0xC1, _c1],
 // 0301 0350 C1E8 SHRI8_EAX
 // 0303 C3 RET
     [0xC3, RET],
@@ -467,8 +494,14 @@ dummy.step();
 };
 dummy.set_eip(0x08048244);
 print();
-print("staring at:"+to_hex(eip));
-while(dummy.get_eip()<0x08048645){
+print("staring at:"+to_hex(dummy.get_eip()));
+while(dummy.get_eip()<0x080482b4){
+dummy.step();
+};
+print();
+dummy.set_eip(0x080482bb);
+print("staring at:"+to_hex(dummy.get_eip()));
+while(dummy.get_eip()<0x08048647){
 dummy.step();
 };
 } catch (e){
