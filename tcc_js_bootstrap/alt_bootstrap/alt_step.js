@@ -87,6 +87,32 @@ alt_step=function(p){
     set_eip(eip+5);
   };
 
+  var MOV_rm8_r8=function(){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 88 /r MOV r/m8,r8 Move byte register to r/m byte
+    extra="";
+    if(disp!==0){
+      var extra=" "+to_hex(vr32(eip+2));
+    };
+    print("MOV_rm8_r8"+mode+"_"+reg_name8(reg)+extra);
+    decoded=true;
+    set_eip(eip+2+disp);
+  };
+
+  var MOV_r8_rm8=function(){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 8A /r MOV r8,r/m8 Move r/m byte to byte register
+    extra="";
+    if(disp!==0){
+      var extra=" "+to_hex(vr32(eip+2));
+    };
+    print("MOV_rm8_r8_"+reg_name8(reg)+"_"+mode+extra);
+    decoded=true;
+    set_eip(eip+2+disp);
+  };
+
   var MOV_rm32_r32=function(r){
     var reg=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
@@ -191,9 +217,28 @@ alt_step=function(p){
     set_eip(eip+1);
   };
 
+  var CMP_rm32_r32=function(r){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 39 /r CMP r/m32,r32 Compare dword register to r/m dword
+    extra="";
+    if(disp!==0){
+      var extra=" "+to_hex(vr32(eip+2));
+    };
+    print("CMP_rm32_r32_"+mode+"_"+reg_name32(reg)+" "+extra);
+    decoded=true;
+    set_eip(eip+2+disp);
+  };
+
   var CMP_rm32_imm8=function(mode){
     // 83 /7 ib CMP r/m32,imm8 Compare sign extended immediate byte to r/m dword
     print("CMP_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    set_eip(eip+3);
+  };
+
+  var ADD_rm32_imm8=function(mode){
+    // 83 /0 ib ADD r/m32,imm8 Add sign-extended immediate byte to r/m dword
+    print("ADD_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
     set_eip(eip+3);
   };
 
@@ -203,6 +248,10 @@ alt_step=function(p){
     print("0x83 class extra opcode:"+op);
     if(op===7){
       CMP_rm32_imm8(mode);
+      decoded=true;
+    };
+    if(op===0){
+      ADD_rm32_imm8(mode);
       decoded=true;
     };
   };
@@ -275,6 +324,7 @@ alt_step=function(p){
 // 0017 0266 0311 0FB6C9 MOVZX_cl_EAX
 // 0017 0266 0333 0FB6DB MOVZX_bl_EAX
 // 0071 0310 39C8 CMP_ECX_EAX
+    [0x39, CMP_rm32_r32],
 // 0071 0330 39D8 CMP_EBX_EAX
 // 0071 0331 39D9 CMP_EBX_ECX
 // 0074 3C CMPI8_AL
@@ -312,9 +362,10 @@ alt_step=function(p){
 // 0203 0373 83FB CMPI8_EBX
 // 0203 0377 83FF CMPI8_EDI
 // 0210 0003 8803 STORE8_al_into_Address_EBX
+    [0x88, MOV_rm8_r8],
 // 0210 0012 880A STORE8_cl_into_Address_EDX
-    [0x89, MOV_rm32_r32],
 // 0211 0001 8901 STORE32_EAX_into_Address_ECX
+    [0x89, MOV_rm32_r32],
 // 0211 0003 8903 STORE32_EAX_into_Address_EBX
 // 0211 0052 892A STORE32_EBP_into_Address_EDX
 // 0211 0101 8941 STORE32_EAX_into_Address_ECX_Immediate8
@@ -340,6 +391,7 @@ alt_step=function(p){
 // 0211 0370 89F8 COPY_EDI_to_EAX
 // 0211 0373 89FB COPY_EDI_to_EBX
 // 0212 0001 8A01 LOAD8_AL_from_ECX
+    [0x8A, MOV_r8_rm8],
 // 0212 0002 8A02 LOAD8_AL_from_EDX
 // 0212 0003 8A03 LOAD8_AL_from_EBX
 // 0212 0004 0013 8A040B LOAD8_AL_from_EBX_indexed_ECX
@@ -411,6 +463,12 @@ var eip=dummy.get_eip();
 
 try{
 while(dummy.get_eip()<0x0804823a){
+dummy.step();
+};
+dummy.set_eip(0x08048244);
+print();
+print("staring at:"+to_hex(eip));
+while(dummy.get_eip()<0x08048645){
 dummy.step();
 };
 } catch (e){
