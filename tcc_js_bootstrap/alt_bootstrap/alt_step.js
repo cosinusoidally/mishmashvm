@@ -178,6 +178,14 @@ alt_step=function(p){
     set_eip(eip+1);
   };
 
+  var XCHG_r32_EAX=function(r){
+    var reg=r[0]&7;
+    // 90 + r XCHG r32,EAX Exchange dword register with EAX
+    print("XCHG_r32_EAX_"+reg_name32(reg));
+    decoded=true;
+    set_eip(eip+1);
+  };
+
   var PUSHFD=function(r){
     // 9C PUSHFD Push EFLAGS
     print("PUSHF");
@@ -280,6 +288,18 @@ alt_step=function(p){
     set_eip(eip+3);
   };
 
+  var AND_rm32_imm8=function(mode){
+    // 83 /4 ib AND r/m32,imm8 AND sign-extended immediate byte with r/m dword
+    print("AND_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    set_eip(eip+3);
+  };
+
+  var SUB_rm32_imm8=function(mode){
+    // 83 /5 ib SUB r/m32,imm8 Subtract sign-extended immediate byte from r/m dword
+    print("SUB_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    set_eip(eip+3);
+  };
+
   var _83=function(r){
     var op=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
@@ -290,6 +310,14 @@ alt_step=function(p){
     };
     if(op===0){
       ADD_rm32_imm8(mode);
+      decoded=true;
+    };
+    if(op===5){
+      SUB_rm32_imm8(mode);
+      decoded=true;
+    };
+    if(op===4){
+      AND_rm32_imm8(mode);
       decoded=true;
     };
   };
@@ -340,6 +368,12 @@ alt_step=function(p){
     set_eip(eip+6);
   };
 
+  var JL_rel32=function(){
+    print("JL_rel32 "+to_hex(vr32(eip+2)));
+    decoded=true;
+    set_eip(eip+6);
+  };
+
 
   var MOVZX_r32_rm8 = function(){
     var reg=modrm_reg_opcode(b3);
@@ -354,6 +388,7 @@ alt_step=function(p){
       [0x8F, JNLE_rel32],
       [0x84, JE_rel32],
       [0x85, JNE_rel32],
+      [0x8C, JL_rel32],
       [0xb6, MOVZX_r32_rm8],
   ];
 
@@ -484,6 +519,7 @@ alt_step=function(p){
 // 0215 0014 0044 8D0C24 LEA32_ECX_from_esp
     [0x8D, LEA_r32_m],
 // 0223 93 XCHG_EAX_EBX
+    [0x93, XCHG_r32_EAX],
 // 0234 9C PUSH_FLAGS
     [0x9C, PUSHFD],
 // 0235 9D POP_FLAGS
