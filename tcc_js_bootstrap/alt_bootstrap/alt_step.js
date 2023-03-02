@@ -192,11 +192,15 @@ alt_step=function(p){
     modes[1]=["disp8[EAX]","disp8[ECX]","disp8[EDX]","disp8[EBX]","[--][--]","disp8[EBP]","disp8[ESI]","disp8[EDI]"];
     modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
     var mode=modes[mod][rm];
+    if(mode==="[--][--]"){
+      // FIXME decode SIB
+      disp=disp+1;
+    };
     if(mode==="disp32"){
-      disp=4;
+      disp=disp+4;
     };
     if(mode.split("[")[0]==="disp8"){
-      disp=1;
+      disp=disp+1;
     };
     if(mode!==undefined){
       return mode;
