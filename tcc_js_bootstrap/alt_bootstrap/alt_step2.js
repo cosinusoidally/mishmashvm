@@ -58,6 +58,8 @@ alt_step=function(p){
 
   var ilen=0;
   var target=0;
+  var imm8=0;
+  var imm32=0;
 
   var mod;
   var reg;
@@ -189,9 +191,15 @@ alt_step=function(p){
     };
   };
 
+  var load_imm8=function(){
+    imm8=vr8(eip+ilen-1);
+  };
+
   var ADD_AL_imm8=function(r){
     // 04 ib ADD AL,imm8 2 Add immediate byte to AL
-    print("ADD_AL_imm8 "+hex_byte(vr8(eip+1)));
+    ilen++;
+    load_imm8();
+    print("ADD_AL_imm8 "+hex_byte(imm8));
     decoded=true;
     set_eip(eip+2);
   };
@@ -210,7 +218,9 @@ alt_step=function(p){
 
   var AND_rm32_imm8=function(mode){
     // 83 /4 ib AND r/m32,imm8 AND sign-extended immediate byte with r/m dword
-    print("AND_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    ilen++;
+    load_imm8();
+    print("AND_rm32_imm8_"+mode+" "+hex_byte(imm8));
     set_eip(eip+3);
   };
 
@@ -231,7 +241,9 @@ alt_step=function(p){
 
   var CMP_rm32_imm8=function(mode){
     // 83 /7 ib CMP r/m32,imm8 Compare sign extended immediate byte to r/m dword
-    print("CMP_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    ilen++;
+    load_imm8();
+    print("CMP_rm32_imm8_"+mode+" "+hex_byte(imm8));
     set_eip(eip+3);
   };
 
@@ -453,7 +465,9 @@ alt_step=function(p){
 
   var SUB_rm32_imm8=function(mode){
     // 83 /5 ib SUB r/m32,imm8 Subtract sign-extended immediate byte from r/m dword
-    print("SUB_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    ilen++;
+    load_imm8();
+    print("SUB_rm32_imm8_"+mode+" "+hex_byte(imm8));
     set_eip(eip+3);
   };
 
