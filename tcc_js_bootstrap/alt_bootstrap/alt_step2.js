@@ -192,7 +192,8 @@ alt_step=function(p){
   };
 
   var load_imm8=function(){
-    imm8=vr8(eip+ilen-1);
+    imm8=vr8(eip+ilen);
+    ilen++;
   };
 
   var ADD_AL_imm8=function(r){
@@ -201,29 +202,29 @@ alt_step=function(p){
     load_imm8();
     print("ADD_AL_imm8 "+hex_byte(imm8));
     decoded=true;
-    set_eip(eip+2);
+    set_eip(eip+ilen);
   };
 
   var ADD_rm32_imm8=function(mode){
     // 83 /0 ib ADD r/m32,imm8 Add sign-extended immediate byte to r/m dword
-    ilen++;
     load_imm8();
     print("ADD_rm32_imm8_"+mode+" "+hex_byte(imm8));
-    set_eip(eip+3);
+    set_eip(eip+ilen);
   };
 
   var ADD_rm32_r32=function(){
+    ilen++;
+    decode_modrm();
     print("ADD_rm32_r32_");
     decoded=true;
-    set_eip(eip+2);
+    set_eip(eip+ilen);
   };
 
   var AND_rm32_imm8=function(mode){
     // 83 /4 ib AND r/m32,imm8 AND sign-extended immediate byte with r/m dword
-    ilen++;
     load_imm8();
     print("AND_rm32_imm8_"+mode+" "+hex_byte(imm8));
-    set_eip(eip+3);
+    set_eip(eip+ilen);
   };
 
   var CALL_rel32=function(){
@@ -243,10 +244,9 @@ alt_step=function(p){
 
   var CMP_rm32_imm8=function(mode){
     // 83 /7 ib CMP r/m32,imm8 Compare sign extended immediate byte to r/m dword
-    ilen++;
     load_imm8();
     print("CMP_rm32_imm8_"+mode+" "+hex_byte(imm8));
-    set_eip(eip+3);
+    set_eip(eip+ilen);
   };
 
   var CMP_rm32_r32=function(r){
@@ -467,10 +467,9 @@ alt_step=function(p){
 
   var SUB_rm32_imm8=function(mode){
     // 83 /5 ib SUB r/m32,imm8 Subtract sign-extended immediate byte from r/m dword
-    ilen++;
     load_imm8();
     print("SUB_rm32_imm8_"+mode+" "+hex_byte(imm8));
-    set_eip(eip+3);
+    set_eip(eip+ilen);
   };
 
   var XCHG_r32_EAX=function(r){
