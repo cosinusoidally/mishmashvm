@@ -101,6 +101,29 @@ alt_step=function(p){
     throw "undefined mode";
   };
 
+  var get_mode2=function(x){
+    print("mod: "+mod+" rm: "+rm);
+    var modes=[];
+    modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
+    modes[1]=["disp8[EAX]","disp8[ECX]","disp8[EDX]","disp8[EBX]","[--][--]","disp8[EBP]","disp8[ESI]","disp8[EDI]"];
+    modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
+    var mode=modes[mod][rm];
+    if(mode==="[--][--]"){
+      // FIXME decode SIB
+      disp=disp+1;
+    };
+    if(mode==="disp32"){
+      disp=disp+4;
+    };
+    if(mode.split("[")[0]==="disp8"){
+      disp=disp+1;
+    };
+    if(mode!==undefined){
+      return mode;
+    };
+    throw "undefined mode";
+  };
+
   var decode_modrm=function(){
     var modrm=vr8(eip+ilen);
     ilen++;
@@ -129,24 +152,25 @@ alt_step=function(p){
   };
 
   var _83=function(r){
+    ilen++;
     decode_modrm();
-    var op=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
+    var op=reg_opcode;
+    var mode=get_mode2();
 //    print("0x83 class extra opcode:"+op);
-    if(op===7){
-      CMP_rm32_imm8(mode);
-      decoded=true;
-    };
     if(op===0){
       ADD_rm32_imm8(mode);
+      decoded=true;
+    };
+    if(op===4){
+      AND_rm32_imm8(mode);
       decoded=true;
     };
     if(op===5){
       SUB_rm32_imm8(mode);
       decoded=true;
     };
-    if(op===4){
-      AND_rm32_imm8(mode);
+    if(op===7){
+      CMP_rm32_imm8(mode);
       decoded=true;
     };
   };
