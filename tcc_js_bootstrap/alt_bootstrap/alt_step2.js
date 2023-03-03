@@ -177,55 +177,36 @@ alt_step=function(p){
     set_eip(eip+3);
   };
 
-  var INT_imm8=function(r){
-    // B8 + rd MOV reg32,imm32 Move immediate dword to register
-    print("INT_imm8 "+hex_byte(vr8(eip+1)));
+  var CALL_rel32=function(){
+    ilen=5;
+    compute_target32();
+    print("CALL_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
+    decoded=true;
+    set_eip(eip+ilen);
+  };
+
+  var CMP_AL_imm8=function(){
+    print("CMP_AL_imm8 "+hex_byte(vr8(eip+1)));
+    // 3C ib CMP AL,imm8 Compare immediate byte to AL
     decoded=true;
     set_eip(eip+2);
   };
 
-  var MOV_moffs32_EAX=function(r){
-    // A3 MOV moffs32,EAX Move EAX to (seg:offset)
-    print("MOV_moffs32_EAX "+to_hex(vr32(eip+1)));
-    decoded=true;
-    set_eip(eip+5);
+  var CMP_rm32_imm8=function(mode){
+    // 83 /7 ib CMP r/m32,imm8 Compare sign extended immediate byte to r/m dword
+    print("CMP_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    set_eip(eip+3);
   };
 
-  var MOV_rm8_r8=function(){
+  var CMP_rm32_r32=function(r){
     var reg=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
-    // 88 /r MOV r/m8,r8 Move byte register to r/m byte
+    // 39 /r CMP r/m32,r32 Compare dword register to r/m dword
     extra="";
     if(disp!==0){
       var extra=" "+to_hex(vr32(eip+2));
     };
-    print("MOV_rm8_r8"+mode+"_"+reg_name8(reg)+extra);
-    decoded=true;
-    set_eip(eip+2+disp);
-  };
-
-  var MOV_r8_rm8=function(){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
-    // 8A /r MOV r8,r/m8 Move r/m byte to byte register
-    extra="";
-    if(disp!==0){
-      var extra=" "+to_hex(vr32(eip+2));
-    };
-    print("MOV_rm8_r8_"+reg_name8(reg)+"_"+mode+extra);
-    decoded=true;
-    set_eip(eip+2+disp);
-  };
-
-  var MOV_rm32_r32=function(r){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
-    // 89 /r MOV r/m32,r32 Move dword register to r/m dword
-    extra="";
-    if(disp!==0){
-      var extra=" "+to_hex(vr32(eip+2));
-    };
-    print("MOV_rm32_r32_"+mode+"_"+reg_name32(reg)+extra);
+    print("CMP_rm32_r32_"+mode+"_"+reg_name32(reg)+" "+extra);
     decoded=true;
     set_eip(eip+2+disp);
   };
@@ -243,79 +224,11 @@ alt_step=function(p){
     set_eip(eip+2+disp+1);
   };
 
-  var MOV_r32_rm32=function(r){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
-    // 8B /r MOV r32,r/32 Move dword register to r/m dword
-    extra="";
-    if(disp!==0){
-      var extra=" "+to_hex(vr32(eip+2));
-    };
-    print("MOV_r32_rm32_"+reg_name32(reg)+"_"+mode+extra);
-    decoded=true;
-    set_eip(eip+2+disp);
-  };
-  var MOV_reg32_imm32=function(r){
-    var reg=r[0]&7;
+  var INT_imm8=function(r){
     // B8 + rd MOV reg32,imm32 Move immediate dword to register
-    print("MOV_reg32_imm32_"+reg_name32(reg)+" "+to_hex(vr32(eip+1)));
+    print("INT_imm8 "+hex_byte(vr8(eip+1)));
     decoded=true;
-    set_eip(eip+5);
-  };
-
-  var POP_r32=function(r){
-    var reg=r[0]&7;
-    // 58 + rd POP r32 Pop top of stack into dword register
-    print("POP_r32_"+reg_name32(reg));
-    decoded=true;
-    set_eip(eip+1);
-  };
-
-  var PUSH_r32=function(r){
-    var reg=r[0]&7;
-    // 50 + /r PUSH r32 Push register dword
-    print("PUSH_r32_"+reg_name32(reg));
-    decoded=true;
-    set_eip(eip+1);
-  };
-
-  var XCHG_r32_EAX=function(r){
-    var reg=r[0]&7;
-    // 90 + r XCHG r32,EAX Exchange dword register with EAX
-    print("XCHG_r32_EAX_"+reg_name32(reg));
-    decoded=true;
-    set_eip(eip+1);
-  };
-
-  var PUSHFD=function(r){
-    // 9C PUSHFD Push EFLAGS
-    print("PUSHF");
-    decoded=true;
-    set_eip(eip+1);
-  };
-
-  var POPFD=function(r){
-    // 9D POPFD Pop top of stack into EFLAGS
-    print("POPFD");
-    decoded=true;
-    set_eip(eip+1);
-  };
-
-  var LEA_r32_m=function(){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
-    // 8D /r LEA r32,m 2 Store effective address for m in register r32
-    print("LEA_r32_m_"+reg_name32(reg)+"_"+mode);
-    set_eip(eip+3);
-    decoded=true;
-  };
-
-  var CALL_rel32=function(){
-    ilen=5;
-    compute_target32();
-    print("CALL_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
-    decoded=true;
-    set_eip(eip+ilen);
+    set_eip(eip+2);
   };
 
   var JBE_rel32=function(){
@@ -368,36 +281,123 @@ alt_step=function(p){
     set_eip(eip+ilen);
   };
 
-  var RET=function(){
-    print("RET");
+  var MOV_moffs32_EAX=function(r){
+    // A3 MOV moffs32,EAX Move EAX to (seg:offset)
+    print("MOV_moffs32_EAX "+to_hex(vr32(eip+1)));
     decoded=true;
-    set_eip(eip+1);
+    set_eip(eip+5);
   };
 
-  var CMP_AL_imm8=function(){
-    print("CMP_AL_imm8 "+hex_byte(vr8(eip+1)));
-    // 3C ib CMP AL,imm8 Compare immediate byte to AL
-    decoded=true;
-    set_eip(eip+2);
-  };
-
-  var CMP_rm32_r32=function(r){
+  var MOV_rm8_r8=function(){
     var reg=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
-    // 39 /r CMP r/m32,r32 Compare dword register to r/m dword
+    // 88 /r MOV r/m8,r8 Move byte register to r/m byte
     extra="";
     if(disp!==0){
       var extra=" "+to_hex(vr32(eip+2));
     };
-    print("CMP_rm32_r32_"+mode+"_"+reg_name32(reg)+" "+extra);
+    print("MOV_rm8_r8"+mode+"_"+reg_name8(reg)+extra);
     decoded=true;
     set_eip(eip+2+disp);
   };
 
-  var CMP_rm32_imm8=function(mode){
-    // 83 /7 ib CMP r/m32,imm8 Compare sign extended immediate byte to r/m dword
-    print("CMP_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+  var MOV_r8_rm8=function(){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 8A /r MOV r8,r/m8 Move r/m byte to byte register
+    extra="";
+    if(disp!==0){
+      var extra=" "+to_hex(vr32(eip+2));
+    };
+    print("MOV_rm8_r8_"+reg_name8(reg)+"_"+mode+extra);
+    decoded=true;
+    set_eip(eip+2+disp);
+  };
+
+  var MOV_rm32_r32=function(r){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 89 /r MOV r/m32,r32 Move dword register to r/m dword
+    extra="";
+    if(disp!==0){
+      var extra=" "+to_hex(vr32(eip+2));
+    };
+    print("MOV_rm32_r32_"+mode+"_"+reg_name32(reg)+extra);
+    decoded=true;
+    set_eip(eip+2+disp);
+  };
+
+  var MOV_r32_rm32=function(r){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 8B /r MOV r32,r/32 Move dword register to r/m dword
+    extra="";
+    if(disp!==0){
+      var extra=" "+to_hex(vr32(eip+2));
+    };
+    print("MOV_r32_rm32_"+reg_name32(reg)+"_"+mode+extra);
+    decoded=true;
+    set_eip(eip+2+disp);
+  };
+  var MOV_reg32_imm32=function(r){
+    var reg=r[0]&7;
+    // B8 + rd MOV reg32,imm32 Move immediate dword to register
+    print("MOV_reg32_imm32_"+reg_name32(reg)+" "+to_hex(vr32(eip+1)));
+    decoded=true;
+    set_eip(eip+5);
+  };
+
+  var PUSHFD=function(r){
+    // 9C PUSHFD Push EFLAGS
+    print("PUSHF");
+    decoded=true;
+    set_eip(eip+1);
+  };
+
+  var PUSH_r32=function(r){
+    var reg=r[0]&7;
+    // 50 + /r PUSH r32 Push register dword
+    print("PUSH_r32_"+reg_name32(reg));
+    decoded=true;
+    set_eip(eip+1);
+  };
+
+  var POPFD=function(r){
+    // 9D POPFD Pop top of stack into EFLAGS
+    print("POPFD");
+    decoded=true;
+    set_eip(eip+1);
+  };
+
+  var POP_r32=function(r){
+    var reg=r[0]&7;
+    // 58 + rd POP r32 Pop top of stack into dword register
+    print("POP_r32_"+reg_name32(reg));
+    decoded=true;
+    set_eip(eip+1);
+  };
+
+  var XCHG_r32_EAX=function(r){
+    var reg=r[0]&7;
+    // 90 + r XCHG r32,EAX Exchange dword register with EAX
+    print("XCHG_r32_EAX_"+reg_name32(reg));
+    decoded=true;
+    set_eip(eip+1);
+  };
+
+  var LEA_r32_m=function(){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 8D /r LEA r32,m 2 Store effective address for m in register r32
+    print("LEA_r32_m_"+reg_name32(reg)+"_"+mode);
     set_eip(eip+3);
+    decoded=true;
+  };
+
+  var RET=function(){
+    print("RET");
+    decoded=true;
+    set_eip(eip+1);
   };
 
   var SUB_rm32_imm8=function(mode){
