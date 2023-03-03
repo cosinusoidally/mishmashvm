@@ -64,6 +64,7 @@ alt_step=function(p){
   var mod;
   var reg;
   var rm;
+  var mode;
 
   var reg_name32=function(x){
     var regs=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
@@ -103,13 +104,13 @@ alt_step=function(p){
     throw "undefined mode";
   };
 
-  var get_mode2=function(x){
+  var get_mode2=function(){
     print("mod: "+mod+" rm: "+rm);
     var modes=[];
     modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
     modes[1]=["disp8[EAX]","disp8[ECX]","disp8[EDX]","disp8[EBX]","[--][--]","disp8[EBP]","disp8[ESI]","disp8[EDI]"];
     modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
-    var mode=modes[mod][rm];
+    mode=modes[mod][rm];
     if(mode==="[--][--]"){
       // FIXME decode SIB
       disp=disp+1;
@@ -121,7 +122,7 @@ alt_step=function(p){
       disp=disp+1;
     };
     if(mode!==undefined){
-      return mode;
+      return;
     };
     throw "undefined mode";
   };
@@ -132,6 +133,7 @@ alt_step=function(p){
     mod=(modrm>>>6)&3;
     reg_opcode=(modrm>>>3)&7;
     rm=modrm&7;
+    get_mode2();
   };
 
   var modrm_reg_opcode=function(x){
@@ -157,7 +159,6 @@ alt_step=function(p){
     ilen++;
     decode_modrm();
     var op=reg_opcode;
-    var mode=get_mode2();
 //    print("0x83 class extra opcode:"+op);
     if(op===0){
       ADD_rm32_imm8(mode);
@@ -215,7 +216,6 @@ alt_step=function(p){
   var ADD_rm32_r32=function(){
     ilen++;
     decode_modrm();
-    var mode=get_mode2();
     print("ADD_rm32_r32_"+mode+" "+reg_name32(reg));
     decoded=true;
     set_eip(eip+ilen);
@@ -256,7 +256,6 @@ alt_step=function(p){
     // 39 /r CMP r/m32,r32 Compare dword register to r/m dword
     ilen++;
     decode_modrm();
-    var mode=get_mode2();
     extra="";
     if(disp!==0){
       var extra=" "+to_hex(vr32(eip+2));
