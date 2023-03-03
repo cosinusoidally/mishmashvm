@@ -106,6 +106,16 @@ alt_step=function(p){
     target=eip+(vr32(eip+ilen-4)|0)+ilen;
   };
 
+  var _0f=function(r){
+//    print("0x0f prefix");
+    for(var i=0;i<ops_0f.length;i++){
+      var op=ops_0f[i];
+      if(op[0]===b2){
+        op[1](op);
+      };
+    };
+  };
+
   var _83=function(r){
     var op=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
@@ -424,16 +434,6 @@ alt_step=function(p){
       [0x8C, JL_rel32],
       [0xb6, MOVZX_r32_rm8],
   ];
-
-  var _0f=function(r){
-//    print("0x0f prefix");
-    for(var i=0;i<ops_0f.length;i++){
-      var op=ops_0f[i];
-      if(op[0]===b2){
-        op[1](op);
-      };
-    };
-  };
 
   var step=function(){
     eip=get_eip();
