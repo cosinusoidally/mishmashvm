@@ -281,6 +281,15 @@ alt_step=function(p){
     set_eip(eip+ilen);
   };
 
+  var LEA_r32_m=function(){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 8D /r LEA r32,m 2 Store effective address for m in register r32
+    print("LEA_r32_m_"+reg_name32(reg)+"_"+mode);
+    set_eip(eip+3);
+    decoded=true;
+  };
+
   var MOV_moffs32_EAX=function(r){
     // A3 MOV moffs32,EAX Move EAX to (seg:offset)
     print("MOV_moffs32_EAX "+to_hex(vr32(eip+1)));
@@ -347,6 +356,15 @@ alt_step=function(p){
     set_eip(eip+5);
   };
 
+  var MOVZX_r32_rm8 = function(){
+    var reg=modrm_reg_opcode(b3);
+    var mode=get_mode(b3);
+    // 0F B6 /r MOVZX r32,r/m8 Move byte to dword, zero-extend
+    print("MOVZX_r32_rm8_"+mode+"_"+reg_name8(reg));
+    decoded=true;
+    set_eip(eip+3);
+  };
+
   var PUSHFD=function(r){
     // 9C PUSHFD Push EFLAGS
     print("PUSHF");
@@ -377,33 +395,10 @@ alt_step=function(p){
     set_eip(eip+1);
   };
 
-  var XCHG_r32_EAX=function(r){
-    var reg=r[0]&7;
-    // 90 + r XCHG r32,EAX Exchange dword register with EAX
-    print("XCHG_r32_EAX_"+reg_name32(reg));
-    decoded=true;
-    set_eip(eip+1);
-  };
-
-  var LEA_r32_m=function(){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
-    // 8D /r LEA r32,m 2 Store effective address for m in register r32
-    print("LEA_r32_m_"+reg_name32(reg)+"_"+mode);
-    set_eip(eip+3);
-    decoded=true;
-  };
-
   var RET=function(){
     print("RET");
     decoded=true;
     set_eip(eip+1);
-  };
-
-  var SUB_rm32_imm8=function(mode){
-    // 83 /5 ib SUB r/m32,imm8 Subtract sign-extended immediate byte from r/m dword
-    print("SUB_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
-    set_eip(eip+3);
   };
 
   var SHL_rm32_imm8=function(mode){
@@ -418,13 +413,18 @@ alt_step=function(p){
     set_eip(eip+3);
   };
 
-  var MOVZX_r32_rm8 = function(){
-    var reg=modrm_reg_opcode(b3);
-    var mode=get_mode(b3);
-    // 0F B6 /r MOVZX r32,r/m8 Move byte to dword, zero-extend
-    print("MOVZX_r32_rm8_"+mode+"_"+reg_name8(reg));
-    decoded=true;
+  var SUB_rm32_imm8=function(mode){
+    // 83 /5 ib SUB r/m32,imm8 Subtract sign-extended immediate byte from r/m dword
+    print("SUB_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
     set_eip(eip+3);
+  };
+
+  var XCHG_r32_EAX=function(r){
+    // 90 + r XCHG r32,EAX Exchange dword register with EAX
+    var reg=r[0]&7;
+    print("XCHG_r32_EAX_"+reg_name32(reg));
+    decoded=true;
+    set_eip(eip+1);
   };
 
   var ops_0f=[
