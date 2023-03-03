@@ -372,79 +372,66 @@ alt_step=function(p){
   };
 
   var MOV_r8_rm8=function(){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
     // 8A /r MOV r8,r/m8 Move r/m byte to byte register
-    extra="";
-    if(disp!==0){
-      var extra=" "+to_hex(vr32(eip+2));
-    };
-    print("MOV_rm8_r8_"+reg_name8(reg)+"_"+mode+extra);
+    ilen++;
+    decode_modrm();
+    print("MOV_r8_rm8_"+reg_name8(reg)+"_"+mode+extra);
     decoded=true;
-    set_eip(eip+2+disp);
+    set_eip(eip+ilen);
   };
 
   var MOV_rm8_r8=function(){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
     // 88 /r MOV r/m8,r8 Move byte register to r/m byte
-    extra="";
-    if(disp!==0){
-      var extra=" "+to_hex(vr32(eip+2));
-    };
+    ilen++;
+    decode_modrm();
     print("MOV_rm8_r8"+mode+"_"+reg_name8(reg)+extra);
     decoded=true;
-    set_eip(eip+2+disp);
+    set_eip(eip+ilen);
   };
 
   var MOV_r32_rm32=function(r){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
     // 8B /r MOV r32,r/32 Move dword register to r/m dword
-    extra="";
-    if(disp!==0){
-      var extra=" "+to_hex(vr32(eip+2));
-    };
+    ilen++;
+    decode_modrm();
     print("MOV_r32_rm32_"+reg_name32(reg)+"_"+mode+extra);
     decoded=true;
-    set_eip(eip+2+disp);
+    set_eip(eip+ilen);
   };
 
   var MOV_reg32_imm32=function(r){
-    var reg=r[0]&7;
     // B8 + rd MOV reg32,imm32 Move immediate dword to register
-    print("MOV_reg32_imm32_"+reg_name32(reg)+" "+to_hex(vr32(eip+1)));
+    ilen++;
+    load_imm32();
+    var reg=r[0]&7;
+    print("MOV_reg32_imm32_"+reg_name32(reg)+" "+to_hex(imm32));
     decoded=true;
-    set_eip(eip+5);
+    set_eip(eip+ilen);
   };
 
   var MOV_rm32_r32=function(r){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
     // 89 /r MOV r/m32,r32 Move dword register to r/m dword
-    extra="";
-    if(disp!==0){
-      var extra=" "+to_hex(vr32(eip+2));
-    };
+    ilen++;
+    decode_modrm();
     print("MOV_rm32_r32_"+mode+"_"+reg_name32(reg)+extra);
     decoded=true;
-    set_eip(eip+2+disp);
+    set_eip(eip+ilen);
   };
 
   var MOVZX_r32_rm8 = function(){
-    var reg=modrm_reg_opcode(b3);
-    var mode=get_mode(b3);
     // 0F B6 /r MOVZX r32,r/m8 Move byte to dword, zero-extend
+    ilen=2;
+    decode_modrm();
     print("MOVZX_r32_rm8_"+mode+"_"+reg_name8(reg));
     decoded=true;
-    set_eip(eip+3);
+    set_eip(eip+ilen);
   };
 
   var POPFD=function(r){
     // 9D POPFD Pop top of stack into EFLAGS
+    ilen++;
     print("POPFD");
     decoded=true;
-    set_eip(eip+1);
+    set_eip(eip+ilen);
   };
 
   var POP_r32=function(r){
