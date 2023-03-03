@@ -303,7 +303,7 @@ alt_step=function(p){
     compute_target32();
     print("JBE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
-    set_eip(eip+6);
+    set_eip(eip+ilen);
   };
 
   var JE_rel32=function(){
@@ -312,7 +312,7 @@ alt_step=function(p){
     compute_target32();
     print("JE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
-    set_eip(eip+6);
+    set_eip(eip+ilen);
   };
 
   var JL_rel32=function(){
@@ -320,7 +320,7 @@ alt_step=function(p){
     compute_target32();
     print("JL_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
-    set_eip(eip+6);
+    set_eip(eip+ilen);
   };
 
   var JMP_rel32=function(){
@@ -336,7 +336,7 @@ alt_step=function(p){
     compute_target32();
     print("JNE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
-    set_eip(eip+6);
+    set_eip(eip+ilen);
   };
 
   var JNLE_rel32=function(){
@@ -353,8 +353,8 @@ alt_step=function(p){
     var mode=get_mode(b2);
     // 8D /r LEA r32,m 2 Store effective address for m in register r32
     print("LEA_r32_m_"+reg_name32(reg)+"_"+mode);
-    set_eip(eip+3);
     decoded=true;
+    set_eip(eip+3);
   };
 
   var MOV_moffs32_EAX=function(r){
