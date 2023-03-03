@@ -297,19 +297,6 @@ alt_step=function(p){
     set_eip(eip+5);
   };
 
-  var MOV_rm8_r8=function(){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
-    // 88 /r MOV r/m8,r8 Move byte register to r/m byte
-    extra="";
-    if(disp!==0){
-      var extra=" "+to_hex(vr32(eip+2));
-    };
-    print("MOV_rm8_r8"+mode+"_"+reg_name8(reg)+extra);
-    decoded=true;
-    set_eip(eip+2+disp);
-  };
-
   var MOV_r8_rm8=function(){
     var reg=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
@@ -323,15 +310,15 @@ alt_step=function(p){
     set_eip(eip+2+disp);
   };
 
-  var MOV_rm32_r32=function(r){
+  var MOV_rm8_r8=function(){
     var reg=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
-    // 89 /r MOV r/m32,r32 Move dword register to r/m dword
+    // 88 /r MOV r/m8,r8 Move byte register to r/m byte
     extra="";
     if(disp!==0){
       var extra=" "+to_hex(vr32(eip+2));
     };
-    print("MOV_rm32_r32_"+mode+"_"+reg_name32(reg)+extra);
+    print("MOV_rm8_r8"+mode+"_"+reg_name8(reg)+extra);
     decoded=true;
     set_eip(eip+2+disp);
   };
@@ -348,12 +335,26 @@ alt_step=function(p){
     decoded=true;
     set_eip(eip+2+disp);
   };
+
   var MOV_reg32_imm32=function(r){
     var reg=r[0]&7;
     // B8 + rd MOV reg32,imm32 Move immediate dword to register
     print("MOV_reg32_imm32_"+reg_name32(reg)+" "+to_hex(vr32(eip+1)));
     decoded=true;
     set_eip(eip+5);
+  };
+
+  var MOV_rm32_r32=function(r){
+    var reg=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+    // 89 /r MOV r/m32,r32 Move dword register to r/m dword
+    extra="";
+    if(disp!==0){
+      var extra=" "+to_hex(vr32(eip+2));
+    };
+    print("MOV_rm32_r32_"+mode+"_"+reg_name32(reg)+extra);
+    decoded=true;
+    set_eip(eip+2+disp);
   };
 
   var MOVZX_r32_rm8 = function(){
@@ -363,21 +364,6 @@ alt_step=function(p){
     print("MOVZX_r32_rm8_"+mode+"_"+reg_name8(reg));
     decoded=true;
     set_eip(eip+3);
-  };
-
-  var PUSHFD=function(r){
-    // 9C PUSHFD Push EFLAGS
-    print("PUSHF");
-    decoded=true;
-    set_eip(eip+1);
-  };
-
-  var PUSH_r32=function(r){
-    var reg=r[0]&7;
-    // 50 + /r PUSH r32 Push register dword
-    print("PUSH_r32_"+reg_name32(reg));
-    decoded=true;
-    set_eip(eip+1);
   };
 
   var POPFD=function(r){
@@ -391,6 +377,21 @@ alt_step=function(p){
     var reg=r[0]&7;
     // 58 + rd POP r32 Pop top of stack into dword register
     print("POP_r32_"+reg_name32(reg));
+    decoded=true;
+    set_eip(eip+1);
+  };
+
+  var PUSHFD=function(r){
+    // 9C PUSHFD Push EFLAGS
+    print("PUSHF");
+    decoded=true;
+    set_eip(eip+1);
+  };
+
+  var PUSH_r32=function(r){
+    var reg=r[0]&7;
+    // 50 + /r PUSH r32 Push register dword
+    print("PUSH_r32_"+reg_name32(reg));
     decoded=true;
     set_eip(eip+1);
   };
