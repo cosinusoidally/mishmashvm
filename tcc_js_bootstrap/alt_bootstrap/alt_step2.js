@@ -152,21 +152,34 @@ alt_step=function(p){
     };
   };
 
-  var INT_imm8=function(r){
-    // B8 + rd MOV reg32,imm32 Move immediate dword to register
-    print("INT_imm8 "+hex_byte(vr8(eip+1)));
-    decoded=true;
-    set_eip(eip+2);
-  };
-
   var ADD_AL_imm8=function(r){
     // 04 ib ADD AL,imm8 2 Add immediate byte to AL
     print("ADD_AL_imm8 "+hex_byte(vr8(eip+1)));
     decoded=true;
     set_eip(eip+2);
   };
+
+  var ADD_rm32_imm8=function(mode){
+    // 83 /0 ib ADD r/m32,imm8 Add sign-extended immediate byte to r/m dword
+    print("ADD_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    set_eip(eip+3);
+  };
+
   var ADD_rm32_r32=function(){
     print("ADD_rm32_r32_");
+    decoded=true;
+    set_eip(eip+2);
+  };
+
+  var AND_rm32_imm8=function(mode){
+    // 83 /4 ib AND r/m32,imm8 AND sign-extended immediate byte with r/m dword
+    print("AND_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    set_eip(eip+3);
+  };
+
+  var INT_imm8=function(r){
+    // B8 + rd MOV reg32,imm32 Move immediate dword to register
+    print("INT_imm8 "+hex_byte(vr8(eip+1)));
     decoded=true;
     set_eip(eip+2);
   };
@@ -305,10 +318,52 @@ alt_step=function(p){
     set_eip(eip+ilen);
   };
 
+  var JBE_rel32=function(){
+    ilen=6;
+    compute_target32();
+    print("JBE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
+    decoded=true;
+    set_eip(eip+6);
+  };
+
+  var JE_rel32=function(){
+    // 0F 84 cw/cd JE rel16/32 Jump near if equal (ZF=1)
+    ilen=6;
+    compute_target32();
+    print("JE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
+    decoded=true;
+    set_eip(eip+6);
+  };
+
+  var JL_rel32=function(){
+    ilen=6;
+    compute_target32();
+    print("JL_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
+    decoded=true;
+    set_eip(eip+6);
+  };
+
   var JMP_rel32=function(){
     ilen=5;
     compute_target32();
     print("JMP_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
+    decoded=true;
+    set_eip(eip+ilen);
+  };
+
+  var JNE_rel32=function(){
+    ilen=6;
+    compute_target32();
+    print("JNE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
+    decoded=true;
+    set_eip(eip+6);
+  };
+
+  var JNLE_rel32=function(){
+    // 0F 8F cw/cd JNLE rel16/32 Jump near if not less or equal (ZF=0 and SF=OF)
+    ilen=6;
+    compute_target32();
+    print("JNLE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
     set_eip(eip+ilen);
   };
@@ -345,18 +400,6 @@ alt_step=function(p){
     set_eip(eip+3);
   };
 
-  var ADD_rm32_imm8=function(mode){
-    // 83 /0 ib ADD r/m32,imm8 Add sign-extended immediate byte to r/m dword
-    print("ADD_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
-    set_eip(eip+3);
-  };
-
-  var AND_rm32_imm8=function(mode){
-    // 83 /4 ib AND r/m32,imm8 AND sign-extended immediate byte with r/m dword
-    print("AND_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
-    set_eip(eip+3);
-  };
-
   var SUB_rm32_imm8=function(mode){
     // 83 /5 ib SUB r/m32,imm8 Subtract sign-extended immediate byte from r/m dword
     print("SUB_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
@@ -373,48 +416,6 @@ alt_step=function(p){
     //C1 /5 ib SHR r/m32,imm8 3/7 Unsigned divide r/m dword by 2, imm8 times
     print("SHR_rm32_imm8 "+hex_byte((vr8(eip+2))));
     set_eip(eip+3);
-  };
-
-  var JNLE_rel32=function(){
-    // 0F 8F cw/cd JNLE rel16/32 Jump near if not less or equal (ZF=0 and SF=OF)
-    ilen=6;
-    compute_target32();
-    print("JNLE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
-    decoded=true;
-    set_eip(eip+ilen);
-  };
-
-  var JNE_rel32=function(){
-    ilen=6;
-    compute_target32();
-    print("JNE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
-    decoded=true;
-    set_eip(eip+6);
-  };
-
-  var JE_rel32=function(){
-    // 0F 84 cw/cd JE rel16/32 Jump near if equal (ZF=1)
-    ilen=6;
-    compute_target32();
-    print("JE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
-    decoded=true;
-    set_eip(eip+6);
-  };
-
-  var JL_rel32=function(){
-    ilen=6;
-    compute_target32();
-    print("JL_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
-    decoded=true;
-    set_eip(eip+6);
-  };
-
-  var JBE_rel32=function(){
-    ilen=6;
-    compute_target32();
-    print("JBE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
-    decoded=true;
-    set_eip(eip+6);
   };
 
   var MOVZX_r32_rm8 = function(){
