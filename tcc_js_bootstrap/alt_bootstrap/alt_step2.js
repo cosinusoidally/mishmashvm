@@ -60,11 +60,15 @@ alt_step=function(p){
   var target=0;
   var imm8=0;
   var imm32=0;
+  var disp32=0;
+  var disp8=0;
 
   var mod;
   var reg;
+  var reg_opcode;
   var rm;
   var mode;
+  var extra;
 
   var reg_name32=function(x){
     var regs=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
@@ -106,6 +110,7 @@ alt_step=function(p){
 
   var get_mode2=function(){
     print("mod: "+mod+" rm: "+rm);
+    extra="";
     var modes=[];
     modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
     modes[1]=["disp8[EAX]","disp8[ECX]","disp8[EDX]","disp8[EBX]","[--][--]","disp8[EBP]","disp8[ESI]","disp8[EDI]"];
@@ -113,13 +118,15 @@ alt_step=function(p){
     mode=modes[mod][rm];
     if(mode==="[--][--]"){
       // FIXME decode SIB
-      disp=disp+1;
+      ilen=ilen+1;
     };
     if(mode==="disp32"){
-      disp=disp+4;
+      load_disp32();
+      extra=extra+" "+to_hex(disp32);
     };
     if(mode.split("[")[0]==="disp8"){
-      disp=disp+1;
+      load_disp8();
+      extra=extra+" "+to_hex(disp8);
     };
     if(mode!==undefined){
       return;
@@ -132,6 +139,7 @@ alt_step=function(p){
     ilen++;
     mod=(modrm>>>6)&3;
     reg_opcode=(modrm>>>3)&7;
+    reg=reg_opcode;
     rm=modrm&7;
     get_mode2();
   };
@@ -197,6 +205,16 @@ alt_step=function(p){
     ilen++;
   };
 
+  var load_disp32=function(){
+    disp32=vr32(eip+ilen);
+    ilen=ilen+4;
+  };
+
+  var load_disp8=function(){
+    disp8=vr8(eip+ilen);
+    ilen++;
+  };
+
   var ADD_AL_imm8=function(r){
     // 04 ib ADD AL,imm8 2 Add immediate byte to AL
     ilen++;
@@ -256,33 +274,28 @@ alt_step=function(p){
     // 39 /r CMP r/m32,r32 Compare dword register to r/m dword
     ilen++;
     decode_modrm();
-    extra="";
-    if(disp!==0){
-      var extra=" "+to_hex(vr32(eip+2));
-    };
     print("CMP_rm32_r32_"+mode+"_"+reg_name32(reg)+" "+extra);
     decoded=true;
-    set_eip(eip+2+disp);
+    set_eip(eip+ilen);
   };
 
   var IMUL_r32_rm32_imm8=function(r){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
+    ilen++;
+    decode_modrm();
+    load_imm8();
     // 6B /r ib IMUL r32,r/m32,imm8 dword register <- r/m32 * sign-extended immediate byte
-    extra="";
-    if(disp!==0){
-      var extra=" "+to_hex(vr32(eip+2));
-    };
-    print("IMUL_r32_rm32_imm8_"+reg_name32(reg)+"_"+mode+extra+" "+hex_byte(vr8(eip+disp+2)));
+    print("IMUL_r32_rm32_imm8_"+reg_name32(reg)+"_"+mode+extra+" "+hex_byte(imm8));
     decoded=true;
-    set_eip(eip+2+disp+1);
+    set_eip(eip+ilen);
   };
 
   var INT_imm8=function(r){
     // B8 + rd MOV reg32,imm32 Move immediate dword to register
-    print("INT_imm8 "+hex_byte(vr8(eip+1)));
+    ilen++;
+    load_imm8();
+    print("INT_imm8 "+hex_byte(imm8));
     decoded=true;
-    set_eip(eip+2);
+    set_eip(eip+ilen);
   };
 
   var JBE_rel32=function(){
