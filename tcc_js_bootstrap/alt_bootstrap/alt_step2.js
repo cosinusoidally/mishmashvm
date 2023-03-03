@@ -118,6 +118,7 @@ alt_step=function(p){
     mode=modes[mod][rm];
     if(mode==="[--][--]"){
       // FIXME decode SIB
+      extra=extra+" todo decode SIB";
       ilen=ilen+1;
     };
     if(mode==="disp32"){
@@ -205,6 +206,11 @@ alt_step=function(p){
     ilen++;
   };
 
+  var load_imm32=function(){
+    imm32=vr32(eip+ilen);
+    ilen=ilen+4;
+  };
+
   var load_disp32=function(){
     disp32=vr32(eip+ilen);
     ilen=ilen+4;
@@ -290,7 +296,6 @@ alt_step=function(p){
   };
 
   var INT_imm8=function(r){
-    // B8 + rd MOV reg32,imm32 Move immediate dword to register
     ilen++;
     load_imm8();
     print("INT_imm8 "+hex_byte(imm8));
@@ -349,19 +354,21 @@ alt_step=function(p){
   };
 
   var LEA_r32_m=function(){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
+    ilen++;
+    decode_modrm();
     // 8D /r LEA r32,m 2 Store effective address for m in register r32
-    print("LEA_r32_m_"+reg_name32(reg)+"_"+mode);
+    print("LEA_r32_m_"+reg_name32(reg)+"_"+mode+extra);
     decoded=true;
-    set_eip(eip+3);
+    set_eip(eip+ilen);
   };
 
   var MOV_moffs32_EAX=function(r){
     // A3 MOV moffs32,EAX Move EAX to (seg:offset)
-    print("MOV_moffs32_EAX "+to_hex(vr32(eip+1)));
+    ilen++;
+    load_imm32();
+    print("MOV_moffs32_EAX "+to_hex(imm32));
     decoded=true;
-    set_eip(eip+5);
+    set_eip(eip+ilen);
   };
 
   var MOV_r8_rm8=function(){
