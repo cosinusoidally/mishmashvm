@@ -215,7 +215,8 @@ alt_step=function(p){
   var ADD_rm32_r32=function(){
     ilen++;
     decode_modrm();
-    print("ADD_rm32_r32_");
+    var mode=get_mode2();
+    print("ADD_rm32_r32_"+mode+" "+reg_name32(reg));
     decoded=true;
     set_eip(eip+ilen);
   };
@@ -236,10 +237,12 @@ alt_step=function(p){
   };
 
   var CMP_AL_imm8=function(){
-    print("CMP_AL_imm8 "+hex_byte(vr8(eip+1)));
+    ilen++;
+    load_imm8();
+    print("CMP_AL_imm8 "+hex_byte(imm8));
     // 3C ib CMP AL,imm8 Compare immediate byte to AL
     decoded=true;
-    set_eip(eip+2);
+    set_eip(eip+ilen);
   };
 
   var CMP_rm32_imm8=function(mode){
@@ -250,9 +253,10 @@ alt_step=function(p){
   };
 
   var CMP_rm32_r32=function(r){
-    var reg=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
     // 39 /r CMP r/m32,r32 Compare dword register to r/m dword
+    ilen++;
+    decode_modrm();
+    var mode=get_mode2();
     extra="";
     if(disp!==0){
       var extra=" "+to_hex(vr32(eip+2));
