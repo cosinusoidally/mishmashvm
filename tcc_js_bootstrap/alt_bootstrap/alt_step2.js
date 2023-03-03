@@ -42,7 +42,6 @@ alt_step=function(p){
 
   var b1;
   var b2;
-  var b3;
 
   var disp=0;
 
@@ -80,35 +79,7 @@ alt_step=function(p){
     return regs[x];
   };
 
-  var push_generic=function(r){
-  };
-
-  var get_mode=function(x){
-    var mod=(x>>>6)&3;
-    var rm=x&7;
-//    print("mod: "+mod+" rm: "+rm);
-    var modes=[];
-    modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
-    modes[1]=["disp8[EAX]","disp8[ECX]","disp8[EDX]","disp8[EBX]","[--][--]","disp8[EBP]","disp8[ESI]","disp8[EDI]"];
-    modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
-    var mode=modes[mod][rm];
-    if(mode==="[--][--]"){
-      // FIXME decode SIB
-      disp=disp+1;
-    };
-    if(mode==="disp32"){
-      disp=disp+4;
-    };
-    if(mode.split("[")[0]==="disp8"){
-      disp=disp+1;
-    };
-    if(mode!==undefined){
-      return mode;
-    };
-    throw "undefined mode";
-  };
-
-  var get_mode2=function(){
+  var get_mode=function(){
     print("mod: "+mod+" rm: "+rm);
     extra="";
     var modes=[];
@@ -142,7 +113,7 @@ alt_step=function(p){
     reg_opcode=(modrm>>>3)&7;
     reg=reg_opcode;
     rm=modrm&7;
-    get_mode2();
+    get_mode();
   };
 
   var modrm_reg_opcode=function(x){
@@ -511,7 +482,6 @@ alt_step=function(p){
     eip=get_eip();
     b1=vr8(eip);
     b2=vr8(eip+1);
-    b3=vr8(eip+2);
     disp=0;
     ilen=0;
     var ops=[
