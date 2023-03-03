@@ -188,8 +188,9 @@ alt_step=function(p){
   };
 
   var _c1=function(r){
-    var op=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
+    ilen++;
+    decode_modrm();
+    var op=reg_opcode;
 //    print("0xc1 class extra opcode:"+op);
     if(op===5){
       SHR_rm32_imm8(mode);
@@ -435,44 +436,50 @@ alt_step=function(p){
   };
 
   var POP_r32=function(r){
-    var reg=r[0]&7;
     // 58 + rd POP r32 Pop top of stack into dword register
+    var reg=r[0]&7;
+    ilen++;
     print("POP_r32_"+reg_name32(reg));
     decoded=true;
-    set_eip(eip+1);
+    set_eip(eip+ilen);
   };
 
   var PUSHFD=function(r){
     // 9C PUSHFD Push EFLAGS
+    ilen++;
     print("PUSHF");
     decoded=true;
-    set_eip(eip+1);
+    set_eip(eip+ilen);
   };
 
   var PUSH_r32=function(r){
-    var reg=r[0]&7;
     // 50 + /r PUSH r32 Push register dword
+    var reg=r[0]&7;
+    ilen++;
     print("PUSH_r32_"+reg_name32(reg));
     decoded=true;
-    set_eip(eip+1);
+    set_eip(eip+ilen);
   };
 
   var RET=function(){
+    ilen++;
     print("RET");
     decoded=true;
-    set_eip(eip+1);
+    set_eip(eip+ilen);
   };
 
   var SHL_rm32_imm8=function(mode){
     // C1 /4 ib SHL r/m32,imm8 3/7 Multiply r/m dword by 2, imm8 times
-    print("SHL_rm32_imm8 "+hex_byte((vr8(eip+2))));
-    set_eip(eip+3);
+    load_imm8();
+    print("SHL_rm32_imm8 "+hex_byte(imm8));
+    set_eip(eip+ilen);
   };
 
   var SHR_rm32_imm8=function(mode){
     //C1 /5 ib SHR r/m32,imm8 3/7 Unsigned divide r/m dword by 2, imm8 times
-    print("SHR_rm32_imm8 "+hex_byte((vr8(eip+2))));
-    set_eip(eip+3);
+    load_imm8();
+    print("SHR_rm32_imm8 "+hex_byte(imm8));
+    set_eip(eip+ilen);
   };
 
   var SUB_rm32_imm8=function(mode){
@@ -484,10 +491,11 @@ alt_step=function(p){
 
   var XCHG_r32_EAX=function(r){
     // 90 + r XCHG r32,EAX Exchange dword register with EAX
+    ilen++;
     var reg=r[0]&7;
     print("XCHG_r32_EAX_"+reg_name32(reg));
     decoded=true;
-    set_eip(eip+1);
+    set_eip(eip+ilen);
   };
 
   var ops_0f=[
