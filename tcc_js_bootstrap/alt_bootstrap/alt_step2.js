@@ -245,15 +245,26 @@ alt_step=function(p){
   };
 
   var CALL_rel32=function(){
-    print("CALL_rel32 "+to_hex(vr32(eip+1)));
+    ilen=5;
+    compute_target32();
+    print("CALL_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
-    set_eip(eip+5);
+    set_eip(eip+ilen);
   };
 
   var JMP_rel32=function(){
-    print("JMP_rel32 "+to_hex(vr32(eip+1)));
+    ilen=5;
+    compute_target32();
+    print("JMP_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
-    set_eip(eip+5);
+    set_eip(eip+ilen);
+  };
+
+  var ilen=0;
+  var target=0;
+
+  var compute_target32=function(){
+    target=eip+(vr32(eip+ilen-4)|0)+ilen;
   };
 
   var RET=function(){
