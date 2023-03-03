@@ -367,32 +367,42 @@ alt_step=function(p){
 
   var JNLE_rel32=function(){
     // 0F 8F cw/cd JNLE rel16/32 Jump near if not less or equal (ZF=0 and SF=OF)
-    print("JNLE_rel32 "+to_hex(vr32(eip+2)));
+    ilen=6;
+    compute_target32();
+    print("JNLE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
-    set_eip(eip+6);
+    set_eip(eip+ilen);
   };
 
   var JNE_rel32=function(){
-    print("JNE_rel32 "+to_hex(vr32(eip+2)));
+    ilen=6;
+    compute_target32();
+    print("JNE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
     set_eip(eip+6);
   };
 
   var JE_rel32=function(){
     // 0F 84 cw/cd JE rel16/32 Jump near if equal (ZF=1)
-    print("JE_rel32 "+to_hex(vr32(eip+2)));
+    ilen=6;
+    compute_target32();
+    print("JE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
     set_eip(eip+6);
   };
 
   var JL_rel32=function(){
-    print("JL_rel32 "+to_hex(vr32(eip+2)));
+    ilen=6;
+    compute_target32();
+    print("JL_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
     set_eip(eip+6);
   };
 
   var JBE_rel32=function(){
-    print("JBE_rel32 "+to_hex(vr32(eip+2)));
+    ilen=6;
+    compute_target32();
+    print("JBE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
     set_eip(eip+6);
   };
