@@ -44,6 +44,8 @@ alt_step=function(p){
   var b2;
   var b3;
 
+  var disp=0;
+
   var eip;
   var pid=p.get_pid();
   var vr8=p.vr8;
@@ -53,6 +55,9 @@ alt_step=function(p){
   var set_eip=p.set_eip;
 
   var decoded=false;
+
+  var ilen=0;
+  var target=0;
 
   var reg_name32=function(x){
     var regs=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
@@ -65,6 +70,76 @@ alt_step=function(p){
   };
 
   var push_generic=function(r){
+  };
+
+  var get_mode=function(x){
+    var mod=(x>>>6)&3;
+    var rm=x&7;
+//    print("mod: "+mod+" rm: "+rm);
+    var modes=[];
+    modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
+    modes[1]=["disp8[EAX]","disp8[ECX]","disp8[EDX]","disp8[EBX]","[--][--]","disp8[EBP]","disp8[ESI]","disp8[EDI]"];
+    modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
+    var mode=modes[mod][rm];
+    if(mode==="[--][--]"){
+      // FIXME decode SIB
+      disp=disp+1;
+    };
+    if(mode==="disp32"){
+      disp=disp+4;
+    };
+    if(mode.split("[")[0]==="disp8"){
+      disp=disp+1;
+    };
+    if(mode!==undefined){
+      return mode;
+    };
+    throw "undefined mode";
+  };
+
+  var modrm_reg_opcode=function(x){
+    return  (x>>>3)&7;
+  };
+
+
+  var compute_target32=function(){
+    target=eip+(vr32(eip+ilen-4)|0)+ilen;
+  };
+
+  var _83=function(r){
+    var op=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+//    print("0x83 class extra opcode:"+op);
+    if(op===7){
+      CMP_rm32_imm8(mode);
+      decoded=true;
+    };
+    if(op===0){
+      ADD_rm32_imm8(mode);
+      decoded=true;
+    };
+    if(op===5){
+      SUB_rm32_imm8(mode);
+      decoded=true;
+    };
+    if(op===4){
+      AND_rm32_imm8(mode);
+      decoded=true;
+    };
+  };
+
+  var _c1=function(r){
+    var op=modrm_reg_opcode(b2);
+    var mode=get_mode(b2);
+//    print("0xc1 class extra opcode:"+op);
+    if(op===5){
+      SHR_rm32_imm8(mode);
+      decoded=true;
+    };
+    if(op===4){
+      SHL_rm32_imm8(mode);
+      decoded=true;
+    };
   };
 
   var INT_imm8=function(r){
@@ -145,9 +220,6 @@ alt_step=function(p){
     set_eip(eip+2+disp+1);
   };
 
-
-  var disp=0;
-
   var MOV_r32_rm32=function(r){
     var reg=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
@@ -206,35 +278,6 @@ alt_step=function(p){
     set_eip(eip+1);
   };
 
-  var modrm_reg_opcode=function(x){
-    return  (x>>>3)&7;
-  };
-
-  var get_mode=function(x){
-    var mod=(x>>>6)&3;
-    var rm=x&7;
-//    print("mod: "+mod+" rm: "+rm);
-    var modes=[];
-    modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
-    modes[1]=["disp8[EAX]","disp8[ECX]","disp8[EDX]","disp8[EBX]","[--][--]","disp8[EBP]","disp8[ESI]","disp8[EDI]"];
-    modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
-    var mode=modes[mod][rm];
-    if(mode==="[--][--]"){
-      // FIXME decode SIB
-      disp=disp+1;
-    };
-    if(mode==="disp32"){
-      disp=disp+4;
-    };
-    if(mode.split("[")[0]==="disp8"){
-      disp=disp+1;
-    };
-    if(mode!==undefined){
-      return mode;
-    };
-    throw "undefined mode";
-  };
-
   var LEA_r32_m=function(){
     var reg=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
@@ -258,13 +301,6 @@ alt_step=function(p){
     print("JMP_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
     set_eip(eip+ilen);
-  };
-
-  var ilen=0;
-  var target=0;
-
-  var compute_target32=function(){
-    target=eip+(vr32(eip+ilen-4)|0)+ilen;
   };
 
   var RET=function(){
@@ -317,28 +353,6 @@ alt_step=function(p){
     set_eip(eip+3);
   };
 
-  var _83=function(r){
-    var op=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
-//    print("0x83 class extra opcode:"+op);
-    if(op===7){
-      CMP_rm32_imm8(mode);
-      decoded=true;
-    };
-    if(op===0){
-      ADD_rm32_imm8(mode);
-      decoded=true;
-    };
-    if(op===5){
-      SUB_rm32_imm8(mode);
-      decoded=true;
-    };
-    if(op===4){
-      AND_rm32_imm8(mode);
-      decoded=true;
-    };
-  };
-
   var SHL_rm32_imm8=function(mode){
     // C1 /4 ib SHL r/m32,imm8 3/7 Multiply r/m dword by 2, imm8 times
     print("SHL_rm32_imm8 "+hex_byte((vr8(eip+2))));
@@ -349,20 +363,6 @@ alt_step=function(p){
     //C1 /5 ib SHR r/m32,imm8 3/7 Unsigned divide r/m dword by 2, imm8 times
     print("SHR_rm32_imm8 "+hex_byte((vr8(eip+2))));
     set_eip(eip+3);
-  };
-
-  var _c1=function(r){
-    var op=modrm_reg_opcode(b2);
-    var mode=get_mode(b2);
-//    print("0xc1 class extra opcode:"+op);
-    if(op===5){
-      SHR_rm32_imm8(mode);
-      decoded=true;
-    };
-    if(op===4){
-      SHL_rm32_imm8(mode);
-      decoded=true;
-    };
   };
 
   var JNLE_rel32=function(){
