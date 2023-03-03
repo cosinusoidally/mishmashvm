@@ -59,6 +59,10 @@ alt_step=function(p){
   var ilen=0;
   var target=0;
 
+  var mod;
+  var reg;
+  var rm;
+
   var reg_name32=function(x){
     var regs=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
     return regs[x];
@@ -97,6 +101,14 @@ alt_step=function(p){
     throw "undefined mode";
   };
 
+  var decode_modrm=function(){
+    var modrm=vr8(eip+ilen);
+    ilen++;
+    mod=(modrm>>>6)&3;
+    reg_opcode=(modrm>>>3)&7;
+    rm=modrm&7;
+  };
+
   var modrm_reg_opcode=function(x){
     return  (x>>>3)&7;
   };
@@ -117,6 +129,7 @@ alt_step=function(p){
   };
 
   var _83=function(r){
+    decode_modrm();
     var op=modrm_reg_opcode(b2);
     var mode=get_mode(b2);
 //    print("0x83 class extra opcode:"+op);
