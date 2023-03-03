@@ -441,6 +441,7 @@ alt_step=function(p){
     b2=vr8(eip+1);
     b3=vr8(eip+2);
     disp=0;
+    ilen=0;
     var ops=[
 // 0001 0303 01C3 ADD_EAX_to_EBX
     [0x01, ADD_rm32_r32],
