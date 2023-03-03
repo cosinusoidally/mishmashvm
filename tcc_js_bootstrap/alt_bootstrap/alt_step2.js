@@ -206,7 +206,9 @@ alt_step=function(p){
 
   var ADD_rm32_imm8=function(mode){
     // 83 /0 ib ADD r/m32,imm8 Add sign-extended immediate byte to r/m dword
-    print("ADD_rm32_imm8_"+mode+" "+hex_byte(vr8(eip+2)));
+    ilen++;
+    load_imm8();
+    print("ADD_rm32_imm8_"+mode+" "+hex_byte(imm8));
     set_eip(eip+3);
   };
 
