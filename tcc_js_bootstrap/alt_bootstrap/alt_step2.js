@@ -324,15 +324,6 @@ alt_step=function(p){
     set_eip(eip+ilen);
   };
 
-  var JNLE_rel32=function(){
-    // 0F 8F cw/cd JNLE rel16/32 Jump near if not less or equal (ZF=0 and SF=OF)
-    ilen=6;
-    compute_target32();
-    print("JNLE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
-    decoded=true;
-    set_eip(eip+ilen);
-  };
-
   var LEA_r32_m=function(){
     ilen++;
     decode_modrm();
@@ -479,7 +470,6 @@ alt_step=function(p){
 
   var ops_0f=[
       [0x8F, JG_rel32],
-      [0x8F, JNLE_rel32],
       [0x84, JE_rel32],
       [0x85, JNE_rel32],
       [0x86, JBE_rel32],
