@@ -80,7 +80,7 @@ alt_step=function(p){
   };
 
   var get_mode=function(){
-    print("mod: "+mod+" rm: "+rm);
+//    print("mod: "+mod+" rm: "+rm);
     extra="";
     var modes=[];
     modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
@@ -292,6 +292,14 @@ alt_step=function(p){
     set_eip(eip+ilen);
   };
 
+  var JG_rel32=function(){
+    ilen=6;
+    compute_target32();
+    print("JG_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
+    decoded=true;
+    set_eip(eip+ilen);
+  };
+
   var JL_rel32=function(){
     ilen=6;
     compute_target32();
@@ -470,6 +478,7 @@ alt_step=function(p){
   };
 
   var ops_0f=[
+      [0x8F, JG_rel32],
       [0x8F, JNLE_rel32],
       [0x84, JE_rel32],
       [0x85, JNE_rel32],
