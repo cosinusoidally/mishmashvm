@@ -398,6 +398,10 @@ alt_step=function(p,run){
     var reg=r[0]&7;
     print("MOV_reg32_imm32_"+reg_name32(reg)+" "+to_hex(imm32));
     decoded=true;
+    if(run){
+      set_reg32(reg,imm32);
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
