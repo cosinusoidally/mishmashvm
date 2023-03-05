@@ -58,6 +58,8 @@ alt_step=function(p,run){
   var get_esp=p.get_esp;
   var set_esp=p.set_esp;
 
+  var set_status=p.set_status;
+
   var decoded=false;
 
   var ilen=0;
@@ -295,6 +297,10 @@ alt_step=function(p,run){
     print("INT_imm8 "+hex_byte(imm8));
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      set_status("syscall");
+      ran=true;
+    };
   };
 
   var JBE_rel32=function(){
