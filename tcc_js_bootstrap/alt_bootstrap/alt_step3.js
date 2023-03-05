@@ -55,6 +55,9 @@ alt_step=function(p,run){
   var get_eip=p.get_eip;
   var set_eip=p.set_eip;
 
+  var get_esp=p.get_esp;
+  var set_esp=p.set_esp;
+
   var decoded=false;
 
   var ilen=0;
@@ -70,6 +73,23 @@ alt_step=function(p,run){
   var rm;
   var mode;
   var extra;
+
+  var reg32_setters=[
+    p.set_eax,
+    p.set_ecx,
+    p.set_edx,
+    p.set_ebx,
+    p.set_esp,
+    p.set_ebp,
+    p.set_esi,
+    p.set_edi,
+  ];
+
+  var set_reg32=function(r,v){
+//    print("reg: "+r);
+//    print("value: "+to_hex(v));
+    reg32_setters[r](v);
+  };
 
   var reg_name32=function(x){
     var regs=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
@@ -413,6 +433,12 @@ alt_step=function(p,run){
     ilen++;
     print("POP_r32_"+reg_name32(reg));
     decoded=true;
+    if(run){
+      var esp=get_esp();
+      set_reg32(reg,vr32(esp));
+      set_esp(esp+4);
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
@@ -639,7 +665,6 @@ alt_step=function(p,run){
     throw "";
   };
   if(run){
-    print("running");
     if(!ran){
       set_eip(eip);
       throw "unimplemented instruction";
