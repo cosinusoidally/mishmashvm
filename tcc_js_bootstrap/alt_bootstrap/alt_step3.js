@@ -325,6 +325,12 @@ alt_step=function(p,run){
     print("CALL_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      set_esp(get_esp()-4);
+      vw32(get_esp(),get_eip());
+      set_eip(target);
+      ran=true;
+    };
   };
 
   var CMP_AL_imm8=function(){
