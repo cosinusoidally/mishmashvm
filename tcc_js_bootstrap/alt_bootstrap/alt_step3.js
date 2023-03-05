@@ -675,5 +675,5 @@ dummy.step();
 };
 };
 
-pt[3].set_eip(0x08048054);
 pt[3].set_step(alt_step);
+kernel.resume();

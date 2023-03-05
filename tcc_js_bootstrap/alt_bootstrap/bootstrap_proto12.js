@@ -2473,7 +2473,10 @@ var run3=function(){
   pr.set_pid(1);
   info_registers(pr);
   pr.set_status("running");
+  resume();
+};
 
+var resume=function(){
   var work=true;
   try {
   while(work){
@@ -2516,6 +2519,7 @@ return {
   run2: run2,
   run3: run3,
   fs: fs,
+  resume: resume,
 };
 })();
 
