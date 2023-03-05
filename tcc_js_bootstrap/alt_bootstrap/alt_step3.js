@@ -35,10 +35,12 @@ var hex_byte=function(x){
   return ("00"+(x&255).toString(16)).slice(-2);
 };
 
-alt_step=function(p){
+alt_step=function(p,run){
   var print=function(x){
     _print("pid: "+pid+", "+to_hex(get_eip())+": "+x);
   };
+
+  var ran;
 
   var b1;
   var b2;
@@ -478,6 +480,7 @@ alt_step=function(p){
   ];
 
   var step=function(){
+    ran=false;
     eip=get_eip();
     b1=vr8(eip);
     b2=vr8(eip+1);
@@ -635,9 +638,18 @@ alt_step=function(p){
     print("unimplemented instruction:"+hex_byte(b1)+" "+hex_byte(b2));
     throw "";
   };
+  if(run){
+    print("running");
+    if(!ran){
+      set_eip(eip);
+      throw "unimplemented instruction";
+    };
+  };
   }
   return step;
 };
+
+dis=function(){
 dummy.set_step(alt_step);
 dummy.set_eip(0x08048054);
 var eip=dummy.get_eip();
@@ -661,3 +673,7 @@ dummy.step();
 } catch (e){
   print(e);
 };
+};
+
+pt[3].set_eip(0x08048054);
+pt[3].set_step(alt_step);

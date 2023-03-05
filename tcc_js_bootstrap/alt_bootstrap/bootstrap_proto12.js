@@ -226,10 +226,19 @@ var new_process=function(){
     return x;
   };
 
+  var alt;
+
+  var set_step=function(s){
+    alt=s(self,true);
+  };
+
   // run a single i386 instruction:
   var step=function(){
     if(status!=="running"){
       return 0;
+    };
+    if(alt){
+       return alt();
     };
     var b1=vr8(eip);
     switch(b1){
@@ -1929,8 +1938,7 @@ var new_process=function(){
     heap=x[1][1]; // FIXME hacky
     vmem=x;
   };
-
-  return {
+  var self= {
     add_mem: add_mem,
     set_eip: function(x){eip=x},
     set_esp: function(x){esp=x},
@@ -1985,7 +1993,9 @@ var new_process=function(){
     get_state: get_state,
     set_vmem: set_vmem,
     get_cwd: function(){return cwd;},
+    set_step: set_step,
   };
+  return self;
 }
 
 var hp=new_process();
