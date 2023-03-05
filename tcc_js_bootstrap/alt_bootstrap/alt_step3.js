@@ -51,12 +51,15 @@ alt_step=function(p,run){
   var pid=p.get_pid();
   var vr8=p.vr8;
   var vr32=p.vr32;
+  var vw32=p.vw32;
 
   var get_eip=p.get_eip;
   var set_eip=p.set_eip;
 
   var get_esp=p.get_esp;
   var set_esp=p.set_esp;
+
+  var get_eax=p.get_eax;
 
   var set_status=p.set_status;
 
@@ -367,6 +370,10 @@ alt_step=function(p,run){
     load_imm32();
     print("MOV_moffs32_EAX "+to_hex(imm32));
     decoded=true;
+    if(run){
+      vw32(imm32,get_eax());
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
