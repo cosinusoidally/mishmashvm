@@ -1956,6 +1956,12 @@ var new_process=function(){
     set_CF: function(x){CF=x},
     set_OF: function(x){OF=x},
 
+    get_IF: function(x){return IF},
+    get_ZF: function(x){return ZF},
+    get_SF: function(x){return SF},
+    get_CF: function(x){return CF},
+    get_OF: function(x){return OF},
+
     get_eip: function(){return eip},
     get_esp: function(){return esp},
     get_eax: function(){return eax},

@@ -61,9 +61,15 @@ alt_step=function(p,run){
 
   var get_eax=p.get_eax;
 
+  var set_IF=p.set_IF;
   var set_ZF=p.set_ZF;
   var set_SF=p.set_SF;
   var set_OF=p.set_OF;
+
+  var get_IF=p.get_IF;
+  var get_ZF=p.get_ZF;
+  var get_SF=p.get_SF;
+  var get_OF=p.get_OF;
 
   var set_status=p.set_status;
 
@@ -84,6 +90,7 @@ alt_step=function(p,run){
   var extra;
 
   var rm32_src;
+  var rm32_dest;
 
   var reg32_getters=[
     p.get_eax,
@@ -123,8 +130,14 @@ alt_step=function(p,run){
     return regs[x];
   };
 
+  var placeholder=function(){
+    throw "unset";
+  };
+
   var get_mode=function(){
 //    print("mod: "+mod+" rm: "+rm);
+    rm32_src=placeholder;
+    rm32_dest=placeholder;
     extra="";
     var modes=[];
     modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
@@ -146,6 +159,7 @@ alt_step=function(p,run){
     };
     if(mod===3){
       rm32_src=reg32_getters[rm];
+      rm32_dest=reg32_setters[rm];
     };
     if(mode!==undefined){
       return;
@@ -270,6 +284,10 @@ alt_step=function(p,run){
     arith32_setflags(res);
   };
 
+  var MOV_generic32=function(dest,src){
+    dest(src);
+  };
+
   var ADD_AL_imm8=function(r){
     // 04 ib ADD AL,imm8 2 Add immediate byte to AL
     ilen++;
@@ -383,6 +401,12 @@ alt_step=function(p,run){
     print("JG_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      if((get_SF()===0) && (get_SF()===get_OF())){
+        set_eip(target);
+      };
+      ran=true;
+    };
   };
 
   var JL_rel32=function(){
@@ -478,6 +502,10 @@ alt_step=function(p,run){
     decode_modrm();
     print("MOV_rm32_r32_"+mode+"_"+reg_name32(reg)+extra);
     decoded=true;
+    if(run){
+      MOV_generic32(rm32_dest,reg32_getters[reg]());
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
