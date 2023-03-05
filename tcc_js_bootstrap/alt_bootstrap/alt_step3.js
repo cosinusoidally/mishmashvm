@@ -61,6 +61,10 @@ alt_step=function(p,run){
 
   var get_eax=p.get_eax;
 
+  var set_ZF=p.set_ZF;
+  var set_SF=p.set_SF;
+  var set_OF=p.set_OF;
+
   var set_status=p.set_status;
 
   var decoded=false;
@@ -78,6 +82,19 @@ alt_step=function(p,run){
   var rm;
   var mode;
   var extra;
+
+  var rm32_src;
+
+  var reg32_getters=[
+    p.get_eax,
+    p.get_ecx,
+    p.get_edx,
+    p.get_ebx,
+    p.get_esp,
+    p.get_ebp,
+    p.get_esi,
+    p.get_edi,
+  ];
 
   var reg32_setters=[
     p.set_eax,
@@ -127,6 +144,9 @@ alt_step=function(p,run){
       load_disp8();
       extra=extra+" "+to_hex(disp8);
     };
+    if(mod===3){
+      rm32_src=reg32_getters[rm];
+    };
     if(mode!==undefined){
       return;
     };
@@ -150,6 +170,13 @@ alt_step=function(p,run){
 
   var compute_target32=function(){
     target=eip+(vr32(eip+ilen-4)|0)+ilen;
+  };
+
+  var sign_extend8 = function(x){
+    if(x&0x80){
+      x=x|0xFFFFFF00;
+    };
+    return x;
   };
 
   var _0f=function(r){
@@ -220,6 +247,29 @@ alt_step=function(p,run){
     ilen++;
   };
 
+  var arith32_setflags = function(res){
+    if(res===0){
+      set_ZF(1);
+    } else {
+      set_ZF(0);
+    };
+    if(res<0){
+      set_SF(1);
+    } else {
+      set_SF(0);
+    };
+    if(res>2147483647 || res<-2147483648){
+      set_OF(1);
+    } else {
+      set_OF(0);
+    };
+  };
+
+  var CMP_generic32=function(src1,src2){
+    var res=src1-src2;
+    arith32_setflags(res);
+  };
+
   var ADD_AL_imm8=function(r){
     // 04 ib ADD AL,imm8 2 Add immediate byte to AL
     ilen++;
@@ -272,6 +322,10 @@ alt_step=function(p,run){
     // 83 /7 ib CMP r/m32,imm8 Compare sign extended immediate byte to r/m dword
     load_imm8();
     print("CMP_rm32_imm8_"+mode+" "+hex_byte(imm8));
+    if(run){
+      CMP_generic32(rm32_src(),sign_extend8(imm8));
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
