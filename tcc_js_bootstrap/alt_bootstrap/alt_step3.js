@@ -92,6 +92,11 @@ alt_step=function(p,run){
   var rm32_src;
   var rm32_dest;
 
+  // decoded sib
+  var ss;
+  var index;
+  var base;
+
   var reg32_getters=[
     p.get_eax,
     p.get_ecx,
@@ -120,6 +125,10 @@ alt_step=function(p,run){
     reg32_setters[r](v);
   };
 
+  var get_reg32=function(r){
+    return reg32_getters[r]();
+  };
+
   var reg_name32=function(x){
     var regs=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
     return regs[x];
@@ -144,10 +153,23 @@ alt_step=function(p,run){
     modes[1]=["disp8[EAX]","disp8[ECX]","disp8[EDX]","disp8[EBX]","[--][--]","disp8[EBP]","disp8[ESI]","disp8[EDI]"];
     modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
     mode=modes[mod][rm];
+    sib_set=false;
     if(mode==="[--][--]"){
-      // FIXME decode SIB
-      extra=extra+" todo decode SIB";
-      ilen=ilen+1;
+      // FIXME this isn't right
+      sib_set=true;
+      var sibs=[];
+      sibs[0]=["[EAX]","[ECX]","[EDX]","[EBX]","none","[EBP]","[ESI]","[EDI]"];
+      var sib=vr8(eip+ilen);
+      ss=(sib>>>6)&3;
+      index=(sib>>>3)&7;
+      ss_index=sibs[ss][index];
+      base=sib&7;
+      extra=extra+" sib: "+sib.toString(8)+" ss:"+ss+" index:"+index+" base: "+base+" ss_index: _"+sibs[ss][index]+"_"+reg_name32(base);
+      if(ss_index==="none"){
+        ss_base=base;
+        print("ss_base: "+ss_base)
+      };
+      ilen++;
     };
     if(mode==="disp32"){
       load_disp32();
@@ -446,6 +468,10 @@ alt_step=function(p,run){
     print("LEA_r32_m_"+reg_name32(reg)+"_"+mode+extra);
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      set_reg32(reg,get_reg32(ss_base));
+      ran=true;
+    };
   };
 
   var MOV_moffs32_EAX=function(r){
@@ -562,6 +588,11 @@ alt_step=function(p,run){
     print("PUSH_r32_"+reg_name32(reg));
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      set_esp(get_esp()-4);
+      vw32(get_esp(),get_reg32(reg));
+      ran=true;
+    };
   };
 
   var RET=function(){
