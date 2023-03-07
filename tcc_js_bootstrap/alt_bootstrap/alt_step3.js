@@ -140,7 +140,7 @@ alt_step=function(p,run){
   };
 
   var placeholder=function(){
-    throw "unset";
+    throw "unimplemented addressing mode";
   };
 
   var get_mode=function(){
@@ -506,12 +506,16 @@ alt_step=function(p,run){
   };
 
   var MOV_r32_rm32=function(r){
-    // 8B /r MOV r32,r/32 Move dword register to r/m dword
+    // 8B /r MOV r32,r/m32 Move r/m dword to dword register
     ilen++;
     decode_modrm();
     print("MOV_r32_rm32_"+reg_name32(reg)+"_"+mode+extra);
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      set_reg32(reg,rm32_src());
+      ran=true;
+    };
   };
 
   var MOV_reg32_imm32=function(r){
