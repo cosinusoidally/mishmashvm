@@ -174,6 +174,8 @@ alt_step=function(p,run){
     if(mode==="disp32"){
       load_disp32();
       extra=extra+" "+to_hex(disp32);
+      rm32_dest=function(x){vw32(disp32,x)};
+      rm32_src=function(){return vr32(disp32)};
     };
     if(mode.split("[")[0]==="disp8"){
       load_disp8();
@@ -511,11 +513,11 @@ alt_step=function(p,run){
     decode_modrm();
     print("MOV_r32_rm32_"+reg_name32(reg)+"_"+mode+extra);
     decoded=true;
-    set_eip(eip+ilen);
     if(run){
       set_reg32(reg,rm32_src());
       ran=true;
     };
+    set_eip(eip+ilen);
   };
 
   var MOV_reg32_imm32=function(r){
