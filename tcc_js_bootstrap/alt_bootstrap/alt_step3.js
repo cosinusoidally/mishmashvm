@@ -606,6 +606,11 @@ alt_step=function(p,run){
     print("RET");
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      set_eip(vr32(get_esp()));
+      set_esp(get_esp()+4);
+      ran=true;
+    };
   };
 
   var SHL_rm32_imm8=function(mode){
