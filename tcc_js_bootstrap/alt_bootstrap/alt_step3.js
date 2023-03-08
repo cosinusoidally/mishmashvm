@@ -159,6 +159,10 @@ alt_step=function(p,run){
     modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
     mode=modes[mod][rm];
     sib_set=false;
+    if(mod===0){
+      rm32_src=function(){return vr32(get_reg32(rm))};
+      rm32_dest=function(x){vw32(get_reg32(rm),x)};
+    };
     if(mode==="[--][--]"){
       // FIXME this isn't right
       sib_set=true;
@@ -176,8 +180,11 @@ alt_step=function(p,run){
       };
       ilen++;
     };
-    if(mod===0){
-      rm32_src=function(){return vr32(get_reg32(rm))};
+    if(mod===1){
+      if(!sib_set){
+        load_disp8();
+        rm32_dest=function(x){var d=get_reg32(rm)+sign_extend8(disp8);print("disp8: "+disp8+" dest: "+to_hex(d));vw32(d,x)};
+      };
     };
     if(mode==="disp32"){
       load_disp32();
@@ -186,7 +193,6 @@ alt_step=function(p,run){
       rm32_src=function(){return vr32(disp32)};
     };
     if(mode.split("[")[0]==="disp8"){
-      load_disp8();
       extra=extra+" "+to_hex(disp8);
     };
     if(mod===3){
@@ -311,6 +317,12 @@ alt_step=function(p,run){
     };
   };
 
+  var ADD_generic32=function(dest,src1,src2){
+    var res=src1+src2;
+    arith32_setflags(res);
+    dest(res);
+  };
+
   var CMP_generic32=function(src1,src2){
     var res=src1-src2;
     arith32_setflags(res);
@@ -333,6 +345,10 @@ alt_step=function(p,run){
     // 83 /0 ib ADD r/m32,imm8 Add sign-extended immediate byte to r/m dword
     load_imm8();
     print("ADD_rm32_imm8_"+mode+" "+hex_byte(imm8));
+    if(run){
+      ADD_generic32(rm32_dest,rm32_src(),sign_extend8(imm8));
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
@@ -341,6 +357,10 @@ alt_step=function(p,run){
     decode_modrm();
     print("ADD_rm32_r32_"+mode+" "+reg_name32(reg));
     decoded=true;
+    if(run){
+      ADD_generic32(rm32_dest,rm32_src(),get_reg32(reg));
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
