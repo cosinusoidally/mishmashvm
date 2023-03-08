@@ -391,6 +391,10 @@ alt_step=function(p,run){
     decode_modrm();
     print("CMP_rm32_r32_"+mode+"_"+reg_name32(reg)+" "+extra);
     decoded=true;
+    if(run){
+      CMP_generic32(rm32_src(),get_reg32(reg));
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
@@ -468,14 +472,25 @@ alt_step=function(p,run){
     print("JMP_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      set_eip(target);
+      ran=true;
+    };
   };
 
   var JNE_rel32=function(){
+    // 0F 85 cw/cd JNE rel16/32 Jump near if not equal (ZF=0)
     ilen=6;
     compute_target32();
     print("JNE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      if(get_ZF()===0){
+        set_eip(target);
+      };
+      ran=true;
+    };
   };
 
   var LEA_r32_m=function(){
