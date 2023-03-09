@@ -109,14 +109,14 @@ alt_step=function(p,run){
   ];
 
   var reg32_setters=[
-    p.set_eax,
-    p.set_ecx,
-    p.set_edx,
-    p.set_ebx,
-    p.set_esp,
-    p.set_ebp,
-    p.set_esi,
-    p.set_edi,
+    function(x){ p.set_eax(x|0)},
+    function(x){ p.set_ecx(x|0)},
+    function(x){ p.set_edx(x|0)},
+    function(x){ p.set_ebx(x|0)},
+    function(x){ p.set_esp(x|0)},
+    function(x){ p.set_ebp(x|0)},
+    function(x){ p.set_esi(x|0)},
+    function(x){ p.set_edi(x|0)},
   ];
 
   var set_reg8=function(r,v){
@@ -613,7 +613,7 @@ alt_step=function(p,run){
     print("MOV_rm32_r32_"+mode+"_"+reg_name32(reg)+extra);
     decoded=true;
     if(run){
-      MOV_generic32(rm32_dest,reg32_getters[reg]());
+      MOV_generic32(rm32_dest,get_reg32(reg));
       ran=true;
     };
     set_eip(eip+ilen);
@@ -893,7 +893,8 @@ alt_step=function(p,run){
       throw "unimplemented instruction";
     };
   };
-  }
+  throw "single stepping";
+  };
   return step;
 };
 
@@ -924,4 +925,7 @@ dummy.step();
 };
 
 pt[3].set_step(alt_step);
+var cont=function(){
 kernel.resume();
+};
+cont();
