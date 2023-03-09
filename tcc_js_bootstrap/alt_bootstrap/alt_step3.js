@@ -192,6 +192,7 @@ alt_step=function(p,run){
       if(!sib_set){
         load_disp8();
         rm32_dest=function(x){var d=get_reg32(rm)+sign_extend8(disp8);print("disp8: "+disp8+" dest: "+to_hex(d));vw32(d,x)};
+        rm32_src=function(x){var d=get_reg32(rm)+sign_extend8(disp8);print("disp8: "+disp8+" src: "+to_hex(d));return vr32(d)};
       };
     };
     if(mode==="disp32"){
