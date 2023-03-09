@@ -165,7 +165,7 @@ alt_step=function(p,run){
       rm32_dest=function(x){vw32(get_reg32(rm),x)};
 
       rm8_src=function(){
-        return vr32(get_reg32(rm))&0xFF};
+        return rm32_src()&0xFF};
       rm8_dest=function(v){
         var r32=(rm32_src() & 0xFFFFFF00)|(v&0xFF);
         rm32_dest(r32);
