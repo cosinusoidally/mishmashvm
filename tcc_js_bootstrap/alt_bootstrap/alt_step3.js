@@ -153,6 +153,8 @@ alt_step=function(p,run){
 //    print("mod: "+mod+" rm: "+rm);
     rm32_src=placeholder;
     rm32_dest=placeholder;
+    rm8_dest=placeholder;
+    rm8_src=placeholder;
     extra="";
     var modes=[];
     modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
