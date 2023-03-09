@@ -131,6 +131,7 @@ alt_step=function(p,run){
   };
 
   var get_reg32=function(r){
+    print("r: "+r);
     return reg32_getters[r]();
   };
 
@@ -162,6 +163,13 @@ alt_step=function(p,run){
     if(mod===0){
       rm32_src=function(){return vr32(get_reg32(rm))};
       rm32_dest=function(x){vw32(get_reg32(rm),x)};
+
+      rm8_src=function(){
+        return vr32(get_reg32(rm))&0xFF};
+      rm8_dest=function(v){
+        var r32=(rm32_src() & 0xFFFFFF00)|(v&0xFF);
+        rm32_dest(r32);
+      };
     };
     if(mode==="[--][--]"){
       // FIXME this isn't right
@@ -328,6 +336,9 @@ alt_step=function(p,run){
     arith32_setflags(res);
   };
 
+  var MOV_generic8=function(dest,src){
+    dest(src);
+  };
   var MOV_generic32=function(dest,src){
     dest(src);
   };
@@ -559,6 +570,10 @@ alt_step=function(p,run){
     print("MOV_rm8_r8"+mode+"_"+reg_name8(reg)+extra);
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      MOV_generic8(rm8_dest,get_reg32(reg));
+      ran=true;
+    };
   };
 
   var MOV_r32_rm32=function(r){
