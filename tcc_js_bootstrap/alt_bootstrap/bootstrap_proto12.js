@@ -1987,6 +1987,7 @@ var new_process=function(){
     vw32: vw32,
     step: step,
     set_dbg: function(x){dbg=x},
+    get_dbg: function(){return dbg},
     is_running: function(){return running;},
 
     set_pid: function(x){pid=x;},

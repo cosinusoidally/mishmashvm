@@ -96,6 +96,8 @@ var new_process=function(){
     _print("pid: "+pid+", "+to_hex(eip)+": "+x);
   };
 
+  var breakpoint=0;
+
   // registers
   var eax=0;
   var ecx=0;
@@ -226,11 +228,17 @@ var new_process=function(){
     return x;
   };
 
+  var count=0;
   // run a single i386 instruction:
   var step=function(){
     if(status!=="running"){
       return 0;
     };
+    if(eip===breakpoint){
+      print("breakpoint hit, cycles: "+count);
+      throw "";
+    };
+    count++;
     var b1=vr8(eip);
     switch(b1){
       case 0x58:
@@ -1961,6 +1969,8 @@ var new_process=function(){
     get_brk: function(){return brk},
     set_brk: set_brk,
 
+    get_count: function(){return count;},
+
     get_status: function(){return status},
     set_status: function(x){status=x},
 
@@ -1985,6 +1995,7 @@ var new_process=function(){
     get_state: get_state,
     set_vmem: set_vmem,
     get_cwd: function(){return cwd;},
+    set_breakpoint: function(x){breakpoint=x;},
   };
 }
 
@@ -2121,7 +2132,7 @@ hp.fds=[
   var syscall_exit = function(p){
     exit_code=p.get_ebx();
 //    if(dbg){
-      print("syscall_exit: "+exit_code);
+      print("syscall_exit: "+exit_code+" cycles: "+p.get_count());
 //    };
     if(exit_code!==0){
       throw "process error";
@@ -2315,6 +2326,7 @@ hp.fds=[
     info_registers(pr);
     pr.set_status("running");
     if(filename==="/x86/artifact/M0"){
+//        pr.set_breakpoint(0x080480b3);
 //      pr.set_dbg(true);
     };
 //    throw "syscall_execve not fully implemented";
