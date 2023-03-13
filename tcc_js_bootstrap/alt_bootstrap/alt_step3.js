@@ -76,6 +76,8 @@ alt_step=function(p,run){
   var get_OF=p.get_OF;
   var get_CF=p.get_CF;
 
+  var get_flags=p.get_flags;
+
   var set_status=p.set_status;
 
   var decoded=false;
@@ -429,6 +431,11 @@ alt_step=function(p,run){
     if(dbg){
       print("AND_rm32_imm8_"+mode+" "+hex_byte(imm8));
     };
+    if(run){
+
+      throw "not fully impl";
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
@@ -456,6 +463,10 @@ alt_step=function(p,run){
     };
     // 3C ib CMP AL,imm8 Compare immediate byte to AL
     decoded=true;
+    if(run){
+      CMP_generic32(sign_extend8(get_eax()&0xff),sign_extend8(imm8));
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
@@ -753,6 +764,12 @@ alt_step=function(p,run){
       print("PUSHF");
     };
     decoded=true;
+    if(run){
+      var F=get_flags();
+      set_esp(get_esp()-4);
+      vw32(get_esp(),F);
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 

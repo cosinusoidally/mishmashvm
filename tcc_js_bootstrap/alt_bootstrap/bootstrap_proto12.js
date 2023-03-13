@@ -119,7 +119,7 @@ var new_process=function(){
     return (IF|(ZF<<1)|(SF<<2)|(CF<<3)|(OF<<4));
   };
 
-  var load_flags=function(F){
+  var set_flags=function(F){
      IF=F&1;
      ZF=(F>>>1)&1;
      SF=(F>>>2)&1;
@@ -1814,7 +1814,7 @@ var new_process=function(){
           print("popf");
         };
         var F=vr32(esp);
-        load_flags(F);
+        set_flags(F);
         esp=esp+4;
         eip++;
         break;
@@ -1977,6 +1977,9 @@ var new_process=function(){
 
     get_status: function(){return status},
     set_status: function(x){status=x},
+
+    get_flags: get_flags,
+    set_flags: set_flags,
 
     get_int_no: function(){return int_no},
 
