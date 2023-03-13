@@ -395,6 +395,10 @@ alt_step=function(p,run){
       print("ADD_AL_imm8 "+hex_byte(imm8));
     };
     decoded=true;
+    if(run){
+      ADD_generic32(function(x){set_reg8(0,x)},sign_extend8(get_eax()&0xff),sign_extend8(imm8));
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
@@ -432,8 +436,7 @@ alt_step=function(p,run){
       print("AND_rm32_imm8_"+mode+" "+hex_byte(imm8));
     };
     if(run){
-
-      throw "not fully impl";
+      rm32_dest(rm32_src()&imm8);
       ran=true;
     };
     set_eip(eip+ilen);
