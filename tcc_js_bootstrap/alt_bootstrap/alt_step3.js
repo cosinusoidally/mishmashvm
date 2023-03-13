@@ -77,6 +77,7 @@ alt_step=function(p,run){
   var get_CF=p.get_CF;
 
   var get_flags=p.get_flags;
+  var set_flags=p.set_flags;
 
   var set_status=p.set_status;
 
@@ -367,6 +368,8 @@ alt_step=function(p,run){
     } else {
       set_OF(0);
     };
+    // FIXME set this correctly
+    set_CF(0);
   };
 
   var ADD_generic32=function(dest,src1,src2){
@@ -536,6 +539,12 @@ alt_step=function(p,run){
     };
     decoded=true;
     set_eip(eip+ilen);
+    if(run){
+      if((get_CF()===1)|(get_ZF()===1)){
+        set_eip(target);
+      };
+      ran=true;
+    };
   };
 
   var JE_rel32=function(){
@@ -740,6 +749,11 @@ alt_step=function(p,run){
       print("POPFD");
     };
     decoded=true;
+    if(run){
+      set_flags(vr32(get_esp()));
+      set_esp(get_esp()+4);
+      ran=true;
+    };
     set_eip(eip+ilen);
   };
 
@@ -1051,7 +1065,9 @@ alt_step=function(p,run){
       throw "unimplemented instruction";
     };
   };
-//  throw "single stepping";
+  if(single_step){
+    throw "single stepping";
+  };
   };
   return step;
 };
@@ -1093,7 +1109,8 @@ print((Date.now()-st)/1000);
 };
 var breakpoint;
 if(!breakpoint){
-//breakpoint=0x080480b3;
+//breakpoint=0x080483b0;
 };
 //breakpoint=0x080480b8;
+var single_step;
 cont();
