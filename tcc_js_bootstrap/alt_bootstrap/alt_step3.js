@@ -68,11 +68,13 @@ alt_step=function(p,run){
   var set_ZF=p.set_ZF;
   var set_SF=p.set_SF;
   var set_OF=p.set_OF;
+  var set_CF=p.set_CF;
 
   var get_IF=p.get_IF;
   var get_ZF=p.get_ZF;
   var get_SF=p.get_SF;
   var get_OF=p.get_OF;
+  var get_CF=p.get_CF;
 
   var set_status=p.set_status;
 
@@ -788,7 +790,21 @@ alt_step=function(p,run){
     // C1 /4 ib SHL r/m32,imm8 3/7 Multiply r/m dword by 2, imm8 times
     load_imm8();
     if(dbg){
-      print("SHL_rm32_imm8 "+hex_byte(imm8));
+      print("SHL_rm32_imm8_"+mode+" "+hex_byte(imm8));
+    };
+    if(run){
+      var r=rm32_src();
+      var tc = imm8 & 0x1F;
+      while(tc!==0){
+        CF=r>>>31;
+        r=r<<1;
+        tc=tc-1;
+      };
+      if((imm8 & 0x1F) ===1){
+        OF = (r>>>31) ^CF;
+      };
+      rm32_dest(r);
+      ran=true;
     };
     set_eip(eip+ilen);
   };
@@ -797,7 +813,21 @@ alt_step=function(p,run){
     //C1 /5 ib SHR r/m32,imm8 3/7 Unsigned divide r/m dword by 2, imm8 times
     load_imm8();
     if(dbg){
-      print("SHR_rm32_imm8 "+hex_byte(imm8));
+      print("SHR_rm32_imm8_"+mode+" "+hex_byte(imm8));
+    };
+    if(run){
+      var r=rm32_src();
+      var tc = imm8 & 0x1F;
+      while(tc!==0){
+        set_CF(r&1);
+        r=r>>>1;
+        tc=tc-1;
+      };
+      if((imm8 & 0x1F) ===1){
+        set_OF(r>>>31);
+      };
+      rm32_dest(r);
+      ran=true;
     };
     set_eip(eip+ilen);
   };
