@@ -204,7 +204,10 @@ alt_step=function(p,run){
         };
       };
       if(sib===013){
-        print("[ecx*1+ebx]");
+        if(dbg){
+          print("[ecx*1+ebx]");
+        };
+        rm32_src=function(){return vr32(get_reg32(index)+get_reg32(base))};
       };
       ilen++;
     };
