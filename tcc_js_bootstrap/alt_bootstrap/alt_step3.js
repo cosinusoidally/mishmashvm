@@ -370,7 +370,11 @@ alt_step=function(p,run){
       set_OF(0);
     };
     // FIXME set this correctly
-    set_CF(0);
+    if(res<0){
+      set_CF(1);
+    } else {
+      set_CF(0);
+    };
   };
 
 
@@ -1174,7 +1178,10 @@ print((Date.now()-st)/1000);
 var breakpoint;
 if(!breakpoint){
 //breakpoint=0x08048054;
+//breakpoint=0x08048588;
 };
 //breakpoint=0x080480b8;
 var single_step;
 cont();
+compute_hashes();
+print(vfs.readFile("/x86/artifact/cc_x86-0.hex2").map(function(x){return String.fromCharCode(x)}).join(""));
