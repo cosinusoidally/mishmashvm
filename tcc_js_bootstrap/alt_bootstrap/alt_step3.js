@@ -549,16 +549,16 @@ alt_step=function(p,run){
   };
 
   var IMUL_r32_rm32_imm8=function(r){
+    // 6B /r ib IMUL r32,r/m32,imm8 dword register <- r/m32 * sign-extended immediate byte
     ilen++;
     decode_modrm();
     load_imm8();
-    // 6B /r ib IMUL r32,r/m32,imm8 dword register <- r/m32 * sign-extended immediate byte
     if(dbg){
       print("IMUL_r32_rm32_imm8_"+reg_name32(reg)+"_"+mode+extra+" "+hex_byte(imm8));
     };
     decoded=true;
     if(run){
-      var v=(rm32_src()|0)*imm8;
+      var v=(rm32_src()|0)*sign_extend8(imm8);
       arith32_setflags(v);
       set_reg32(reg,v);
       ran=true;
@@ -1178,7 +1178,7 @@ print((Date.now()-st)/1000);
 var breakpoint;
 if(!breakpoint){
 //breakpoint=0x08048054;
-//breakpoint=0x08048588;
+//breakpoint=0x08048573;
 };
 //breakpoint=0x080480b8;
 var single_step;
