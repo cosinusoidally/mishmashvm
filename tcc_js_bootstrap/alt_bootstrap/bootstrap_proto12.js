@@ -2602,6 +2602,7 @@ var vfs=(function(){
 kernel.run3();
 pt=process_table;
 
+compute_hashes=function(){
 art_a=read("artifact.sha256sums").split("\n").map(function(x){return x.split("  ")});
 art_a.pop();
 
@@ -2618,5 +2619,7 @@ written_files.map(function(x){
     print(e);
   };
 });
+};
 
+compute_hashes();
 load("alt_step3.js");
