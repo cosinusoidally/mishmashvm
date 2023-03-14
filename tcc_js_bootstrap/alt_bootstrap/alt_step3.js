@@ -353,6 +353,28 @@ alt_step=function(p,run){
     ilen++;
   };
 
+  var arith8_setflags = function(res){
+    if(res===0){
+      set_ZF(1);
+    } else {
+      set_ZF(0);
+    };
+    if(res<0){
+      set_SF(1);
+    } else {
+      set_SF(0);
+    };
+    if(res>127 || res<-128){
+      set_OF(1);
+    } else {
+      set_OF(0);
+    };
+    // FIXME set this correctly
+    set_CF(0);
+  };
+
+
+
   var arith32_setflags = function(res){
     if(res===0){
       set_ZF(1);
@@ -373,10 +395,21 @@ alt_step=function(p,run){
     set_CF(0);
   };
 
+  var ADD_generic8=function(dest,src1,src2){
+    var res=src1+src2;
+    arith8_setflags(res);
+    dest(res);
+  };
+
   var ADD_generic32=function(dest,src1,src2){
     var res=src1+src2;
     arith32_setflags(res);
     dest(res);
+  };
+
+  var CMP_generic8=function(src1,src2){
+    var res=src1-src2;
+    arith8_setflags(res);
   };
 
   var CMP_generic32=function(src1,src2){
@@ -406,7 +439,7 @@ alt_step=function(p,run){
     };
     decoded=true;
     if(run){
-      ADD_generic32(function(x){set_reg8(0,x)},sign_extend8(get_eax()&0xff),sign_extend8(imm8));
+      ADD_generic8(function(x){set_reg8(0,x)},get_eax()&0xff,imm8);
       ran=true;
     };
     set_eip(eip+ilen);
@@ -477,7 +510,7 @@ alt_step=function(p,run){
     // 3C ib CMP AL,imm8 Compare immediate byte to AL
     decoded=true;
     if(run){
-      CMP_generic32(sign_extend8(get_eax()&0xff),sign_extend8(imm8));
+      CMP_generic8(get_eax()&0xff,imm8);
       ran=true;
     };
     set_eip(eip+ilen);
@@ -578,6 +611,7 @@ alt_step=function(p,run){
   };
 
   var JG_rel32=function(){
+    // 0F 8F cw/cd JG rel16/32 Jump near if greater (ZF=0 and SF=OF)
     ilen=6;
     compute_target32();
     if(dbg){
