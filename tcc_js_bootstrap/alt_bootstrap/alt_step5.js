@@ -28,7 +28,7 @@ new_dummy=function(){
 
 
 ld=function(){
-  load("alt_step4.js");
+  load("alt_step5.js");
 };
 
 var hex_byte=function(x){

@@ -1,5 +1,5 @@
 load("../../libc_portable_proto/sha256.js");
-load("alt_step4.js");
+load("alt_step5.js");
 
 written_files=[];
 
