@@ -1122,6 +1122,16 @@ alt_step=function(p,run){
       [0x8E, JLE_rel32],
       [0xb6, MOVZX_r32_rm8],
   ];
+
+  var icache={};
+
+  var try_icache=function(eip){
+    if(icache[eip]){
+      return true;
+    };
+    return false;
+  };
+
   var count2=0;
   var last=Date.now();
   var step=function(){
@@ -1136,6 +1146,9 @@ alt_step=function(p,run){
       throw "breakpoint";
     };
     count++;
+    if(try_icache(eip)){
+      return;
+    };
     if(count-count2>1e6){
       var now=Date.now();
       var dt=(now-last)/1000;
