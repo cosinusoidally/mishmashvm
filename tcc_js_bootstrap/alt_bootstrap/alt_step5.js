@@ -1122,7 +1122,8 @@ alt_step=function(p,run){
       [0x8E, JLE_rel32],
       [0xb6, MOVZX_r32_rm8],
   ];
-
+  var count2=0;
+  var last=Date.now();
   var step=function(){
     if(get_status()!=="running"){
       return 0;
@@ -1135,6 +1136,14 @@ alt_step=function(p,run){
       throw "breakpoint";
     };
     count++;
+    if(count-count2>1e6){
+      var now=Date.now();
+      var dt=(now-last)/1000;
+      var dc=(count-count2)/1e6;
+      print("MIPS: " +(dc/dt));
+      count2=count;
+      last=now;
+    };
     b1=vr8(eip);
     b2=vr8(eip+1);
     disp=0;
