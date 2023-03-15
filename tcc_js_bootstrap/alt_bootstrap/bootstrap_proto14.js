@@ -2344,9 +2344,11 @@ hp.fds=[
       pr.set_step(alt_step);
     };
     if(filename==="/x86/artifact/cc_x86"){
+      throw "not running cc_x86 for now";
       pr.set_step(alt_step);
     };
     if(filename==="/x86/artifact/M2"){
+      throw "not running M2 for now";
       pr.set_step(alt_step);
     };
   };
