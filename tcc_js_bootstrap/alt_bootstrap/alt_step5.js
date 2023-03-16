@@ -589,13 +589,27 @@ alt_step=function(p,run){
       print("CALL_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     };
     decoded=true;
-    set_eip(eip+ilen);
     if(run){
-      set_esp(get_esp()-4);
-      vw32(get_esp(),get_eip());
-      set_eip(target);
-      ran=true;
+      //set_esp(get_esp()-4);
+      //vw32(get_esp(),get_eip());
+      //set_eip(target);
+      print("CALL_rel32 cache miss");
+      var d=new_icache_entry();
+      d.insn=CALL_rel32_exec;
+      d.ilen=ilen;
+      d.target=target;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
+    set_eip(eip+ilen);
+  };
+
+  var CALL_rel32_exec=function(d){
+    set_esp(get_esp()-4);
+    vw32(get_esp(),get_eip()+d.ilen);
+    d.branch=d.target;
+    return true;
   };
 
   var CALL_rm32=function(){
@@ -638,7 +652,7 @@ alt_step=function(p,run){
       d.rm32_src=rm32_src;
       d.insn=CMP_rm32_imm8_exec;
       d.ilen=ilen;
-      icache[eip]=d;
+      set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
     };
@@ -665,7 +679,7 @@ alt_step=function(p,run){
       d.rm32_src=rm32_src;
       d.insn=CMP_rm32_r32_exec;
       d.ilen=ilen;
-      icache[eip]=d;
+      set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
     };
@@ -784,11 +798,27 @@ alt_step=function(p,run){
     decoded=true;
     set_eip(eip+ilen);
     if(run){
-      if(get_ZF()===1){
-        set_eip(target);
-      };
-      ran=true;
+      // if(get_ZF()===1){
+      //  set_eip(target);
+      // };
+      print("JE_rel32 cache miss");
+      var d=new_icache_entry();
+      d.insn=JE_rel32_exec;
+      d.ilen=ilen;
+      d.target=target;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
+  };
+
+  var JE_rel32_exec=function(d){
+    if(get_ZF()===1){
+      d.branch=d.target;
+    } else {
+      d.branch=0;
+    };
+    return true;
   };
 
   var JG_rel32=function(){
@@ -864,13 +894,29 @@ alt_step=function(p,run){
       print("JNE_rel32 "+to_hex(vr32(eip+ilen-4))+" ; "+to_hex(target));
     };
     decoded=true;
-    set_eip(eip+ilen);
     if(run){
-      if(get_ZF()===0){
-        set_eip(target);
-      };
-      ran=true;
+      // if(get_ZF()===0){
+      //  set_eip(target);
+      // };
+      print("JNE_rel32 cache miss");
+      var d=new_icache_entry();
+      d.insn=JNE_rel32_exec;
+      d.ilen=ilen;
+      d.target=target;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
+    set_eip(eip+ilen);
+  };
+
+  var JNE_rel32_exec=function(d){
+    if(get_ZF()===0){
+      d.branch=d.target;
+    } else {
+      d.branch=0;
+    };
+    return true;
   };
 
   var LEA_r32_m=function(){
@@ -932,7 +978,7 @@ alt_step=function(p,run){
       d.rm32_src=rm32_src;
       d.insn=MOV_r8_rm8_exec;
       d.ilen=ilen;
-      icache[eip]=d;
+      set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
     };
@@ -975,7 +1021,7 @@ alt_step=function(p,run){
       d.rm32_src=rm32_src;
       d.insn=MOV_r32_rm32_exec;
       d.ilen=ilen;
-      icache[eip]=d;
+      set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
     };
@@ -1004,7 +1050,7 @@ alt_step=function(p,run){
       d.imm32=imm32;
       d.insn=MOV_reg32_imm32_exec;
       d.ilen=ilen;
-      icache[eip]=d;
+      set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
     };
@@ -1032,7 +1078,7 @@ alt_step=function(p,run){
       d.rm32_dest=rm32_dest;
       d.insn=MOV_rm32_r32_exec;
       d.ilen=ilen;
-      icache[eip]=d;
+      set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
     };
@@ -1059,7 +1105,7 @@ alt_step=function(p,run){
       d.rm32_src=rm32_src;
       d.insn=MOVZX_r32_rm8_exec;
       d.ilen=ilen;
-      icache[eip]=d;
+      set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
     };
@@ -1103,7 +1149,7 @@ alt_step=function(p,run){
       d.reg=reg;
       d.insn=POP_r32_exec;
       d.ilen=ilen;
-      icache[eip]=d;
+      set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
     };
@@ -1147,7 +1193,7 @@ alt_step=function(p,run){
       d.reg=reg;
       d.insn=PUSH_r32_exec;
       d.ilen=ilen;
-      icache[eip]=d;
+      set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
     };
@@ -1168,10 +1214,22 @@ alt_step=function(p,run){
     decoded=true;
     set_eip(eip+ilen);
     if(run){
-      set_eip(vr32(get_esp()));
-      set_esp(get_esp()+4);
-      ran=true;
+      // set_eip(vr32(get_esp()));
+      // set_esp(get_esp()+4);
+      var d=new_icache_entry();
+      d.reg=reg;
+      d.insn=RET_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
+  };
+
+  var RET_exec=function(d){
+    d.branch=vr32(get_esp());
+    set_esp(get_esp()+4);
+    return true;
   };
 
   var SHL_rm32_imm8=function(mode){
@@ -1263,6 +1321,14 @@ alt_step=function(p,run){
   var icache=[];
 
 
+  // this is a hacky way of avoiding icache becoming a sparse array
+  // (which improves performance)
+  var ibase=0x08048054;
+
+  for(var i=0;i<20e3;i++){
+   icache.push(dummy_fn);
+  };
+
   var dummy_fn=function(){};
 
   var new_icache_entry=function(){
@@ -1274,7 +1340,18 @@ alt_step=function(p,run){
       ilen:0,
       imm8:0,
       imm32:0,
+      branch:0,
     };
+  };
+
+  var set_icache_entry=function(eip,d){
+    icache[eip-ibase]=d;
+  };
+
+  var get_icache_entry=function(eip){
+    var e=icache[eip-ibase];
+    if(e===dummy_fn){e=undefined};
+    return e;
   };
 
   hot=[];
@@ -1286,10 +1363,14 @@ alt_step=function(p,run){
     };
     hot[eip]++;
 */
-    var e=icache[eip];
+    var e=get_icache_entry(eip);
     if(e){
       var r=e.insn(e);
-      set_eip(eip+e.ilen);
+      if(!e.branch){
+        set_eip(eip+e.ilen);
+      } else {
+        set_eip(e.branch);
+      };
       return r;
     };
     return false;
