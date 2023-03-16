@@ -2340,6 +2340,9 @@ hp.fds=[
     pr.fds=[null,[0,[]],null];
     info_registers(pr);
     pr.set_status("running");
+    if(filename==="/x86/artifact/hex2-0"){
+//      pr.set_step(alt_step);
+    };
     if(filename==="/x86/artifact/M0"){
       pr.set_step(alt_step);
     };
