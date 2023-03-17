@@ -2341,13 +2341,13 @@ hp.fds=[
     info_registers(pr);
     pr.set_status("running");
     if(filename==="/x86/artifact/hex2-0"){
-//      pr.set_step(alt_step);
+      pr.set_step(alt_step);
     };
     if(filename==="/x86/artifact/M0"){
       pr.set_step(alt_step);
     };
     if(filename==="/x86/artifact/cc_x86"){
-//      throw "not running cc_x86 for now";
+      throw "not running cc_x86 for now";
       pr.set_step(alt_step);
     };
     if(filename==="/x86/artifact/M2"){
