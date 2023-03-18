@@ -1877,12 +1877,28 @@ alt_step=function(p,run){
     };
     decoded=true;
     if(run){
+/*
       var t=get_reg32(reg);
       set_reg32(reg,get_eax());
       set_eax(t);
       ran=true;
+*/
+      var d=new_icache_entry();
+      d.reg=reg;
+      d.insn=XCHG_r32_EAX_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
     set_eip(eip+ilen);
+  };
+
+  var XCHG_r32_EAX_exec=function(d){
+    var t=get_reg32(d.reg);
+    set_reg32(d.reg,get_eax());
+    set_eax(t);
+    return true;
   };
 
   var ops_0f=[
