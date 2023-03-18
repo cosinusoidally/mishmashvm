@@ -187,12 +187,12 @@ alt_step=function(p,run){
       rm32_src=function(rm){ return function(){return vr32(get_reg32(rm))}}(rm);
       rm32_dest=function(rm){ return function(x){vw32(get_reg32(rm),x)}}(rm);
 
-      rm8_src=function(){
-        return rm32_src()&0xFF};
-      rm8_dest=function(v){
+      rm8_src=(function(rm32_src){return function(){
+        return rm32_src()&0xFF}})(rm32_src);
+      rm8_dest=(function(rm32_src,rm32_dest){return function(v){
         var r32=(rm32_src() & 0xFFFFFF00)|(v&0xFF);
         rm32_dest(r32);
-      };
+      }})(rm32_src,rm32_dest);
     };
     if(mode==="[--][--]"){
       // FIXME this isn't right
@@ -260,12 +260,12 @@ alt_step=function(p,run){
     if(mod===3){
       rm32_src=reg32_getters[rm];
       rm32_dest=reg32_setters[rm];
-      rm8_src=function(){
-        return rm32_src()&0xFF};
-      rm8_dest=function(v){
+      rm8_src=(function(rm32_src){ return function(){
+        return rm32_src()&0xFF}})(rm32_src);
+      rm8_dest=(function(rm32_src,rm32_dest){return function(v){
         var r32=(rm32_src() & 0xFFFFFF00)|(v&0xFF);
         rm32_dest(r32);
-      };
+      }})(rm32_src,rm32_dest);
     };
     if(mode!==undefined){
       return;
@@ -816,9 +816,10 @@ alt_step=function(p,run){
     };
     decoded=true;
     if(run){
+/*
       CMP_generic8(get_reg32(reg)&0xff,rm8_src());
       ran=true;
-/* FIXME
+*/
       print("CMP_rm8_r8 cache miss");
       var d=new_icache_entry();
       d.rm8_src=rm8_src;
@@ -828,7 +829,6 @@ alt_step=function(p,run){
       set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
-*/
     };
     set_eip(eip+ilen);
   };
@@ -1383,9 +1383,10 @@ alt_step=function(p,run){
     };
     decoded=true;
     if(run){
+/*
       MOV_generic8(rm8_dest,get_reg32(reg));
       ran=true;
-/* FIXME
+*/
       print("MOV_rm8_r8 cache miss");
       var d=new_icache_entry();
       d.reg=reg;
@@ -1395,7 +1396,6 @@ alt_step=function(p,run){
       set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
-*/
     };
     set_eip(eip+ilen);
   };
