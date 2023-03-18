@@ -518,10 +518,24 @@ alt_step=function(p,run){
       print("ADD_rm32_imm8_"+mode+" "+hex_byte(imm8));
     };
     if(run){
-      ADD_generic32(rm32_dest,rm32_src(),sign_extend8(imm8));
-      ran=true;
+      // ADD_generic32(rm32_dest,rm32_src(),sign_extend8(imm8));
+      print("ADD_rm32_imm8 cache miss");
+      var d=new_icache_entry();
+      d.imm8=imm8;
+      d.rm32_src=rm32_src;
+      d.rm32_dest=rm32_dest;
+      d.insn=ADD_rm32_imm8_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
     set_eip(eip+ilen);
+  };
+
+  var ADD_rm32_imm8_exec=function(d){
+    ADD_generic32(d.rm32_dest,d.rm32_src(),sign_extend8(d.imm8));
+    return true;
   };
 
   var ADD_rm32_imm32=function(mode){
@@ -559,10 +573,23 @@ alt_step=function(p,run){
     };
     decoded=true;
     if(run){
-      ADD_generic32(function(v){ set_reg32(reg,v)},get_reg32(reg),rm32_src());
-      ran=true;
+      // ADD_generic32(function(v){ set_reg32(reg,v)},get_reg32(reg),rm32_src());
+      print("ADD_r32_rm32 cache miss");
+      var d=new_icache_entry();
+      d.reg=reg;
+      d.rm32_src=rm32_src;
+      d.insn=ADD_r32_rm32_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
     set_eip(eip+ilen);
+  };
+
+  var ADD_r32_rm32_exec=function(d){
+    ADD_generic32(function(v){ set_reg32(d.reg,v)},get_reg32(d.reg),d.rm32_src());
+    return true;
   };
 
   var AND_rm32_imm8=function(mode){
@@ -598,12 +625,25 @@ alt_step=function(p,run){
     if(dbg){
       print("AND_EAX_"+hex_byte(imm32));
     };
-    if(run){
-      set_eax(get_eax()&imm32);
-      ran=true;
-    };
     decoded=true;
+    if(run){
+      // set_eax(get_eax()&imm32);
+      print("AND_EAX_imm32 cache miss");
+      var d=new_icache_entry();
+      d.imm32=imm32;
+      d.insn=AND_EAX_imm32_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
     set_eip(eip+ilen);
+  };
+
+
+  var AND_EAX_imm32_exec=function(d){
+    set_eax(get_eax()&d.imm32);
+    return true;
   };
 
   var CALL_rel32=function(){
@@ -919,9 +959,21 @@ alt_step=function(p,run){
     decoded=true;
     set_eip(eip+ilen);
     if(run){
-      set_eip(target);
-      ran=true;
+      // set_eip(target);
+      print("JMP_rel32 cache miss");
+      var d=new_icache_entry();
+      d.insn=JMP_rel32_exec;
+      d.ilen=ilen;
+      d.target=target;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
+  };
+
+  var JMP_rel32_exec=function(d){
+    d.branch=d.target;
+    return true;
   };
 
   var JNE_rel32=function(){
@@ -967,9 +1019,22 @@ alt_step=function(p,run){
     decoded=true;
     set_eip(eip+ilen);
     if(run){
-      set_reg32(reg,get_reg32(ss_base));
-      ran=true;
+      // set_reg32(reg,get_reg32(ss_base));
+      print("LEA_r32_m cache miss");
+      var d=new_icache_entry();
+      d.ss_base=ss_base;
+      d.reg=reg;
+      d.insn=LEA_r32_m_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
+  };
+
+  var LEA_r32_m_exec=function(d){
+    set_reg32(d.reg,get_reg32(d.ss_base));
+    return true;
   };
 
   var MOV_moffs32_EAX=function(r){
@@ -995,10 +1060,23 @@ alt_step=function(p,run){
     };
     decoded=true;
     if(run){
-      set_eax(vr32(imm32));
-      ran=true;
+      // set_eax(vr32(imm32));
+      print("MOV_EAX_moffs32 cache miss");
+      var d=new_icache_entry();
+      d.imm32=imm32;
+      d.insn=MOV_EAX_moffs32_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
     set_eip(eip+ilen);
+  };
+
+
+  var MOV_EAX_moffs32_exec=function(d){
+    set_eax(vr32(d.imm32));
+    return true;
   };
 
   var MOV_r8_rm8=function(){
@@ -1161,10 +1239,23 @@ alt_step=function(p,run){
     };
     decoded=true;
     if(run){
-      rm32_dest(~rm32_src());
-      ran=true;
+      // rm32_dest(~rm32_src());
+      print("NOT_rm32 cache miss");
+      var d=new_icache_entry();
+      d.rm32_src=rm32_src;
+      d.rm32_dest=rm32_dest;
+      d.insn=NOT_rm32_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
     set_eip(eip+ilen);
+  };
+
+  var NOT_rm32_exec=function(d){
+    d.rm32_dest(~d.rm32_src());
+    return true;
   };
 
   var POPFD=function(r){
@@ -1365,11 +1456,24 @@ alt_step=function(p,run){
     };
     decoded=true;
     if(run){
-      var res=rm32_src() & get_reg32(reg);
-      arith32_setflags(res);
-      ran=true;
+      // var res=rm32_src() & get_reg32(reg);
+      // arith32_setflags(res);
+      var d=new_icache_entry();
+      d.reg=reg;
+      d.rm32_src=rm32_src;
+      d.insn=TEST_rm32_r32_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
     };
     set_eip(eip+ilen);
+  };
+
+  var TEST_rm32_r32_exec=function(d){
+    var res=d.rm32_src() & get_reg32(d.reg);
+    arith32_setflags(res);
+    return true;
   };
 
   var XCHG_r32_EAX=function(r){
@@ -1422,6 +1526,7 @@ alt_step=function(p,run){
       imm8:0,
       imm32:0,
       branch:0,
+      ss_base:0,
     };
   };
 
@@ -1435,7 +1540,11 @@ alt_step=function(p,run){
     return e;
   };
 
-  hot=[];
+  if(h==undefined){
+    h=[];
+  };
+  var hot=[];
+  h.push(hot);
 
   var try_icache=function(eip){
 /*
@@ -1451,6 +1560,13 @@ alt_step=function(p,run){
         set_eip(eip+e.ilen);
       } else {
         set_eip(e.branch);
+/*
+        var eip=e.branch;
+        if(!hot[eip]){
+          hot[eip]=0;
+        };
+        hot[eip]++;
+*/
       };
       return r;
     };
@@ -1721,3 +1837,4 @@ single_step=true;my_dbg=true;
 var dbg_off=function(){
 single_step=false;my_dbg=false;
 };
+var h;
