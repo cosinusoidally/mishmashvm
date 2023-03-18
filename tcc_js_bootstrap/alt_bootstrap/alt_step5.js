@@ -1587,9 +1587,6 @@ alt_step=function(p,run){
       throw "breakpoint";
     };
     count++;
-    if(try_icache(eip)){
-      return;
-    };
     if(count-count2>1e6){
       var now=Date.now();
       var dt=(now-last)/1000;
@@ -1597,6 +1594,9 @@ alt_step=function(p,run){
       print("MIPS: " +(dc/dt));
       count2=count;
       last=now;
+    };
+    if(try_icache(eip)){
+      return;
     };
     b1=vr8(eip);
     b2=vr8(eip+1);
