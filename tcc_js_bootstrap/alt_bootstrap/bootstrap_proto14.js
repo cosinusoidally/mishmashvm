@@ -2146,7 +2146,8 @@ hp.fds=[
   var syscall_exit = function(p){
     exit_code=p.get_ebx();
 //    if(dbg){
-      print("syscall_exit: "+exit_code);
+      print("syscall_exit: "+exit_code+" filename:"+p.filename +
+         " runtime: "+((Date.now()-p.st)/1000)+" s");
 //    };
     if(exit_code!==0){
       throw "process error";
@@ -2340,6 +2341,8 @@ hp.fds=[
     pr.fds=[null,[0,[]],null];
     info_registers(pr);
     pr.set_status("running");
+    pr.filename=filename;
+    pr.st=Date.now();
     if(filename==="/x86/artifact/hex2-0"){
       pr.set_step(alt_step);
     };
@@ -2347,7 +2350,7 @@ hp.fds=[
       pr.set_step(alt_step);
     };
     if(filename==="/x86/artifact/cc_x86"){
-//      throw "not running cc_x86 for now";
+      throw "not running cc_x86 for now";
       pr.set_step(alt_step);
     };
     if(filename==="/x86/artifact/M2"){

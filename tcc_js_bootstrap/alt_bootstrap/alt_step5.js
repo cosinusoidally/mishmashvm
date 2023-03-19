@@ -1954,15 +1954,17 @@ alt_step=function(p,run){
     h=[];
   };
   var hot=[];
+  hot.filename=p.filename;
   h.push(hot);
 
-  var try_icache=function(eip){
-/*
+  var update_profile=function(eip){
     if(!hot[eip]){
       hot[eip]=0;
     };
     hot[eip]++;
-*/
+  };
+
+  var try_icache=function(eip){
     var e=get_icache_entry(eip);
     if(e){
       var r=e.insn(e);
@@ -1970,13 +1972,8 @@ alt_step=function(p,run){
         set_eip(eip+e.ilen);
       } else {
         set_eip(e.branch);
-/*
-        var eip=e.branch;
-        if(!hot[eip]){
-          hot[eip]=0;
-        };
-        hot[eip]++;
-*/
+        // uncomment to profile
+        //update_profile(e.branch);
       };
       return r;
     };
@@ -2248,3 +2245,23 @@ var dbg_off=function(){
 single_step=false;my_dbg=false;
 };
 var h;
+
+var gen_stats=function(){
+  stats=[];
+  for(var i=0;i<h.length;i++){
+    var o=[];
+    var c=h[i];
+    for(var j in c){
+      o.push([j,c[j]]);
+    };
+    o.sort(function(a,b){return a[0]>b[0]});
+    o.filename=c.filename;
+    stats.push(o);
+  };
+};
+
+print_stats=function(x){
+  for(var i=0;i<x.length;i++){
+    print(to_hex(x[i][0])+": "+x[i][1]);
+  };
+};
