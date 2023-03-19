@@ -138,7 +138,7 @@ var new_process=function(){
   var cwd="/";
 
   var stack=[];
-  var stack_size=1024*1024; // just give us a meg
+  var stack_size=1024*1024*2; // give us 2 megs
   zero_mem(stack,stack_size/4);
   var stack_base=0xFFFFE000-stack_size;
   var vmem=[
