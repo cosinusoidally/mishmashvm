@@ -1,4 +1,5 @@
 count=0;
+var perf_hack;
 new_dummy=function(){
   print("New dummy proc");
   var alt;
@@ -1978,6 +1979,109 @@ alt_step=function(p,run){
       return r;
     };
     return false;
+  };
+
+
+  if(p.filename==="/x86/artifact/hex2-0" && perf_hack){
+    print("hex2-0 icache boost");
+    var d=new_icache_entry();
+    d.reg=reg;
+    d.insn=(function(){
+      var get_ecx=p.get_ecx;
+      var get_edx=p.get_edx;
+      var get_esi=p.get_esi;
+
+      var set_eax=p.set_eax;
+      var set_ebx=p.set_ebx;
+      var set_ecx=p.set_ecx;
+      var set_edx=p.set_edx;
+      var set_esi=p.set_esi;
+
+      var vr8=p.vr8;
+      var vr32=p.vr32;
+
+      return function(d){
+        var ecx=get_ecx();
+        var edx=get_edx();
+        var esi=get_esi();
+        var eax;
+        var ebx;
+        while(1){
+        while(1){
+//    0x08048404:	8a 01	mov    al,BYTE PTR [ecx]
+        eax=vr8(ecx);
+//    0x08048406:	8a 1a	mov    bl,BYTE PTR [edx]
+        ebx=vr8(edx);
+//    0x08048408:	0f b6 db	movzx  ebx,bl
+//    0x0804840b:	0f b6 c0	movzx  eax,al
+//    0x0804840e:	38 d8	cmp    al,bl
+        var res=eax-ebx;
+        var ZF;
+        if(res===0){
+          ZF=1;
+        } else {
+          ZF=0;
+        };
+//    0x08048410:	0f 85 13 00 00 00	jne    0x8048429
+        if(ZF===0){
+          d.branch=0x8048429;
+          break;
+        };
+//    0x08048416:	83 c1 01	add    ecx,0x1
+        ecx=ecx+1;
+//    0x08048419:	83 c2 01	add    edx,0x1
+        edx=edx+1;
+//    0x0804841c:	3c 00	cmp    al,0x0
+        res=eax-0;
+        if(res===0){
+          ZF=1;
+        } else {
+          ZF=0;
+        };
+//    0x0804841e:	0f 85 e0 ff ff ff	jne    0x8048404
+        if(ZF===1){
+          d.branch=0x08048424;
+          break;
+        };
+        };
+        if(d.branch===0x08048424){
+//    0x08048424:	e9 18 00 00 00	jmp    0x8048441
+          d.branch=0x8048441;
+          break;
+        };
+//    0x08048429:	8b 36	mov    esi,DWORD PTR [esi]
+        esi=vr32(esi);
+/*
+        d.branch=0x0804842b;
+        break;
+*/
+//    0x0804842b:	83 fe 00	cmp    esi,0x0
+        res=esi-0;
+        if(res===0){
+          ZF=1;
+        } else {
+          ZF=0;
+        };
+//    0x0804842e:	0f 84 02 01 00 00	je     0x8048536
+       if(ZF===1){
+        d.branch=0x8048536;
+        break;
+       };
+//    0x08048434:	8b 56 10	mov    edx,DWORD PTR [esi+0x10]
+        edx=vr32(esi+0x10);
+//    0x08048437:	b9 7a 85 04 08	mov    ecx,0x804857a
+        ecx=0x804857a;
+//    0x0804843c:	e9 c3 ff ff ff	jmp    0x8048404
+        };
+//print(to_hex(d.branch));
+        set_eax(eax);
+        set_ebx(ebx);
+        set_ecx(ecx);
+        set_edx(edx);
+        set_esi(esi);
+        return true;
+    }})();
+    set_icache_entry(0x08048404,d);
   };
 
   var count2=0;
