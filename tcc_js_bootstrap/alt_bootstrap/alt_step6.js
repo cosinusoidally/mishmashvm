@@ -2436,12 +2436,20 @@ var save=function(){
     tmp=new Uint8Array(vfs.readFile(name));
     print(tmp.length);
     write(path+"/file"+i,tmp);
+  };
+  wipe_written();
+};
+
+var wipe_written=function(){
+  for(var i=0;i<written_files.length;i++){
+    var name=written_files[i];
     vfs.writeFile(name);
   };
 };
 
 var load_snap=function(){
   print("loading snapshot path: "+path);
+  wipe_written();
   var md=JSON.parse(read(path+"/meta.json"));
   var files=JSON.parse(read(path+"/written.json"));
   print(JSON.stringify(md,null," "));
