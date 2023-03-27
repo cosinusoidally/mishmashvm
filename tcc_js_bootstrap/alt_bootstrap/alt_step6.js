@@ -2332,7 +2332,7 @@ print((Date.now()-st)/1000);
 };
 var breakpoint;
 if(!breakpoint){
-//breakpoint=0x08048054;
+breakpoint=0x08048054;
 //breakpoint=0x08048573;
 };
 //breakpoint=0x080480b8;
@@ -2368,4 +2368,31 @@ print_stats=function(x){
   for(var i=0;i<x.length;i++){
     print(to_hex(x[i][0])+": "+x[i][1]);
   };
+};
+
+
+save=function(){
+  if(!this.libc){
+    print("spidermonkey must load support lib");
+  };
+  print("save location: "+path);
+  var d=[];
+  for(var i=0;i<pt.length;i++){
+    var c=pt[i];
+    if(c.get_status()!=="empty"){
+      var p=c.get_state();
+      p.pid=c.get_pid();
+      var vmem=p.vmem;
+      delete p.vmem;
+      var vmem2=[];
+      for(var j=0;j<vmem.length;j++){
+        var v=[];
+        v[0]=vmem[j][0];
+        vmem2.push(v);
+      };
+      p.vmem=vmem2;
+      d.push(p);
+    };
+  };
+  print(JSON.stringify(d,null,"  "));
 };
