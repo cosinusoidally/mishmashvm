@@ -2347,9 +2347,11 @@ hp.fds=[
       pr.set_step(alt_step);
     };
     if(filename==="/x86/artifact/M0"){
+      // temp hack whilst testing snapshotting
+      throw "not running hex2-0 for now";
       pr.set_step(alt_step);
     };
-    if(filename==="/x86/artifact/cc_x86"){
+    if(filename==="/x86/artifact/M0"){
       throw "not running cc_x86 for now";
       pr.set_step(alt_step);
     };

@@ -2430,8 +2430,49 @@ var load_snap=function(){
   var md=JSON.parse(read(path+"/meta.json"));
   print(JSON.stringify(md,null," "));
   for(var i=0;i<md.length;i++){
-    var c=md[i];
-    var p=pt[c.pid];
-    print(c.pid);
+    var s=md[i];
+    var pn=pt[s.pid];
+
+    pn.set_eax(s.eax);
+    pn.set_ecx(s.ecx);
+    pn.set_edx(s.edx);
+    pn.set_ebx(s.ebx);
+    pn.set_esp(s.esp);
+    pn.set_ebp(s.ebp);
+    pn.set_esi(s.esi);
+    pn.set_edi(s.edi);
+    pn.set_eip(s.eip);
+    pn.set_IF(s.IF);
+    pn.set_ZF(s.ZF);
+    pn.set_SF(s.SF);
+    pn.set_CF(s.CF);
+    pn.set_OF(s.OF);
+
+    var vmem=s.vmem;
+    for(var j=0;j<vmem.length;j++){
+      var c=vmem[j];
+      fn=path+"/"+c[1];
+      var d=read(fn,"binary");
+      var e=new ArrayBuffer(d.length);
+      var f=new Uint8Array(e);
+      var g=new Int32Array(e);
+      for(var k=0;k<d.length;k++){
+        f[k]=d[k];
+      };
+      c[1]=[];
+      for(var k=0;k<g.length;k++){
+        c[1][k]=g[k];
+      };
+    };
+
+    pn.set_vmem(vmem);
+
+    pn.set_brk(s.brk);
+
+    pn.set_dbg(s.dbg);
+
+    print();
+    print("loaded "+s.pid);
+    info_registers(pn);
   };
 };
