@@ -2363,7 +2363,7 @@ print((Date.now()-st)/1000);
 };
 var breakpoint;
 if(!breakpoint){
-//breakpoint=0x08048054;
+breakpoint=0x08048054;
 //breakpoint=0x08048573;
 };
 //breakpoint=0x080480b8;
@@ -2448,7 +2448,7 @@ var save=function(){
       };
       p.vmem=vmem2;
       p.filename=c.filename;
-      p.state=c.get_status();
+      p.status=c.get_status();
       var fds={}
       for(var k in c.fds){
         if((c.fds[k]!==null)&& (k>2)){
@@ -2456,6 +2456,11 @@ var save=function(){
         };
       };
       p.fds=fds;
+      if(c.get_alt()){
+        p.alt=true;
+      } else {
+        p.alt=false;
+      };
       d.push(p);
     };
   };
@@ -2483,6 +2488,7 @@ var load_snap=function(){
   wipe_written();
   var md=JSON.parse(read(path+"/meta.json"));
   var files=JSON.parse(read(path+"/written.json"));
+  written_files=files;
   print(JSON.stringify(md,null," "));
   print(JSON.stringify(files,null," "));
   for(var i=0;i<files.length;i++){
@@ -2535,6 +2541,8 @@ var load_snap=function(){
 
     pn.set_dbg(s.dbg);
 
+    pn.set_status(s.status);
+
     pn.filename=s.filename;
 
     pn.fds=[null,[0,[]],null];
@@ -2545,6 +2553,11 @@ var load_snap=function(){
         pn.fds[q]=[c[0],vfs.readFile(c[1])];
       };
     };
+
+    if(s.alt){
+      pn.set_step(alt_step);
+    };
+
     print();
     print("loaded "+s.pid);
     info_registers(pn);

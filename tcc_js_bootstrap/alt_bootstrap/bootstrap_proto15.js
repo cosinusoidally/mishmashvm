@@ -1,6 +1,7 @@
 load("../../libc_portable_proto/sha256.js");
 load("alt_step6.js");
 
+var use_snap;
 written_files=[];
 
 hex0_to_array=function(x){
@@ -2009,6 +2010,7 @@ var new_process=function(){
     set_vmem: set_vmem,
     get_cwd: function(){return cwd;},
     set_step: set_step,
+    get_alt: function(){return alt;},
   };
   return self;
 }
@@ -2463,6 +2465,7 @@ var run2=function(){
 var run3=function(){
   process_table=[
   ];
+  pt=process_table;
   for(var i=0;i<9;i++){
     var p=new_process();
     p.set_pid(i);
@@ -2470,6 +2473,11 @@ var run3=function(){
     process_table[i]= p;
   };
 
+  if(use_snap){
+    print("loading snapshot");
+    load_snap();
+    return resume();
+  };
 
   // setup PID 1 (kaem process)
   var img=parse_elf(kaem);
