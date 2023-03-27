@@ -2374,9 +2374,20 @@ print_stats=function(x){
 save=function(){
   if(!this.libc){
     print("spidermonkey must load support lib");
+    load("../../lib/setup_platform.js");
   };
+  write=function(file,data){
+    if(typeof data==="string"){
+      data=new Uint8Array(data.split("").map(function(x){return x.charCodeAt(0)}));
+    };
+    var f=libc.fopen(file,"wb");
+    libc.fwrite(data,data.length,1,f);
+    libc.fclose(f);
+  };
+
   print("save location: "+path);
   var d=[];
+  var n=0;
   for(var i=0;i<pt.length;i++){
     var c=pt[i];
     if(c.get_status()!=="empty"){
@@ -2388,11 +2399,26 @@ save=function(){
       for(var j=0;j<vmem.length;j++){
         var v=[];
         v[0]=vmem[j][0];
+        var a=vmem[j][1];
+        var b=new ArrayBuffer(a.length*4);
+        var c=new Int32Array(b);
+        var o=new Uint8Array(b);
+        print(c.length);
+        for(var k=0;k<c.length;k++){
+          c[k]=a[k]|0;
+        };
+      // hashing expensive
+      //  var fn=root.sha256(o);
+        var fn="data"+n;
+        v[1]=fn;
         vmem2.push(v);
+        write(path+"/"+fn,o);
+        n++;
       };
       p.vmem=vmem2;
       d.push(p);
     };
   };
-  print(JSON.stringify(d,null,"  "));
+  var md=JSON.stringify(d,null,"  ");
+  write(path+"/meta.json",md);
 };
