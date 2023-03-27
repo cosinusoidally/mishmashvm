@@ -2343,6 +2343,10 @@ hp.fds=[
     pr.set_status("running");
     pr.filename=filename;
     pr.st=Date.now();
+
+// can't yet enable for all
+//    pr.set_step(alt_step);
+
     if(filename==="/x86/artifact/hex2-0"){
       pr.set_step(alt_step);
     };

@@ -1234,6 +1234,36 @@ alt_step=function(p,run){
     return true;
   };
 
+  var JNE_rel8=function(){
+    ilen++;
+    load_imm8();
+    compute_target8();
+    if(dbg){
+      print("JNE_rel8 "+to_hex(sign_extend8(imm8))+" ; "+to_hex(target));
+    };
+// needed by kaem-0
+    decoded=true;
+    if(run){
+      print("JNE_rel8 cache miss");
+      var d=new_icache_entry();
+      d.insn=JNE_rel8_exec;
+      d.ilen=ilen;
+      d.target=target;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var JNE_rel8_exec=function(d){
+    if(get_ZF()===0){
+      d.branch=d.target;
+    } else {
+      d.branch=0;
+    };
+    return true;
+  };
   var JNE_rel32=function(){
     // 0F 85 cw/cd JNE rel16/32 Jump near if not equal (ZF=0)
     ilen=6;
@@ -2263,6 +2293,7 @@ alt_step=function(p,run){
     [0xFF, _ff ],
     [0xF7, _f7 ],
     [0x25, AND_EAX_imm32 ],
+    [0x75, JNE_rel8 ],
     [0x76, JBE_rel8 ],
     [0x21, AND_rm32_r32 ],
     [0x85, TEST_rm32_r32],
@@ -2332,7 +2363,7 @@ print((Date.now()-st)/1000);
 };
 var breakpoint;
 if(!breakpoint){
-breakpoint=0x08048054;
+//breakpoint=0x08048054;
 //breakpoint=0x08048573;
 };
 //breakpoint=0x080480b8;
