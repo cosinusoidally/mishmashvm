@@ -2097,7 +2097,7 @@ var kernel=(function(){
       file=vfs.readFile(filename);
       written_files.push(vfs.mk_absolute(filename));
     };
-    p.fds.push([0,file]);
+    p.fds.push([0,file,vfs.mk_absolute(fn)]);
     p.set_eax(p.fds.length-1);
   };
 

@@ -2418,6 +2418,13 @@ var save=function(){
       p.vmem=vmem2;
       p.filename=c.filename;
       p.state=c.get_status();
+      var fds={}
+      for(var k in c.fds){
+        if((c.fds[k]!==null)&& (k>2)){
+          fds[k]=[c.fds[k][0],c.fds[k][2]];
+        };
+      };
+      p.fds=fds;
       d.push(p);
     };
   };
@@ -2470,6 +2477,8 @@ var load_snap=function(){
     pn.set_brk(s.brk);
 
     pn.set_dbg(s.dbg);
+
+    pn.filename=s.filename;
 
     print();
     print("loaded "+s.pid);
