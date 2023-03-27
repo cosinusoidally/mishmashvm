@@ -2430,12 +2430,30 @@ var save=function(){
   };
   var md=JSON.stringify(d,null,"  ");
   write(path+"/meta.json",md);
+  write(path+"/written.json",JSON.stringify(written_files,null,""));
+  for(var i=0;i<written_files.length;i++){
+    var name=written_files[i];
+    tmp=new Uint8Array(vfs.readFile(name));
+    print(tmp.length);
+    write(path+"/file"+i,tmp);
+    vfs.writeFile(name);
+  };
 };
 
 var load_snap=function(){
   print("loading snapshot path: "+path);
   var md=JSON.parse(read(path+"/meta.json"));
+  var files=JSON.parse(read(path+"/written.json"));
   print(JSON.stringify(md,null," "));
+  print(JSON.stringify(files,null," "));
+  for(var i=0;i<files.length;i++){
+    var f=read(path+"/file"+i,"binary");
+    var g=[];
+    for(var j=0;j<f.length;j++){
+      g[j]=f[j];
+    };
+    vfs.writeFile(files[i],g);
+  };
   for(var i=0;i<md.length;i++){
     var s=md[i];
     var pn=pt[s.pid];
@@ -2480,6 +2498,14 @@ var load_snap=function(){
 
     pn.filename=s.filename;
 
+    pn.fds=[null,[0,[]],null];
+
+    for(var q in s.fds){
+      var c=s.fds[q];
+      if(c!==null){
+        pn.fds[q]=[c[0],vfs.readFile(c[1])];
+      };
+    };
     print();
     print("loaded "+s.pid);
     info_registers(pn);
