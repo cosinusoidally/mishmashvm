@@ -2550,7 +2550,7 @@ var load_snap=function(){
     for(var q in s.fds){
       var c=s.fds[q];
       if(c!==null){
-        pn.fds[q]=[c[0],vfs.readFile(c[1])];
+        pn.fds[q]=[c[0],vfs.readFile(c[1]),c[1]];
       };
     };
 
