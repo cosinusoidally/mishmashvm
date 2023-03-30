@@ -2363,7 +2363,7 @@ print((Date.now()-st)/1000);
 };
 var breakpoint;
 if(!breakpoint){
-breakpoint=0x08048054;
+//breakpoint=0x08048054;
 //breakpoint=0x08048573;
 };
 //breakpoint=0x080480b8;
@@ -2461,6 +2461,7 @@ var save=function(){
       } else {
         p.alt=false;
       };
+      p.argv=c.argv;
       d.push(p);
     };
   };
@@ -2502,6 +2503,8 @@ var load_snap=function(){
   for(var i=0;i<md.length;i++){
     var s=md[i];
     var pn=pt[s.pid];
+
+   pn.argv=s.argv;
 
     pn.set_eax(s.eax);
     pn.set_ecx(s.ecx);

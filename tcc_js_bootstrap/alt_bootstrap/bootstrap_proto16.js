@@ -2345,6 +2345,7 @@ hp.fds=[
     pr.set_status("running");
     pr.filename=filename;
     pr.st=Date.now();
+    pr.argv=argv;
 
 // can't yet enable for all
 //    pr.set_step(alt_step);
@@ -2353,17 +2354,17 @@ hp.fds=[
       pr.set_step(alt_step);
     };
     if(filename==="/x86/artifact/M0"){
+      pr.set_step(alt_step);
       // temp hack whilst testing snapshotting
-      throw "not running hex2-0 for now";
-      pr.set_step(alt_step);
+      // throw "not running M0 for now";
     };
-    if(filename==="/x86/artifact/M0"){
-      throw "not running cc_x86 for now";
+    if(filename==="/x86/artifact/cc_x86"){
       pr.set_step(alt_step);
+      // throw "not running cc_x86 for now";
     };
     if(filename==="/x86/artifact/M2"){
-      throw "not running M2 for now";
       pr.set_step(alt_step);
+      throw "not running M2 for now";
     };
   };
 
@@ -2476,7 +2477,7 @@ var run3=function(){
   if(use_snap){
     print("loading snapshot");
     load_snap();
-    return resume();
+    return;
   };
 
   // setup PID 1 (kaem process)
