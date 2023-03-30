@@ -2393,6 +2393,7 @@ hp.fds=[
     } else if(eax===19){
       syscall_lseek(proc);
     } else {
+      proc.set_eip(proc.get_eip()-2);
       throw "pid: "+pid+" unsupported syscall: "+eax;
     };
   };
