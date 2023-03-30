@@ -1,0 +1,165 @@
+--------------------------------------------------------------------------------
+2023-02-22
+
+bootstrap_proto7.js is able to get as far as:
+Phase-2b Build catm from hex2 :
+./x86/artifact/hex2-0 ./x86/catm_x86.hex2 ./x86/artifact/catm
+
+Next steps are a case of grinding through and adding all required instructions
+in order to be able to run hex2-0 to completion.
+
+Current version has a vfs implementation and has a working version of waitpid to
+allow processes to wake up in response to a child terminating (which is what
+allows kaem scripts to continue after a build step completes).
+
+This version also verifies the sha256sums of the intermediate build artifacts to
+confirm that the emulated bootstrap is producing identical output to the native
+bootstrap.
+
+Next version:
+
+- implement all required instructions to allow hex2-0 to run to completion
+- print out error message if build artifact sha256sums do not match (currently
+  it just prints out the sha256sum and the end user must confirm they match by
+  eye).
+
+--------------------------------------------------------------------------------
+2023-02-21
+
+bootstrap_proto6.js has an implementation of execve. Bootstrap process now runs
+up until the end of the first invocation of hex0 (3 procs running, 2x execve).
+It fails to run further as the waitpid implementation is not yet complete.
+
+For next version:
+
+- more complete virtual filesystem implementation. Current version is just a
+  stub. Need to load vfs into ram and also fix up syscall_open to use vfs
+  properly.
+- fix exit and waitpid so processes in a waitpid call will wake up when the
+  process they are watching exits.
+
+--------------------------------------------------------------------------------
+2023-02-17
+
+bootstrap_proto5.js is able to run multiple virtual processes created via fork.
+The bootstrap process gets as far as spawning a child proc and calling execve.
+Next steps for bootstrap_proto6.js are:
+
+- implement execve
+- implement an in memory filesystem
+
+Note the current waitpid implementation is incompete. I need to have some way of
+waking up the process at the correct time. Currently the process will just go to
+sleep forever.
+
+--------------------------------------------------------------------------------
+2023-02-16
+
+bootstrap_proto4.js can run kaem up until the point where it calls fork. I now
+also have brk implemented to allocate memory from the os.
+
+Next version bootstrap_proto5.js will:
+
+- implement fork. This requires the ability to clone an existing process.
+- have the ability to run multiple processes
+
+For fork I will need something like:
+
+foo=proc.get_state();
+foo2=kernel.fork_state(foo);
+proc2.set_state(foo2);
+
+The fork_state will copy the heap,stack,register,brk value etc but preserve open
+file descriptors.
+
+Question: how does stdin, stdout, stderror work with forks? Currently I only
+have a crude implementation of stdout (just an array that is pushed to whenever
+a byte is written to stdout).
+
+For multiple processes I'm thinking that I have a process_table (say pt) having
+a fixed number of preallocated procs (lets say 8 initially). Then the process of
+running multiple procs is just cycling through pt and calling the step method.
+Something a bit like:
+
+pt=[p1,p2,p3,p4,p5,p6];
+
+for(var i=0;i<pt.length;i++){
+  pt[i].step();
+};
+
+If a process is stopped for whatever reason (waiting for a syscall, triggered a
+syscall, dead, etc) then it simply does nothing when step is called.
+
+Once each process has been stepped then we process the syscalls:
+
+for(var i=0;i<pt.length;i++){
+  var p=pt[i];
+  if(p.process_state()==="syscall"){
+    p.set_state("wait_syscall_result");
+    kernel.syscall(p);
+  };
+};
+
+states will be something along the lines of:
+"running"
+"syscall"
+"syscall_wait_result"
+"dead"
+
+When starting a process we would just scan through pt, find a dead process and
+then recycle it with set_state()
+
+processes would start off in a "dead" state
+
+--------------------------------------------------------------------------------
+2023-02-13
+
+bootstrap_proto2.js is an improved version of bootstrap_proto.js with the same
+level of functionality as the original. It has the following properties:
+
+- faster by x100
+- optional logging (off by default, which may explain the x100 performance
+  boost)
+- neater code using nested switch statements
+- has the ability to instantiate multiple emulated x86 "processes" each with
+  their own memory
+
+Improvements for next version:
+
+- proper filesystem implementation, enough to actually open the correct files
+  for reading an writing. Filesystem should be in memory.
+- emulate a shared "kernel" that provides OS services to all virtual processes
+- proper argc/argv creation on process start.
+
+--------------------------------------------------------------------------------
+2023-02-12
+
+bootstrap_proto.js contains a very rough x86 emulator that is capable of loading
+and running hex0 (is it also capable of converting hex0 to a binary). This
+version can run hex0 to completion and verify the correct hash is generated.
+Current issues:
+
+- it's far too slow. It took about 30s to run on my slow machine
+- it spits out too much log info whilst it runs. This is possibly one of the
+  reasons for the slowness as after each instruction it dumps the decoded
+  instruction and the cpu state to standard out.
+- some instruction are not 100% correctly implemented
+- code is a mess.
+
+Improvements for next version:
+
+- use nested switch statements decode the instructions. This should be cleaner
+  than using arrays of functions.
+  One thing to note though is that simpler js VMs internally convert switches to
+  if else chains, which may be less efficient
+- optional debug logging
+- fix instruction implementations
+- create a way to have multiple cpu memories (emulating the address spaces of
+  multiple Linux processes)
+- a real elf loader (or at least an incremental improvement)
+- properly setting up the stack on process load (argc argv)
+- better syscall emulation.
+
+The target for the next version is to be able to run kaem and spawn child
+processes (which will be virtualised inside the same js process). Should then be
+able to kick off the kaem.x86 script at the root of stage0-posix.
