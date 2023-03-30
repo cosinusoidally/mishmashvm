@@ -1676,7 +1676,9 @@ alt_step=function(p,run){
   };
 
   var OR_rm32_r32_exec=function(d){
-    d.rm32_dest(d.rm32_src() | get_reg32(d.reg));
+    var res=d.rm32_src() | get_reg32(d.reg);
+    arith32_setflags(res);
+    d.rm32_dest(res);
     return true;
   };
 
