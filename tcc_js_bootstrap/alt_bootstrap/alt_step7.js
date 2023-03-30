@@ -2154,6 +2154,35 @@ alt_step=function(p,run){
     return true;
   };
 
+  var XOR_rm32_r32=function(){
+    ilen++;
+    decode_modrm();
+    if(dbg){
+      print("XOR_rm32_r32_"+mode+"_"+reg_name32(reg));
+    };
+    decoded=true;
+    if(run){
+      print("XOR_rm32_r32 cache miss");
+      var d=new_icache_entry();
+      d.rm32_src=rm32_src;
+      d.rm32_dest=rm32_dest;
+      d.reg=reg;
+      d.insn=XOR_rm32_r32_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var XOR_rm32_r32_exec=function(d){
+    var res=d.rm32_src() ^ get_reg32(d.reg);
+    arith32_setflags(res);
+    d.rm32_dest(res);
+    return true;
+  };
+
   var ops_0f=[
       [0x8F, JG_rel32],
       [0x84, JE_rel32],
@@ -2528,6 +2557,7 @@ alt_step=function(p,run){
     [0x38, CMP_rm8_r8],
     [0x29, SUB_rm32_r32],
     [0x09, OR_rm32_r32],
+    [0x31, XOR_rm32_r32],
   ];
   decoded=false;
   for(var i=0;i<ops.length;i++){
