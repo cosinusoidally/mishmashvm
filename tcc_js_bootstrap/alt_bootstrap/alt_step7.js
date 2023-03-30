@@ -114,6 +114,7 @@ alt_step=function(p,run){
   var ss;
   var index;
   var base;
+  var ss_base;
 
   var dbg=false;
 
@@ -177,10 +178,13 @@ alt_step=function(p,run){
     rm32_dest=placeholder;
     rm8_dest=placeholder;
     rm8_src=placeholder;
+    disp8=0;
+    disp32=0;
     extra="";
     var modes=[];
     modes[0]=["[EAX]","[ECX]","[EDX]","[EBX]","[--][--]","disp32","[ESI]","[EDI]"];
     modes[1]=["disp8[EAX]","disp8[ECX]","disp8[EDX]","disp8[EBX]","[--][--]","disp8[EBP]","disp8[ESI]","disp8[EDI]"];
+    modes[2]=["disp32[EAX]","disp32[ECX]","disp32[EDX]","disp32[EBX]","[--][--]","disp32[EBP]","disp32[ESI]","disp32[EDI]"];
     modes[3]=["EAX","ECX","EDX","EBX","ESP","EBP","ESI","EDI"];
     mode=modes[mod][rm];
     sib_set=false;
@@ -243,6 +247,14 @@ alt_step=function(p,run){
           };
           return vr32(d)
         }}(rm,disp8);
+      };
+    };
+    if(mod===2){
+      if(!sib_set){
+        load_disp32();
+        ss_base=rm;
+      } else {
+        throw "mod=2 sib not supported";
       };
     };
     if(mode==="disp32"){
@@ -1305,23 +1317,24 @@ alt_step=function(p,run){
       print("LEA_r32_m_"+reg_name32(reg)+"_"+mode+extra);
     };
     decoded=true;
-    set_eip(eip+ilen);
     if(run){
       // set_reg32(reg,get_reg32(ss_base));
       print("LEA_r32_m cache miss");
       var d=new_icache_entry();
       d.ss_base=ss_base;
       d.reg=reg;
+      d.disp32=disp32;
       d.insn=LEA_r32_m_exec;
       d.ilen=ilen;
       set_icache_entry(eip,d);
       ran=try_icache(eip);
       return;
     };
+    set_eip(eip+ilen);
   };
 
   var LEA_r32_m_exec=function(d){
-    set_reg32(d.reg,get_reg32(d.ss_base));
+    set_reg32(d.reg,get_reg32(d.ss_base)+d.disp32);
     return true;
   };
 
