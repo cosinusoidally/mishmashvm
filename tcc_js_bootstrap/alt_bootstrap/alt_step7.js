@@ -1980,6 +1980,33 @@ alt_step=function(p,run){
     return true;
   };
 
+  var SETLE_rm8=function(){
+    ilen=2;
+    decode_modrm();
+    if(dbg){
+      print("SETLE_rm8_"+mode);
+    };
+    decoded=true;
+    if(run){
+      var d=new_icache_entry();
+      d.rm8_dest=rm8_dest;
+      d.insn=SETLE_rm8_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var SETLE_rm8_exec=function(d){
+    if((get_ZF()===1) || (get_SF()!==get_OF())){
+      d.rm8_dest(1);
+    } else {
+      d.rm8_dest(0);
+    };
+    return true;
+  };
   var TEST_rm32_r32=function(){
     // 85 /r TEST r/m32,r32 AND dword register with r/m dword
     ilen++;
@@ -2052,6 +2079,7 @@ alt_step=function(p,run){
       [0xb6, MOVZX_r32_rm8],
       [0x94, SETE_rm8],
       [0x9C, SETL_rm8],
+      [0x9E, SETLE_rm8],
   ];
 
   var icache=[];
