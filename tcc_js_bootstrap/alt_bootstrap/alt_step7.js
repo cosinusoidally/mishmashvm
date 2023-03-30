@@ -1081,6 +1081,7 @@ alt_step=function(p,run){
     var v=(d.rm32_src()|0)*sign_extend8(d.imm8);
     arith32_setflags(v);
     set_reg32(d.reg,v);
+    set_edx(0);
     return true;
   };
 
@@ -1689,6 +1690,7 @@ alt_step=function(p,run){
   var MUL_EAX_rm32_exec=function(d){
     set_eax(get_eax()*d.rm32_src());
     // FIXME should set EDX correctly here
+    set_edx(0);
     return true;
   };
 
@@ -2134,6 +2136,34 @@ alt_step=function(p,run){
     return true;
   };
 
+  var SETGE_rm8=function(){
+    ilen=2;
+    decode_modrm();
+    if(dbg){
+      print("SETGE_rm8_"+mode);
+    };
+    decoded=true;
+    if(run){
+      var d=new_icache_entry();
+      d.rm8_dest=rm8_dest;
+      d.insn=SETGE_rm8_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var SETGE_rm8_exec=function(d){
+    if(get_SF()===get_OF()){
+      d.rm8_dest(1);
+    } else {
+      d.rm8_dest(0);
+    };
+    return true;
+  };
+
   var SETL_rm8=function(){
     ilen=2;
     decode_modrm();
@@ -2320,7 +2350,8 @@ alt_step=function(p,run){
       [0xb6, MOVZX_r32_rm8],
       [0x94, SETE_rm8],
       [0x95, SETNE_rm8],
-      [0x9f, SETG_rm8],
+      [0x9F, SETG_rm8],
+      [0x9D, SETGE_rm8],
       [0x9C, SETL_rm8],
       [0x9E, SETLE_rm8],
   ];
