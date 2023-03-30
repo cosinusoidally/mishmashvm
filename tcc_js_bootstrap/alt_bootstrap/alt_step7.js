@@ -371,6 +371,11 @@ alt_step=function(p,run){
       decoded=true;
       return;
     };
+    if(op===6){
+      DIV_EAX_rm32();
+      decoded=true;
+      return;
+    };
   };
 
   var _ff=function(r){
@@ -931,6 +936,49 @@ alt_step=function(p,run){
 
   var CMP_rm32_r32_exec=function(d){
     CMP_generic32(d.rm32_src(),get_reg32(d.reg));
+    return true;
+  };
+
+  var DIV_EAX_rm32=function(){
+    if(dbg){
+      print("DIV_EAX_rm32_"+mode+" "+extra);
+    };
+    if(run){
+      print("DIV_EAX_rm32 cache miss");
+      var d=new_icache_entry();
+      d.reg=reg;
+      d.rm32_src=rm32_src;
+      d.insn=DIV_EAX_rm32_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var DIV_EAX_rm32_exec=function(d){
+    // FIXME might not be 100% correct
+    if(get_edx()!==0){
+      throw "not fully impl edx must be 0";
+    };
+    var dividend=get_eax();
+    var divisor=d.rm32_src();
+    if(dividend<0 || divisor<0){
+      print("cant handle negative");
+      throw "cant handle negative";
+    };
+    if( divisor===0){
+      print("idiv cant handle zero");
+      throw "idiv cant handle zero";
+    };
+    var temp=Math.floor(dividend/divisor);
+    var quotient=temp;
+    var remainder=dividend % divisor;
+//      print(temp);
+//      print(remainder);
+    set_eax(quotient);
+    set_edx(remainder);
     return true;
   };
 
