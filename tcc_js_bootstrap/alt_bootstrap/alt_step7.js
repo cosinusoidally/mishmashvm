@@ -71,6 +71,9 @@ alt_step=function(p,run){
   var get_eax=p.get_eax;
   var set_eax=p.set_eax;
 
+  var get_ecx=p.get_ecx;
+  var set_ecx=p.set_ecx;
+
   var get_edx=p.get_edx;
   var set_edx=p.set_edx;
 
@@ -334,6 +337,18 @@ alt_step=function(p,run){
       if(op[0]===b2){
         op[1](op);
       };
+    };
+  };
+
+  var _d3=function(r){
+    ilen++;
+    decode_modrm();
+    var op=reg_opcode;
+    // this is odd according to the manual this should be 4
+    if(op===6){
+      SHL_rm32_CL();
+      decoded=true;
+      return;
     };
   };
 
@@ -1822,6 +1837,40 @@ alt_step=function(p,run){
     return true;
   };
 
+  var SHL_rm32_CL=function(mode){
+    if(dbg){
+      print("SHL_rm32_CL_"+mode);
+    };
+    if(run){
+      print("SHL_rm32_CL cache miss");
+      var d=new_icache_entry();
+      d.rm32_src=rm32_src;
+      d.rm32_dest=rm32_dest;
+      d.insn=SHL_rm32_CL_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var SHL_rm32_CL_exec=function(d){
+    var r=d.rm32_src();
+    var ecx= get_ecx();
+    var tc = ecx & 0x1F;
+    while(tc!==0){
+      set_CF(r>>>31);
+      r=r<<1;
+      tc=tc-1;
+    };
+    if((ecx & 0x1F) ===1){
+      set_OF((r>>>31) ^get_CF());
+    };
+    d.rm32_dest(r);
+    return true;
+  };
+
   var SHL_rm32_imm8=function(mode){
     // C1 /4 ib SHL r/m32,imm8 3/7 Multiply r/m dword by 2, imm8 times
     load_imm8();
@@ -2587,6 +2636,7 @@ alt_step=function(p,run){
     [0x29, SUB_rm32_r32],
     [0x09, OR_rm32_r32],
     [0x31, XOR_rm32_r32],
+    [0xD3, _d3],
   ];
   decoded=false;
   for(var i=0;i<ops.length;i++){
