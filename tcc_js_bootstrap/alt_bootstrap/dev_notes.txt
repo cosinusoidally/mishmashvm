@@ -235,7 +235,7 @@ gs             0x0	0
 (gdb)
 
 So after this call we should expect eax=ebp+4 (lea is load effective address, it
-computes an address from it's operands in this case ebp+0x4).
+computes an address from it's operand in this case ebp+0x4).
 
 Once I am confident that lea is implemented correctly I can do:
 
@@ -244,6 +244,24 @@ dbg_off();cont();
 which will resume execution and continue to the next unimplemented/broken
 instruction. It's then a case or rinse/repeat until all missing instructions are
 implemented.
+
+Next version:
+
+- Implement enough instructions to run M2 to completion.
+- Write up a worked example of implementing an instruction. This is useful for
+  my reference, but also if anyone else wanted to better understand the codebase
+
+I am also at a bit of a crossroads here. I could continue along the emulation
+path, or I could maybe see about running M2 under mishmashvm. In theory I could
+relocate/load/run ./x86/artifact/M2-0-0.hex2 and then call it via the jsctypes
+ffi. I'd need to eliminate the use of Linux syscalls so I could run it under
+win32 too. In reality I think I'll probably end up doing both. I need the
+emulation to run under different archs, and I need the native version to get
+decent perf on native. I have also been experimenting with JIT compilation under
+the emulator (x86 to JS) in order to improve perf (can even be tested out by
+setting perf_hack=true to test out a manually ported inner loop, this does speed
+up execution of hex2-0 significantly).
+
 
 --------------------------------------------------------------------------------
 2023-02-22
