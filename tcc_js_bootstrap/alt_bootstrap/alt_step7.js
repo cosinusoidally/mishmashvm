@@ -228,6 +228,17 @@ alt_step=function(p,run){
         };
         rm32_src=(function(index,base){return function(){return vr32(get_reg32(index)+get_reg32(base))}})(index,base);
       };
+      if(sib===044){
+        ilen++;
+        load_disp32();
+        ilen--;
+        if(dbg){
+          print("[esp+disp32]");
+          print(reg_name32(index));
+          print(disp32);
+        };
+        rm32_src=(function(base,disp32){return function(){return vr32(get_reg32(index)+disp32)}})(base,disp32);
+      };
       ilen++;
     };
     if(mod===1){
@@ -254,7 +265,7 @@ alt_step=function(p,run){
         load_disp32();
         ss_base=rm;
       } else {
-        throw "mod=2 sib not supported";
+//        throw "mod=2 sib not supported";
       };
     };
     if(mode==="disp32"){
