@@ -2368,6 +2368,11 @@ hp.fds=[
     };
   };
 
+  var syscall_close = function(p){
+    print("syscall_close called NOOP impl");
+    p.set_eax(0);
+  };
+
   var syscall=function(pid){
     var proc=process_table[pid];
     var eax=proc.get_eax();
@@ -2392,6 +2397,8 @@ hp.fds=[
       syscall_execve(proc);
     } else if(eax===19){
       syscall_lseek(proc);
+    } else if(eax===6){
+      syscall_close(proc);
     } else {
       proc.set_eip(proc.get_eip()-2);
       throw "pid: "+pid+" unsupported syscall: "+eax;
