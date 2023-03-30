@@ -1550,6 +1550,33 @@ alt_step=function(p,run){
     return true;
   };
 
+  var MOVSX_r32_rm8 = function(){
+    // 0F BE /r MOVSX r32,r/m8 Move byte to dword, sign-extend
+    ilen=2;
+    decode_modrm();
+    if(dbg){
+      print("MOVSX_r32_rm8_"+mode+"_"+reg_name8(reg));
+    };
+    decoded=true;
+    if(run){
+      print("MOVSX_r32_rm8 cache miss");
+      var d=new_icache_entry();
+      d.reg=reg;
+      d.rm32_src=rm32_src;
+      d.insn=MOVSX_r32_rm8_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var MOVSX_r32_rm8_exec=function(d){
+    set_reg32(d.reg,sign_extend8(d.rm32_src()&0xFF));
+    return true;
+  };
+
   var MOVZX_r32_rm8 = function(){
     // 0F B6 /r MOVZX r32,r/m8 Move byte to dword, zero-extend
     ilen=2;
@@ -2076,6 +2103,7 @@ alt_step=function(p,run){
       [0x86, JBE_rel32],
       [0x8C, JL_rel32],
       [0x8E, JLE_rel32],
+      [0xBE, MOVSX_r32_rm8],
       [0xb6, MOVZX_r32_rm8],
       [0x94, SETE_rm8],
       [0x9C, SETL_rm8],
