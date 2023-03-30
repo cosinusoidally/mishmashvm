@@ -340,6 +340,11 @@ alt_step=function(p,run){
       decoded=true;
       return;
     };
+    if(op===4){
+      MUL_EAX_rm32();
+      decoded=true;
+      return;
+    };
   };
 
   var _ff=function(r){
@@ -1558,6 +1563,30 @@ alt_step=function(p,run){
 
   var MOVZX_r32_rm8_exec=function(d){
     set_reg32(d.reg,d.rm32_src()&0xFF);
+    return true;
+  };
+
+  var MUL_EAX_rm32=function(){
+    // F7 /4 MUL EAX,r/m32 Unsigned multiply (EDX:EAX <- EAX * r/m dword)
+    if(dbg){
+      print("MUL_EAX_rm32_"+mode);
+    };
+    decoded=true;
+    if(run){
+      print("MUL_EAX_rm32 cache miss");
+      var d=new_icache_entry();
+      d.rm32_src=rm32_src;
+      d.insn=MUL_EAX_rm32_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var MUL_EAX_rm32_exec=function(d){
+    set_eax(get_eax()*d.rm32_src());
     return true;
   };
 
