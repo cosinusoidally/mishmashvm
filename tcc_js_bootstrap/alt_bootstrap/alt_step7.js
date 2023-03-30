@@ -1640,6 +1640,7 @@ alt_step=function(p,run){
 
   var MUL_EAX_rm32_exec=function(d){
     set_eax(get_eax()*d.rm32_src());
+    // FIXME should set EDX correctly here
     return true;
   };
 
