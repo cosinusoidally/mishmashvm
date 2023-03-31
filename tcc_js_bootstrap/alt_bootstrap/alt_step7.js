@@ -352,6 +352,11 @@ alt_step=function(p,run){
       decoded=true;
       return;
     };
+    if(op===4){
+      SHL_rm32_CL();
+      decoded=true;
+      return;
+    };
     if(op===7){
       SAR_rm32_CL();
       decoded=true;
