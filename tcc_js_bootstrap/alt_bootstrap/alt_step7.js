@@ -231,6 +231,7 @@ alt_step=function(p,run){
         };
         rm32_src=(function(index,base){return function(){return vr32(get_reg32(index)+get_reg32(base))}})(index,base);
       };
+      if(mod===2){
       if(sib===044){
         ilen++;
         load_disp32();
@@ -241,6 +242,7 @@ alt_step=function(p,run){
           print(disp32);
         };
         rm32_src=(function(base,disp32){return function(){return vr32(get_reg32(index)+disp32)}})(base,disp32);
+      };
       };
       ilen++;
     };
@@ -2780,7 +2782,7 @@ print((Date.now()-st)/1000);
 };
 var breakpoint;
 if(!breakpoint){
-//breakpoint=0x08048054;
+//breakpoint=0x0804835b;
 //breakpoint=0x08048573;
 };
 //breakpoint=0x080480b8;
