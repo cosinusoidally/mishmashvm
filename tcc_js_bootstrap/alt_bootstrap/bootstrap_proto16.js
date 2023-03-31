@@ -2364,7 +2364,7 @@ hp.fds=[
     };
     if(filename==="/x86/artifact/M2"){
       pr.set_step(alt_step);
-      throw "not running M2 for now";
+      // throw "not running M2 for now";
     };
   };
 
