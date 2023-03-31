@@ -2378,6 +2378,10 @@ hp.fds=[
       pr.set_step(alt_step);
       throw "not running hex2-1 for now";
     };
+    if(filename==="/x86/bin/M1"){
+      pr.set_step(alt_step);
+      throw "not running M1 for now";
+    };
   };
 
   var syscall_close = function(p){
