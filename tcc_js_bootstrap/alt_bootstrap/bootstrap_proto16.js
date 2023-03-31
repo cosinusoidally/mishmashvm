@@ -2366,6 +2366,10 @@ hp.fds=[
       pr.set_step(alt_step);
       // throw "not running M2 for now";
     };
+    if(filename==="/x86/artifact/blood-elf-0"){
+      pr.set_step(alt_step);
+      throw "not running blood-elf-0 for now";
+    };
   };
 
   var syscall_close = function(p){
