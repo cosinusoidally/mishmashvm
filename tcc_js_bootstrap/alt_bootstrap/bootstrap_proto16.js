@@ -2279,7 +2279,13 @@ hp.fds=[
       p.set_eax(offset);
     };
     if(whence===2){
-      throw "syscall_lseek whence 2 not fully impl";
+      if(offset===0){
+        var l= p.fds[fd][1].length;
+        p.fds[fd][0]=l;
+        p.set_eax(l);
+      } else {
+        throw "syscall_lseek whence 2 with offset 0 not fully impl";
+      };
     };
   };
 
@@ -2381,7 +2387,7 @@ hp.fds=[
     };
     if(filename==="/x86/artifact/hex2-1"){
       pr.set_step(alt_step);
-      throw "not running hex2-1 for now";
+      // throw "not running hex2-1 for now";
     };
     if(filename==="/x86/bin/M1"){
       pr.set_step(alt_step);
