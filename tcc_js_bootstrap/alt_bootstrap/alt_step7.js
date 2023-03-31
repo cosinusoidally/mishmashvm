@@ -974,17 +974,32 @@ alt_step=function(p,run){
     set_eip(eip+ilen);
   };
 
+  // FIXME temp fix i32 to u32
+  // FIXME remove use of Typed Arrays
+  var iab32=new ArrayBuffer(4);
+  var u32=new Uint32Array(iab32);
+  var i32=new Int32Array(iab32);
+
   var DIV_EAX_rm32_exec=function(d){
     // FIXME might not be 100% correct
     if(get_edx()!==0){
       throw "not fully impl edx must be 0";
     };
+
+    // hacky unsigned conversion
+    i32[0]=get_eax();
+    var dividend=u32[0];
+    i32[0]=d.rm32_src();
+    var divisor=u32[0];
+/*
     var dividend=get_eax();
     var divisor=d.rm32_src();
     if(dividend<0 || divisor<0){
       print("cant handle negative");
       throw "cant handle negative";
     };
+*/
+
     if( divisor===0){
       print("idiv cant handle zero");
       throw "idiv cant handle zero";
