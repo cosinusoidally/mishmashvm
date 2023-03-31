@@ -2368,7 +2368,15 @@ hp.fds=[
     };
     if(filename==="/x86/artifact/blood-elf-0"){
       pr.set_step(alt_step);
-      throw "not running blood-elf-0 for now";
+      // throw "not running blood-elf-0 for now";
+    };
+    if(filename==="/x86/artifact/M1-0"){
+      pr.set_step(alt_step);
+      // throw "not running M1-0 for now";
+    };
+    if(filename==="/x86/artifact/hex2-1"){
+      pr.set_step(alt_step);
+      throw "not running hex2-1 for now";
     };
   };
 
