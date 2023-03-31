@@ -352,6 +352,11 @@ alt_step=function(p,run){
       decoded=true;
       return;
     };
+    if(op===7){
+      SAR_rm32_CL();
+      decoded=true;
+      return;
+    };
   };
 
   var _f7=function(r){
@@ -1887,6 +1892,41 @@ alt_step=function(p,run){
   var RET_exec=function(d){
     d.branch=vr32(get_esp());
     set_esp(get_esp()+4);
+    return true;
+  };
+
+  var SAR_rm32_CL=function(mode){
+    if(dbg){
+      print("SAR_rm32_CL_"+mode);
+    };
+    if(run){
+      print("SAR_rm32_CL cache miss");
+      var d=new_icache_entry();
+      d.rm32_src=rm32_src;
+      d.rm32_dest=rm32_dest;
+      d.insn=SAR_rm32_CL_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var SAR_rm32_CL_exec=function(d){
+    // FIXME this is SHR impl SAR might differ
+    var r=d.rm32_src();
+    var ecx=get_ecx();
+    var tc = ecx & 0x1F;
+    while(tc!==0){
+      set_CF(r&1);
+      r=r>>>1;
+      tc=tc-1;
+    };
+    if((ecx & 0x1F) ===1){
+      set_OF(r>>>31);
+    };
+    d.rm32_dest(r);
     return true;
   };
 
