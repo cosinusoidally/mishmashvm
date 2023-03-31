@@ -2271,11 +2271,16 @@ hp.fds=[
     var whence=p.get_edx();
     print("syscall_lseek called by: "+p.get_pid()+" fd: "+fd+
     " offset: "+offset+" whence: "+whence);
-    if(whence!==0){
-      throw "syscall_lseek whence not 0 (not implemented)";
+    if((whence!==0) && (whence!==2)){
+      throw "syscall_lseek whence not 0 or 2 (not implemented)";
     };
-    p.fds[fd][0]=offset;
-    p.set_eax(offset);
+    if(whence===0){
+      p.fds[fd][0]=offset;
+      p.set_eax(offset);
+    };
+    if(whence===2){
+      throw "syscall_lseek whence 2 not fully impl";
+    };
   };
 
   var syscall_execve = function(p){
