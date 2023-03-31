@@ -378,6 +378,11 @@ alt_step=function(p,run){
       decoded=true;
       return;
     };
+    if(op===5){
+      IMUL_EAX_rm32();
+      decoded=true;
+      return;
+    };
     if(op===6){
       DIV_EAX_rm32();
       decoded=true;
@@ -1088,6 +1093,31 @@ alt_step=function(p,run){
     var v=(d.rm32_src()|0)*sign_extend8(d.imm8);
     arith32_setflags(v);
     set_reg32(d.reg,v);
+    set_edx(0);
+    return true;
+  };
+
+  var IMUL_EAX_rm32=function(){
+    if(dbg){
+      print("IMUL_EAX_rm32_"+mode);
+    };
+    decoded=true;
+    if(run){
+      print("IMUL_EAX_rm32 cache miss");
+      var d=new_icache_entry();
+      d.rm32_src=rm32_src;
+      d.insn=IMUL_EAX_rm32_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var IMUL_EAX_rm32_exec=function(d){
+    set_eax(get_eax()*d.rm32_src());
+    // FIXME should set EDX correctly here
     set_edx(0);
     return true;
   };
