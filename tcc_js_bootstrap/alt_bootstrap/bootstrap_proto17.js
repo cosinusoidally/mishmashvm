@@ -166,6 +166,8 @@ var new_process=function(){
       if(d&3){
         d++;
       };
+      // FIXME hack to run kaem
+      d++;
       for(var i=0;i<d;i++){
         heap.push(0);
       };
@@ -2256,7 +2258,11 @@ hp.fds=[
     p.set_status("running");
     pn.set_status("running");
 //    throw "fork implementation incomplete";
-    pn.set_step();
+    if(p.get_alt()){
+      pn.set_step(alt_step);
+    } else {
+      pn.set_step();
+    };
   };
 
   var syscall_waitpid = function(p){
@@ -2359,47 +2365,45 @@ hp.fds=[
     pr.argv=argv;
 
 // can't yet enable for all
-//    pr.set_step(alt_step);
-
-    if(filename==="/x86/artifact/hex2-0"){
+    if((filename!=="/bootstrap-seeds/POSIX/x86/kaem-optional-seed")&&
+       (filename!=="/bootstrap-seeds/POSIX/x86/hex0-seed")&&
+       (filename!=="/x86/artifact/kaem-0")&&
+       (filename!=="/x86/artifact/hex1")&&
+       (filename!=="/x86/artifact/catm")&&
+       (filename!=="/x86/artifact/hex0")){
       pr.set_step(alt_step);
     };
+
+    if(filename==="/x86/artifact/hex2-0"){
+      // pass
+    };
     if(filename==="/x86/artifact/M0"){
-      pr.set_step(alt_step);
       // temp hack whilst testing snapshotting
       // throw "not running M0 for now";
     };
     if(filename==="/x86/artifact/cc_x86"){
-      pr.set_step(alt_step);
       // throw "not running cc_x86 for now";
     };
     if(filename==="/x86/artifact/M2"){
-      pr.set_step(alt_step);
       // throw "not running M2 for now";
     };
     if(filename==="/x86/artifact/blood-elf-0"){
-      pr.set_step(alt_step);
       // throw "not running blood-elf-0 for now";
     };
     if(filename==="/x86/artifact/M1-0"){
-      pr.set_step(alt_step);
       // throw "not running M1-0 for now";
     };
     if(filename==="/x86/artifact/hex2-1"){
-      pr.set_step(alt_step);
       // throw "not running hex2-1 for now";
     };
     if(filename==="/x86/bin/M1"){
-      pr.set_step(alt_step);
       // throw "not running M1 for now";
     };
     if(filename==="/x86/bin/hex2"){
-      pr.set_step(alt_step);
-      throw "not running hex2 for now";
+      //throw "not running hex2 for now";
     };
     if(filename==="/x86/bin/kaem"){
-      pr.set_step(alt_step);
-      throw "not running kaem for now";
+      //throw "not running kaem for now";
     };
   };
 
@@ -2645,9 +2649,12 @@ var vfs=(function(){
     });
   };
 
-  var mk_absolute=function(filename){
+  var mk_absolute=function(filename,cwd){
     var fn_abs=[];
     f=filename.split("/");
+    if(cwd){
+      print("mk_absolute processing cwd: "+cwd);
+    };
     for(var i=0;i<f.length;i++){
       var c=f[i];
       if((c===".")|| (c==="")){
