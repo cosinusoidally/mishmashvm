@@ -1,5 +1,5 @@
 load("../../libc_portable_proto/sha256.js");
-load("alt_step7.js");
+load("alt_step8.js");
 
 var use_snap;
 written_files=[];
