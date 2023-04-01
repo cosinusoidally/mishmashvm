@@ -1938,6 +1938,7 @@ var new_process=function(){
       OF: OF,
       brk: brk,
       dbg: dbg,
+      cwd: cwd,
     };
   };
 
@@ -2011,6 +2012,7 @@ var new_process=function(){
     get_state: get_state,
     set_vmem: set_vmem,
     get_cwd: function(){return cwd;},
+    set_cwd: function(dir){cwd=dir;},
     set_step: set_step,
     get_alt: function(){return alt;},
   };
@@ -2094,14 +2096,14 @@ var kernel=(function(){
 //    if(dbg){
       print("syscall_open called: "+p.read_c_string(p.get_ebx()));
 //    };
-    var filename=p.get_cwd()+fn;
+    var filename=vfs.mk_absolute(fn,p.get_cwd());
     var file=vfs.readFile(filename);
     if(file===undefined){
       vfs.writeFile(filename,[]);
       file=vfs.readFile(filename);
-      written_files.push(vfs.mk_absolute(filename));
+      written_files.push(filename);
     };
-    p.fds.push([0,file,vfs.mk_absolute(fn)]);
+    p.fds.push([0,file,filename]);
     p.set_eax(p.fds.length-1);
   };
 
@@ -2246,6 +2248,8 @@ hp.fds=[
 
     pn.set_dbg(s.dbg);
 
+    pn.set_cwd(s.cwd);
+
     print();
     print("pid: "+p.get_pid());
     info_registers(p);
@@ -2298,7 +2302,7 @@ hp.fds=[
   var syscall_execve = function(p){
     print("syscall_execve called by: "+p.get_pid());
     info_registers(p);
-    var filename=vfs.mk_absolute(p.get_cwd()+"/"+p.read_c_string(p.get_ebx()));
+    var filename=vfs.mk_absolute(p.read_c_string(p.get_ebx()),p.get_cwd());
     var ptr=p.get_ecx();
     print("syscall_execve filename: "+filename);
     var argv=[];
@@ -2379,7 +2383,7 @@ hp.fds=[
     };
     if(filename==="/x86/artifact/M0"){
       // temp hack whilst testing snapshotting
-      // throw "not running M0 for now";
+      throw "not running M0 for now";
     };
     if(filename==="/x86/artifact/cc_x86"){
       // throw "not running cc_x86 for now";
@@ -2417,6 +2421,15 @@ hp.fds=[
     p.set_eax(0);
   };
 
+  var syscall_chdir = function(p){
+    var dir=p.read_c_string(p.get_ebx());
+    var new_dir=vfs.mk_absolute(dir,p.get_cwd());
+    p.set_cwd(new_dir);
+    print("syscall_chdir called: "+dir+" new_cwd: "+p.get_cwd());
+    // FIXME should return error code if dir doesn't exist
+    p.set_eax(0);
+  };
+
   var syscall=function(pid){
     var proc=process_table[pid];
     var eax=proc.get_eax();
@@ -2445,6 +2458,8 @@ hp.fds=[
       syscall_close(proc);
     } else if(eax===15){
       syscall_chmod(proc);
+    } else if(eax===12){
+      syscall_chdir(proc);
     } else {
       proc.set_eip(proc.get_eip()-2);
       throw "pid: "+pid+" unsupported syscall: "+eax;
@@ -2651,10 +2666,15 @@ var vfs=(function(){
 
   var mk_absolute=function(filename,cwd){
     var fn_abs=[];
-    f=filename.split("/");
     if(cwd){
-      print("mk_absolute processing cwd: "+cwd);
+//      print("mk_absolute processing cwd: "+cwd);
+//      print("mk_absolute processing filename: "+filename);
+      if(filename[0]!=="/"){
+        filename=cwd+"/"+filename;
+      };
+//      print("mk_absolute processed filename: "+filename);
     };
+    var f=filename.split("/");
     for(var i=0;i<f.length;i++){
       var c=f[i];
       if((c===".")|| (c==="")){
@@ -2665,7 +2685,9 @@ var vfs=(function(){
         fn_abs.push(c);
       }
     };
-    return "/"+(fn_abs.join("/"));
+    var ret="/"+(fn_abs.join("/"));
+//    print("mk_absolute result: "+ret);
+    return ret;
   };
 
   var readFile=function(filename){
