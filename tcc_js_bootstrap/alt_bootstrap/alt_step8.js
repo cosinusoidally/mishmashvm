@@ -3143,6 +3143,8 @@ var load_snap=function(){
 
     pn.set_dbg(s.dbg);
 
+    pn.set_cwd(s.cwd);
+
     pn.set_status(s.status);
 
     pn.filename=s.filename;
