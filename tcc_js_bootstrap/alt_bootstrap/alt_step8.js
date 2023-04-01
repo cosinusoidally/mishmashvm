@@ -3143,7 +3143,9 @@ var load_snap=function(){
 
     pn.set_dbg(s.dbg);
 
-    pn.set_cwd(s.cwd);
+    if(s.cwd){
+      pn.set_cwd(s.cwd);
+    };
 
     pn.set_status(s.status);
 
