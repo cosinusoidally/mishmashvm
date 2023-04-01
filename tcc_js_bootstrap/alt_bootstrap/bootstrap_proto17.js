@@ -2383,7 +2383,7 @@ hp.fds=[
     };
     if(filename==="/x86/artifact/M0"){
       // temp hack whilst testing snapshotting
-      throw "not running M0 for now";
+      // throw "not running M0 for now";
     };
     if(filename==="/x86/artifact/cc_x86"){
       // throw "not running cc_x86 for now";
