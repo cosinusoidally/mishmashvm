@@ -2391,7 +2391,15 @@ hp.fds=[
     };
     if(filename==="/x86/bin/M1"){
       pr.set_step(alt_step);
-      throw "not running M1 for now";
+      // throw "not running M1 for now";
+    };
+    if(filename==="/x86/bin/hex2"){
+      pr.set_step(alt_step);
+      throw "not running hex2 for now";
+    };
+    if(filename==="/x86/bin/kaem"){
+      pr.set_step(alt_step);
+      throw "not running kaem for now";
     };
   };
 
