@@ -2094,6 +2094,40 @@ alt_step=function(p,run){
     return true;
   };
 
+  var SHR_rm32_CL=function(mode){
+    if(dbg){
+      print("SHR_rm32_CL_"+mode);
+    };
+    if(run){
+      print("SHR_rm32_CL cache miss");
+      var d=new_icache_entry();
+      d.rm32_src=rm32_src;
+      d.rm32_dest=rm32_dest;
+      d.insn=SHR_rm32_CL_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var SHR_rm32_CL_exec=function(d){
+    var r=d.rm32_src();
+    var ecx=get_ecx();
+    var tc = ecx & 0x1F;
+    while(tc!==0){
+      set_CF(r&1);
+      r=r>>>1;
+      tc=tc-1;
+    };
+    if((ecx & 0x1F) ===1){
+      set_OF(r>>>31);
+    };
+    d.rm32_dest(r);
+    return true;
+  };
+
   var SHR_rm32_imm8=function(mode){
     //C1 /5 ib SHR r/m32,imm8 3/7 Unsigned divide r/m dword by 2, imm8 times
     load_imm8();
