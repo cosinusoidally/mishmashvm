@@ -2978,10 +2978,14 @@ dummy.step();
 };
 
 var my_dbg;
-var cont=function(){
-pt[3].set_step(alt_step);
+var cont=function(n){
+if(!n){
+  n=3;
+};
+print("cont process: "+n);
+pt[n].set_step(alt_step);
 if(my_dbg!==true){my_dbg=false};
-pt[3].set_dbg(my_dbg);
+pt[n].set_dbg(my_dbg);
 var st=Date.now();
 kernel.resume();
 print((Date.now()-st)/1000);
