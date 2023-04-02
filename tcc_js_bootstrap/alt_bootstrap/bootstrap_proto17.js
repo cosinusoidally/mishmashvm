@@ -95,6 +95,10 @@ var arr_to_string=function(a){
                 }).join("");
 };
 
+var string_to_arr=function(s){
+  return s.split("").map(function(x){return x.charCodeAt(0)});
+};
+
 var get_stderr=function(p){
   var stderr;
   if(p.fds[2]){
