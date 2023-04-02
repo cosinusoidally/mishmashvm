@@ -89,6 +89,33 @@ var to_hex=function(x){
         (("00"+(x&0xFF).toString(16)).slice(-2));
 };
 
+var arr_to_string=function(a){
+   return a.map(function(x){
+                  return String.fromCharCode(x);
+                }).join("");
+};
+
+var get_stderr=function(p){
+  var stderr;
+  if(p.fds[2]){
+    stderr=p.fds[2][1];
+    stderr=arr_to_string(stderr);
+    return stderr;
+  } else {
+    return "";
+  };
+};
+
+var get_stdout=function(p){
+  var stdout;
+  if(p.fds[1]){
+    stdout=p.fds[1][1];
+    stdout=arr_to_string(stdout);
+    return stdout;
+  } else {
+    return "";
+  };
+};
 
 _print=print;
 var new_process=function(){
