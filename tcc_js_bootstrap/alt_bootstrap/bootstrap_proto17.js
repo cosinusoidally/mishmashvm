@@ -2776,8 +2776,12 @@ compute_hashes=function(){
 art_a=read("artifact.sha256sums").split("\n").map(function(x){return x.split("  ")});
 art_a.pop();
 
+art_b=read("stage0-posix/x86.answers").split("\n").map(function(x){return x.split("  ")});
+art_b.pop();
+
 art={};
 art_a.map(function(x){art[vfs.mk_absolute(x[1])]=x[0]});
+art_b.map(function(x){art[vfs.mk_absolute(x[1])]=x[0]});
 
 written_files.map(function(x){
   try{
