@@ -2476,7 +2476,11 @@ hp.fds=[
   var syscall_unlink = function(p){
     var name=p.read_c_string(p.get_ebx());
     print("syscall_unlink called: "+name);
+    var abs_name=vfs.mk_absolute(name,p.get_cwd());
+    print("syscall_unlink called abs_name: "+abs_name);
     // FIXME dummy impl
+    // just truncate the file
+    vfs.writeFile(abs_name,[]);
     p.set_eax(0);
   };
 
