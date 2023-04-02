@@ -2469,6 +2469,13 @@ hp.fds=[
     p.set_eax(0);
   };
 
+  var syscall_unlink = function(p){
+    var name=p.read_c_string(p.get_ebx());
+    print("syscall_unlink called: "+name);
+    // FIXME dummy impl
+    p.set_eax(0);
+  };
+
   var syscall=function(pid){
     var proc=process_table[pid];
     var eax=proc.get_eax();
@@ -2501,6 +2508,8 @@ hp.fds=[
       syscall_chdir(proc);
     } else if(eax===33){
       syscall_access(proc);
+    } else if(eax===10){
+      syscall_unlink(proc);
     } else {
       proc.set_eip(proc.get_eip()-2);
       throw "pid: "+pid+" unsupported syscall: "+eax;
