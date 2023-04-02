@@ -2443,7 +2443,7 @@ hp.fds=[
       //throw "not running kaem for now";
     };
     if(filename==="/x86/bin/M2-Mesoplanet"){
-      throw "not running M2-Mesoplanet for now";
+      //throw "not running M2-Mesoplanet for now";
     };
   };
 
