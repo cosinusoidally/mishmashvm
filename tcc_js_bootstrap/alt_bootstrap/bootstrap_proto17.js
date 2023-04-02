@@ -2193,6 +2193,7 @@ hp.fds=[
       var pn_status=pn.get_status();
       print("pn status: "+pn_status+" wake_on: "+wake_on);
       if((pn_status==="waiting") && (wake_on===pid)){
+        pn.vw32(pn.get_ecx(),exit_code);
         pn.set_status("running");
       };
     };
