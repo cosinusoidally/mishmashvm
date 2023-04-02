@@ -1,4 +1,17 @@
 --------------------------------------------------------------------------------
+2023-04-02
+
+Success, bootstrap_proto17.js and alt_step8.js can now build the whole of
+stage0-posix. Performance is currently poor though. Takes hours to run on a mid
+range PC. Next steps:
+
+- save stdout and stderr in snapshots
+- improve performance
+- memory usage was also high (around 1.7GB during the later stage of the
+  bootstrap). This is odd as real memory usage is probably much lower than this.
+  I should investigate further and reduce if possible.
+
+--------------------------------------------------------------------------------
 2023-03-30
 
 Bit of a gap since the last update. I am now on bootstrap_proto15.js and
