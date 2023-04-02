@@ -362,6 +362,11 @@ alt_step=function(p,run){
       decoded=true;
       return;
     };
+    if(op===5){
+      SHR_rm32_CL();
+      decoded=true;
+      return;
+    };
   };
 
   var _f7=function(r){
@@ -2224,6 +2229,35 @@ alt_step=function(p,run){
     return true;
   };
 
+  var SETAE_rm8=function(){
+    // 0F 93 SETAE r/m8 Set byte if above or equal (CF=0)
+    ilen=2;
+    decode_modrm();
+    if(dbg){
+      print("SETAE_rm8_"+mode);
+    };
+    decoded=true;
+    if(run){
+      var d=new_icache_entry();
+      d.rm8_dest=rm8_dest;
+      d.insn=SETAE_rm8_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var SETAE_rm8_exec=function(d){
+    if(get_CF()===0){
+      d.rm8_dest(1);
+    } else {
+      d.rm8_dest(0);
+    };
+    return true;
+  };
+
   var SETBE_rm8=function(){
     // 0F 96 SETBE r/m8 Set byte if below or equal (CF=1 or (ZF=1)
     ilen=2;
@@ -2552,6 +2586,7 @@ alt_step=function(p,run){
       [0xBE, MOVSX_r32_rm8],
       [0xb6, MOVZX_r32_rm8],
       [0x97, SETA_rm8],
+      [0x93, SETAE_rm8],
       [0x92, SETB_rm8],
       [0x96, SETBE_rm8],
       [0x94, SETE_rm8],
