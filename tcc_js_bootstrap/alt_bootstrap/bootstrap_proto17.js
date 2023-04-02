@@ -2325,6 +2325,7 @@ hp.fds=[
 
     var img=parse_elf(vfs.readFile(filename));
     var pr=new_process();
+    pr.set_cwd(p.get_cwd());
     process_table[p.get_pid()]=pr;
     pr.set_pid(p.get_pid());
     pr.add_mem(img);
@@ -2361,7 +2362,7 @@ hp.fds=[
     // argc
     pr.push32(argc);
     pr.set_dbg(false);
-    pr.fds=[null,[0,[]],null];
+    pr.fds=[null,[0,[]],[0,[]]];
     info_registers(pr);
     pr.set_status("running");
     pr.filename=filename;
@@ -2409,6 +2410,9 @@ hp.fds=[
     if(filename==="/x86/bin/kaem"){
       //throw "not running kaem for now";
     };
+    if(filename==="/x86/bin/M2-Mesoplanet"){
+      throw "not running M2-Mesoplanet for now";
+    };
   };
 
   var syscall_close = function(p){
@@ -2427,6 +2431,13 @@ hp.fds=[
     p.set_cwd(new_dir);
     print("syscall_chdir called: "+dir+" new_cwd: "+p.get_cwd());
     // FIXME should return error code if dir doesn't exist
+    p.set_eax(0);
+  };
+
+  var syscall_access = function(p){
+    var name=p.read_c_string(p.get_ebx());
+    print("syscall_access called: "+name);
+    // FIXME dummy impl
     p.set_eax(0);
   };
 
@@ -2460,6 +2471,8 @@ hp.fds=[
       syscall_chmod(proc);
     } else if(eax===12){
       syscall_chdir(proc);
+    } else if(eax===33){
+      syscall_access(proc);
     } else {
       proc.set_eip(proc.get_eip()-2);
       throw "pid: "+pid+" unsupported syscall: "+eax;

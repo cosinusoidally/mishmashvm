@@ -814,6 +814,30 @@ alt_step=function(p,run){
     return true;
   };
 
+  var CDQ=function(){
+    ilen++;
+    if(dbg){
+      print("CDQ");
+    };
+    decoded=true;
+    if(run){
+      print("CDQ_ cache miss");
+      var d=new_icache_entry();
+      d.insn=CDQ_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var CDQ_exec=function(d){
+    // FIXME hack, this is not right
+    set_edx(0);
+    return true;
+  };
+
   var CALL_rm32=function(){
     if(dbg){
       print("CALL_rm32_"+mode);
@@ -2544,8 +2568,9 @@ alt_step=function(p,run){
   // this is a hacky way of avoiding icache becoming a sparse array
   // (which improves performance)
   var ibase=0x08048054;
-
-  for(var i=0;i<20e3;i++){
+  var icache_len=5e5;
+  print("icache length: "+icache_len);
+  for(var i=0;i<icache_len;i++){
    icache.push(dummy_fn);
   };
 
@@ -2899,6 +2924,7 @@ alt_step=function(p,run){
     [0x09, OR_rm32_r32],
     [0x31, XOR_rm32_r32],
     [0xD3, _d3],
+    [0x99, CDQ],
   ];
   decoded=false;
   for(var i=0;i<ops.length;i++){
@@ -3151,7 +3177,8 @@ var load_snap=function(){
 
     pn.filename=s.filename;
 
-    pn.fds=[null,[0,[]],null];
+    // FIXME should really save/restore stdin/out/err
+    pn.fds=[null,[0,[]],[0,[]]];
 
     for(var q in s.fds){
       var c=s.fds[q];
