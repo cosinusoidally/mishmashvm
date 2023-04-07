@@ -3099,8 +3099,7 @@ print_stats=function(x){
   };
 };
 
-
-var save=function(){
+var load_libc=function(){
   if(!this.libc){
     print("spidermonkey must load support lib");
     load("../../lib/setup_platform.js");
@@ -3113,7 +3112,10 @@ var save=function(){
     libc.fwrite(data,data.length,1,f);
     libc.fclose(f);
   };
+};
 
+var save=function(){
+  load_libc();
   print("save location: "+path);
   var d=[];
   var n=0;
