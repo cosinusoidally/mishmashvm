@@ -1,7 +1,7 @@
 print("make sure there is already a generated snapshot in path");
 path='../../../mmaux/snap2/';
 use_snap=true;
-load('bootstrap_proto17.js');
+load('bootstrap_proto18.js');
 use_snap=false;
 path=undefined;
 
