@@ -16,6 +16,9 @@ vfs.writeFile("/foo.c",string_to_arr(
 "int foo(int i){",
 "  return i+k;",
 "}",
+"int main(){",
+"  return 7;",
+"}",
 "\n"
 ].join("\n")
 ));
@@ -52,3 +55,9 @@ print(arr_to_string(vfs.readFile("/foo.hex2")));
 print();
 
 print("build time: "+((fin-st)/1000));
+
+load_libc();
+
+wf=function(){
+  write("/tmp/foo",new Uint8Array(vfs.readFile("/foo")));
+};
