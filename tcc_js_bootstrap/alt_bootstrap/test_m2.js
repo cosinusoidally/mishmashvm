@@ -67,6 +67,6 @@ var lnk=function(f){
     } else {
       print("other");
     };
-    print(c0);
+    print(c);
   };
 };
