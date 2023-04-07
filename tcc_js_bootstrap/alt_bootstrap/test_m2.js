@@ -54,6 +54,13 @@ wf=function(){
 
 var foo=foo.split("\n");
 
+var w32=function(a,x,v){
+   a[x]=v&255;
+   a[x+1]=(v>>>8)&255;
+   a[x+2]=(v>>>16)&255;
+   a[x+3]=(v>>>24)&255;
+};
+
 var link=function(f,base){
   if(base===undefined){
     base=0;
@@ -93,5 +100,19 @@ var link=function(f,base){
       };
     };
   };
-  return {text:a,symbols:symbols,abs32s:abs32s,rel32s:rel32s};
+  abs32s.map(function(x){
+    w32(a,x[0],symbols[x[1]]+base);
+  });
+  rel32s.map(function(x){
+    w32(a,x[0],4+symbols[x[1]]-x[0]);
+//    w32(a,x[0],0xdeadbeef);
+  });
+  return {text:a,symbols:symbols,abs32s:abs32s,rel32s:rel32s,base:base};
 };
+
+
+p=libc.malloc(0xFFFF);
+
+a=link(foo,p);
+
+libc.memcpy(p,new Uint8Array(a.text),a.text.length);
