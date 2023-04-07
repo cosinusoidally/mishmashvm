@@ -10,7 +10,7 @@ var go=function(x){
   kernel.run3();
 };
 
-vfs.writeFile("/foo.c",read("test_m2.c"));
+vfs.writeFile("/foo.c",read("test_m2.c","binary"));
 script=[
 "./x86/artifact/M2  --architecture x86 -f ./foo.c -o ./foo.M1",
 "./x86/artifact/catm ./foo-0.M1 ./M2libc/x86/x86_defs.M1  ./M2libc/x86/libc-core.M1 ./foo.M1",
