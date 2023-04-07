@@ -29,7 +29,7 @@ new_dummy=function(){
 
 
 ld=function(){
-  load("alt_step8.js");
+  load("alt_step9.js");
 };
 
 var hex_byte=function(x){
