@@ -54,19 +54,44 @@ wf=function(){
 
 var foo=foo.split("\n");
 
-var lnk=function(f){
+var link=function(f,base){
+  if(base===undefined){
+    base=0;
+  };
+  var a=[];
+  var symbols={};
+  var rel32s=[];
+  var abs32s=[];
   for(var i=0;i<f.length;i++){
     var c=foo[i];
     var c0=c[0];
     if(c0===":"){
       print("symbol");
+      print(to_hex(a.length)+": "+c);
+      symbols[c.split(":")[1]]=a.length;
     } else if (c0==="%"){
       print("rel32");
+      print(to_hex(a.length)+": "+c);
+      rel32s.push([a.length,c.split("%")[1]]);
+      a.push(0);
+      a.push(0);
+      a.push(0);
+      a.push(0);
     } else if (c0==="&"){
       print("abs32");
+      print(to_hex(a.length)+": "+c);
+      abs32s.push([a.length,c.split("&")[1]]);
+      a.push(0);
+      a.push(0);
+      a.push(0);
+      a.push(0);
     } else {
-      print("other");
+      print("hex");
+      print(to_hex(a.length)+": "+c);
+      for(var j=0;j<c.length;j=j+2){
+        a.push("0x"+c[j]+c[j+1]);
+      };
     };
-    print(c);
   };
+  return {text:a,symbols:symbols,abs32s:abs32s,rel32s:rel32s};
 };
