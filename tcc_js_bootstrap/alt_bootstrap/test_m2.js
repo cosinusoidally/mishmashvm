@@ -35,8 +35,9 @@ print("/foo-0.M1:");
 print(arr_to_string(vfs.readFile("/foo-0.M1")));
 print();
 
+foo=arr_to_string(vfs.readFile("/foo-0.hex2"));
 print("/foo-0.hex2:");
-print(arr_to_string(vfs.readFile("/foo-0.hex2")));
+print(foo);
 print();
 
 print("/foo.hex2:");
@@ -49,4 +50,23 @@ load_libc();
 
 wf=function(){
   write("/tmp/foo",new Uint8Array(vfs.readFile("/foo")));
+};
+
+var foo=foo.split("\n");
+
+var lnk=function(f){
+  for(var i=0;i<f.length;i++){
+    var c=foo[i];
+    var c0=c[0];
+    if(c0===":"){
+      print("symbol");
+    } else if (c0==="%"){
+      print("rel32");
+    } else if (c0==="&"){
+      print("abs32");
+    } else {
+      print("other");
+    };
+    print(c0);
+  };
 };

@@ -2694,7 +2694,7 @@ alt_step=function(p,run){
       } else {
         set_eip(e.branch);
         // uncomment to profile
-        //update_profile(e.branch);
+        // update_profile(e.branch);
       };
       return r;
     };
