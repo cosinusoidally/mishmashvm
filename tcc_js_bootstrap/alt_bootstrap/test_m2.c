@@ -5,7 +5,7 @@ int foo(int i){
 }
 
 int bar(){
-  return foo(2);
+  return foo(3);
 }
 
 int main(){

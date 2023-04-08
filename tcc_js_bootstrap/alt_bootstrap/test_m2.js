@@ -104,15 +104,28 @@ var link=function(f,base){
     w32(a,x[0],symbols[x[1]]+base);
   });
   rel32s.map(function(x){
-    w32(a,x[0],4+symbols[x[1]]-x[0]);
+    w32(a,x[0],symbols[x[1]]-x[0]-4);
 //    w32(a,x[0],0xdeadbeef);
   });
   return {text:a,symbols:symbols,abs32s:abs32s,rel32s:rel32s,base:base};
 };
 
+var map_exec=function(size){
+  return libc.mmap(ctypes.voidptr_t(0),
+                  size,
+                  libc.PROT_READ | libc.PROT_WRITE | libc.PROT_EXEC,
+                  libc.MAP_ANONYMOUS | libc.MAP_PRIVATE,
+                  0,
+                  0);
+};
 
-p=libc.malloc(0xFFFF);
+p=map_exec(0xFFFF);
 
 a=link(foo,p);
 
 libc.memcpy(p,new Uint8Array(a.text),a.text.length);
+
+fntype = ctypes.FunctionType(ctypes.default_abi,ctypes.uint32_t,[ctypes.uint32_t]);
+fn=ctypes.cast(ctypes.voidptr_t(a.symbols["FUNCTION_bar"]+p),fntype.ptr);
+
+print(fn(0));
