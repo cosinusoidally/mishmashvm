@@ -125,7 +125,7 @@ a=link(foo,p);
 
 libc.memcpy(p,new Uint8Array(a.text),a.text.length);
 
-fntype = ctypes.FunctionType(ctypes.default_abi,ctypes.uint32_t,[ctypes.uint32_t]);
+fntype = ctypes.FunctionType(ctypes.default_abi,ctypes.uint32_t,[]);
 fn=ctypes.cast(ctypes.voidptr_t(a.symbols["FUNCTION_bar"]+p),fntype.ptr);
 
-print(fn(0));
+print("fn(): "+fn());
