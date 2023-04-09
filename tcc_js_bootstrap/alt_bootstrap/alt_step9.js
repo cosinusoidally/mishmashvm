@@ -2865,19 +2865,43 @@ alt_step=function(p,run){
        };
 //   0x0804935d:	0f b6 c0	movzx  eax,al
        // noop since above setle clears higher bits
-       d.branch=0x08049360;
 //   0x08049360:	85 c0	test   eax,eax
+       var res=eax & eax;
+       if(res===0){
+         ZF=1;
+       } else {
+         ZF=0;
+       };
 //   0x08049362:	0f 84 3e 00 00 00	je     0x80493a6
+       if(ZF===1){
+         d.branch=0x80493a6;
+       } else {
 //   0x08049368:	b8 ff 27 06 08	mov    eax,0x80627ff
+       eax=0x80627ff;
 //   0x0804936d:	8b 00	mov    eax,DWORD PTR [eax]
+       eax=vr32(eax);
 //   0x0804936f:	50	push   eax
+       esp=esp-4;
+       vw32(esp,eax);
 //   0x08049370:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+       eax=ebp-0x8;
 //   0x08049376:	8b 00	mov    eax,DWORD PTR [eax]
+       eax=vr32(eax);
 //   0x08049378:	5b	pop    ebx
+       ebx=vr32(esp);
+       esp=esp+4;
 //   0x08049379:	01 d8	add    eax,ebx
+       eax=eax+ebx;
 //   0x0804937b:	50	push   eax
+       esp=esp-4;
+       vw32(esp,eax);
 //   0x0804937c:	b8 00 00 00 00	mov    eax,0x0
+       eax=0;
 //   0x08049381:	5b	pop    ebx
+       ebx=vr32(esp);
+       esp=esp+4;
+         d.branch=0x08049379;
+       };
 //   0x08049382:	88 03	mov    BYTE PTR [ebx],al
 //   0x08049384:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
 //   0x0804938a:	50	push   eax
