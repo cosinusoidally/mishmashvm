@@ -2808,18 +2808,64 @@ alt_step=function(p,run){
     print("hex2-0 icache boost");
     var d=new_icache_entry();
     d.insn=(function(){
-      var eax=get_eax();
+
+      var get_esp=p.get_esp;
+      var set_esp=p.set_esp;
+
+      var get_ebp=p.get_ebp;
+      var set_ebp=p.set_ebp;
+
+      var get_ebx=p.get_ebx;
+      var set_ebx=p.set_ebx;
+
       return function(){
+       var eax=get_eax();
+       var esp=get_esp();
+       var ebp=get_ebp();
+       var ebx=get_ebp();
+
+       var ZF;
+       var SF;
+       var OF;
+
 //   0x08049349:	b8 00 00 00 00	mov    eax,0x0
        eax=0;
-       d.branch=0x0804934e;
 //   0x0804934e:	50	push   eax
+       esp=esp-4;
+       vw32(esp,eax);
 //   0x0804934f:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+       eax=ebp-0x8;
 //   0x08049355:	8b 00	mov    eax,DWORD PTR [eax]
+       eax=vr32(eax);
 //   0x08049357:	5b	pop    ebx
+       ebx=vr32(esp);
+       esp=esp+4;
 //   0x08049358:	39 c3	cmp    ebx,eax
+       var res=ebx-eax;
+       if(res===0){
+         ZF=1;
+       } else {
+         ZF=0;
+       };
+       if(res<0){
+         SF=1;
+       } else {
+         SF=0;
+       };
+       if(res>2147483647 || res<-2147483648){
+         OF=1;
+       } else {
+         OF=0;
+       };
 //   0x0804935a:	0f 9e c0	setle  al
+       if(ZF===1 || (SF!==OF)){
+         eax=1;
+       } else {
+         eax=0;
+       };
 //   0x0804935d:	0f b6 c0	movzx  eax,al
+       // noop since above setle clears higher bits
+       d.branch=0x08049360;
 //   0x08049360:	85 c0	test   eax,eax
 //   0x08049362:	0f 84 3e 00 00 00	je     0x80493a6
 //   0x08049368:	b8 ff 27 06 08	mov    eax,0x80627ff
@@ -2845,7 +2891,11 @@ alt_step=function(p,run){
 //   0x0804939e:	5b	pop    ebx
 //   0x0804939f:	89 03	mov    DWORD PTR [ebx],eax
 //   0x080493a1:	e9 a3 ff ff ff	jmp    0x8049349
+
         set_eax(eax);
+        set_esp(esp);
+        set_ebp(ebp);
+        set_ebx(ebx);
         return true;
       };
     })();
