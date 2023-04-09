@@ -2818,6 +2818,12 @@ alt_step=function(p,run){
       var get_ebx=p.get_ebx;
       var set_ebx=p.set_ebx;
 
+      var vw8=p.vw8;
+      var vr8=p.vr8;
+
+      var vw32=p.vw32;
+      var vr32=p.vr32;
+
       return function(){
        var eax=get_eax();
        var esp=get_esp();
@@ -2827,7 +2833,7 @@ alt_step=function(p,run){
        var ZF;
        var SF;
        var OF;
-
+       while(1){
 //   0x08049349:	b8 00 00 00 00	mov    eax,0x0
        eax=0;
 //   0x0804934e:	50	push   eax
@@ -2875,6 +2881,7 @@ alt_step=function(p,run){
 //   0x08049362:	0f 84 3e 00 00 00	je     0x80493a6
        if(ZF===1){
          d.branch=0x80493a6;
+         break;
        } else {
 //   0x08049368:	b8 ff 27 06 08	mov    eax,0x80627ff
        eax=0x80627ff;
@@ -2900,21 +2907,37 @@ alt_step=function(p,run){
 //   0x08049381:	5b	pop    ebx
        ebx=vr32(esp);
        esp=esp+4;
-         d.branch=0x08049379;
-       };
 //   0x08049382:	88 03	mov    BYTE PTR [ebx],al
+       vw8(ebx,eax);
 //   0x08049384:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+       eax=ebp-0x8;
 //   0x0804938a:	50	push   eax
+       esp=esp-4;
+       vw32(esp,eax);
 //   0x0804938b:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+       eax=ebp-0x8;
 //   0x08049391:	8b 00	mov    eax,DWORD PTR [eax]
+       eax=vr32(eax);
 //   0x08049393:	50	push   eax
+       esp=esp-4;
+       vw32(esp,eax);
 //   0x08049394:	b8 01 00 00 00	mov    eax,0x1
+       eax=1;
 //   0x08049399:	5b	pop    ebx
+       ebx=vr32(esp);
+       esp=esp+4;
 //   0x0804939a:	29 c3	sub    ebx,eax
+       ebx=ebx-eax;
 //   0x0804939c:	89 d8	mov    eax,ebx
+       eax=ebx;
 //   0x0804939e:	5b	pop    ebx
+       ebx=vr32(esp);
+       esp=esp+4;
 //   0x0804939f:	89 03	mov    DWORD PTR [ebx],eax
+       vw32(ebx,eax);
 //   0x080493a1:	e9 a3 ff ff ff	jmp    0x8049349
+       };
+       };
 
         set_eax(eax);
         set_esp(esp);
