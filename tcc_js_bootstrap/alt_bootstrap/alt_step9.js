@@ -2804,6 +2804,53 @@ alt_step=function(p,run){
     set_icache_entry(0x08048404,d);
   };
 
+  if(p.filename==="/x86/artifact/M2" && perf_hack){
+    print("hex2-0 icache boost");
+    var d=new_icache_entry();
+    d.insn=(function(){
+      var eax=get_eax();
+      return function(){
+//   0x08049349:	b8 00 00 00 00	mov    eax,0x0
+       eax=0;
+       d.branch=0x0804934e;
+//   0x0804934e:	50	push   eax
+//   0x0804934f:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+//   0x08049355:	8b 00	mov    eax,DWORD PTR [eax]
+//   0x08049357:	5b	pop    ebx
+//   0x08049358:	39 c3	cmp    ebx,eax
+//   0x0804935a:	0f 9e c0	setle  al
+//   0x0804935d:	0f b6 c0	movzx  eax,al
+//   0x08049360:	85 c0	test   eax,eax
+//   0x08049362:	0f 84 3e 00 00 00	je     0x80493a6
+//   0x08049368:	b8 ff 27 06 08	mov    eax,0x80627ff
+//   0x0804936d:	8b 00	mov    eax,DWORD PTR [eax]
+//   0x0804936f:	50	push   eax
+//   0x08049370:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+//   0x08049376:	8b 00	mov    eax,DWORD PTR [eax]
+//   0x08049378:	5b	pop    ebx
+//   0x08049379:	01 d8	add    eax,ebx
+//   0x0804937b:	50	push   eax
+//   0x0804937c:	b8 00 00 00 00	mov    eax,0x0
+//   0x08049381:	5b	pop    ebx
+//   0x08049382:	88 03	mov    BYTE PTR [ebx],al
+//   0x08049384:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+//   0x0804938a:	50	push   eax
+//   0x0804938b:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+//   0x08049391:	8b 00	mov    eax,DWORD PTR [eax]
+//   0x08049393:	50	push   eax
+//   0x08049394:	b8 01 00 00 00	mov    eax,0x1
+//   0x08049399:	5b	pop    ebx
+//   0x0804939a:	29 c3	sub    ebx,eax
+//   0x0804939c:	89 d8	mov    eax,ebx
+//   0x0804939e:	5b	pop    ebx
+//   0x0804939f:	89 03	mov    DWORD PTR [ebx],eax
+//   0x080493a1:	e9 a3 ff ff ff	jmp    0x8049349
+        set_eax(eax);
+        return true;
+      };
+    })();
+    set_icache_entry(0x08049349,d);
+  };
   var count2=0;
   var last=Date.now();
   var step=function(){
