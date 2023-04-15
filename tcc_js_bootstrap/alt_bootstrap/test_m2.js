@@ -139,7 +139,10 @@ var syscall_exit=function(regs){
 };
 
 var syscall_write=function(regs){
-  print("syscall_write");
+  var fd=regs.ebx;
+  var buf=regs.ecx;
+  var count=regs.edx;
+  print("syscall_write fd:"+to_hex(fd)+" buf: "+to_hex(buf)+" count: "+count);
   return 0;
 };
 
