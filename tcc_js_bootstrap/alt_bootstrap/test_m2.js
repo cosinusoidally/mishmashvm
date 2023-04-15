@@ -100,6 +100,7 @@ var link=function(f,base){
       };
     };
   };
+  var relink=function(){
   abs32s.map(function(x){
     w32(a,x[0],symbols[x[1]]+base);
   });
@@ -107,7 +108,9 @@ var link=function(f,base){
     w32(a,x[0],symbols[x[1]]-x[0]-4);
 //    w32(a,x[0],0xdeadbeef);
   });
-  return {text:a,symbols:symbols,abs32s:abs32s,rel32s:rel32s,base:base};
+  };
+  relink();
+  return {text:a,symbols:symbols,abs32s:abs32s,rel32s:rel32s,base:base,relink:relink};
 };
 
 var map_exec=function(size){
@@ -129,3 +132,35 @@ fntype = ctypes.FunctionType(ctypes.default_abi,ctypes.uint32_t,[]);
 fn=ctypes.cast(ctypes.voidptr_t(a.symbols["FUNCTION_bar"]+p),fntype.ptr);
 
 print("fn(): "+fn());
+
+function callback_dispatch(esp){
+  print("esp: "+to_hex(esp));
+  r=new Int32Array(7);
+  libc.memcpy2(r,esp, r.length*4)
+  print("syscall: ");
+  print("eax "+to_hex(r[0]));
+  print("ebx "+to_hex(r[1]));
+  print("ecx "+to_hex(r[2]));
+  print("edx "+to_hex(r[3]));
+  print("esi "+to_hex(r[4]));
+  print("edi "+to_hex(r[5]));
+  print("ebp "+to_hex(r[6]));
+  return 7;
+};
+
+var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
+
+var callback_dispatch_handle = callback_dispatch_type.ptr(callback_dispatch);
+var callback_dispatch_ptr = ctypes.cast(callback_dispatch_handle,ctypes.uint32_t).value;
+
+print("callback dispatch fn: "+to_hex(callback_dispatch_ptr));
+
+w32(a.text,a.symbols["GLOBAL_test3"],callback_dispatch_ptr);
+a.relink();
+
+libc.memcpy(p,new Uint8Array(a.text),a.text.length);
+
+fntype2 = ctypes.FunctionType(ctypes.default_abi,ctypes.uint32_t,[]);
+fn2=ctypes.cast(ctypes.voidptr_t(a.symbols["FUNCTION_test2"]+p),fntype2.ptr);
+
+print(fn2);
