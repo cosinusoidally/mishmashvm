@@ -133,6 +133,19 @@ fn=ctypes.cast(ctypes.voidptr_t(a.symbols["FUNCTION_bar"]+p),fntype.ptr);
 
 print("fn(): "+fn());
 
+var syscall_exit=function(regs){
+  print("syscall_exit");
+  return 0;
+};
+
+var syscall=function(regs){
+  if(regs.eax===1){
+     return syscall_exit(regs);
+  } else {
+    print("unsupported syscall: "+regs.eax);
+  };
+};
+
 function callback_dispatch(esp){
   print("esp: "+to_hex(esp));
   r=new Int32Array(7);
@@ -145,7 +158,16 @@ function callback_dispatch(esp){
   print("esi "+to_hex(r[4]));
   print("edi "+to_hex(r[5]));
   print("ebp "+to_hex(r[6]));
-  return 7;
+  var regs={
+    eax: r[0],
+    ebx: r[1],
+    ecx: r[2],
+    edx: r[3],
+    esi: r[4],
+    edi: r[5],
+    ebp: r[6],
+  };
+  return syscall(regs);
 };
 
 var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
