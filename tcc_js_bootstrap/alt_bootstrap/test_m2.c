@@ -47,6 +47,18 @@ int test4(){
   );
 }
 
+void exit(int value)
+{
+        asm("lea_eax,[esp+DWORD] %4"
+            "mov_eax,[eax]"
+            "push_eax"
+            "pop_ebx"
+            "mov_eax, %1"
+            "jmp %syscall_js_callback");
+}
+
+
 int test2(){
-  return test4();
+  exit(100);
+  return 0;
 }
