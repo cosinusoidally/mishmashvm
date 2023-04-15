@@ -57,8 +57,25 @@ void exit(int value)
             "jmp %syscall_js_callback");
 }
 
+int stdout=1;
+
+void fputc(char s, int f)
+{
+        asm("mov_eax, %4"
+            "lea_ebx,[esp+DWORD] %4"
+            "mov_ebx,[ebx]"
+            "lea_ecx,[esp+DWORD] %8"
+            "mov_edx, %1"
+            "jmp %syscall_js_callback");
+}
+
+int putchar(int c){
+  fputc(c,stdout);
+  return 0;
+}
 
 int test2(){
+  putchar(72);
   exit(100);
   return 0;
 }

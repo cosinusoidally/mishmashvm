@@ -138,11 +138,20 @@ var syscall_exit=function(regs){
   return 0;
 };
 
+var syscall_write=function(regs){
+  print("syscall_write");
+  return 0;
+};
+
 var syscall=function(regs){
-  if(regs.eax===1){
+  var eax=regs.eax;
+  if(eax===1){
      return syscall_exit(regs);
+  } else if (eax===4){
+     return syscall_write(regs);
   } else {
     print("unsupported syscall: "+regs.eax);
+    return 0;
   };
 };
 
