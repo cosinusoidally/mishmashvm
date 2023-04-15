@@ -74,8 +74,38 @@ int putchar(int c){
   return 0;
 }
 
+int save_esp=0;
+int save_eax=0;
+
 int test2(){
+  asm("push_ebx"
+      "push_esi"
+      "push_ebp"
+      "push_eax"
+      "push_ebx"
+      "lea_eax,[esp+DWORD] %8"
+      "mov_ebx, &GLOBAL_save_esp"
+      "mov_[ebx],eax"
+      "pop_ebx"
+      "pop_eax"
+  );
   putchar(72);
   exit(100);
   return 0;
+  asm(":exit_return"
+      "push_ebx"
+      "mov_ebx, &GLOBAL_save_eax"
+      "mov_[ebx],eax"
+      "pop_ebx"
+      "mov_eax, &GLOBAL_save_esp"
+      "mov_eax,[eax]"
+      "DEFINE mov_esp,eax 89C4"
+      "mov_esp,eax"
+      "mov_eax, &GLOBAL_save_eax"
+      "mov_eax,[eax]"
+      "pop_ebp"
+      "pop_esi"
+      "pop_ebx"
+      "ret"
+  );
 }

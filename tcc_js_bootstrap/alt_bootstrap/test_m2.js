@@ -135,6 +135,10 @@ print("fn(): "+fn());
 
 var syscall_exit=function(regs){
   print("syscall_exit");
+  var r=regs.raw;
+  r[0]=regs.ebx;
+  r[7]=exit_return_ptr;
+  libc.memcpy(regs.esp,r,r.length*4);
   return 0;
 };
 
@@ -163,7 +167,7 @@ var syscall=function(regs){
 
 function callback_dispatch(esp){
   print("esp: "+to_hex(esp));
-  r=new Uint32Array(7);
+  r=new Uint32Array(8);
   libc.memcpy2(r,esp, r.length*4)
   print("syscall: ");
   print("eax "+to_hex(r[0]));
@@ -173,6 +177,7 @@ function callback_dispatch(esp){
   print("esi "+to_hex(r[4]));
   print("edi "+to_hex(r[5]));
   print("ebp "+to_hex(r[6]));
+  print("return_eip "+to_hex(r[7]));
   var regs={
     eax: r[0],
     ebx: r[1],
@@ -181,6 +186,9 @@ function callback_dispatch(esp){
     esi: r[4],
     edi: r[5],
     ebp: r[6],
+    esp: esp,
+    return_eip: r[7],
+    raw: r
   };
   return syscall(regs);
 };
@@ -191,6 +199,10 @@ var callback_dispatch_handle = callback_dispatch_type.ptr(callback_dispatch);
 var callback_dispatch_ptr = ctypes.cast(callback_dispatch_handle,ctypes.uint32_t).value;
 
 print("callback dispatch fn: "+to_hex(callback_dispatch_ptr));
+
+exit_return_ptr=p+a.symbols["exit_return"];
+
+print("exit_return_ptr "+to_hex(exit_return_ptr));
 
 w32(a.text,a.symbols["GLOBAL_test3"],callback_dispatch_ptr);
 a.relink();
