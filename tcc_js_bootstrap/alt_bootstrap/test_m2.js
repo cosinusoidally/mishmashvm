@@ -143,6 +143,9 @@ var syscall_write=function(regs){
   var buf=regs.ecx;
   var count=regs.edx;
   print("syscall_write fd:"+to_hex(fd)+" buf: "+to_hex(buf)+" count: "+count);
+  var b=new Uint8Array(count);
+  libc.memcpy2(b,buf,count);
+  print(b[0]);
   return 0;
 };
 
@@ -160,7 +163,7 @@ var syscall=function(regs){
 
 function callback_dispatch(esp){
   print("esp: "+to_hex(esp));
-  r=new Int32Array(7);
+  r=new Uint32Array(7);
   libc.memcpy2(r,esp, r.length*4)
   print("syscall: ");
   print("eax "+to_hex(r[0]));
