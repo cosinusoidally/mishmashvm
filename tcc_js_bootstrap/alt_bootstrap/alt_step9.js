@@ -29,7 +29,7 @@ new_dummy=function(){
 
 
 ld=function(){
-  load("alt_step7.js");
+  load("alt_step9.js");
 };
 
 var hex_byte=function(x){
@@ -359,6 +359,11 @@ alt_step=function(p,run){
     };
     if(op===7){
       SAR_rm32_CL();
+      decoded=true;
+      return;
+    };
+    if(op===5){
+      SHR_rm32_CL();
       decoded=true;
       return;
     };
@@ -811,6 +816,30 @@ alt_step=function(p,run){
     set_esp(get_esp()-4);
     vw32(get_esp(),get_eip()+d.ilen);
     d.branch=d.target;
+    return true;
+  };
+
+  var CDQ=function(){
+    ilen++;
+    if(dbg){
+      print("CDQ");
+    };
+    decoded=true;
+    if(run){
+      print("CDQ_ cache miss");
+      var d=new_icache_entry();
+      d.insn=CDQ_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var CDQ_exec=function(d){
+    // FIXME hack, this is not right
+    set_edx(0);
     return true;
   };
 
@@ -2065,6 +2094,40 @@ alt_step=function(p,run){
     return true;
   };
 
+  var SHR_rm32_CL=function(mode){
+    if(dbg){
+      print("SHR_rm32_CL_"+mode);
+    };
+    if(run){
+      print("SHR_rm32_CL cache miss");
+      var d=new_icache_entry();
+      d.rm32_src=rm32_src;
+      d.rm32_dest=rm32_dest;
+      d.insn=SHR_rm32_CL_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var SHR_rm32_CL_exec=function(d){
+    var r=d.rm32_src();
+    var ecx=get_ecx();
+    var tc = ecx & 0x1F;
+    while(tc!==0){
+      set_CF(r&1);
+      r=r>>>1;
+      tc=tc-1;
+    };
+    if((ecx & 0x1F) ===1){
+      set_OF(r>>>31);
+    };
+    d.rm32_dest(r);
+    return true;
+  };
+
   var SHR_rm32_imm8=function(mode){
     //C1 /5 ib SHR r/m32,imm8 3/7 Unsigned divide r/m dword by 2, imm8 times
     load_imm8();
@@ -2193,6 +2256,35 @@ alt_step=function(p,run){
 
   var SETA_rm8_exec=function(d){
     if((get_CF()===0) && (get_ZF()===0)){
+      d.rm8_dest(1);
+    } else {
+      d.rm8_dest(0);
+    };
+    return true;
+  };
+
+  var SETAE_rm8=function(){
+    // 0F 93 SETAE r/m8 Set byte if above or equal (CF=0)
+    ilen=2;
+    decode_modrm();
+    if(dbg){
+      print("SETAE_rm8_"+mode);
+    };
+    decoded=true;
+    if(run){
+      var d=new_icache_entry();
+      d.rm8_dest=rm8_dest;
+      d.insn=SETAE_rm8_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var SETAE_rm8_exec=function(d){
+    if(get_CF()===0){
       d.rm8_dest(1);
     } else {
       d.rm8_dest(0);
@@ -2528,6 +2620,7 @@ alt_step=function(p,run){
       [0xBE, MOVSX_r32_rm8],
       [0xb6, MOVZX_r32_rm8],
       [0x97, SETA_rm8],
+      [0x93, SETAE_rm8],
       [0x92, SETB_rm8],
       [0x96, SETBE_rm8],
       [0x94, SETE_rm8],
@@ -2544,8 +2637,9 @@ alt_step=function(p,run){
   // this is a hacky way of avoiding icache becoming a sparse array
   // (which improves performance)
   var ibase=0x08048054;
-
-  for(var i=0;i<20e3;i++){
+  var icache_len=5e5;
+  print("icache length: "+icache_len);
+  for(var i=0;i<icache_len;i++){
    icache.push(dummy_fn);
   };
 
@@ -2600,7 +2694,7 @@ alt_step=function(p,run){
       } else {
         set_eip(e.branch);
         // uncomment to profile
-        //update_profile(e.branch);
+        // update_profile(e.branch);
       };
       return r;
     };
@@ -2710,6 +2804,150 @@ alt_step=function(p,run){
     set_icache_entry(0x08048404,d);
   };
 
+  if(p.filename==="/x86/artifact/M2" && perf_hack){
+    print("hex2-0 icache boost");
+    var d=new_icache_entry();
+    d.insn=(function(){
+
+      var get_esp=p.get_esp;
+      var set_esp=p.set_esp;
+
+      var get_ebp=p.get_ebp;
+      var set_ebp=p.set_ebp;
+
+      var get_ebx=p.get_ebx;
+      var set_ebx=p.set_ebx;
+
+      var vw8=p.vw8;
+      var vr8=p.vr8;
+
+      var vw32=p.vw32;
+      var vr32=p.vr32;
+
+      return function(){
+       var eax=get_eax();
+       var esp=get_esp();
+       var ebp=get_ebp();
+       var ebx=get_ebp();
+
+       var ZF;
+       var SF;
+       var OF;
+       while(1){
+//   0x08049349:	b8 00 00 00 00	mov    eax,0x0
+       eax=0;
+//   0x0804934e:	50	push   eax
+       esp=esp-4;
+       vw32(esp,eax);
+//   0x0804934f:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+       eax=ebp-0x8;
+//   0x08049355:	8b 00	mov    eax,DWORD PTR [eax]
+       eax=vr32(eax);
+//   0x08049357:	5b	pop    ebx
+       ebx=vr32(esp);
+       esp=esp+4;
+//   0x08049358:	39 c3	cmp    ebx,eax
+       var res=ebx-eax;
+       if(res===0){
+         ZF=1;
+       } else {
+         ZF=0;
+       };
+       if(res<0){
+         SF=1;
+       } else {
+         SF=0;
+       };
+       if(res>2147483647 || res<-2147483648){
+         OF=1;
+       } else {
+         OF=0;
+       };
+//   0x0804935a:	0f 9e c0	setle  al
+       if(ZF===1 || (SF!==OF)){
+         eax=1;
+       } else {
+         eax=0;
+       };
+//   0x0804935d:	0f b6 c0	movzx  eax,al
+       // noop since above setle clears higher bits
+//   0x08049360:	85 c0	test   eax,eax
+       var res=eax & eax;
+       if(res===0){
+         ZF=1;
+       } else {
+         ZF=0;
+       };
+//   0x08049362:	0f 84 3e 00 00 00	je     0x80493a6
+       if(ZF===1){
+         d.branch=0x80493a6;
+         break;
+       } else {
+//   0x08049368:	b8 ff 27 06 08	mov    eax,0x80627ff
+       eax=0x80627ff;
+//   0x0804936d:	8b 00	mov    eax,DWORD PTR [eax]
+       eax=vr32(eax);
+//   0x0804936f:	50	push   eax
+       esp=esp-4;
+       vw32(esp,eax);
+//   0x08049370:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+       eax=ebp-0x8;
+//   0x08049376:	8b 00	mov    eax,DWORD PTR [eax]
+       eax=vr32(eax);
+//   0x08049378:	5b	pop    ebx
+       ebx=vr32(esp);
+       esp=esp+4;
+//   0x08049379:	01 d8	add    eax,ebx
+       eax=eax+ebx;
+//   0x0804937b:	50	push   eax
+       esp=esp-4;
+       vw32(esp,eax);
+//   0x0804937c:	b8 00 00 00 00	mov    eax,0x0
+       eax=0;
+//   0x08049381:	5b	pop    ebx
+       ebx=vr32(esp);
+       esp=esp+4;
+//   0x08049382:	88 03	mov    BYTE PTR [ebx],al
+       vw8(ebx,eax);
+//   0x08049384:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+       eax=ebp-0x8;
+//   0x0804938a:	50	push   eax
+       esp=esp-4;
+       vw32(esp,eax);
+//   0x0804938b:	8d 85 f8 ff ff ff	lea    eax,[ebp-0x8]
+       eax=ebp-0x8;
+//   0x08049391:	8b 00	mov    eax,DWORD PTR [eax]
+       eax=vr32(eax);
+//   0x08049393:	50	push   eax
+       esp=esp-4;
+       vw32(esp,eax);
+//   0x08049394:	b8 01 00 00 00	mov    eax,0x1
+       eax=1;
+//   0x08049399:	5b	pop    ebx
+       ebx=vr32(esp);
+       esp=esp+4;
+//   0x0804939a:	29 c3	sub    ebx,eax
+       ebx=ebx-eax;
+//   0x0804939c:	89 d8	mov    eax,ebx
+       eax=ebx;
+//   0x0804939e:	5b	pop    ebx
+       ebx=vr32(esp);
+       esp=esp+4;
+//   0x0804939f:	89 03	mov    DWORD PTR [ebx],eax
+       vw32(ebx,eax);
+//   0x080493a1:	e9 a3 ff ff ff	jmp    0x8049349
+       };
+       };
+
+        set_eax(eax);
+        set_esp(esp);
+        set_ebp(ebp);
+        set_ebx(ebx);
+        return true;
+      };
+    })();
+    set_icache_entry(0x08049349,d);
+  };
   var count2=0;
   var last=Date.now();
   var step=function(){
@@ -2899,6 +3137,7 @@ alt_step=function(p,run){
     [0x09, OR_rm32_r32],
     [0x31, XOR_rm32_r32],
     [0xD3, _d3],
+    [0x99, CDQ],
   ];
   decoded=false;
   for(var i=0;i<ops.length;i++){
@@ -2952,10 +3191,14 @@ dummy.step();
 };
 
 var my_dbg;
-var cont=function(){
-pt[3].set_step(alt_step);
+var cont=function(n){
+if(!n){
+  n=3;
+};
+print("cont process: "+n);
+pt[n].set_step(alt_step);
 if(my_dbg!==true){my_dbg=false};
-pt[3].set_dbg(my_dbg);
+pt[n].set_dbg(my_dbg);
 var st=Date.now();
 kernel.resume();
 print((Date.now()-st)/1000);
@@ -3000,8 +3243,7 @@ print_stats=function(x){
   };
 };
 
-
-var save=function(){
+var load_libc=function(){
   if(!this.libc){
     print("spidermonkey must load support lib");
     load("../../lib/setup_platform.js");
@@ -3014,7 +3256,10 @@ var save=function(){
     libc.fwrite(data,data.length,1,f);
     libc.fclose(f);
   };
+};
 
+var save=function(){
+  load_libc();
   print("save location: "+path);
   var d=[];
   var n=0;
@@ -3143,11 +3388,16 @@ var load_snap=function(){
 
     pn.set_dbg(s.dbg);
 
+    if(s.cwd){
+      pn.set_cwd(s.cwd);
+    };
+
     pn.set_status(s.status);
 
     pn.filename=s.filename;
 
-    pn.fds=[null,[0,[]],null];
+    // FIXME should really save/restore stdin/out/err
+    pn.fds=[null,[0,[]],[0,[]]];
 
     for(var q in s.fds){
       var c=s.fds[q];

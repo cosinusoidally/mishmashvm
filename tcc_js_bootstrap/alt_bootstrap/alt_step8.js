@@ -29,7 +29,7 @@ new_dummy=function(){
 
 
 ld=function(){
-  load("alt_step7.js");
+  load("alt_step8.js");
 };
 
 var hex_byte=function(x){
@@ -359,6 +359,11 @@ alt_step=function(p,run){
     };
     if(op===7){
       SAR_rm32_CL();
+      decoded=true;
+      return;
+    };
+    if(op===5){
+      SHR_rm32_CL();
       decoded=true;
       return;
     };
@@ -811,6 +816,30 @@ alt_step=function(p,run){
     set_esp(get_esp()-4);
     vw32(get_esp(),get_eip()+d.ilen);
     d.branch=d.target;
+    return true;
+  };
+
+  var CDQ=function(){
+    ilen++;
+    if(dbg){
+      print("CDQ");
+    };
+    decoded=true;
+    if(run){
+      print("CDQ_ cache miss");
+      var d=new_icache_entry();
+      d.insn=CDQ_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var CDQ_exec=function(d){
+    // FIXME hack, this is not right
+    set_edx(0);
     return true;
   };
 
@@ -2065,6 +2094,40 @@ alt_step=function(p,run){
     return true;
   };
 
+  var SHR_rm32_CL=function(mode){
+    if(dbg){
+      print("SHR_rm32_CL_"+mode);
+    };
+    if(run){
+      print("SHR_rm32_CL cache miss");
+      var d=new_icache_entry();
+      d.rm32_src=rm32_src;
+      d.rm32_dest=rm32_dest;
+      d.insn=SHR_rm32_CL_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var SHR_rm32_CL_exec=function(d){
+    var r=d.rm32_src();
+    var ecx=get_ecx();
+    var tc = ecx & 0x1F;
+    while(tc!==0){
+      set_CF(r&1);
+      r=r>>>1;
+      tc=tc-1;
+    };
+    if((ecx & 0x1F) ===1){
+      set_OF(r>>>31);
+    };
+    d.rm32_dest(r);
+    return true;
+  };
+
   var SHR_rm32_imm8=function(mode){
     //C1 /5 ib SHR r/m32,imm8 3/7 Unsigned divide r/m dword by 2, imm8 times
     load_imm8();
@@ -2193,6 +2256,35 @@ alt_step=function(p,run){
 
   var SETA_rm8_exec=function(d){
     if((get_CF()===0) && (get_ZF()===0)){
+      d.rm8_dest(1);
+    } else {
+      d.rm8_dest(0);
+    };
+    return true;
+  };
+
+  var SETAE_rm8=function(){
+    // 0F 93 SETAE r/m8 Set byte if above or equal (CF=0)
+    ilen=2;
+    decode_modrm();
+    if(dbg){
+      print("SETAE_rm8_"+mode);
+    };
+    decoded=true;
+    if(run){
+      var d=new_icache_entry();
+      d.rm8_dest=rm8_dest;
+      d.insn=SETAE_rm8_exec;
+      d.ilen=ilen;
+      set_icache_entry(eip,d);
+      ran=try_icache(eip);
+      return;
+    };
+    set_eip(eip+ilen);
+  };
+
+  var SETAE_rm8_exec=function(d){
+    if(get_CF()===0){
       d.rm8_dest(1);
     } else {
       d.rm8_dest(0);
@@ -2528,6 +2620,7 @@ alt_step=function(p,run){
       [0xBE, MOVSX_r32_rm8],
       [0xb6, MOVZX_r32_rm8],
       [0x97, SETA_rm8],
+      [0x93, SETAE_rm8],
       [0x92, SETB_rm8],
       [0x96, SETBE_rm8],
       [0x94, SETE_rm8],
@@ -2544,8 +2637,9 @@ alt_step=function(p,run){
   // this is a hacky way of avoiding icache becoming a sparse array
   // (which improves performance)
   var ibase=0x08048054;
-
-  for(var i=0;i<20e3;i++){
+  var icache_len=5e5;
+  print("icache length: "+icache_len);
+  for(var i=0;i<icache_len;i++){
    icache.push(dummy_fn);
   };
 
@@ -2899,6 +2993,7 @@ alt_step=function(p,run){
     [0x09, OR_rm32_r32],
     [0x31, XOR_rm32_r32],
     [0xD3, _d3],
+    [0x99, CDQ],
   ];
   decoded=false;
   for(var i=0;i<ops.length;i++){
@@ -2952,10 +3047,14 @@ dummy.step();
 };
 
 var my_dbg;
-var cont=function(){
-pt[3].set_step(alt_step);
+var cont=function(n){
+if(!n){
+  n=3;
+};
+print("cont process: "+n);
+pt[n].set_step(alt_step);
 if(my_dbg!==true){my_dbg=false};
-pt[3].set_dbg(my_dbg);
+pt[n].set_dbg(my_dbg);
 var st=Date.now();
 kernel.resume();
 print((Date.now()-st)/1000);
@@ -3143,11 +3242,16 @@ var load_snap=function(){
 
     pn.set_dbg(s.dbg);
 
+    if(s.cwd){
+      pn.set_cwd(s.cwd);
+    };
+
     pn.set_status(s.status);
 
     pn.filename=s.filename;
 
-    pn.fds=[null,[0,[]],null];
+    // FIXME should really save/restore stdin/out/err
+    pn.fds=[null,[0,[]],[0,[]]];
 
     for(var q in s.fds){
       var c=s.fds[q];

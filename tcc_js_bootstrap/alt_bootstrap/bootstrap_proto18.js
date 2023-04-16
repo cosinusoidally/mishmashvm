@@ -1,5 +1,5 @@
 load("../../libc_portable_proto/sha256.js");
-load("alt_step7.js");
+load("alt_step9.js");
 
 var use_snap;
 written_files=[];
@@ -89,6 +89,37 @@ var to_hex=function(x){
         (("00"+(x&0xFF).toString(16)).slice(-2));
 };
 
+var arr_to_string=function(a){
+   return a.map(function(x){
+                  return String.fromCharCode(x);
+                }).join("");
+};
+
+var string_to_arr=function(s){
+  return s.split("").map(function(x){return x.charCodeAt(0)});
+};
+
+var get_stderr=function(p){
+  var stderr;
+  if(p.fds[2]){
+    stderr=p.fds[2][1];
+    stderr=arr_to_string(stderr);
+    return stderr;
+  } else {
+    return "";
+  };
+};
+
+var get_stdout=function(p){
+  var stdout;
+  if(p.fds[1]){
+    stdout=p.fds[1][1];
+    stdout=arr_to_string(stdout);
+    return stdout;
+  } else {
+    return "";
+  };
+};
 
 _print=print;
 var new_process=function(){
@@ -166,6 +197,8 @@ var new_process=function(){
       if(d&3){
         d++;
       };
+      // FIXME hack to run kaem
+      d++;
       for(var i=0;i<d;i++){
         heap.push(0);
       };
@@ -1936,6 +1969,7 @@ var new_process=function(){
       OF: OF,
       brk: brk,
       dbg: dbg,
+      cwd: cwd,
     };
   };
 
@@ -2009,6 +2043,7 @@ var new_process=function(){
     get_state: get_state,
     set_vmem: set_vmem,
     get_cwd: function(){return cwd;},
+    set_cwd: function(dir){cwd=dir;},
     set_step: set_step,
     get_alt: function(){return alt;},
   };
@@ -2092,14 +2127,14 @@ var kernel=(function(){
 //    if(dbg){
       print("syscall_open called: "+p.read_c_string(p.get_ebx()));
 //    };
-    var filename=p.get_cwd()+fn;
+    var filename=vfs.mk_absolute(fn,p.get_cwd());
     var file=vfs.readFile(filename);
     if(file===undefined){
       vfs.writeFile(filename,[]);
       file=vfs.readFile(filename);
-      written_files.push(vfs.mk_absolute(filename));
+      written_files.push(filename);
     };
-    p.fds.push([0,file,vfs.mk_absolute(fn)]);
+    p.fds.push([0,file,filename]);
     p.set_eax(p.fds.length-1);
   };
 
@@ -2162,6 +2197,7 @@ hp.fds=[
       var pn_status=pn.get_status();
       print("pn status: "+pn_status+" wake_on: "+wake_on);
       if((pn_status==="waiting") && (wake_on===pid)){
+        pn.vw32(pn.get_ecx(),exit_code);
         pn.set_status("running");
       };
     };
@@ -2244,6 +2280,8 @@ hp.fds=[
 
     pn.set_dbg(s.dbg);
 
+    pn.set_cwd(s.cwd);
+
     print();
     print("pid: "+p.get_pid());
     info_registers(p);
@@ -2256,7 +2294,11 @@ hp.fds=[
     p.set_status("running");
     pn.set_status("running");
 //    throw "fork implementation incomplete";
-    pn.set_step();
+    if(p.get_alt()){
+      pn.set_step(alt_step);
+    } else {
+      pn.set_step();
+    };
   };
 
   var syscall_waitpid = function(p){
@@ -2292,7 +2334,7 @@ hp.fds=[
   var syscall_execve = function(p){
     print("syscall_execve called by: "+p.get_pid());
     info_registers(p);
-    var filename=vfs.mk_absolute(p.get_cwd()+"/"+p.read_c_string(p.get_ebx()));
+    var filename=vfs.mk_absolute(p.read_c_string(p.get_ebx()),p.get_cwd());
     var ptr=p.get_ecx();
     print("syscall_execve filename: "+filename);
     var argv=[];
@@ -2315,6 +2357,7 @@ hp.fds=[
 
     var img=parse_elf(vfs.readFile(filename));
     var pr=new_process();
+    pr.set_cwd(p.get_cwd());
     process_table[p.get_pid()]=pr;
     pr.set_pid(p.get_pid());
     pr.add_mem(img);
@@ -2351,7 +2394,7 @@ hp.fds=[
     // argc
     pr.push32(argc);
     pr.set_dbg(false);
-    pr.fds=[null,[0,[]],null];
+    pr.fds=[null,[0,[]],[0,[]]];
     info_registers(pr);
     pr.set_status("running");
     pr.filename=filename;
@@ -2359,47 +2402,48 @@ hp.fds=[
     pr.argv=argv;
 
 // can't yet enable for all
-//    pr.set_step(alt_step);
-
-    if(filename==="/x86/artifact/hex2-0"){
+    if((filename!=="/bootstrap-seeds/POSIX/x86/kaem-optional-seed")&&
+       (filename!=="/bootstrap-seeds/POSIX/x86/hex0-seed")&&
+       (filename!=="/x86/artifact/kaem-0")&&
+       (filename!=="/x86/artifact/hex1")&&
+       (filename!=="/x86/artifact/catm")&&
+       (filename!=="/x86/artifact/hex0")){
       pr.set_step(alt_step);
     };
+
+    if(filename==="/x86/artifact/hex2-0"){
+      // pass
+    };
     if(filename==="/x86/artifact/M0"){
-      pr.set_step(alt_step);
       // temp hack whilst testing snapshotting
       // throw "not running M0 for now";
     };
     if(filename==="/x86/artifact/cc_x86"){
-      pr.set_step(alt_step);
       // throw "not running cc_x86 for now";
     };
     if(filename==="/x86/artifact/M2"){
-      pr.set_step(alt_step);
       // throw "not running M2 for now";
     };
     if(filename==="/x86/artifact/blood-elf-0"){
-      pr.set_step(alt_step);
       // throw "not running blood-elf-0 for now";
     };
     if(filename==="/x86/artifact/M1-0"){
-      pr.set_step(alt_step);
       // throw "not running M1-0 for now";
     };
     if(filename==="/x86/artifact/hex2-1"){
-      pr.set_step(alt_step);
       // throw "not running hex2-1 for now";
     };
     if(filename==="/x86/bin/M1"){
-      pr.set_step(alt_step);
       // throw "not running M1 for now";
     };
     if(filename==="/x86/bin/hex2"){
-      pr.set_step(alt_step);
-      throw "not running hex2 for now";
+      //throw "not running hex2 for now";
     };
     if(filename==="/x86/bin/kaem"){
-      pr.set_step(alt_step);
-      throw "not running kaem for now";
+      //throw "not running kaem for now";
+    };
+    if(filename==="/x86/bin/M2-Mesoplanet"){
+      //throw "not running M2-Mesoplanet for now";
     };
   };
 
@@ -2410,6 +2454,33 @@ hp.fds=[
 
   var syscall_chmod = function(p){
     print("syscall_chmod called NOOP impl");
+    p.set_eax(0);
+  };
+
+  var syscall_chdir = function(p){
+    var dir=p.read_c_string(p.get_ebx());
+    var new_dir=vfs.mk_absolute(dir,p.get_cwd());
+    p.set_cwd(new_dir);
+    print("syscall_chdir called: "+dir+" new_cwd: "+p.get_cwd());
+    // FIXME should return error code if dir doesn't exist
+    p.set_eax(0);
+  };
+
+  var syscall_access = function(p){
+    var name=p.read_c_string(p.get_ebx());
+    print("syscall_access called: "+name);
+    // FIXME dummy impl
+    p.set_eax(0);
+  };
+
+  var syscall_unlink = function(p){
+    var name=p.read_c_string(p.get_ebx());
+    print("syscall_unlink called: "+name);
+    var abs_name=vfs.mk_absolute(name,p.get_cwd());
+    print("syscall_unlink called abs_name: "+abs_name);
+    // FIXME dummy impl
+    // just truncate the file
+    vfs.writeFile(abs_name,[]);
     p.set_eax(0);
   };
 
@@ -2441,6 +2512,12 @@ hp.fds=[
       syscall_close(proc);
     } else if(eax===15){
       syscall_chmod(proc);
+    } else if(eax===12){
+      syscall_chdir(proc);
+    } else if(eax===33){
+      syscall_access(proc);
+    } else if(eax===10){
+      syscall_unlink(proc);
     } else {
       proc.set_eip(proc.get_eip()-2);
       throw "pid: "+pid+" unsupported syscall: "+eax;
@@ -2645,9 +2722,17 @@ var vfs=(function(){
     });
   };
 
-  var mk_absolute=function(filename){
+  var mk_absolute=function(filename,cwd){
     var fn_abs=[];
-    f=filename.split("/");
+    if(cwd){
+//      print("mk_absolute processing cwd: "+cwd);
+//      print("mk_absolute processing filename: "+filename);
+      if(filename[0]!=="/"){
+        filename=cwd+"/"+filename;
+      };
+//      print("mk_absolute processed filename: "+filename);
+    };
+    var f=filename.split("/");
     for(var i=0;i<f.length;i++){
       var c=f[i];
       if((c===".")|| (c==="")){
@@ -2658,7 +2743,9 @@ var vfs=(function(){
         fn_abs.push(c);
       }
     };
-    return "/"+(fn_abs.join("/"));
+    var ret="/"+(fn_abs.join("/"));
+//    print("mk_absolute result: "+ret);
+    return ret;
   };
 
   var readFile=function(filename){
@@ -2689,8 +2776,12 @@ compute_hashes=function(){
 art_a=read("artifact.sha256sums").split("\n").map(function(x){return x.split("  ")});
 art_a.pop();
 
+art_b=read("stage0-posix/x86.answers").split("\n").map(function(x){return x.split("  ")});
+art_b.pop();
+
 art={};
 art_a.map(function(x){art[vfs.mk_absolute(x[1])]=x[0]});
+art_b.map(function(x){art[vfs.mk_absolute(x[1])]=x[0]});
 
 written_files.map(function(x){
   try{
