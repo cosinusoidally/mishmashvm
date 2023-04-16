@@ -57,6 +57,14 @@ void exit(int value)
             "jmp %syscall_js_callback");
 }
 
+void f2(){
+  exit(99);
+}
+
+void f1(){
+  f2();
+}
+
 int stdout=1;
 
 void fputc(char s, int f)
@@ -90,7 +98,7 @@ int test2(){
       "pop_eax"
   );
   putchar(72);
-  exit(100);
+  f1();
   return 0;
   asm(":exit_return"
       "push_ebx"
