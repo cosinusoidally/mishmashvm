@@ -1,6 +1,7 @@
 print("make sure there is already a generated snapshot in path");
 path='../../../mmaux/snap2/';
 use_snap=true;
+perf_hack=true;
 load('bootstrap_proto18.js');
 use_snap=false;
 path=undefined;
@@ -213,3 +214,4 @@ fntype2 = ctypes.FunctionType(ctypes.default_abi,ctypes.uint32_t,[]);
 fn2=ctypes.cast(ctypes.voidptr_t(a.symbols["FUNCTION_test2"]+p),fntype2.ptr);
 
 print(fn2);
+print(fn2());
