@@ -2,6 +2,9 @@ set js_cmd=../../firefox_win32/firefox.exe -xpcshell
 set start_cmd=start /wait /B
 set f1=-e "exe=
 set f2=;load('../lib/xpc.js')"
+
+%start_cmd% %js_cmd% win32_xpc_warn.js
+
 echo "Bootstrap"
 
 cd ../tcc_js_bootstrap
