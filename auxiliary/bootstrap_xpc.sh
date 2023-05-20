@@ -1,14 +1,20 @@
 echo "Bootstrap"
 
-cd tcc_js_bootstrap
+cmd (){
+  r="exe='$1';load('../lib/xpc.js')"
+  echo $r
+  firefox -xpcshell -e "$r"
+}
+
+cd ../tcc_js_bootstrap
 echo "Building tcc with Emscripten compiled tcc"
-js --no-ion 01_mk_tcc.js
+cmd 01_mk_tcc.js
 
 echo "Building libc wrapper with Emscripten compiled tcc"
-js --no-ion 02_mk_libc_wrap.js
+cmd 02_mk_libc_wrap.js
 
 echo "Building libc unimplemented stubs with Emscripten compiled tcc"
-js --no-ion 03_mk_libc_stubs.js
+cmd 03_mk_libc_stubs.js
 cd ..
 
 cd libc_portable_proto
