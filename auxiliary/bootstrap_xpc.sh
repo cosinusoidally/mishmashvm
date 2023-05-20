@@ -19,4 +19,4 @@ cd ..
 
 cd libc_portable_proto
 
-./bootstrap_tcc.sh
+#./bootstrap_tcc.sh
