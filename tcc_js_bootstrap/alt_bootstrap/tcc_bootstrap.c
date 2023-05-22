@@ -747,98 +747,14 @@ struct _IO_FILE {
   char _unused2[15 * sizeof (int) - 4 * sizeof (void *) - sizeof (size_t)];
 };
 
-typedef struct _IO_FILE _IO_FILE;
-
-struct _IO_FILE_plus;
-
-extern struct _IO_FILE_plus _IO_2_1_stdin_;
-extern struct _IO_FILE_plus _IO_2_1_stdout_;
-extern struct _IO_FILE_plus _IO_2_1_stderr_;
-typedef __ssize_t __io_read_fn (void *__cookie, char *__buf, size_t __nbytes);
-typedef __ssize_t __io_write_fn (void *__cookie, const char *__buf,
-				 size_t __n);
-typedef int __io_seek_fn (void *__cookie, __off64_t *__pos, int __w);
-typedef int __io_close_fn (void *__cookie);
-typedef __io_read_fn cookie_read_function_t;
-typedef __io_write_fn cookie_write_function_t;
-typedef __io_seek_fn cookie_seek_function_t;
-typedef __io_close_fn cookie_close_function_t;
-
-typedef struct
-{
-  __io_read_fn *read;
-  __io_write_fn *write;
-  __io_seek_fn *seek;
-  __io_close_fn *close;
-} _IO_cookie_io_functions_t;
-typedef _IO_cookie_io_functions_t cookie_io_functions_t;
-
-struct _IO_cookie_file;
-
-extern void _IO_cookie_init (struct _IO_cookie_file *__cfile, int __read_write,
-			     void *__cookie, _IO_cookie_io_functions_t __fns);
-extern int __underflow (_IO_FILE *);
-extern int __uflow (_IO_FILE *);
-extern int __overflow (_IO_FILE *, int);
-extern int _IO_getc (_IO_FILE *__fp);
-extern int _IO_putc (int __c, _IO_FILE *__fp);
-extern int _IO_feof (_IO_FILE *__fp) ;
-extern int _IO_ferror (_IO_FILE *__fp) ;
-extern int _IO_peekc_locked (_IO_FILE *__fp);
-extern void _IO_flockfile (_IO_FILE *) ;
-extern void _IO_funlockfile (_IO_FILE *) ;
-extern int _IO_ftrylockfile (_IO_FILE *) ;
-extern int _IO_vfscanf (_IO_FILE * , const char * ,
-			__gnuc_va_list, int *);
-extern int _IO_vfprintf (_IO_FILE *, const char *,
-			 __gnuc_va_list);
-extern __ssize_t _IO_padn (_IO_FILE *, int, __ssize_t);
-extern size_t _IO_sgetn (_IO_FILE *, void *, size_t);
-extern __off64_t _IO_seekoff (_IO_FILE *, __off64_t, int, int);
-extern __off64_t _IO_seekpos (_IO_FILE *, __off64_t, int);
-extern void _IO_free_backup_area (_IO_FILE *);
-typedef _G_fpos_t fpos_t;
-typedef _G_fpos64_t fpos64_t;
-
 extern struct _IO_FILE *stdin;
 extern struct _IO_FILE *stdout;
 extern struct _IO_FILE *stderr;
-
 extern int remove (const char *__filename);
-extern int rename (const char *__old, const char *__new);
-extern int renameat (int __oldfd, const char *__old, int __newfd,
-		     const char *__new);
-extern FILE *tmpfile (void);
-extern FILE *tmpfile64 (void);
-extern char *tmpnam (char *__s);
-extern char *tmpnam_r (char *__s);
-extern char *tempnam (const char *__dir, const char *__pfx);
 extern int fclose (FILE *__stream);
 extern int fflush (FILE *__stream);
-extern int fflush_unlocked (FILE *__stream);
-extern int fcloseall (void);
 extern FILE *fopen (const char * __filename,
 		    const char * __modes);
-extern FILE *freopen (const char * __filename,
-		      const char * __modes,
-		      FILE * __stream);
-extern FILE *fopen64 (const char * __filename,
-		      const char * __modes);
-extern FILE *freopen64 (const char * __filename,
-			const char * __modes,
-			FILE * __stream);
-extern FILE *fdopen (int __fd, const char *__modes);
-extern FILE *fopencookie (void * __magic_cookie,
-			  const char * __modes,
-			  _IO_cookie_io_functions_t __io_funcs);
-extern FILE *fmemopen (void *__s, size_t __len, const char *__modes);
-extern FILE *open_memstream (char **__bufloc, size_t *__sizeloc);
-extern void setbuf (FILE * __stream, char * __buf);
-extern int setvbuf (FILE * __stream, char * __buf,
-		    int __modes, size_t __n);
-extern void setbuffer (FILE * __stream, char * __buf,
-		       size_t __size);
-extern void setlinebuf (FILE *__stream);
 extern int fprintf (FILE * __stream,
 		    const char * __format, ...);
 extern int printf (const char * __format, ...);
@@ -846,71 +762,19 @@ extern int sprintf (char * __s,
 		    const char * __format, ...);
 extern int vfprintf (FILE * __s, const char * __format,
 		     __gnuc_va_list __arg);
-extern int vprintf (const char * __format, __gnuc_va_list __arg);
-extern int vsprintf (char * __s, const char * __format,
-		     __gnuc_va_list __arg);
 extern int snprintf (char * __s, size_t __maxlen,
 		     const char * __format, ...);
 extern int vsnprintf (char * __s, size_t __maxlen,
 		      const char * __format, __gnuc_va_list __arg);
-extern int vasprintf (char ** __ptr, const char * __f,
-		      __gnuc_va_list __arg);
-extern int __asprintf (char ** __ptr,
-		       const char * __fmt, ...);
-extern int asprintf (char ** __ptr,
-		     const char * __fmt, ...);
-extern int vdprintf (int __fd, const char * __fmt,
-		     __gnuc_va_list __arg);
-extern int dprintf (int __fd, const char * __fmt, ...);
-extern int fscanf (FILE * __stream,
-		   const char * __format, ...);
-extern int scanf (const char * __format, ...);
 extern int sscanf (const char * __s,
 		   const char * __format, ...);
-extern int vfscanf (FILE * __s, const char * __format,
-		    __gnuc_va_list __arg);
-extern int vscanf (const char * __format, __gnuc_va_list __arg);
-extern int vsscanf (const char * __s,
-		    const char * __format, __gnuc_va_list __arg);
-extern int fgetc (FILE *__stream);
-extern int getc (FILE *__stream);
-extern int getchar (void);
-extern int getc_unlocked (FILE *__stream);
-extern int getchar_unlocked (void);
-extern int fgetc_unlocked (FILE *__stream);
 extern int fputc (int __c, FILE *__stream);
-extern int putc (int __c, FILE *__stream);
-extern int putchar (int __c);
-extern int fputc_unlocked (int __c, FILE *__stream);
-extern int putc_unlocked (int __c, FILE *__stream);
-extern int putchar_unlocked (int __c);
-extern int getw (FILE *__stream);
-extern int putw (int __w, FILE *__stream);
-extern char *fgets (char * __s, int __n, FILE * __stream);
-extern char *fgets_unlocked (char * __s, int __n,
-			     FILE * __stream);
-extern __ssize_t __getdelim (char ** __lineptr,
-			       size_t * __n, int __delimiter,
-			       FILE * __stream);
-extern __ssize_t getdelim (char ** __lineptr,
-			     size_t * __n, int __delimiter,
-			     FILE * __stream);
-extern __ssize_t getline (char ** __lineptr,
-			    size_t * __n,
-			    FILE * __stream) ;
 extern int fputs (const char * __s, FILE * __stream);
 extern int puts (const char *__s);
-extern int ungetc (int __c, FILE *__stream);
 extern size_t fread (void * __ptr, size_t __size,
 		     size_t __n, FILE * __stream);
 extern size_t fwrite (const void * __ptr, size_t __size,
 		      size_t __n, FILE * __s);
-extern int fputs_unlocked (const char * __s,
-			   FILE * __stream);
-extern size_t fread_unlocked (void * __ptr, size_t __size,
-			      size_t __n, FILE * __stream);
-extern size_t fwrite_unlocked (const void * __ptr, size_t __size,
-			       size_t __n, FILE * __stream);
 
 // LJW_END
 
