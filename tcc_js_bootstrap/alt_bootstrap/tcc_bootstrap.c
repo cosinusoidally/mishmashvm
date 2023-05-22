@@ -965,36 +965,20 @@ extern void *memchr (const void *__s, int __c, size_t __n);
 extern void *rawmemchr (const void *__s, int __c);
 extern void *memrchr (const void *__s, int __c, size_t __n);
 extern char *strcpy (char * __dest, const char * __src);
-extern char *strncpy (char * __dest,
-		      const char * __src, size_t __n);
+
 extern char *strcat (char * __dest, const char * __src);
-extern char *strncat (char * __dest, const char * __src,
-		      size_t __n);
+
 extern int strcmp (const char *__s1, const char *__s2);
+
 extern int strncmp (const char *__s1, const char *__s2, size_t __n);
-extern int strcoll (const char *__s1, const char *__s2);
-extern size_t strxfrm (char * __dest,
-		       const char * __src, size_t __n);
-extern int strcoll_l (const char *__s1, const char *__s2, locale_t __l);
-extern size_t strxfrm_l (char *__dest, const char *__src, size_t __n,
-			 locale_t __l);
-extern char *strdup (const char *__s);
-extern char *strndup (const char *__string, size_t __n);
+
 extern char *strchr (const char *__s, int __c);
 extern char *strrchr (const char *__s, int __c);
-extern char *strchrnul (const char *__s, int __c);
-extern size_t strcspn (const char *__s, const char *__reject);
-extern size_t strspn (const char *__s, const char *__accept);
-extern char *strpbrk (const char *__s, const char *__accept);
 extern char *strstr (const char *__haystack, const char *__needle);
-
 extern size_t strlen (const char *__s);
-
 extern int *__errno_location (void);
-
 extern int open (const char *__file, int __oflag, ...) ;
 extern int openat (int __fd, const char *__file, int __oflag, ...) ;
-
 struct tm
 {
   int tm_sec;
@@ -1009,13 +993,10 @@ struct tm
   long int tm_gmtoff;
   const char *tm_zone;
 };
-
 extern char *getcwd (char *__buf, size_t __size)  ;
 extern int unlink (const char *__name)  ;
-
 extern float strtof (const char *__nptr, char **__endptr);
 extern long double strtold (const char *__nptr, char **__endptr);
-
 typedef __uint8_t uint8_t;
 typedef __uint16_t uint16_t;
 typedef __uint32_t uint32_t;
