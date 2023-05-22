@@ -1111,22 +1111,6 @@ typedef __uint8_t uint8_t;
 typedef __uint16_t uint16_t;
 typedef __uint32_t uint32_t;
 typedef __uint64_t uint64_t;
-typedef signed char		int_least8_t;
-typedef short int		int_least16_t;
-typedef int			int_least32_t;
-typedef long long int		int_least64_t;
-typedef unsigned char		uint_least8_t;
-typedef unsigned short int	uint_least16_t;
-typedef unsigned int		uint_least32_t;
-typedef unsigned long long int	uint_least64_t;
-typedef signed char		int_fast8_t;
-typedef int			int_fast16_t;
-typedef int			int_fast32_t;
-typedef long long int		int_fast64_t;
-typedef unsigned char		uint_fast8_t;
-typedef unsigned int		uint_fast16_t;
-typedef unsigned int		uint_fast32_t;
-typedef unsigned long long int	uint_fast64_t;
 typedef unsigned int		uintptr_t;
 
 // START TCC code
