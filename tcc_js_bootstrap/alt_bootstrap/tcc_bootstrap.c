@@ -5271,7 +5271,6 @@ static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long
             switch(c) {
             case '0': case '1': case '2': case '3':
             case '4': case '5': case '6': case '7':
-
                 n = c - '0';
                 p++;
                 c = *p;
@@ -5346,14 +5345,9 @@ static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long
                 break;
             }
         } else if (is_long && c >= 0x80) {
-
-
-
             int cont;
             int skip;
             int i;
-
-
             if (c < 0xC2) {
 	            skip = 1; goto invalid_utf8_sequence;
             } else if (c <= 0xDF) {
@@ -5365,12 +5359,8 @@ static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long
             } else {
 	            skip = 1; goto invalid_utf8_sequence;
             }
-
-
             for (i = 1; i <= cont; i++) {
                 int l = 0x80, h = 0xBF;
-
-
                 if (i == 1) {
                     switch (c) {
                     case 0xE0: l = 0xA0; break;
@@ -5379,38 +5369,29 @@ static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long
                     case 0xF4: h = 0x8F; break;
                     }
                 }
-
                 if (p[i] < l || p[i] > h) {
                     skip = i; goto invalid_utf8_sequence;
                 }
 
                 n = (n << 6) | (p[i] & 0x3f);
             }
-
-
             p += 1 + cont;
             c = n;
             goto add_char_nonext;
-
-
         invalid_utf8_sequence:
             tcc_warning("ill-formed UTF-8 subsequence starting with: \'\\x%x\'", c);
             c = 0xFFFD;
             p += skip;
             goto add_char_nonext;
-
         }
         p++;
     add_char_nonext:
         if (!is_long)
             cstr_ccat(outstr, c);
         else {
-# 2176 "tcc_src/tccpp.c"
             cstr_wccat(outstr, c);
-
         }
     }
-
     if (!is_long)
         cstr_ccat(outstr, '\0');
     else
