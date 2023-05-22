@@ -987,19 +987,7 @@ extern size_t strcspn (const char *__s, const char *__reject);
 extern size_t strspn (const char *__s, const char *__accept);
 extern char *strpbrk (const char *__s, const char *__accept);
 extern char *strstr (const char *__haystack, const char *__needle);
-extern char *strtok (char * __s, const char * __delim);
-extern char *__strtok_r (char * __s,
-			 const char * __delim,
-			 char ** __save_ptr);
-extern char *strtok_r (char * __s, const char * __delim,
-		       char ** __save_ptr);
-extern char *strcasestr (const char *__haystack, const char *__needle);
-extern void *memmem (const void *__haystack, size_t __haystacklen,
-		     const void *__needle, size_t __needlelen);
-extern void *__mempcpy (void * __dest,
-			const void * __src, size_t __n);
-extern void *mempcpy (void * __dest,
-		      const void * __src, size_t __n);
+
 extern size_t strlen (const char *__s);
 
 extern int *__errno_location (void);
