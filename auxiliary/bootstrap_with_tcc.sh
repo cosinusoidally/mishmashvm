@@ -1,5 +1,8 @@
 INCS="-I ../includes/tmp/tcc/lib/tcc/include/ -I ../includes/usr/include/i386-linux-gnu/  -I ../includes/usr/include/"
 
+cd ../libc_portable_proto
+./bootstrap_clean.sh
+
 cd ../tcc_js_bootstrap
 echo "build tcc_linux.exe"
 rm tcc_linux.exe
