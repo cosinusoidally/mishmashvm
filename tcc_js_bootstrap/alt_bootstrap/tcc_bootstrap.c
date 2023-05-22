@@ -5411,12 +5411,10 @@ static void parse_string(const char *s, int len)
         p = tcc_malloc(len + 1);
     memcpy(p, s, len);
     p[len] = 0;
-
     cstr_reset(&tokcstr);
     parse_escape_string(&tokcstr, p, is_long);
     if (p != buf)
         tcc_free(p);
-
     if (sep == '\'') {
         int char_size, i, n, c;
 
@@ -5446,10 +5444,6 @@ static void parse_string(const char *s, int len)
     }
 }
 
-
-
-
-
 static void bn_lshift(unsigned int *bn, int shift, int or_val)
 {
     int i;
@@ -5469,15 +5463,12 @@ static void bn_zero(unsigned int *bn)
     }
 }
 
-
-
 static void parse_number(const char *p)
 {
     int b, t, shift, frac_bits, s, exp_val, ch;
     char *q;
     unsigned int bn[2];
     double d;
-
 
     q = token_buf;
     ch = *p++;
@@ -5498,8 +5489,6 @@ static void parse_number(const char *p)
             b = 2;
         }
     }
-
-
     while (1) {
         if (ch >= 'a' && ch <= 'f')
             t = ch - 'a' + 10;
@@ -5522,11 +5511,6 @@ static void parse_number(const char *p)
         ((ch == 'e' || ch == 'E') && b == 10) ||
         ((ch == 'p' || ch == 'P') && (b == 16 || b == 2))) {
         if (b != 10) {
-
-
-
-
-
             *q = '\0';
             if (b == 16)
                 shift = 4;
@@ -5586,33 +5570,22 @@ static void parse_number(const char *p)
                 ch = *p++;
             }
             exp_val = exp_val * s;
-
-
-
             d = (double)bn[1] * 4294967296.0 + (double)bn[0];
             d = ldexp(d, exp_val - frac_bits);
             t = toup(ch);
             if (t == 'F') {
                 ch = *p++;
                 tok = 0xbb;
-
                 tokc.f = (float)d;
             } else if (t == 'L') {
                 ch = *p++;
-
-
-
-
                 tok = 0xbd;
-
                 tokc.ld = (long double)d;
-
             } else {
                 tok = 0xbc;
                 tokc.d = d;
             }
         } else {
-
             if (ch == '.') {
                 if (q >= token_buf + 1024)
                     goto num_too_long;
@@ -5648,21 +5621,14 @@ static void parse_number(const char *p)
             }
             *q = '\0';
             t = toup(ch);
-
-
             if (t == 'F') {
                 ch = *p++;
                 tok = 0xbb;
                 tokc.f = strtof(token_buf, ((void*)0));
             } else if (t == 'L') {
                 ch = *p++;
-
-
-
-
                 tok = 0xbd;
                 tokc.ld = strtold(token_buf, ((void*)0));
-
             } else {
                 tok = 0xbc;
                 tokc.d = strtod(token_buf, ((void*)0));
@@ -5672,8 +5638,6 @@ static void parse_number(const char *p)
         unsigned long long n, n1;
         int lcount, ucount, ov = 0;
         const char *p1;
-
-
         *q = '\0';
         q = token_buf;
         if (b == 10 && *q == '0') {
@@ -5683,7 +5647,6 @@ static void parse_number(const char *p)
         n = 0;
         while(1) {
             t = *q++;
-
             if (t == '\0')
                 break;
             else if (t >= 'a')
@@ -5696,13 +5659,9 @@ static void parse_number(const char *p)
                 tcc_error("invalid digit");
             n1 = n;
             n = n * b + t;
-
             if (n1 >= 0x1000000000000000ULL && n / b != n1)
                 ov = 1;
         }
-
-
-
         lcount = ucount = 0;
         p1 = p;
         for(;;) {
@@ -5723,8 +5682,6 @@ static void parse_number(const char *p)
                 break;
             }
         }
-
-
         if (ucount == 0 && b == 10) {
             if (lcount <= (4 == 4)) {
                 if (n >= 0x80000000U)
@@ -5742,10 +5699,8 @@ static void parse_number(const char *p)
             if (n >= 0x8000000000000000ULL)
                 ucount = 1;
         }
-
         if (ov)
             tcc_warning("integer constant overflow");
-
         tok = 0xb5;
 	if (lcount) {
             tok = 0xce;
@@ -5759,14 +5714,13 @@ static void parse_number(const char *p)
     if (ch)
         tcc_error("invalid number\n");
 }
-# 2562 "tcc_src/tccpp.c"
+
 static inline void next_nomacro1(void)
 {
     int t, c, is_long, len;
     TokenSym *ts;
     uint8_t *p, *p1;
     unsigned int h;
-
     p = file->buf_ptr;
  redo_no_start:
     c = *p;
@@ -5786,7 +5740,6 @@ static inline void next_nomacro1(void)
         p++;
         goto redo_no_start;
     case '\\':
-
         c = handle_stray1(p);
         p = file->buf_ptr;
         if (c == '\\')
@@ -5809,24 +5762,14 @@ static inline void next_nomacro1(void)
                 tok = (-1);
             } else {
                 tok_flags &= ~0x0008;
-
-
-
-
                 if (tok_flags & 0x0004) {
-
-
-
                     search_cached_include(s1, file->filename, 1)
                         ->ifndef_macro = file->ifndef_macro_saved;
                     tok_flags &= ~0x0004;
                 }
-
-
                 if (tcc_state->do_debug) {
                     put_stabd(N_EINCL, 0, 0);
                 }
-
                 tcc_close();
                 s1->include_stack_ptr--;
                 p = file->buf_ptr;
@@ -5836,7 +5779,6 @@ static inline void next_nomacro1(void)
             }
         }
         break;
-
     case '\n':
         file->line_num++;
         tok_flags |= 0x0001;
@@ -5846,9 +5788,7 @@ maybe_newline:
             goto redo_no_start;
         tok = 10;
         goto keep_tok_flags;
-
     case '#':
-
         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
         if ((tok_flags & 0x0001) &&
             (parse_flags & 0x0001)) {
@@ -5870,13 +5810,10 @@ maybe_newline:
             }
         }
         break;
-
-
     case '$':
         if (!(isidnum_table[c - (-1)] & 2)
          || (parse_flags & 0x0008))
             goto parse_simple;
-
     case 'a': case 'b': case 'c': case 'd':
     case 'e': case 'f': case 'g': case 'h':
     case 'i': case 'j': case 'k': case 'l':
@@ -5901,9 +5838,6 @@ maybe_newline:
         len = p - p1;
         if (c != '\\') {
             TokenSym **pts;
-
-
-
             h &= (16384 - 1);
             pts = &hash_ident[h];
             for(;;) {
@@ -5917,7 +5851,6 @@ maybe_newline:
             ts = tok_alloc_new(pts, (char *) p1, len);
         token_found: ;
         } else {
-
             cstr_reset(&tokcstr);
             cstr_cat(&tokcstr, (char *) p1, len);
             p--;
@@ -5935,7 +5868,6 @@ maybe_newline:
     case 'L':
         t = p[1];
         if (t != '\\' && t != '\'' && t != '\"') {
-
             goto parse_ident_fast;
         } else {
             { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
@@ -5949,14 +5881,11 @@ maybe_newline:
             }
         }
         break;
-
     case '0': case '1': case '2': case '3':
     case '4': case '5': case '6': case '7':
     case '8': case '9':
         t = c;
         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
-
-
     parse_num:
         cstr_reset(&tokcstr);
         for(;;) {
@@ -5966,7 +5895,6 @@ maybe_newline:
                   || ((c == '+' || c == '-')
                       && (((t == 'e' || t == 'E')
                             && !(parse_flags & 0x0008
-
                                 && ((char*)tokcstr.data)[0] == '0'
                                 && toup(((char*)tokcstr.data)[1]) == 'X'))
                           || t == 'p' || t == 'P'))))
@@ -5974,15 +5902,12 @@ maybe_newline:
             t = c;
             { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
         }
-
         cstr_ccat(&tokcstr, '\0');
         tokc.str.size = tokcstr.size;
         tokc.str.data = tokcstr.data;
         tok = 0xbe;
         break;
-
     case '.':
-
         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
         if (isnum(c)) {
             t = '.';
@@ -6019,7 +5944,6 @@ maybe_newline:
         tokc.str.data = tokcstr.data;
         tok = 0xbf;
         break;
-
     case '<':
         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
         if (c == '=') {
@@ -6054,7 +5978,6 @@ maybe_newline:
             tok = 0x9f;
         }
         break;
-
     case '&':
         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
         if (c == '&') {
@@ -6067,7 +5990,6 @@ maybe_newline:
             tok = '&';
         }
         break;
-
     case '|':
         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
         if (c == '|') {
@@ -6080,7 +6002,6 @@ maybe_newline:
             tok = '|';
         }
         break;
-
     case '+':
         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
         if (c == '+') {
@@ -6093,7 +6014,6 @@ maybe_newline:
             tok = '+';
         }
         break;
-
     case '-':
         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
         if (c == '-') {
@@ -6109,19 +6029,15 @@ maybe_newline:
             tok = '-';
         }
         break;
-
     case '!': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0x95; } else { tok = '!'; } break;
     case '=': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0x94; } else { tok = '='; } break;
     case '*': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0xaa; } else { tok = '*'; } break;
     case '%': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0xa5; } else { tok = '%'; } break;
     case '^': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0xde; } else { tok = '^'; } break;
-
-
     case '/':
         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
         if (c == '*') {
             p = parse_comment(p);
-
             tok = ' ';
             goto keep_tok_flags;
         } else if (c == '/') {
@@ -6135,8 +6051,6 @@ maybe_newline:
             tok = '/';
         }
         break;
-
-
     case '(':
     case ')':
     case '[':
@@ -6164,12 +6078,7 @@ maybe_newline:
     tok_flags = 0;
 keep_tok_flags:
     file->buf_ptr = p;
-
-
-
 }
-
-
 
 static void next_nomacro_spc(void)
 {
@@ -6196,14 +6105,11 @@ static void next_nomacro(void)
     } while (tok < 256 && (isidnum_table[tok - (-1)] & 1));
 }
 
-
 static void macro_subst(
     TokenString *tok_str,
     Sym **nested_list,
     const int *macro_str
     );
-
-
 
 static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
 {
@@ -6213,7 +6119,6 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
     CValue cval;
     TokenString str;
     CString cstr;
-
     tok_str_new(&str);
     t0 = t1 = 0;
     while(1) {
@@ -6221,7 +6126,6 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
         if (!t)
             break;
         if (t == '#') {
-
             TOK_GET(&t, &macro_str, &cval);
             if (!t)
                 goto bad_stringy;
@@ -6249,10 +6153,6 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
                 cstr.size -= spc;
                 cstr_ccat(&cstr, '\"');
                 cstr_ccat(&cstr, '\0');
-
-
-
-
                 cval.str.size = cstr.size;
                 cval.str.data = cstr.data;
                 tok_str_add2(&str, 0xbf, &cval);
@@ -6266,16 +6166,12 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
             if (s) {
                 int l0 = str.len;
                 st = s->d;
-
                 if (*macro_str == 0xcd || t1 == 0xcd) {
-
-
                     if (t1 == 0xcd && t0 == ',' && gnu_ext && s->type.t) {
                         if (*st <= 0) {
 
                             str.len -= 2;
                         } else {
-
                             str.len--;
                             goto add_var;
                         }
@@ -6283,10 +6179,6 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
                 } else {
             add_var:
 		    if (!s->next) {
-
-
-
-
 			TokenString str2;
 			sym_push2(&s->next, s->v, s->type.t, 0);
 			tok_str_new(&str2);
@@ -6327,7 +6219,6 @@ static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2)
 {
     CString cstr;
     int n, ret = 1;
-
     cstr_new(&cstr);
     if (t1 != 0xcb)
         cstr_cat(&cstr, get_tok_str(t1, v1), -1);
@@ -6335,7 +6226,6 @@ static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2)
     if (t2 != 0xcb)
         cstr_cat(&cstr, get_tok_str(t2, v2), -1);
     cstr_ccat(&cstr, '\0');
-
     tcc_open_bf(tcc_state, ":paste:", cstr.size);
     memcpy(file->buffer, cstr.data, cstr.size);
     tok_flags = 0;
@@ -6351,12 +6241,9 @@ static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2)
         break;
     }
     tcc_close();
-
     cstr_free(&cstr);
     return ret;
 }
-
-
 
 static inline int *macro_twosharps(const int *ptr0)
 {
