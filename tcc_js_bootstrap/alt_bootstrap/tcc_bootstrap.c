@@ -1020,27 +1020,6 @@ extern char *stpncpy (char * __dest,
 
 extern int *__errno_location (void);
 
-typedef int error_t;
-typedef long double float_t;
-typedef long double double_t;
-enum
-  {
-    FP_INT_UPWARD = 0,
-    FP_INT_DOWNWARD = 1,
-    FP_INT_TOWARDZERO = 2,
-    FP_INT_TONEARESTFROMZERO = 3,
-    FP_INT_TONEAREST = 4,
-  };
-
-enum
-  {
-    FP_NAN = 0,
-    FP_INFINITE = 1,
-    FP_ZERO = 2,
-    FP_SUBNORMAL = 3,
-    FP_NORMAL = 4
-  };
-
 extern int open (const char *__file, int __oflag, ...) ;
 extern int openat (int __fd, const char *__file, int __oflag, ...) ;
 
