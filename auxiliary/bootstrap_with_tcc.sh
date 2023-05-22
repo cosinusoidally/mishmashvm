@@ -9,7 +9,7 @@ rm tcc_linux.exe
 rm libtcc1.o
 set -e
 tcc_bootstrap.exe -nostdinc -nostdlib -c tcc_src/lib/libtcc1.c -o libtcc1.o
-tcc_bootstrap.exe -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a ../../tcc_bootstrap/tcc_bootstrap.c -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl
+tcc_bootstrap.exe -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a ./alt_bootstrap/tcc_bootstrap.c -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl
 chmod +x tcc_linux.exe
 
 echo "build tcc_boot3.o"
