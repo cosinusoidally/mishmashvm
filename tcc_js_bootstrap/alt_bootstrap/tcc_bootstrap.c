@@ -1001,22 +1001,6 @@ extern void *__mempcpy (void * __dest,
 extern void *mempcpy (void * __dest,
 		      const void * __src, size_t __n);
 extern size_t strlen (const char *__s);
-extern size_t strnlen (const char *__string, size_t __maxlen);
-
-extern int strcasecmp (const char *__s1, const char *__s2);
-extern int strncasecmp (const char *__s1, const char *__s2, size_t __n);
-extern int strcasecmp_l (const char *__s1, const char *__s2, locale_t __loc);
-extern int strncasecmp_l (const char *__s1, const char *__s2,
-			  size_t __n, locale_t __loc);
-extern char *strsep (char ** __stringp,
-		     const char * __delim);
-extern char *strsignal (int __sig);
-extern char *__stpcpy (char * __dest, const char * __src);
-extern char *stpcpy (char * __dest, const char * __src);
-extern char *__stpncpy (char * __dest,
-			const char * __src, size_t __n);
-extern char *stpncpy (char * __dest,
-		      const char * __src, size_t __n);
 
 extern int *__errno_location (void);
 
