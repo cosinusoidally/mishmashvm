@@ -1041,33 +1041,8 @@ enum
     FP_NORMAL = 4
   };
 
-extern int __iscanonicall (long double __x) ;
-
-struct stat
-  {
-    __dev_t st_dev;
-    unsigned short int __pad1;
-    __ino_t st_ino;
-    __mode_t st_mode;
-    __nlink_t st_nlink;
-    __uid_t st_uid;
-    __gid_t st_gid;
-    __dev_t st_rdev;
-    unsigned short int __pad2;
-    __off_t st_size;
-    __blksize_t st_blksize;
-    __blkcnt_t st_blocks;
-    struct timespec st_atim;
-    struct timespec st_mtim;
-    struct timespec st_ctim;
-    unsigned long int __glibc_reserved4;
-    unsigned long int __glibc_reserved5;
-  };
-
-extern int fcntl (int __fd, int __cmd, ...);
 extern int open (const char *__file, int __oflag, ...) ;
 extern int openat (int __fd, const char *__file, int __oflag, ...) ;
-extern int creat (const char *__file, mode_t __mode) ;
 
 struct tm
 {
