@@ -621,86 +621,12 @@ extern void *bsearch (const void *__key, const void *__base,
 		      size_t __nmemb, size_t __size, __compar_fn_t __compar);
 extern void qsort (void *__base, size_t __nmemb, size_t __size,
 		   __compar_fn_t __compar);
-extern void qsort_r (void *__base, size_t __nmemb, size_t __size,
-		     __compar_d_fn_t __compar, void *__arg);
-extern int abs (int __x);
-extern long int labs (long int __x);
-extern long long int llabs (long long int __x);
-extern div_t div (int __numer, int __denom);
-extern ldiv_t ldiv (long int __numer, long int __denom);
-extern lldiv_t lldiv (long long int __numer,
-				    long long int __denom);
-extern char *ecvt (double __value, int __ndigit, int * __decpt,
-		   int * __sign);
-extern char *fcvt (double __value, int __ndigit, int * __decpt,
-		   int * __sign);
-extern char *gcvt (double __value, int __ndigit, char *__buf);
-extern char *qecvt (long double __value, int __ndigit,
-		    int * __decpt, int * __sign);
-extern char *qfcvt (long double __value, int __ndigit,
-		    int * __decpt, int * __sign);
-extern char *qgcvt (long double __value, int __ndigit, char *__buf);
-extern int ecvt_r (double __value, int __ndigit, int * __decpt,
-		   int * __sign, char * __buf,
-		   size_t __len);
-extern int fcvt_r (double __value, int __ndigit, int * __decpt,
-		   int * __sign, char * __buf,
-		   size_t __len);
-extern int qecvt_r (long double __value, int __ndigit,
-		    int * __decpt, int * __sign,
-		    char * __buf, size_t __len);
-extern int qfcvt_r (long double __value, int __ndigit,
-		    int * __decpt, int * __sign,
-		    char * __buf, size_t __len);
-extern int mblen (const char *__s, size_t __n);
-extern int mbtowc (wchar_t * __pwc,
-		   const char * __s, size_t __n);
-extern int wctomb (char *__s, wchar_t __wchar);
-extern size_t mbstowcs (wchar_t *  __pwcs,
-			const char * __s, size_t __n);
-extern size_t wcstombs (char * __s,
-			const wchar_t * __pwcs, size_t __n);
-extern int rpmatch (const char *__response);
-extern int getsubopt (char ** __optionp,
-		      char *const * __tokens,
-		      char ** __valuep);
-extern void setkey (const char *__key);
-extern int posix_openpt (int __oflag);
-extern int grantpt (int __fd);
-extern int unlockpt (int __fd);
-extern char *ptsname (int __fd);
-extern int ptsname_r (int __fd, char *__buf, size_t __buflen);
-extern int getpt (void);
-extern int getloadavg (double __loadavg[], int __nelem);
 
-struct _IO_FILE;
-typedef struct _IO_FILE __FILE;
-struct _IO_FILE;
+// LJW_END
+
 typedef struct _IO_FILE FILE;
-typedef struct
-{
-  int __count;
-  union
-  {
-    unsigned int __wch;
-    char __wchb[4];
-  } __value;
-} __mbstate_t;
-
-typedef struct
-{
-  __off_t __pos;
-  __mbstate_t __state;
-} _G_fpos_t;
-typedef struct
-{
-  __off64_t __pos;
-  __mbstate_t __state;
-} _G_fpos64_t;
 typedef char *va_list;
 typedef va_list __gnuc_va_list;
-struct _IO_jump_t;  struct _IO_FILE;
-
 extern struct _IO_FILE *stdin;
 extern struct _IO_FILE *stdout;
 extern struct _IO_FILE *stderr;
@@ -729,9 +655,6 @@ extern size_t fread (void * __ptr, size_t __size,
 		     size_t __n, FILE * __stream);
 extern size_t fwrite (const void * __ptr, size_t __size,
 		      size_t __n, FILE * __s);
-
-// LJW_END
-
 extern int fseek (FILE *__stream, long int __off, int __whence);
 extern long int ftell (FILE *__stream);
 extern void *memcpy (void * __dest, const void * __src,
