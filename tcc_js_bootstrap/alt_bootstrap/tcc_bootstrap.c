@@ -672,7 +672,6 @@ extern char *strstr (const char *__haystack, const char *__needle);
 extern size_t strlen (const char *__s);
 extern int *__errno_location (void);
 extern int open (const char *__file, int __oflag, ...) ;
-extern int openat (int __fd, const char *__file, int __oflag, ...) ;
 struct tm
 {
   int tm_sec;
