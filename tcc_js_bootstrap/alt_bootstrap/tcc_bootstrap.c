@@ -6245,6 +6245,7 @@ static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2)
     return ret;
 }
 
+// LJW BOOKMARK
 static inline int *macro_twosharps(const int *ptr0)
 {
     int t;
@@ -6252,8 +6253,6 @@ static inline int *macro_twosharps(const int *ptr0)
     TokenString macro_str1;
     int start_of_nosubsts = -1;
     const int *ptr;
-
-
     for (ptr = ptr0;;) {
         TOK_GET(&t, &ptr, &cval);
         if (t == 0xcd)
@@ -6261,10 +6260,7 @@ static inline int *macro_twosharps(const int *ptr0)
         if (t == 0)
             return ((void*)0);
     }
-
     tok_str_new(&macro_str1);
-
-
     for (ptr = ptr0;;) {
         TOK_GET(&t, &ptr, &cval);
         if (t == 0)
@@ -6273,12 +6269,9 @@ static inline int *macro_twosharps(const int *ptr0)
             continue;
         while (*ptr == 0xcd) {
             int t1; CValue cv1;
-
             if (start_of_nosubsts >= 0)
                 macro_str1.len = start_of_nosubsts;
-
-            while ((t1 = *++ptr) == 0xcc)
-                ;
+            while ((t1 = *++ptr) == 0xcc) ;
             if (t1 && t1 != 0xcd) {
                 TOK_GET(&t1, &ptr, &cv1);
                 if (t != 0xcb || t1 != 0xcb) {
@@ -6300,11 +6293,8 @@ static inline int *macro_twosharps(const int *ptr0)
         tok_str_add2(&macro_str1, t, &cval);
     }
     tok_str_add(&macro_str1, 0);
-
     return macro_str1.str;
 }
-
-
 
 static int next_argstream(Sym **nested_list, TokenString *ws_str)
 {
@@ -6321,7 +6311,6 @@ static int next_argstream(Sym **nested_list, TokenString *ws_str)
             }
             if (t == 0) {
                 end_macro();
-
                 sa = *nested_list;
                 while (sa && sa->v == 0)
                     sa = sa->prev;
@@ -6356,17 +6345,12 @@ static int next_argstream(Sym **nested_list, TokenString *ws_str)
             }
             t = ch;
         }
-
         if (ws_str)
             return t;
         next_nomacro_spc();
         return tok;
     }
 }
-
-
-
-
 
 static int macro_subst_tok(
     TokenString *tok_str,
@@ -6380,9 +6364,6 @@ static int macro_subst_tok(
     CValue cval;
     CString cstr;
     char buf[32];
-
-
-
     if (tok == TOK___LINE__ || tok == TOK___COUNTER__) {
         t = tok == TOK___LINE__ ? file->line_num : pp_counter++;
         snprintf(buf, sizeof(buf), "%d", t);
@@ -6419,23 +6400,14 @@ static int macro_subst_tok(
         int saved_parse_flags = parse_flags;
 	int *joined_str = ((void*)0);
         int *mstr = s->d;
-
         if (s->type.t == 1) {
-
             TokenString ws_str;
             tok_str_new(&ws_str);
-
             spc = 0;
             parse_flags |= 0x0010 | 0x0004
                 | 0x0020;
-
-
             t = next_argstream(nested_list, &ws_str);
             if (t != '(') {
-
-
-
-
                 parse_flags = saved_parse_flags;
                 tok_str_add(tok_str, tok);
                 if (parse_flags & 0x0010) {
@@ -6451,17 +6423,13 @@ static int macro_subst_tok(
 	    do {
 		next_nomacro();
 	    } while (tok == 0xcb);
-
-
             args = ((void*)0);
             sa = s->next;
-
             for(;;) {
                 do {
                     next_argstream(nested_list, ((void*)0));
                 } while (is_space(tok) || 10 == tok);
     empty_arg:
-
                 if (!args && !sa && tok == ')')
                     break;
                 if (!sa)
@@ -6469,7 +6437,6 @@ static int macro_subst_tok(
                           get_tok_str(s->v, 0));
                 tok_str_new(&str);
                 parlevel = spc = 0;
-
                 while ((parlevel > 0 ||
                         (tok != ')' &&
                          (tok != ',' || sa->type.t)))) {
@@ -6494,8 +6461,6 @@ static int macro_subst_tok(
                 sa1->d = str.str;
                 sa = sa->next;
                 if (tok == ')') {
-
-
                     if (sa && sa->type.t && gnu_ext)
                         goto empty_arg;
                     break;
@@ -6507,12 +6472,8 @@ static int macro_subst_tok(
                 tcc_error("macro '%s' used with too few args",
                       get_tok_str(s->v, 0));
             }
-
             parse_flags = saved_parse_flags;
-
-
             mstr = macro_arg_subst(nested_list, mstr, args);
-
             sa = args;
             while (sa) {
                 sa1 = sa->prev;
@@ -6525,13 +6486,10 @@ static int macro_subst_tok(
                 sa = sa1;
             }
         }
-
         sym_push2(nested_list, s->v, 0, 0);
         parse_flags = saved_parse_flags;
         joined_str = macro_twosharps(mstr);
         macro_subst(tok_str, nested_list, joined_str ? joined_str : mstr);
-
-
         sa1 = *nested_list;
         *nested_list = sa1->prev;
         sym_free(sa1);
@@ -6543,9 +6501,7 @@ static int macro_subst_tok(
     return 0;
 }
 
-
-
-
+// LJW BOOKMARK
 static void macro_subst(
     TokenString *tok_str,
     Sym **nested_list,
