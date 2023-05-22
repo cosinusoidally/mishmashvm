@@ -1068,17 +1068,6 @@ extern int fcntl (int __fd, int __cmd, ...);
 extern int open (const char *__file, int __oflag, ...) ;
 extern int openat (int __fd, const char *__file, int __oflag, ...) ;
 extern int creat (const char *__file, mode_t __mode) ;
-typedef int __jmp_buf[6];
-struct __jmp_buf_tag
-  {
-    __jmp_buf __jmpbuf;
-    int __mask_was_saved;
-    __sigset_t __saved_mask;
-  };
-typedef struct __jmp_buf_tag jmp_buf[1];
-extern int setjmp (jmp_buf __env) ;
-extern int _setjmp (struct __jmp_buf_tag __env[1]) ;
-extern void longjmp (struct __jmp_buf_tag __env[1], int __val) ;
 
 struct tm
 {
@@ -1095,14 +1084,8 @@ struct tm
   const char *tm_zone;
 };
 
-extern int chown (const char *__file, __uid_t __owner, __gid_t __group) ;
-extern int chdir (const char *__path)   ;
 extern char *getcwd (char *__buf, size_t __size)  ;
-extern char *get_current_dir_name (void) ;
-extern char *getwd (char *__buf) ;
 extern int unlink (const char *__name)  ;
-
-extern int truncate (const char *__file, __off_t __length) ;
 
 extern float strtof (const char *__nptr, char **__endptr);
 extern long double strtold (const char *__nptr, char **__endptr);
@@ -1893,7 +1876,6 @@ struct TCCState {
     void *error_opaque;
     void (*error_func)(void *opaque, const char *msg);
     int error_set_jmp_enabled;
-    jmp_buf error_jmp_buf;
     int nb_errors;
 
     FILE *ppfp;
@@ -22923,13 +22905,7 @@ static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap)
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
     error1(s1, 0, fmt, ap);
     ;
-
-    if (s1->error_set_jmp_enabled) {
-        longjmp(s1->error_jmp_buf, 1);
-    } else {
-
-        exit(1);
-    }
+    exit(1);
 }
 
  void tcc_warning(const char *fmt, ...)
