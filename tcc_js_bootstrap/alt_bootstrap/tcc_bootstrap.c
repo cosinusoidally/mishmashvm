@@ -911,67 +911,20 @@ extern size_t fread_unlocked (void * __ptr, size_t __size,
 			      size_t __n, FILE * __stream);
 extern size_t fwrite_unlocked (const void * __ptr, size_t __size,
 			       size_t __n, FILE * __stream);
-extern int fseek (FILE *__stream, long int __off, int __whence);
-extern long int ftell (FILE *__stream);
-extern void rewind (FILE *__stream);
-extern int fseeko (FILE *__stream, __off_t __off, int __whence);
-extern __off_t ftello (FILE *__stream);
-extern int fgetpos (FILE * __stream, fpos_t * __pos);
-extern int fsetpos (FILE *__stream, const fpos_t *__pos);
-extern int fseeko64 (FILE *__stream, __off64_t __off, int __whence);
-extern __off64_t ftello64 (FILE *__stream);
-extern int fgetpos64 (FILE * __stream, fpos64_t * __pos);
-extern int fsetpos64 (FILE *__stream, const fpos64_t *__pos);
-extern void clearerr (FILE *__stream);
-extern int feof (FILE *__stream);
-extern int ferror (FILE *__stream);
-extern void clearerr_unlocked (FILE *__stream);
-extern int feof_unlocked (FILE *__stream);
-extern int ferror_unlocked (FILE *__stream);
-extern void perror (const char *__s);
-extern int sys_nerr;
-extern const char *const sys_errlist[];
-extern int _sys_nerr;
-extern const char *const _sys_errlist[];
-extern int fileno (FILE *__stream);
-extern int fileno_unlocked (FILE *__stream);
-extern FILE *popen (const char *__command, const char *__modes);
-extern int pclose (FILE *__stream);
-extern char *ctermid (char *__s);
-extern char *cuserid (char *__s);
-struct obstack;
-extern int obstack_printf (struct obstack * __obstack,
-			   const char * __format, ...);
-extern int obstack_vprintf (struct obstack * __obstack,
-			    const char * __format,
-			    __gnuc_va_list __args);
-extern void flockfile (FILE *__stream);
-extern int ftrylockfile (FILE *__stream);
-extern void funlockfile (FILE *__stream);
-
-
 
 // LJW_END
 
-
+extern int fseek (FILE *__stream, long int __off, int __whence);
+extern long int ftell (FILE *__stream);
 extern void *memcpy (void * __dest, const void * __src,
 		     size_t __n);
 extern void *memmove (void *__dest, const void *__src, size_t __n);
-extern void *memccpy (void * __dest, const void * __src,
-		      int __c, size_t __n);
 extern void *memset (void *__s, int __c, size_t __n);
 extern int memcmp (const void *__s1, const void *__s2, size_t __n);
-extern void *memchr (const void *__s, int __c, size_t __n);
-extern void *rawmemchr (const void *__s, int __c);
-extern void *memrchr (const void *__s, int __c, size_t __n);
 extern char *strcpy (char * __dest, const char * __src);
-
 extern char *strcat (char * __dest, const char * __src);
-
 extern int strcmp (const char *__s1, const char *__s2);
-
 extern int strncmp (const char *__s1, const char *__s2, size_t __n);
-
 extern char *strchr (const char *__s, int __c);
 extern char *strrchr (const char *__s, int __c);
 extern char *strstr (const char *__haystack, const char *__needle);
