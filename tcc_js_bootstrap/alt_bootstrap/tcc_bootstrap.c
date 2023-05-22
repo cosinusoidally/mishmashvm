@@ -4,23 +4,15 @@ typedef int wchar_t;
 typedef int ptrdiff_t;
 typedef int intptr_t;
 typedef unsigned int uintptr_t;
-
 typedef signed char int8_t;
 typedef signed short int int16_t;
 typedef signed int int32_t;
-
 typedef signed long long int int64_t;
-
 typedef unsigned char uint8_t;
 typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
-
-
-
 typedef unsigned long long int uint64_t;
-
 void *alloca(size_t size);
-
 typedef enum
 {
   P_ALL,
@@ -31,70 +23,48 @@ typedef float _Float32;
 typedef double _Float64;
 typedef double _Float32x;
 typedef long double _Float64x;
-
 typedef struct
-  {
+{
     int quot;
     int rem;
-  } div_t;
-
-
-
+} div_t;
 typedef struct
-  {
+{
     long int quot;
     long int rem;
-  } ldiv_t;
-
- typedef struct
-  {
+} ldiv_t;
+typedef struct
+{
     long long int quot;
     long long int rem;
-  } lldiv_t;
-
+} lldiv_t;
 extern size_t __ctype_get_mb_cur_max (void);
-
 extern double atof (const char *__nptr);
-
 extern int atoi (const char *__nptr);
-
 extern long int atol (const char *__nptr);
-
 extern long long int atoll (const char *__nptr);
-
 extern double strtod (const char * __nptr,
 		      char ** __endptr);
-
 extern float strtof (const char * __nptr,
 		     char ** __endptr);
-
 extern long double strtold (const char * __nptr,
 			    char ** __endptr);
-
 extern _Float32 strtof32 (const char * __nptr,
 			  char ** __endptr);
-
 extern _Float64 strtof64 (const char * __nptr,
 			  char ** __endptr);
-
 extern _Float32x strtof32x (const char * __nptr,
 			    char ** __endptr);
-
 extern _Float64x strtof64x (const char * __nptr,
 			    char ** __endptr);
-
 extern long int strtol (const char * __nptr,
 			char ** __endptr, int __base);
-
 extern unsigned long int strtoul (const char * __nptr,
 				  char ** __endptr, int __base);
-
 extern long long int strtoq (const char * __nptr,
 			     char ** __endptr, int __base);
-
 extern unsigned long long int strtouq (const char * __nptr,
 				       char ** __endptr, int __base);
-
 extern long long int strtoll (const char * __nptr,
 			      char ** __endptr, int __base);
 
