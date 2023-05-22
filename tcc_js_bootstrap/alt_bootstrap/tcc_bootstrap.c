@@ -1128,25 +1128,6 @@ typedef unsigned int		uint_fast16_t;
 typedef unsigned int		uint_fast32_t;
 typedef unsigned long long int	uint_fast64_t;
 typedef unsigned int		uintptr_t;
-typedef __intmax_t		intmax_t;
-typedef __uintmax_t		uintmax_t;
-typedef int __gwchar_t;
-typedef struct
-  {
-     long long int quot;
-     long long int rem;
-  } imaxdiv_t;
-extern intmax_t imaxabs (intmax_t __n)  ;
-extern imaxdiv_t imaxdiv (intmax_t __numer, intmax_t __denom)
-       ;
-extern intmax_t strtoimax (const char * __nptr,
-			   char ** __endptr, int __base) ;
-extern uintmax_t strtoumax (const char * __nptr,
-			    char **  __endptr, int __base) ;
-extern intmax_t wcstoimax (const __gwchar_t * __nptr,
-			   __gwchar_t ** __endptr, int __base) ;
-extern uintmax_t wcstoumax (const __gwchar_t * __nptr,
-			    __gwchar_t **  __endptr, int __base) ;
 
 // START TCC code
 
