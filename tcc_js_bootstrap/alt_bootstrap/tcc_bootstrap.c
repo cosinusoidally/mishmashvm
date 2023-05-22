@@ -594,25 +594,8 @@ extern void exit (int __status);
 extern void quick_exit (int __status);
 extern void _Exit (int __status);
 extern char *getenv (const char *__name);
-extern char *secure_getenv (const char *__name);
-extern int putenv (char *__string);
-extern int setenv (const char *__name, const char *__value, int __replace);
-extern int unsetenv (const char *__name);
-extern int clearenv (void);
-extern char *mktemp (char *__template);
-extern int mkstemp (char *__template);
-extern int mkstemp64 (char *__template);
-extern int mkstemps (char *__template, int __suffixlen);
-extern int mkstemps64 (char *__template, int __suffixlen);
-extern char *mkdtemp (char *__template);
-extern int mkostemp (char *__template, int __flags);
-extern int mkostemp64 (char *__template, int __flags);
-extern int mkostemps (char *__template, int __suffixlen, int __flags);
-extern int mkostemps64 (char *__template, int __suffixlen, int __flags);
-extern int system (const char *__command);
-extern char *canonicalize_file_name (const char *__name);
-extern char *realpath (const char * __name,
-		       char * __resolved);
+
+// LJW_END
 
 typedef int (*__compar_fn_t) (const void *, const void *);
 typedef __compar_fn_t comparison_fn_t;
@@ -621,9 +604,6 @@ extern void *bsearch (const void *__key, const void *__base,
 		      size_t __nmemb, size_t __size, __compar_fn_t __compar);
 extern void qsort (void *__base, size_t __nmemb, size_t __size,
 		   __compar_fn_t __compar);
-
-// LJW_END
-
 typedef struct _IO_FILE FILE;
 typedef char *va_list;
 typedef va_list __gnuc_va_list;
