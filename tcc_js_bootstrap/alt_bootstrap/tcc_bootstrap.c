@@ -197,70 +197,15 @@ typedef int __key_t;
 
 typedef int __clockid_t;
 
-typedef void * __timer_t;
-
-typedef long int __blksize_t;
-
-typedef long int __blkcnt_t;
-typedef __quad_t __blkcnt64_t;
-
-typedef unsigned long int __fsblkcnt_t;
-typedef __u_quad_t __fsblkcnt64_t;
-
-typedef unsigned long int __fsfilcnt_t;
-typedef __u_quad_t __fsfilcnt64_t;
-
-typedef int __fsword_t;
-
-typedef int __ssize_t;
-
-typedef long int __syscall_slong_t;
-
-typedef unsigned long int __syscall_ulong_t;
-
-typedef __off64_t __loff_t;
-typedef char *__caddr_t;
-
-typedef int __intptr_t;
-
-typedef unsigned int __socklen_t;
-
-typedef int __sig_atomic_t;
-
-typedef __u_char u_char;
-typedef __u_short u_short;
-typedef __u_int u_int;
-typedef __u_long u_long;
-typedef __quad_t quad_t;
-typedef __u_quad_t u_quad_t;
-typedef __fsid_t fsid_t;
-
-typedef __loff_t loff_t;
-typedef __ino_t ino_t;
-typedef __ino64_t ino64_t;
-typedef __dev_t dev_t;
-typedef __gid_t gid_t;
-typedef __mode_t mode_t;
-typedef __nlink_t nlink_t;
-typedef __uid_t uid_t;
-typedef __off_t off_t;
-typedef __off64_t off64_t;
-typedef __pid_t pid_t;
-typedef __id_t id_t;
-typedef __ssize_t ssize_t;
-typedef __daddr_t daddr_t;
-typedef __caddr_t caddr_t;
-typedef __key_t key_t;
-
-typedef __clock_t clock_t;
-typedef __clockid_t clockid_t;
-typedef __time_t time_t;
-typedef __timer_t timer_t;
-typedef __useconds_t useconds_t;
-typedef __suseconds_t suseconds_t;
 
 // LJW_END
 
+typedef int __ssize_t;
+typedef long int __syscall_slong_t;
+typedef int __sig_atomic_t;
+typedef __mode_t mode_t;
+typedef __ssize_t ssize_t;
+typedef __time_t time_t;
 typedef __int8_t int8_t;
 typedef __int16_t int16_t;
 typedef __int32_t int32_t;
