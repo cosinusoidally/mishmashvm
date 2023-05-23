@@ -1148,7 +1148,6 @@ struct TCCState {
     char *outfile;
     int option_r;
     int do_bench;
-    char *deps_outfile;
     int option_pthread;
     int argc;
     char **argv;
@@ -22071,7 +22070,6 @@ static void tcc_cleanup(void)
     tcc_free(s1->init_symbol);
     tcc_free(s1->fini_symbol);
     tcc_free(s1->outfile);
-    tcc_free(s1->deps_outfile);
     dynarray_reset(&s1->files, &s1->nb_files);
     dynarray_reset(&s1->target_deps, &s1->nb_target_deps);
     dynarray_reset(&s1->pragma_libs, &s1->nb_pragma_libs);
@@ -22750,10 +22748,6 @@ exit(1);
 exit(1);
             s->Pflag = atoi(optarg) + 1;
             break;
-        case TCC_OPTION_MF:
-exit(1);
-            s->deps_outfile = tcc_strdup(optarg);
-            break;
         case TCC_OPTION_dumpversion:
             printf ("%s\n", "0.9.27");
             exit(0);
@@ -22772,29 +22766,6 @@ exit(1);
         case TCC_OPTION_O:
             last_o = atoi(optarg);
             break;
-        case TCC_OPTION_print_search_dirs:
-exit(1);
-            x = 4;
-            goto extra_action;
-        case TCC_OPTION_impdef:
-exit(1);
-            x = 6;
-            goto extra_action;
-        case TCC_OPTION_ar:
-exit(1);
-            x = 5;
-        extra_action:
-            arg_start = optind - 1;
-            if (arg_start != noaction)
-                tcc_error("cannot parse %s here", r);
-            tool = x;
-            break;
-        case TCC_OPTION_traditional:
-        case TCC_OPTION_pedantic:
-        case TCC_OPTION_pipe:
-        case TCC_OPTION_s:
-exit(1);
-            break;
         default:
 unsupported_option:
             if (s->warn_unsupported)
@@ -22810,8 +22781,6 @@ unsupported_option:
     }
     *pargc = argc - arg_start;
     *pargv = argv + arg_start;
-    if (tool)
-        return tool;
     if (optind != noaction)
         return 0;
     if (s->verbose == 2)
