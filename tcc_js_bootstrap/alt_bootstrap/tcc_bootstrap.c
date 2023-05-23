@@ -23436,37 +23436,6 @@ static int contains_any(const char *s, const char *list) {
   return 0;
 }
 
-static void gen_makedeps(TCCState *s, const char *target, const char *filename)
-{
-printf("gen_makedeps stub\n");
-exit(1);
-    FILE *depout;
-    char buf[1024];
-    int i;
-
-    if (!filename) {
-
-        snprintf(buf, sizeof buf, "%.*s.d",
-            (int)(tcc_fileextension(target) - target), target);
-        filename = buf;
-    }
-
-    if (s->verbose)
-        printf("<- %s\n", filename);
-
-
-    depout = fopen(filename, "w");
-    if (!depout)
-        tcc_error("could not open '%s'", filename);
-
-    fprintf(depout, "%s: \\\n", target);
-    for (i=0; i<s->nb_target_deps; ++i)
-        fprintf(depout, " %s \\\n", s->target_deps[i]);
-    fprintf(depout, "\n");
-    fclose(depout);
-}
-# 26 "tcc_src/tcc.c" 2
-
 static const char help[] =
     "Tiny C Compiler ""0.9.27"" - Copyright (C) 2001-2006 Fabrice Bellard\n"
     "Usage: tcc [options...] [-o outfile] [-c] infile(s)...\n"
