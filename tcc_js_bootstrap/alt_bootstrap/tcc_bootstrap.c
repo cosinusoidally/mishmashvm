@@ -12725,7 +12725,7 @@ static void free_inline_functions(TCCState *s)
     dynarray_reset(&s->inline_fns, &s->nb_inline_fns);
 }
 
-
+// LJW BOOKMARK UP 2
 
 static int decl0(int l, int is_for_loop_init, Sym *func_sym)
 {
@@ -13005,6 +13005,8 @@ static void tccelf_new(TCCState *s)
 
 static void tccelf_bounds_new(TCCState *s)
 {
+puts("stub\n");
+exit(1);
 
     bounds_section = new_section(s, ".bounds",
                                  1, (1 << 1));
@@ -13220,6 +13222,8 @@ static void section_reserve(Section *sec, unsigned long size)
 
 static Section *find_section(TCCState *s1, const char *name)
 {
+puts("stub\n");
+exit(1);
     Section *sec;
     int i;
     for(i = 1; i < s1->nb_sections; i++) {
@@ -13371,6 +13375,8 @@ static int find_elf_sym(Section *s, const char *name)
 
 static Elf32_Addr get_elf_sym_addr(TCCState *s, const char *name, int err)
 {
+puts("stub\n");
+exit(1);
     int sym_index;
     Elf32_Sym *sym;
 
@@ -13387,6 +13393,8 @@ static Elf32_Addr get_elf_sym_addr(TCCState *s, const char *name, int err)
 
  void *tcc_get_symbol(TCCState *s, const char *name)
 {
+puts("stub\n");
+exit(1);
     return (void*)(uintptr_t)get_elf_sym_addr(s, name, 0);
 }
 
@@ -13520,6 +13528,8 @@ static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset,
 static void put_elf_reloc(Section *symtab, Section *s, unsigned long offset,
                            int type, int symbol)
 {
+puts("stub\n");
+exit(1);
     put_elf_reloca(symtab, s, offset, type, symbol, 0);
 }
 
@@ -13992,6 +14002,8 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
 
 static void tidy_section_headers(TCCState *s1, int *sec_order)
 {
+puts("stub\n");
+exit(1);
     int i, nnew, l, *backmap;
     Section **snew, *s;
     Elf32_Sym *sym;
@@ -14126,36 +14138,11 @@ static int elf_output_file(TCCState *s1, const char *filename)
     return ret;
 }
 
- int tcc_output_file(TCCState *s, const char *filename)
-{
+int tcc_output_file(TCCState *s, const char *filename) {
     int ret;
-
-
-
-
-
-        ret = elf_output_file(s, filename);
+    ret = elf_output_file(s, filename);
     return ret;
 }
-
-static void *load_data(int fd, unsigned long file_offset, unsigned long size)
-{
-puts("stub\n");
-exit(1);
-    void *data;
-
-    data = tcc_malloc(size);
-    lseek(fd, file_offset, 0);
-    read(fd, data, size);
-    return data;
-}
-
-typedef struct SectionMergeInfo {
-    Section *s;
-    unsigned long offset;
-    uint8_t new_section;
-    uint8_t link_once;
-} SectionMergeInfo;
 
 // LJW BOOKMARK GOING UP
 
