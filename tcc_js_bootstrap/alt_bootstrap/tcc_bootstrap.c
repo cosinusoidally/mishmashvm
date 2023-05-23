@@ -1920,11 +1920,8 @@ static int last_line_num, last_ind, func_ind;
 static const char *funcname;
 static int g_debug;
 
-static void tcc_debug_start(TCCState *s1);
-static void tcc_debug_end(TCCState *s1);
 static void tcc_debug_funcstart(TCCState *s1, Sym *sym);
 static void tcc_debug_funcend(TCCState *s1, int size);
-static void tcc_debug_line(TCCState *s1);
 
 static int tccgen_compile(TCCState *s1);
 static void free_inline_functions(TCCState *s);
@@ -1994,7 +1991,6 @@ static Section *stab_section, *stabstr_section;
 
 static void tccelf_new(TCCState *s);
 static void tccelf_delete(TCCState *s);
-static void tccelf_stab_new(TCCState *s);
 static void tccelf_begin_file(TCCState *s1);
 static void tccelf_end_file(TCCState *s1);
 
@@ -2020,9 +2016,6 @@ static int find_elf_sym(Section *s, const char *name);
 static void put_elf_reloc(Section *symtab, Section *s, unsigned long offset, int type, int symbol);
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset, int type, int symbol, Elf32_Addr addend);
 
-static void put_stabs_r(const char *str, int type, int other, int desc, unsigned long value, Section *sec, int sym_index);
-static void put_stabn(int type, int other, int desc, int value);
-static void put_stabd(int type, int other, int desc);
 
 static void resolve_common_syms(TCCState *s1);
 static void relocate_syms(TCCState *s1, Section *symtab, int do_resolve);
@@ -4882,9 +4875,6 @@ static inline void next_nomacro1(void)
                         ->ifndef_macro = file->ifndef_macro_saved;
                     tok_flags &= ~0x0004;
                 }
-                if (tcc_state->do_debug) {
-                    put_stabd(N_EINCL, 0, 0);
-                }
                 tcc_close();
                 s1->include_stack_ptr--;
                 p = file->buf_ptr;
@@ -6167,72 +6157,6 @@ static void check_vstack(void)
     if (pvtop != vtop)
         tcc_error("internal compiler error: vstack leak (%d)", vtop - pvtop);
 }
-# 154 "tcc_src/tccgen.c"
-static void tcc_debug_start(TCCState *s1)
-{
-    if (s1->do_debug) {
-        char buf[512];
-
-
-        section_sym = put_elf_sym(symtab_section, 0, 0,
-                                  (((0) << 4) + ((3) & 0xf)), 0,
-                                  text_section->sh_num, ((void*)0));
-        getcwd(buf, sizeof(buf));
-
-
-
-        pstrcat(buf, sizeof(buf), "/");
-        put_stabs_r(buf, N_SO, 0, 0,
-                    text_section->data_offset, text_section, section_sym);
-        put_stabs_r(file->filename, N_SO, 0, 0,
-                    text_section->data_offset, text_section, section_sym);
-        last_ind = 0;
-        last_line_num = 0;
-    }
-
-
-
-    put_elf_sym(symtab_section, 0, 0,
-                (((0) << 4) + ((4) & 0xf)), 0,
-                0xfff1, file->filename);
-}
-
-
-static void tcc_debug_end(TCCState *s1)
-{
-    if (!s1->do_debug)
-        return;
-    put_stabs_r(((void*)0), N_SO, 0, 0,
-        text_section->data_offset, text_section, section_sym);
-
-}
-
-
-static void tcc_debug_line(TCCState *s1)
-{
-    if (!s1->do_debug)
-        return;
-    if ((last_line_num != file->line_num || last_ind != ind)) {
-        put_stabn(N_SLINE, 0, file->line_num, ind - func_ind);
-        last_ind = ind;
-        last_line_num = file->line_num;
-    }
-}
-
-
-static void tcc_debug_funcstart(TCCState *s1, Sym *sym)
-{
-printf("tcc_debug_funcstart stub\n");
-exit(1);
-}
-
-
-static void tcc_debug_funcend(TCCState *s1, int size)
-{
-printf("tcc_debug_funcend stub\n");
-exit(1);
-}
-
 
 static int tccgen_compile(TCCState *s1)
 {
@@ -6262,7 +6186,6 @@ static int tccgen_compile(TCCState *s1)
     func_old_type.ref->f.func_call = 0;
     func_old_type.ref->f.func_type = 2;
 
-    tcc_debug_start(s1);
 # 273 "tcc_src/tccgen.c"
     parse_flags = 0x0001 | 0x0002 | 0x0040;
     next();
@@ -6270,7 +6193,6 @@ static int tccgen_compile(TCCState *s1)
     gen_inline_functions(s1);
     check_vstack();
 
-    tcc_debug_end(s1);
     return 0;
 }
 
@@ -11577,19 +11499,11 @@ static void block(int *bsym, int *csym, int is_expr)
 {
     int a, b, c, d, cond;
     Sym *s;
-
-
-    if (tcc_state->do_debug)
-        tcc_debug_line(tcc_state);
-
     if (is_expr) {
-
         vpushi(0);
         vtop->type.t = 0;
     }
-
     if (tok == TOK_IF) {
-
 	int saved_nocode_wanted = nocode_wanted;
         next();
         skip('(');
@@ -13109,13 +13023,6 @@ static void tccelf_bounds_new(TCCState *s)
                                   1, (1 << 1));
 }
 
-
-static void tccelf_stab_new(TCCState *s)
-{
-printf("tccelf_stab_new stub\n");
-exit(1);
-}
-
 static void free_section(Section *s)
 {
     tcc_free(s->data);
@@ -13662,27 +13569,6 @@ static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset)
 	*dest = *r;
     }
     sr->data_offset = (unsigned char*)dest - sr->data + sizeof(*r);
-}
-
-
-
-static void put_stabs_r(const char *str, int type, int other, int desc,
-                        unsigned long value, Section *sec, int sym_index)
-{
-printf("put_stabs_r stub\n");
-exit(1);
-}
-
-static void put_stabn(int type, int other, int desc, int value)
-{
-printf("put_stabsn stub\n");
-exit(1);
-}
-
-static void put_stabd(int type, int other, int desc)
-{
-printf("put_stabd stub\n");
-exit(1);
 }
 
 static struct sym_attr *get_sym_attr(TCCState *s1, int index, int alloc)
@@ -21147,8 +21033,6 @@ static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global)
         if (tok == (-1))
             break;
 
-        if (global && s1->do_debug)
-            tcc_debug_line(s1);
         parse_flags |= 0x0004;
     redo:
         if (tok == '#') {
@@ -21199,14 +21083,12 @@ static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global)
 static int tcc_assemble(TCCState *s1, int do_preprocess)
 {
     int ret;
-    tcc_debug_start(s1);
 
     cur_text_section = text_section;
     ind = cur_text_section->data_offset;
     nocode_wanted = 0;
     ret = tcc_assemble_internal(s1, do_preprocess, 1);
     cur_text_section->data_offset = ind;
-    tcc_debug_end(s1);
     return ret;
 }
 
@@ -22041,9 +21923,6 @@ static void tcc_cleanup(void)
         s->output_format = 0;
     if (s->char_is_unsigned)
         tcc_define_symbol(s, "__CHAR_UNSIGNED__", ((void*)0));
-    if (s->do_debug) {
-        tccelf_stab_new(s);
-    }
     return 0;
 }
 
