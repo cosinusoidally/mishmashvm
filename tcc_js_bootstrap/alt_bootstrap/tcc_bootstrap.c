@@ -23652,28 +23652,7 @@ the_end:
         fclose(fo), remove(tfile);
     return ret;
 }
-# 482 "tcc_src/tcctools.c"
-static void tcc_tool_cross(TCCState *s, char **argv, int target)
-{
-    char program[4096];
-    char *a0 = argv[0];
-    int prefix = tcc_basename(a0) - a0;
 
-    snprintf(program, sizeof program,
-        "%.*s%s"
-
-
-
-        "-tcc"
-
-
-
-        , prefix, a0, target == 64 ? "x86_64" : "i386");
-
-    if (strcmp(a0, program))
-        execvp(argv[0] = program, argv);
-    tcc_error("could not run '%s'", program);
-}
 # 518 "tcc_src/tcctools.c"
 static void gen_makedeps(TCCState *s, const char *target, const char *filename)
 {
@@ -23898,41 +23877,30 @@ int main(int argc0, char **argv0)
     const char *first_file;
     int argc; char **argv;
     FILE *ppfp = stdout;
-
 redo:
     argc = argc0, argv = argv0;
     s = tcc_new();
     opt = tcc_parse_args(s, &argc, &argv, 1);
-
     if ((n | t) == 0) {
         if (opt == 1)
             return printf(help), 1;
         if (opt == 2)
             return printf(help2), 1;
-        if (opt == 32 || opt == 64)
-            tcc_tool_cross(s, argv, opt);
         if (s->verbose)
             printf(version);
         if (opt == 5)
             return tcc_tool_ar(s, argc, argv);
-
-
-
-
         if (opt == 3)
             return 0;
         if (opt == 4) {
-
             set_environment(s);
             tcc_set_output_type(s, 1);
             print_search_dirs(s);
             return 0;
         }
-
         n = s->nb_files;
         if (n == 0)
             tcc_error("no input files\n");
-
         if (s->output_type == 5) {
             if (s->outfile) {
                 ppfp = fopen(s->outfile, "w");
@@ -23954,18 +23922,14 @@ redo:
         if (s->do_bench)
             start_time = getclock_ms();
     }
-
     set_environment(s);
     if (s->output_type == 0)
         s->output_type = 2;
     tcc_set_output_type(s, s->output_type);
     s->ppfp = ppfp;
-
     if ((s->output_type == 1
       || s->output_type == 5) && (s->dflag & 16))
         s->dflag |= t ? 32 : 0, s->run_test = ++t, n = s->nb_files;
-
-
     for (first_file = ((void*)0), ret = 0;;) {
         struct filespec *f = s->files[s->nb_files - n];
         s->filetype = f->type;
@@ -23987,16 +23951,13 @@ redo:
             || (s->output_type == 4 && !s->option_r))
             break;
     }
-
     if (s->run_test) {
         t = 0;
     } else if (s->output_type == 5) {
         ;
     } else if (0 == ret) {
         if (s->output_type == 1) {
-
             ret = tcc_run(s, argc, argv);
-
         } else {
             if (!s->outfile)
                 s->outfile = default_outputfile(s, first_file);
@@ -24006,7 +23967,6 @@ redo:
                 gen_makedeps(s, s->outfile, s->deps_outfile);
         }
     }
-
     if (s->do_bench && (n | t | ret) == 0)
         tcc_print_stats(s, getclock_ms() - start_time);
     tcc_delete(s);
