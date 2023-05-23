@@ -14182,64 +14182,6 @@ typedef struct ArchiveHeader {
     char ar_fmag[2];
 } ArchiveHeader;
 
-static int get_be32(const uint8_t *b)
-{
-puts("stub\n");
-exit(1);
-}
-
-static long get_be64(const uint8_t *b)
-{
-puts("stub\n");
-exit(1);
-}
-
-
-static int tcc_load_alacarte(TCCState *s1, int fd, int size, int entrysize)
-{
-puts("stub\n");
-exit(1);
-}
-
-
-static int tcc_load_archive(TCCState *s1, int fd)
-{
-puts("stub\n");
-exit(1);
-}
-
-static int tcc_load_dll(TCCState *s1, int fd, const char *filename, int level)
-{
-puts("stub\n");
-exit(1);
-}
-
-static int ld_next(TCCState *s1, char *name, int name_size)
-{
-puts("stub\n");
-exit(1);
-}
-
-static inline int new_undef_syms(void)
-{
-puts("stub\n");
-exit(1);
-}
-
-static int ld_add_file_list(TCCState *s1, const char *cmd, int as_needed)
-{
-puts("stub\n");
-exit(1);
-}
-
-
-
-static int tcc_load_ldscript(TCCState *s1)
-{
-puts("stub\n");
-exit(1);
-}
-
 // LJW BOOKMARK GOING UP
 
 static const int reg_classes[5] = {
@@ -15558,15 +15500,17 @@ static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags) 
                 if (((void*)0) == dlopen(filename, 0x00100 | 0x00001))
                     ret = -1;
             } else {
+/*
                 ret = tcc_load_dll(s1, fd, filename,
                                    (flags & 0x20) != 0);
+*/
             }
             break;
         case 3:
-            ret = tcc_load_archive(s1, fd);
+//            ret = tcc_load_archive(s1, fd);
             break;
         default:
-            ret = tcc_load_ldscript(s1);
+//            ret = tcc_load_ldscript(s1);
             if (ret < 0)
                 tcc_error_noabort("unrecognized file type");
             break;
