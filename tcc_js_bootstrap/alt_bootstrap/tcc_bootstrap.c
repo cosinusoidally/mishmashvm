@@ -305,139 +305,29 @@ __uint32_identity (__uint32_t __x)
   return __x;
 }
 
-static  __uint64_t
-__uint64_identity (__uint64_t __x)
-{
-  return __x;
-}
+// LJW_END
 
 typedef struct
 {
   unsigned long int __val[(1024 / (8 * sizeof (unsigned long int)))];
 } __sigset_t;
-
 typedef __sigset_t sigset_t;
-
 struct timeval
 {
   __time_t tv_sec;
   __suseconds_t tv_usec;
 };
-
 struct timespec
 {
   __time_t tv_sec;
   __syscall_slong_t tv_nsec;
 };
-
-typedef long int __fd_mask;
-
-typedef struct
-{
-  __fd_mask fds_bits[1024 / (8 * (int) sizeof (__fd_mask))];
-} fd_set;
-
-typedef __fd_mask fd_mask;
-
-extern int select (int __nfds, fd_set * __readfds,
-		   fd_set * __writefds,
-		   fd_set * __exceptfds,
-		   struct timeval * __timeout);
-
-extern int pselect (int __nfds, fd_set * __readfds,
-		    fd_set * __writefds,
-		    fd_set * __exceptfds,
-		    const struct timespec * __timeout,
-		    const __sigset_t * __sigmask);
-
-extern unsigned int gnu_dev_major (__dev_t __dev) ;
-extern unsigned int gnu_dev_minor (__dev_t __dev) ;
-extern __dev_t gnu_dev_makedev (unsigned int __major, unsigned int __minor) ;
-
-typedef __blksize_t blksize_t;
-typedef __blkcnt_t blkcnt_t;
-typedef __fsblkcnt_t fsblkcnt_t;
-
-typedef __fsfilcnt_t fsfilcnt_t;
-
-typedef __blkcnt64_t blkcnt64_t;
-typedef __fsblkcnt64_t fsblkcnt64_t;
-typedef __fsfilcnt64_t fsfilcnt64_t;
-
-struct __pthread_rwlock_arch_t
-{
-  unsigned int __readers;
-  unsigned int __writers;
-  unsigned int __wrphase_futex;
-  unsigned int __writers_futex;
-  unsigned int __pad3;
-  unsigned int __pad4;
-  unsigned char __flags;
-  unsigned char __shared;
-  signed char __rwelision;
-
-  unsigned char __pad2;
-  int __cur_writer;
-
-};
-
-typedef struct __pthread_internal_slist
-{
-  struct __pthread_internal_slist *__next;
-} __pthread_slist_t;
-
-struct __pthread_mutex_s
-{
-  int __lock ;
-  unsigned int __count;
-  int __owner;
-  int __kind;
-  unsigned int __nusers;
-   union
-  {
-    struct	{	short __espins;	short __eelision;	} __elision_data;
-    __pthread_slist_t __list;
-  };
-};
-
-struct __pthread_cond_s
-{
-   union
-  {
-     unsigned long long int __wseq;
-    struct
-    {
-      unsigned int __low;
-      unsigned int __high;
-    } __wseq32;
-  };
-   union
-  {
-     unsigned long long int __g1_start;
-    struct
-    {
-      unsigned int __low;
-      unsigned int __high;
-    } __g1_start32;
-  };
-  unsigned int __g_refs[2] ;
-  unsigned int __g_size[2];
-  unsigned int __g1_orig_size;
-  unsigned int __wrefs;
-  unsigned int __g_signals[2];
-};
-
-
-// LJW_END
-
 typedef unsigned long int pthread_t;
-
 union pthread_attr_t
 {
   char __size[36];
   long int __align;
 };
-
 typedef union pthread_attr_t pthread_attr_t;
 extern void *malloc (size_t __size);
 extern void *calloc (size_t __nmemb, size_t __size);
