@@ -1803,7 +1803,6 @@ void *tcc_malloc(unsigned long size);
 void *tcc_mallocz(unsigned long size);
 void *tcc_realloc(void *ptr, unsigned long size);
 char *tcc_strdup(const char *str);
-void tcc_memcheck(void);
 void tcc_error_noabort(const char *fmt, ...);
 void tcc_error(const char *fmt, ...);
 void tcc_warning(const char *fmt, ...);
@@ -21289,41 +21288,20 @@ static void asm_instr(void)
 
 
     save_regs(0);
-
-
     asm_compute_constraints(operands, nb_operands, nb_outputs,
                             clobber_regs, &out_reg);
-
-
-
-
-
-
     if (must_subst) {
         subst_asm_operands(operands, nb_operands, &astr1, &astr);
         cstr_free(&astr);
     } else {
         astr1 = astr;
     }
-
-
-
-
-
     asm_gen_code(operands, nb_operands, nb_outputs, 0,
                  clobber_regs, out_reg);
-
-
     tcc_assemble_inline(tcc_state, astr1.data, astr1.size - 1, 0);
-
-
     next();
-
-
     asm_gen_code(operands, nb_operands, nb_outputs, 1,
                  clobber_regs, out_reg);
-
-
     for(i=0;i<nb_operands;i++) {
         ASMOperand *op;
         op = &operands[i];
@@ -21333,45 +21311,27 @@ static void asm_instr(void)
     cstr_free(&astr1);
 }
 
-static void asm_global_instr(void)
-{
+static void asm_global_instr(void) {
     CString astr;
     int saved_nocode_wanted = nocode_wanted;
-
-
     nocode_wanted = 0;
     next();
     parse_asm_str(&astr);
     skip(')');
-
-
     if (tok != ';')
         expect("';'");
-
-
-
-
     cur_text_section = text_section;
     ind = cur_text_section->data_offset;
-
-
     tcc_assemble_inline(tcc_state, astr.data, astr.size - 1, 1);
-
     cur_text_section->data_offset = ind;
-
-
     next();
-
     cstr_free(&astr);
     nocode_wanted = saved_nocode_wanted;
 }
-# 70 "tcc_src/libtcc.c" 2
-# 134 "tcc_src/libtcc.c"
-static char *pstrcpy(char *buf, int buf_size, const char *s)
-{
+
+static char *pstrcpy(char *buf, int buf_size, const char *s) {
     char *q, *q_end;
     int c;
-
     if (buf_size > 0) {
         q = buf;
         q_end = buf + buf_size - 1;
@@ -21386,9 +21346,7 @@ static char *pstrcpy(char *buf, int buf_size, const char *s)
     return buf;
 }
 
-
-static char *pstrcat(char *buf, int buf_size, const char *s)
-{
+static char *pstrcat(char *buf, int buf_size, const char *s) {
     int len;
     len = strlen(buf);
     if (len < buf_size)
@@ -21396,40 +21354,30 @@ static char *pstrcat(char *buf, int buf_size, const char *s)
     return buf;
 }
 
-static char *pstrncpy(char *out, const char *in, size_t num)
-{
+static char *pstrncpy(char *out, const char *in, size_t num) {
     memcpy(out, in, num);
     out[num] = '\0';
     return out;
 }
 
-
- char *tcc_basename(const char *name)
-{
+char *tcc_basename(const char *name) {
     char *p = strchr(name, 0);
     while (p > name && !(p[-1] == '/'))
         --p;
     return p;
 }
 
-
-
-
-
- char *tcc_fileextension (const char *name)
-{
+char *tcc_fileextension (const char *name) {
     char *b = tcc_basename(name);
     char *e = strrchr(b, '.');
     return e ? e : strchr(b, 0);
 }
-# 199 "tcc_src/libtcc.c"
- void tcc_free(void *ptr)
-{
+
+void tcc_free(void *ptr) {
     free(ptr);
 }
 
- void *tcc_malloc(unsigned long size)
-{
+void *tcc_malloc(unsigned long size) {
     void *ptr;
     ptr = malloc(size);
     if (!ptr && size)
@@ -21437,16 +21385,14 @@ static char *pstrncpy(char *out, const char *in, size_t num)
     return ptr;
 }
 
- void *tcc_mallocz(unsigned long size)
-{
+void *tcc_mallocz(unsigned long size) {
     void *ptr;
     ptr = tcc_malloc(size);
     memset(ptr, 0, size);
     return ptr;
 }
 
- void *tcc_realloc(void *ptr, unsigned long size)
-{
+void *tcc_realloc(void *ptr, unsigned long size) {
     void *ptr1;
     ptr1 = realloc(ptr, size);
     if (!ptr1 && size)
@@ -21454,26 +21400,18 @@ static char *pstrncpy(char *out, const char *in, size_t num)
     return ptr1;
 }
 
- char *tcc_strdup(const char *str)
-{
+char *tcc_strdup(const char *str) {
     char *ptr;
     ptr = tcc_malloc(strlen(str) + 1);
     strcpy(ptr, str);
     return ptr;
 }
 
- void tcc_memcheck(void)
-{
-}
-# 403 "tcc_src/libtcc.c"
-static void dynarray_add(void *ptab, int *nb_ptr, void *data)
-{
+static void dynarray_add(void *ptab, int *nb_ptr, void *data) {
     int nb, nb_alloc;
     void **pp;
-
     nb = *nb_ptr;
     pp = *(void ***)ptab;
-
     if ((nb & (nb - 1)) == 0) {
         if (!nb)
             nb_alloc = 1;
@@ -21486,8 +21424,7 @@ static void dynarray_add(void *ptab, int *nb_ptr, void *data)
     *nb_ptr = nb;
 }
 
-static void dynarray_reset(void *pp, int *n)
-{
+static void dynarray_reset(void *pp, int *n) {
     void **p;
     for (p = *(void***)pp; *n; ++p, --*n)
         if (*p)
@@ -21496,13 +21433,11 @@ static void dynarray_reset(void *pp, int *n)
     *(void**)pp = ((void*)0);
 }
 
-static void tcc_split_path(TCCState *s, void *p_ary, int *p_nb_ary, const char *in)
-{
+static void tcc_split_path(TCCState *s, void *p_ary, int *p_nb_ary, const char *in) {
     const char *p;
     do {
         int c;
         CString str;
-
         cstr_new(&str);
         for (p = in; c = *p, c != '\0' && c != ":"[0]; ++p) {
             if (c == '{' && p[1] && p[2] == '}') {
@@ -21522,21 +21457,16 @@ static void tcc_split_path(TCCState *s, void *p_ary, int *p_nb_ary, const char *
     } while (*p);
 }
 
-
-
-static void strcat_vprintf(char *buf, int buf_size, const char *fmt, va_list ap)
-{
+static void strcat_vprintf(char *buf, int buf_size, const char *fmt, va_list ap) {
     int len;
     len = strlen(buf);
     vsnprintf(buf + len, buf_size - len, fmt, ap);
 }
 
-static void strcat_printf(char *buf, int buf_size, const char *fmt, ...)
-{
+static void strcat_printf(char *buf, int buf_size, const char *fmt, ...) {
     va_list ap;
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
     strcat_vprintf(buf, buf_size, fmt, ap);
-    ;
 }
 
 static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap) {
@@ -21795,8 +21725,6 @@ void tcc_delete(TCCState *s1) {
     dynarray_reset(&s1->pragma_libs, &s1->nb_pragma_libs);
     dynarray_reset(&s1->argv, &s1->argc);
     tcc_free(s1);
-    if (0 == --nb_states)
-        tcc_memcheck();
 }
 
 int tcc_set_output_type(TCCState *s, int output_type) {
