@@ -14157,6 +14157,8 @@ typedef struct SectionMergeInfo {
 
 static int tcc_object_type(int fd, Elf32_Ehdr *h)
 {
+puts("stub\n");
+exit(1);
     int size = read(fd, h, sizeof *h);
     if (size == sizeof *h && 0 == memcmp(h, "\177ELF", 4)) {
         if (h->e_type == 1)
@@ -14179,6 +14181,8 @@ static int tcc_object_type(int fd, Elf32_Ehdr *h)
 static int tcc_load_object_file(TCCState *s1,
                                 int fd, unsigned long file_offset)
 {
+puts("stub\n");
+exit(1);
     Elf32_Ehdr ehdr;
     Elf32_Shdr *shdr, *sh;
     int size, i, j, offset, offseti, nb_syms, sym_index, ret, seencompressed;
@@ -14464,11 +14468,15 @@ typedef struct ArchiveHeader {
 
 static int get_be32(const uint8_t *b)
 {
+puts("stub\n");
+exit(1);
     return b[3] | (b[2] << 8) | (b[1] << 16) | (b[0] << 24);
 }
 
 static long get_be64(const uint8_t *b)
 {
+puts("stub\n");
+exit(1);
   long long ret = get_be32(b);
   ret = (ret << 32) | (unsigned)get_be32(b+4);
   return (long)ret;
@@ -14477,6 +14485,8 @@ static long get_be64(const uint8_t *b)
 
 static int tcc_load_alacarte(TCCState *s1, int fd, int size, int entrysize)
 {
+puts("stub\n");
+exit(1);
     long i, bound, nsyms, sym_index, off, ret;
     uint8_t *data;
     const char *ar_names, *p;
@@ -14520,6 +14530,8 @@ static int tcc_load_alacarte(TCCState *s1, int fd, int size, int entrysize)
 
 static int tcc_load_archive(TCCState *s1, int fd)
 {
+puts("stub\n");
+exit(1);
     ArchiveHeader hdr;
     char ar_size[11];
     char ar_name[17];
@@ -14575,6 +14587,8 @@ static int tcc_load_archive(TCCState *s1, int fd)
 
 static int tcc_load_dll(TCCState *s1, int fd, const char *filename, int level)
 {
+puts("stub\n");
+exit(1);
     Elf32_Ehdr ehdr;
     Elf32_Shdr *shdr, *sh, *sh1;
     int i, j, nb_syms, nb_dts, sym_bind, ret;
@@ -14685,6 +14699,8 @@ static int tcc_load_dll(TCCState *s1, int fd, const char *filename, int level)
 
 static int ld_next(TCCState *s1, char *name, int name_size)
 {
+puts("stub\n");
+exit(1);
     int c;
     char *q;
 
@@ -14802,6 +14818,8 @@ static int ld_next(TCCState *s1, char *name, int name_size)
 
 static inline int new_undef_syms(void)
 {
+puts("stub\n");
+exit(1);
     int ret = 0;
     ret = new_undef_sym;
     new_undef_sym = 0;
@@ -14810,6 +14828,8 @@ static inline int new_undef_syms(void)
 
 static int ld_add_file_list(TCCState *s1, const char *cmd, int as_needed)
 {
+puts("stub\n");
+exit(1);
     char filename[1024], libname[1024];
     int t, group, nblibs = 0, ret = 0;
     char **libs = ((void*)0);
@@ -14882,6 +14902,8 @@ lib_parse_error:
 
 static int tcc_load_ldscript(TCCState *s1)
 {
+puts("stub\n");
+exit(1);
     char cmd[64];
     char filename[1024];
     int t, ret;
