@@ -6965,12 +6965,12 @@ static void gbound(void)
             vtop->type.t = 5;
             gaddrof();
             vpushi(0);
-            gen_bounded_ptr_add();
+//            gen_bounded_ptr_add();
             vtop->r |= lval_type;
             vtop->type = type1;
         }
 
-        gen_bounded_ptr_deref();
+//        gen_bounded_ptr_deref();
     }
 }
 
@@ -8451,13 +8451,13 @@ static void vla_runtime_type_size(CType *type, int *a)
 
 static void vla_sp_restore(void) {
     if (vlas_in_scope) {
-        gen_vla_sp_restore(vla_sp_loc);
+//        gen_vla_sp_restore(vla_sp_loc);
     }
 }
 
 static void vla_sp_restore_root(void) {
     if (vlas_in_scope) {
-        gen_vla_sp_restore(vla_sp_root_loc);
+//        gen_vla_sp_restore(vla_sp_root_loc);
     }
 }
 
@@ -11780,7 +11780,7 @@ static void block(int *bsym, int *csym, int is_expr)
             gexpr();
             if ((vtop->type.t & 0x000f) != 5)
                 expect("pointer");
-            ggoto();
+//            ggoto();
         } else if (tok >= TOK_DEFINE) {
             s = label_find(tok);
 
@@ -12600,17 +12600,17 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
         if (vlas_in_scope == 0) {
             if (vla_sp_root_loc == -1)
                 vla_sp_root_loc = (loc -= 4);
-            gen_vla_sp_save(vla_sp_root_loc);
+//            gen_vla_sp_save(vla_sp_root_loc);
         }
 
         vla_runtime_type_size(type, &a);
-        gen_vla_alloc(type, a);
+//        gen_vla_alloc(type, a);
 
 
 
 
 
-        gen_vla_sp_save(addr);
+//        gen_vla_sp_save(addr);
         vla_sp_loc = addr;
         vlas_in_scope++;
 
@@ -14093,10 +14093,11 @@ static int elf_output_file(TCCState *s1, const char *filename)
 
 
             write32le(s1->got->data, dynamic->sh_addr);
+/*
             if (file_type == 2
                 || (0 && file_type == 3))
                 relocate_plt(s1);
-
+*/
 
             for (sym = (Elf32_Sym *) s1->dynsym->data + 1; sym < (Elf32_Sym *) (s1->dynsym->data + s1->dynsym->data_offset); sym++) {
                 if (sym->st_shndx != 0 && sym->st_shndx < 0xff00) {
@@ -15942,7 +15943,7 @@ static int tcc_relocate_ex(TCCState *s1, void *ptr, Elf32_Addr ptr_diff)
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
     }
-    relocate_plt(s1);
+//    relocate_plt(s1);
 
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
@@ -17137,87 +17138,6 @@ static void gen_cvt_ftof(int t)
 
     gv(0x0002);
 }
-
-
-static void ggoto(void)
-{
-puts("relocate_init stub\n");
-exit(1);
-}
-
-
-
-
-
-static void gen_bounded_ptr_add(void)
-{
-puts("relocate_init stub\n");
-exit(1);
-}
-
-
-
-static void gen_bounded_ptr_deref(void)
-{
-puts("relocate_init stub\n");
-exit(1);
-}
-
-
-
-static void gen_vla_sp_save(int addr) {
-
-puts("relocate_init stub\n");
-exit(1);
-}
-
-
-static void gen_vla_sp_restore(int addr) {
-puts("relocate_init stub\n");
-exit(1);
-}
-
-
-static void gen_vla_alloc(CType *type, int align) {
-puts("relocate_init stub\n");
-exit(1);
-}
-
-int code_reloc (int reloc_type)
-{
-puts("relocate_init stub\n");
-exit(1);
-}
-
-
-
-
-int gotplt_entry_type (int reloc_type)
-{
-puts("relocate_init stub\n");
-exit(1);
-}
-
-static unsigned create_plt_entry(TCCState *s1, unsigned got_offset, struct sym_attr *attr)
-{
-puts("relocate_init stub\n");
-exit(1);
-}
-
-
-
-static void relocate_plt(TCCState *s1)
-{
-puts("relocate_init stub\n");
-exit(1);
-}
-
-void relocate_init(Section *sr)
-{
-puts("relocate_init stub\n");
-exit(1);
-}
-
 
 static char *pstrcpy(char *buf, int buf_size, const char *s) {
     char *q, *q_end;
