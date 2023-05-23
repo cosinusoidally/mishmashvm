@@ -19567,13 +19567,8 @@ again:
         add32le(cur_text_section->data + pc - 4, pc - ind);
 }
 
-
-
-static inline int constraint_priority(const char *str)
-{
+static inline int constraint_priority(const char *str) {
     int priority, c, pr;
-
-
     priority = 0;
     for(;;) {
         c = *str;
@@ -19619,8 +19614,7 @@ static inline int constraint_priority(const char *str)
     return priority;
 }
 
-static const char *skip_constraint_modifiers(const char *p)
-{
+static const char *skip_constraint_modifiers(const char *p) {
     while (*p == '=' || *p == '&' || *p == '+' || *p == '%')
         p++;
     return p;
@@ -19628,43 +19622,20 @@ static const char *skip_constraint_modifiers(const char *p)
 
 
 
-static int asm_parse_regvar (int t)
-{
-    const char *s;
-    Operand op;
-    if (t < 256)
-        return -1;
-    s = table_ident[t - 256]->str;
-    if (s[0] != '%')
-        return -1;
-    t = tok_alloc(s+1, strlen(s)-1)->tok;
-    unget_tok(t);
-    unget_tok('%');
-    parse_operand(tcc_state, &op);
-
-    if (op.type & ((1 << OPT_REG8) | (1 << OPT_REG16) | (1 << OPT_REG32) | 0))
-        return op.reg;
-    else
-        return -1;
+static int asm_parse_regvar (int t) {
+printf("asm_parse_regvar stub\n");
+exit(1);
 }
-
-
-
-
-
 
 static void asm_compute_constraints(ASMOperand *operands,
                                     int nb_operands, int nb_outputs,
                                     const uint8_t *clobber_regs,
-                                    int *pout_reg)
-{
+                                    int *pout_reg) {
     ASMOperand *op;
     int sorted_op[30];
     int i, j, k, p1, p2, tmp, reg, c, reg_mask;
     const char *str;
     uint8_t regs_allocated[8];
-
-
     for(i=0;i<nb_operands;i++) {
         op = &operands[i];
         op->input_index = -1;
@@ -19673,14 +19644,11 @@ static void asm_compute_constraints(ASMOperand *operands,
         op->is_memory = 0;
         op->is_rw = 0;
     }
-
-
     for(i=0;i<nb_operands;i++) {
         op = &operands[i];
         str = op->constraint;
         str = skip_constraint_modifiers(str);
         if (isnum(*str) || *str == '[') {
-
             k = find_constraint(operands, nb_operands, str, ((void*)0));
             if ((unsigned)k >= i || i < nb_outputs)
                 tcc_error("invalid reference in constraint %d ('%s')",
@@ -19699,8 +19667,6 @@ static void asm_compute_constraints(ASMOperand *operands,
             op->priority = constraint_priority(str);
         }
     }
-
-
     for(i=0;i<nb_operands;i++)
         sorted_op[i] = i;
     for(i=0;i<nb_operands - 1;i++) {
@@ -19714,27 +19680,20 @@ static void asm_compute_constraints(ASMOperand *operands,
             }
         }
     }
-
     for(i = 0;i < 8; i++) {
         if (clobber_regs[i])
             regs_allocated[i] = 0x02 | 0x01;
         else
             regs_allocated[i] = 0;
     }
-
     regs_allocated[4] = 0x02 | 0x01;
-
     regs_allocated[5] = 0x02 | 0x01;
-
-
     for(i=0;i<nb_operands;i++) {
         j = sorted_op[i];
         op = &operands[j];
         str = op->constraint;
-
         if (op->ref_index >= 0)
             continue;
-
         if (op->input_index >= 0) {
             reg_mask = 0x02 | 0x01;
         } else if (j < nb_outputs) {
@@ -19755,14 +19714,12 @@ static void asm_compute_constraints(ASMOperand *operands,
             goto try_next;
         case '+':
             op->is_rw = 1;
-
         case '&':
             if (j >= nb_outputs)
                 tcc_error("'%c' modifier can only be applied to outputs", c);
             reg_mask = 0x02 | 0x01;
             goto try_next;
         case 'A':
-
             if ((regs_allocated[TREG_EAX] & reg_mask) ||
                 (regs_allocated[TREG_EDX] & reg_mask))
                 goto try_next;
@@ -19793,7 +19750,6 @@ static void asm_compute_constraints(ASMOperand *operands,
                 goto try_next;
             goto reg_found;
         case 'q':
-
             for(reg = 0; reg < 4; reg++) {
                 if (!(regs_allocated[reg] & reg_mask))
                     goto reg_found;
@@ -19802,14 +19758,12 @@ static void asm_compute_constraints(ASMOperand *operands,
         case 'r':
 	case 'R':
 	case 'p':
-
             for(reg = 0; reg < 8; reg++) {
                 if (!(regs_allocated[reg] & reg_mask))
                     goto reg_found;
             }
             goto try_next;
         reg_found:
-
             op->is_llong = 0;
             op->reg = reg;
             regs_allocated[reg] |= reg_mask;
@@ -19830,14 +19784,12 @@ static void asm_compute_constraints(ASMOperand *operands,
 # 1407 "tcc_src/i386-asm.c"
             if (j < nb_outputs || c == 'm') {
                 if ((op->vt->r & 0x003f) == 0x0031) {
-
                     for(reg = 0; reg < 8; reg++) {
                         if (!(regs_allocated[reg] & 0x02))
                             goto reg_found1;
                     }
                     goto try_next;
                 reg_found1:
-
                     regs_allocated[reg] |= 0x02;
                     op->reg = reg;
                     op->is_memory = 1;
@@ -19849,15 +19801,11 @@ static void asm_compute_constraints(ASMOperand *operands,
                   j, op->constraint);
             break;
         }
-
         if (op->input_index >= 0) {
             operands[op->input_index].reg = op->reg;
             operands[op->input_index].is_llong = op->is_llong;
         }
     }
-
-
-
     *pout_reg = -1;
     for(i=0;i<nb_operands;i++) {
         op = &operands[i];
@@ -19874,15 +19822,12 @@ static void asm_compute_constraints(ASMOperand *operands,
             break;
         }
     }
-# 1469 "tcc_src/i386-asm.c"
 }
 
 static void subst_asm_operand(CString *add_str,
-                              SValue *sv, int modifier)
-{
+                              SValue *sv, int modifier) {
     int r, reg, size, val;
     char buf[64];
-
     r = sv->r;
     if ((r & 0x003f) == 0x0030) {
         if (!(r & 0x0100) && modifier != 'c' && modifier != 'n' &&
@@ -19891,11 +19836,6 @@ static void subst_asm_operand(CString *add_str,
         if (r & 0x0200) {
 	    const char *name = get_tok_str(sv->sym->v, ((void*)0));
 	    if (sv->sym->v >= 0x10000000) {
-
-
-
-
-
 		get_asm_sym(tok_alloc(name, strlen(name))->tok, sv->sym);
 	    }
             cstr_cat(add_str, name, -1);
@@ -19909,51 +19849,30 @@ static void subst_asm_operand(CString *add_str,
         snprintf(buf, sizeof(buf), "%d", (int)sv->c.i);
         cstr_cat(add_str, buf, -1);
     no_offset:;
-
-
-
-
     } else if ((r & 0x003f) == 0x0032) {
-
-
-
         snprintf(buf, sizeof(buf), "%d(%%ebp)", (int)sv->c.i);
-
         cstr_cat(add_str, buf, -1);
     } else if (r & 0x0100) {
         reg = r & 0x003f;
         if (reg >= 0x0030)
             tcc_error("internal compiler error");
         snprintf(buf, sizeof(buf), "(%%%s)",
-
-
-
                  get_tok_str(TOK_ASM_eax + reg, ((void*)0))
-
 		 );
         cstr_cat(add_str, buf, -1);
     } else {
-
         reg = r & 0x003f;
         if (reg >= 0x0030)
             tcc_error("internal compiler error");
-
-
         if ((sv->type.t & 0x000f) == 1 ||
 	    (sv->type.t & 0x000f) == 11)
             size = 1;
         else if ((sv->type.t & 0x000f) == 2)
             size = 2;
-
-
-
-
-
         else
             size = 4;
         if (size == 1 && reg >= 4)
             size = 4;
-
         if (modifier == 'b') {
             if (reg >= 4)
                 tcc_error("cannot use byte register");
@@ -19966,12 +19885,7 @@ static void subst_asm_operand(CString *add_str,
             size = 2;
         } else if (modifier == 'k') {
             size = 4;
-
-
-
-
         }
-
         switch(size) {
         case -1:
             reg = TOK_ASM_ah + reg;
@@ -19985,11 +19899,6 @@ static void subst_asm_operand(CString *add_str,
         default:
             reg = TOK_ASM_eax + reg;
             break;
-
-
-
-
-
         }
         snprintf(buf, sizeof(buf), "%%%s", get_tok_str(reg, ((void*)0)));
         cstr_cat(add_str, buf, -1);
