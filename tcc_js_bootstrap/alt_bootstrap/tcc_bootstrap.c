@@ -23140,12 +23140,6 @@ reparse:
             break;
         }
         switch(popt->index) {
-        case TCC_OPTION_HELP:
-exit(1);
-            return 1;
-        case TCC_OPTION_HELP2:
-exit(1);
-            return 2;
         case TCC_OPTION_I:
             tcc_add_include_path(s, optarg);
             break;
@@ -23622,16 +23616,11 @@ redo:
                 if (!ppfp)
                     tcc_error("could not write '%s'", s->outfile);
             }
-        } else if (s->output_type == 4 && !s->option_r) {
+        } else if(s->output_type == 4 && !s->option_r) {
             if (s->nb_libraries)
                 tcc_error("cannot specify libraries with -c");
             if (n > 1 && s->outfile)
                 tcc_error("cannot specify output file with -c many files");
-        } else {
-            if (s->option_pthread) {
-                tcc_set_options(s, "-lpthread");
-		n = s->nb_files;
-	    }
         }
     }
     set_environment(s);
