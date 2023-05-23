@@ -259,54 +259,12 @@ typedef __timer_t timer_t;
 typedef __useconds_t useconds_t;
 typedef __suseconds_t suseconds_t;
 
-typedef unsigned long int ulong;
-typedef unsigned short int ushort;
-typedef unsigned int uint;
+// LJW_END
 
 typedef __int8_t int8_t;
 typedef __int16_t int16_t;
 typedef __int32_t int32_t;
 typedef __int64_t int64_t;
-typedef	unsigned char u_int8_t;
-typedef	unsigned short int u_int16_t;
-typedef	unsigned int u_int32_t;
-
-typedef unsigned long long int u_int64_t;
-
-typedef int register_t;
-
-static  unsigned short int
-__bswap_16 (unsigned short int __bsx)
-{
-  return ((unsigned short int) ((((__bsx) >> 8) & 0xff) | (((__bsx) & 0xff) << 8)));
-}
-
-static  unsigned int
-__bswap_32 (unsigned int __bsx)
-{
-  return ((((__bsx) & 0xff000000) >> 24) | (((__bsx) & 0x00ff0000) >> 8) |	(((__bsx) & 0x0000ff00) << 8) | (((__bsx) & 0x000000ff) << 24));
-}
-
-static  __uint64_t
-__bswap_64 (__uint64_t __bsx)
-{
-  return ((((__bsx) & 0xff00000000000000ull) >> 56)	| (((__bsx) & 0x00ff000000000000ull) >> 40)	| (((__bsx) & 0x0000ff0000000000ull) >> 24)	| (((__bsx) & 0x000000ff00000000ull) >> 8)	| (((__bsx) & 0x00000000ff000000ull) << 8)	| (((__bsx) & 0x0000000000ff0000ull) << 24)	| (((__bsx) & 0x000000000000ff00ull) << 40)	| (((__bsx) & 0x00000000000000ffull) << 56));
-}
-
-static  __uint16_t
-__uint16_identity (__uint16_t __x)
-{
-  return __x;
-}
-
-static  __uint32_t
-__uint32_identity (__uint32_t __x)
-{
-  return __x;
-}
-
-// LJW_END
-
 typedef struct
 {
   unsigned long int __val[(1024 / (8 * sizeof (unsigned long int)))];
