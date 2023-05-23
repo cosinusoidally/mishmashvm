@@ -13641,153 +13641,6 @@ static void sort_syms(TCCState *s1, Section *s)
 
 
 
-static void relocate_syms(TCCState *s1, Section *symtab, int do_resolve)
-{
-puts("relocate_syms stub\n");
-exit(1);
-}
-
-
-
-static void relocate_section(TCCState *s1, Section *s)
-{
-puts("relocate_section stub\n");
-exit(1);
-}
-
-
-static void relocate_rel(TCCState *s1, Section *sr)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-
-static int prepare_dynamic_rel(TCCState *s1, Section *sr)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-static void build_got(TCCState *s1)
-{
-
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-
-
-
-static struct sym_attr * put_got_entry(TCCState *s1, int dyn_reloc_type,
-                                       unsigned long size,
-                                       int info, int sym_index)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-static void build_got_entries(TCCState *s1)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-static void put_dt(Section *dynamic, int dt, Elf32_Addr val)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-static void add_init_array_defines(TCCState *s1, const char *section_name)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-static int tcc_add_support(TCCState *s1, const char *filename)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-static void tcc_add_linker_symbols(TCCState *s1)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-static void resolve_common_syms(TCCState *s1)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-static void tcc_output_binary(TCCState *s1, FILE *f,
-                              const int *sec_order)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-static void fill_got_entry(TCCState *s1, Elf32_Rel *rel)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-static void fill_got(TCCState *s1)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-
-static void fill_local_got_entries(TCCState *s1)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-
-
-static void bind_exe_dynsyms(TCCState *s1)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-
-
-
-
-static void bind_libs_dynsyms(TCCState *s1)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-
-
-
-static void export_global_syms(TCCState *s1)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
 
 
 static int alloc_sec_names(TCCState *s1, int file_type, Section *strsec)
@@ -13805,7 +13658,7 @@ static int alloc_sec_names(TCCState *s1, int file_type, Section *strsec)
             s->sh_type == 9 &&
             !(s->sh_flags & (1 << 1)) &&
             (s1->sections[s->sh_info]->sh_flags & (1 << 1)) &&
-            prepare_dynamic_rel(s1, s)) {
+            0) {
                 if (s1->sections[s->sh_info]->sh_flags & (1 << 2))
                     textrel = 1;
         } else if (s1->do_debug ||
@@ -14130,8 +13983,6 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
 
     if (s1->output_format == 0)
         tcc_output_elf(s1, f, phnum, phdr, file_offset, sec_order);
-    else
-        tcc_output_binary(s1, f, sec_order);
     fclose(f);
 
     return 0;
@@ -14207,20 +14058,7 @@ static int elf_output_file(TCCState *s1, const char *filename)
     if (dynamic) {
         for(i = 0; i < s1->nb_loaded_dlls; i++) {
             DLLReference *dllref = s1->loaded_dlls[i];
-            if (dllref->level == 0)
-                put_dt(dynamic, 1, put_elf_str(dynstr, dllref->name));
         }
-        if (s1->rpath)
-            put_dt(dynamic, s1->enable_new_dtags ? 29 : 15,
-                   put_elf_str(dynstr, s1->rpath));
-        if (file_type == 3) {
-            if (s1->soname)
-                put_dt(dynamic, 14, put_elf_str(dynstr, s1->soname));
-            if (textrel)
-                put_dt(dynamic, 22, 0);
-        }
-        if (s1->symbolic)
-            put_dt(dynamic, 16, 0);
         dyninf.dynamic = dynamic;
         dyninf.dynstr = dynstr;
         dyninf.data_offset = dynamic->data_offset;
@@ -14276,10 +14114,6 @@ static int elf_output_file(TCCState *s1, const char *filename)
 	tidy_section_headers(s1, sec_order);
 
 
-        if (file_type == 2 && s1->static_link)
-            fill_got(s1);
-        else if (s1->got)
-            fill_local_got_entries(s1);
     }
 
 
@@ -16101,15 +15935,12 @@ static int tcc_relocate_ex(TCCState *s1, void *ptr, Elf32_Addr ptr_diff)
         }
         fill = -(mem + offset) & 63;
     }
-    relocate_syms(s1, s1->symtab, 1);
     if (s1->nb_errors)
         return -1;
     if (0 == mem)
         return offset + 63;
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
-        if (s->reloc)
-            relocate_section(s1, s);
     }
     relocate_plt(s1);
 
