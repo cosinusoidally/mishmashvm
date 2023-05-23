@@ -21680,41 +21680,26 @@ static int tcc_open(TCCState *s1, const char *filename)
     return fd;
 }
 
-
-static int tcc_compile(TCCState *s1)
-{
+static int tcc_compile(TCCState *s1) {
     Sym *define_start;
     int filetype, is_asm;
-
     define_start = define_stack;
     filetype = s1->filetype;
     is_asm = filetype == 2 || filetype == 3;
     tccelf_begin_file(s1);
-
-
-
-        s1->nb_errors = 0;
-        s1->error_set_jmp_enabled = 1;
-
-        preprocess_start(s1, is_asm);
-        if (s1->output_type == 5) {
-            tcc_preprocess(s1);
-        } else if (is_asm) {
-
-            tcc_assemble(s1, filetype == 3);
-
-
-
-        } else {
-            tccgen_compile(s1);
-        }
-
-
+    s1->nb_errors = 0;
+    s1->error_set_jmp_enabled = 1;
+    preprocess_start(s1, is_asm);
+    if (s1->output_type == 5) {
+        tcc_preprocess(s1);
+    } else if (is_asm) {
+        tcc_assemble(s1, filetype == 3);
+    } else {
+        tccgen_compile(s1);
+    }
     s1->error_set_jmp_enabled = 0;
-
     preprocess_end(s1);
     free_inline_functions(s1);
-
     free_defines(define_start);
     sym_pop(&global_stack, ((void*)0), 0);
     sym_pop(&local_stack, ((void*)0), 0);
@@ -21722,10 +21707,8 @@ static int tcc_compile(TCCState *s1)
     return s1->nb_errors != 0 ? -1 : 0;
 }
 
- int tcc_compile_string(TCCState *s, const char *str)
-{
+int tcc_compile_string(TCCState *s, const char *str) {
     int len, ret;
-
     len = strlen(str);
     tcc_open_bf(s, "<string>", len);
     memcpy(file->buffer, str, len);
@@ -21734,31 +21717,22 @@ static int tcc_compile(TCCState *s1)
     return ret;
 }
 
-
- void tcc_define_symbol(TCCState *s1, const char *sym, const char *value)
-{
+void tcc_define_symbol(TCCState *s1, const char *sym, const char *value) {
     int len1, len2;
-
     if (!value)
         value = "1";
     len1 = strlen(sym);
     len2 = strlen(value);
-
-
     tcc_open_bf(s1, "<define>", len1 + len2 + 1);
     memcpy(file->buffer, sym, len1);
     file->buffer[len1] = ' ';
     memcpy(file->buffer + len1 + 1, value, len2);
-
-
     next_nomacro();
     parse_define();
     tcc_close();
 }
 
-
- void tcc_undefine_symbol(TCCState *s1, const char *sym)
-{
+void tcc_undefine_symbol(TCCState *s1, const char *sym) {
     TokenSym *ts;
     Sym *s;
     ts = tok_alloc(sym, strlen(sym));
@@ -21768,108 +21742,69 @@ static int tcc_compile(TCCState *s1)
         define_undef(s);
 }
 
-
-static void tcc_cleanup(void)
-{
+static void tcc_cleanup(void) {
     if (((void*)0) == tcc_state)
         return;
     while (file)
         tcc_close();
     tccpp_delete(tcc_state);
     tcc_state = ((void*)0);
-
     dynarray_reset(&sym_pools, &nb_sym_pools);
-
     sym_free_first = ((void*)0);
 }
 
- TCCState *tcc_new(void)
-{
+TCCState *tcc_new(void) {
     TCCState *s;
-
     tcc_cleanup();
-
     s = tcc_mallocz(sizeof(TCCState));
     if (!s)
         return ((void*)0);
     tcc_state = s;
     ++nb_states;
-
     s->alacarte_link = 1;
     s->nocommon = 1;
     s->warn_implicit_function_declaration = 1;
     s->ms_extensions = 1;
-
-
-
-
-
     s->seg_size = 32;
-# 756 "tcc_src/libtcc.c"
     tcc_set_lib_path(s, "/tmp/tcc/lib/tcc");
-
     tccelf_new(s);
     tccpp_new(s);
-
-
-
     define_push(TOK___LINE__, 0, ((void*)0), ((void*)0));
     define_push(TOK___FILE__, 0, ((void*)0), ((void*)0));
     define_push(TOK___DATE__, 0, ((void*)0), ((void*)0));
     define_push(TOK___TIME__, 0, ((void*)0), ((void*)0));
     define_push(TOK___COUNTER__, 0, ((void*)0), ((void*)0));
     {
-
         char buffer[32]; int a,b,c;
         sscanf("0.9.27", "%d.%d.%d", &a, &b, &c);
         sprintf(buffer, "%d", a*10000 + b*100 + c);
         tcc_define_symbol(s, "__TINYC__", buffer);
     }
-
-
     tcc_define_symbol(s, "__STDC__", ((void*)0));
     tcc_define_symbol(s, "__STDC_VERSION__", "199901L");
     tcc_define_symbol(s, "__STDC_HOSTED__", ((void*)0));
-
-
-
     tcc_define_symbol(s, "__i386__", ((void*)0));
     tcc_define_symbol(s, "__i386", ((void*)0));
     tcc_define_symbol(s, "i386", ((void*)0));
-# 819 "tcc_src/libtcc.c"
     tcc_define_symbol(s, "__unix__", ((void*)0));
     tcc_define_symbol(s, "__unix", ((void*)0));
     tcc_define_symbol(s, "unix", ((void*)0));
-
     tcc_define_symbol(s, "__linux__", ((void*)0));
     tcc_define_symbol(s, "__linux", ((void*)0));
-# 845 "tcc_src/libtcc.c"
     tcc_define_symbol(s, "__SIZE_TYPE__", "unsigned int");
     tcc_define_symbol(s, "__PTRDIFF_TYPE__", "int");
     tcc_define_symbol(s, "__ILP32__", ((void*)0));
-# 864 "tcc_src/libtcc.c"
     tcc_define_symbol(s, "__WCHAR_TYPE__", "int");
-# 879 "tcc_src/libtcc.c"
     tcc_define_symbol(s, "__WINT_TYPE__", "unsigned int");
-
     tcc_define_symbol(s, "__REDIRECT(name, proto, alias)",
         "name proto __asm__ (#alias)");
     tcc_define_symbol(s, "__REDIRECT_NTH(name, proto, alias)",
         "name proto __asm__ (#alias) __THROW");
-
-
-
-
-
-
-
     tcc_define_symbol(s, "__builtin_extract_return_addr(x)", "x");
-
     return s;
 }
 
- void tcc_delete(TCCState *s1)
-{
+void tcc_delete(TCCState *s1) {
     tcc_cleanup();
     tccelf_delete(s1);
     dynarray_reset(&s1->library_paths, &s1->nb_library_paths);
@@ -21893,8 +21828,7 @@ static void tcc_cleanup(void)
         tcc_memcheck();
 }
 
- int tcc_set_output_type(TCCState *s, int output_type)
-{
+int tcc_set_output_type(TCCState *s, int output_type) {
     s->output_type = output_type;
     if (output_type == 4)
         s->output_format = 0;
@@ -21903,80 +21837,51 @@ static void tcc_cleanup(void)
     return 0;
 }
 
- int tcc_add_include_path(TCCState *s, const char *pathname)
-{
+int tcc_add_include_path(TCCState *s, const char *pathname) {
     tcc_split_path(s, &s->include_paths, &s->nb_include_paths, pathname);
     return 0;
 }
 
- int tcc_add_sysinclude_path(TCCState *s, const char *pathname)
-{
+int tcc_add_sysinclude_path(TCCState *s, const char *pathname) {
     tcc_split_path(s, &s->sysinclude_paths, &s->nb_sysinclude_paths, pathname);
     return 0;
 }
 
-static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags)
-{
+static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags) {
     int ret;
-
-
     ret = tcc_open(s1, filename);
     if (ret < 0) {
         if (flags & 0x10)
             tcc_error_noabort("file '%s' not found", filename);
         return ret;
     }
-
-
     dynarray_add(&s1->target_deps, &s1->nb_target_deps,
             tcc_strdup(filename));
-
     if (flags & 0x40) {
         Elf32_Ehdr ehdr;
         int fd, obj_type;
-
         fd = file->fd;
         obj_type = tcc_object_type(fd, &ehdr);
         lseek(fd, 0, 0);
-
-
-
-
-
-
         switch (obj_type) {
         case 1:
             ret = tcc_load_object_file(s1, fd, 0);
             break;
-
         case 2:
             if (s1->output_type == 1) {
                 ret = 0;
-
                 if (((void*)0) == dlopen(filename, 0x00100 | 0x00001))
                     ret = -1;
-
             } else {
                 ret = tcc_load_dll(s1, fd, filename,
                                    (flags & 0x20) != 0);
             }
             break;
-
         case 3:
             ret = tcc_load_archive(s1, fd);
             break;
-
-
-
-
-
         default:
-
-
-
-
             ret = tcc_load_ldscript(s1);
-
             if (ret < 0)
                 tcc_error_noabort("unrecognized file type");
             break;
@@ -21988,12 +21893,10 @@ static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags)
     return ret;
 }
 
- int tcc_add_file(TCCState *s, const char *filename)
-{
+int tcc_add_file(TCCState *s, const char *filename) {
     int filetype = s->filetype;
     int flags = 0x10;
     if (filetype == 0) {
-
         const char *ext = tcc_fileextension(filename);
         if (ext[0]) {
             ext++;
@@ -22013,8 +21916,7 @@ static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags)
     return tcc_add_file_internal(s, filename, flags);
 }
 
- int tcc_add_library_path(TCCState *s, const char *pathname)
-{
+int tcc_add_library_path(TCCState *s, const char *pathname) {
     tcc_split_path(s, &s->library_paths, &s->nb_library_paths, pathname);
     return 0;
 }
