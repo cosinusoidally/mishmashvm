@@ -19996,20 +19996,14 @@ static void subst_asm_operand(CString *add_str,
     }
 }
 
-
 static void asm_gen_code(ASMOperand *operands, int nb_operands,
                          int nb_outputs, int is_output,
                          uint8_t *clobber_regs,
-                         int out_reg)
-{
+                         int out_reg) {
     uint8_t regs_allocated[8];
     ASMOperand *op;
     int i, reg;
-# 1609 "tcc_src/i386-asm.c"
     static uint8_t reg_saved[] = { 3, 6, 7 };
-
-
-
     memcpy(regs_allocated, clobber_regs, sizeof(regs_allocated));
     for(i = 0; i < nb_operands;i++) {
         op = &operands[i];
@@ -20017,7 +20011,6 @@ static void asm_gen_code(ASMOperand *operands, int nb_operands,
             regs_allocated[op->reg] = 1;
     }
     if (!is_output) {
-
         for(i = 0; i < sizeof(reg_saved)/sizeof(reg_saved[0]); i++) {
             reg = reg_saved[i];
             if (regs_allocated[reg]) {
@@ -20026,22 +20019,17 @@ static void asm_gen_code(ASMOperand *operands, int nb_operands,
                 g(0x50 + reg);
             }
         }
-
-
         for(i = 0; i < nb_operands; i++) {
             op = &operands[i];
             if (op->reg >= 0) {
                 if ((op->vt->r & 0x003f) == 0x0031 &&
                     op->is_memory) {
-
-
                     SValue sv;
                     sv = *op->vt;
                     sv.r = (sv.r & ~0x003f) | 0x0032 | 0x0100;
                     sv.type.t = 5;
                     load(op->reg, &sv);
                 } else if (i >= nb_outputs || op->is_rw) {
-
                     load(op->reg, op->vt);
                     if (op->is_llong) {
                         SValue sv;
@@ -20053,7 +20041,6 @@ static void asm_gen_code(ASMOperand *operands, int nb_operands,
             }
         }
     } else {
-
         for(i = 0 ; i < nb_outputs; i++) {
             op = &operands[i];
             if (op->reg >= 0) {
@@ -20064,7 +20051,6 @@ static void asm_gen_code(ASMOperand *operands, int nb_operands,
                         sv.r = (sv.r & ~0x003f) | 0x0032;
 			sv.type.t = 5;
                         load(out_reg, &sv);
-
 			sv = *op->vt;
                         sv.r = (sv.r & ~0x003f) | out_reg;
                         store(op->reg, &sv);
@@ -20080,7 +20066,6 @@ static void asm_gen_code(ASMOperand *operands, int nb_operands,
                 }
             }
         }
-
         for(i = sizeof(reg_saved)/sizeof(reg_saved[0]) - 1; i >= 0; i--) {
             reg = reg_saved[i];
             if (regs_allocated[reg]) {
@@ -20092,195 +20077,47 @@ static void asm_gen_code(ASMOperand *operands, int nb_operands,
     }
 }
 
-static void asm_clobber(uint8_t *clobber_regs, const char *str)
-{
-    int reg;
-    TokenSym *ts;
-
-
-
-
-    if (!strcmp(str, "memory") ||
-        !strcmp(str, "cc") ||
-	!strcmp(str, "flags"))
-        return;
-    ts = tok_alloc(str, strlen(str));
-    reg = ts->tok;
-    if (reg >= TOK_ASM_eax && reg <= TOK_ASM_edi) {
-        reg -= TOK_ASM_eax;
-    } else if (reg >= TOK_ASM_ax && reg <= TOK_ASM_di) {
-        reg -= TOK_ASM_ax;
-
-
-
-
-
-
-    } else {
-        tcc_error("invalid clobber register '%s'", str);
-    }
-    clobber_regs[reg] = 1;
+static void asm_clobber(uint8_t *clobber_regs, const char *str) {
+printf("asm_clobber stub\n");
+exit(1);
 }
-# 48 "tcc_src/libtcc.c" 2
-# 69 "tcc_src/libtcc.c"
-# 1 "tcc_src/tccasm.c" 1
-# 24 "tcc_src/tccasm.c"
-static int asm_get_local_label_name(TCCState *s1, unsigned int n)
-{
-    char buf[64];
-    TokenSym *ts;
 
-    snprintf(buf, sizeof(buf), "L..%u", n);
-    ts = tok_alloc(buf, strlen(buf));
-    return ts->tok;
+static int asm_get_local_label_name(TCCState *s1, unsigned int n) {
+printf("asm_get_local_label_name stub\n");
+exit(1);
 }
 
 static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global);
 static Sym* asm_new_label(TCCState *s1, int label, int is_local);
 static Sym* asm_new_label1(TCCState *s1, int label, int is_local, int sh_num, int value);
 
-static Sym *asm_label_find(int v)
-{
-    Sym *sym = sym_find(v);
-    while (sym && sym->sym_scope)
-        sym = sym->prev_tok;
-    return sym;
+static Sym *asm_label_find(int v) {
+printf("asm_label_find stub\n");
+exit(1);
 }
 
-static Sym *asm_label_push(int v)
-{
-
-
-
-    Sym *sym = global_identifier_push(v, (0 | 0x0010) | 0x00001000 | 0x00002000, 0);
-    sym->r = 0x0030 | 0x0200;
-    return sym;
+static Sym *asm_label_push(int v) {
+printf("asm_label_push stub\n");
+exit(1);
 }
-# 66 "tcc_src/tccasm.c"
 static Sym* get_asm_sym(int name, Sym *csym)
 {
-    Sym *sym = asm_label_find(name);
-    if (!sym) {
-	sym = asm_label_push(name);
-	if (csym)
-	  sym->c = csym->c;
-    }
-    return sym;
+printf("get_asm_sym stub\n");
+exit(1);
 }
 
 static Sym* asm_section_sym(TCCState *s1, Section *sec)
 {
-    char buf[100];
-    int label = tok_alloc(buf,
-        snprintf(buf, sizeof buf, "L.%s", sec->name)
-        )->tok;
-    Sym *sym = asm_label_find(label);
-    return sym ? sym : asm_new_label1(s1, label, 1, sec->sh_num, 0);
+printf("asm_section_sym stub\n");
+exit(1);
 }
 
-
-
-
-static void asm_expr_unary(TCCState *s1, ExprValue *pe)
-{
-    Sym *sym;
-    int op, label;
-    uint64_t n;
-    const char *p;
-
-    switch(tok) {
-    case 0xbe:
-        p = tokc.str.data;
-        n = strtoull(p, (char **)&p, 0);
-        if (*p == 'b' || *p == 'f') {
-
-            label = asm_get_local_label_name(s1, n);
-            sym = asm_label_find(label);
-            if (*p == 'b') {
-
-                if (sym && (!sym->c || elfsym(sym)->st_shndx == 0))
-                    sym = sym->prev_tok;
-                if (!sym)
-                    tcc_error("local label '%d' not found backward", n);
-            } else {
-
-                if (!sym || (sym->c && elfsym(sym)->st_shndx != 0)) {
-
-		    sym = asm_label_push(label);
-                }
-            }
-	    pe->v = 0;
-	    pe->sym = sym;
-	    pe->pcrel = 0;
-        } else if (*p == '\0') {
-            pe->v = n;
-            pe->sym = ((void*)0);
-	    pe->pcrel = 0;
-        } else {
-            tcc_error("invalid number syntax");
-        }
-        next();
-        break;
-    case '+':
-        next();
-        asm_expr_unary(s1, pe);
-        break;
-    case '-':
-    case '~':
-        op = tok;
-        next();
-        asm_expr_unary(s1, pe);
-        if (pe->sym)
-            tcc_error("invalid operation with label");
-        if (op == '-')
-            pe->v = -pe->v;
-        else
-            pe->v = ~pe->v;
-        break;
-    case 0xb3:
-    case 0xb4:
-	pe->v = tokc.i;
-	pe->sym = ((void*)0);
-	pe->pcrel = 0;
-	next();
-	break;
-    case '(':
-        next();
-        asm_expr(s1, pe);
-        skip(')');
-        break;
-    case '.':
-        pe->v = ind;
-        pe->sym = asm_section_sym(s1, cur_text_section);
-        pe->pcrel = 0;
-        next();
-        break;
-    default:
-        if (tok >= 256) {
-	    Elf32_Sym *esym;
-
-	    sym = get_asm_sym(tok, ((void*)0));
-	    esym = elfsym(sym);
-            if (esym && esym->st_shndx == 0xfff1) {
-
-                pe->v = esym->st_value;
-                pe->sym = ((void*)0);
-		pe->pcrel = 0;
-            } else {
-                pe->v = 0;
-                pe->sym = sym;
-		pe->pcrel = 0;
-            }
-            next();
-        } else {
-            tcc_error("bad expression syntax [%s]", get_tok_str(tok, &tokc));
-        }
-        break;
-    }
+static void asm_expr_unary(TCCState *s1, ExprValue *pe) {
+printf("asm_expr_unary stub\n");
+exit(1);
 }
 
-static void asm_expr_prod(TCCState *s1, ExprValue *pe)
-{
+static void asm_expr_prod(TCCState *s1, ExprValue *pe) {
 printf("asm_expr_prod stub\n");
 exit(1);
 }
