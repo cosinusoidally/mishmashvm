@@ -502,101 +502,16 @@ extern char *initstate (unsigned int __seed, char *__statebuf,
 
 extern char *setstate (char *__statebuf);
 
-struct random_data
-  {
-    int32_t *fptr;
-    int32_t *rptr;
-    int32_t *state;
-    int rand_type;
-    int rand_deg;
-    int rand_sep;
-    int32_t *end_ptr;
-  };
-
-extern int random_r (struct random_data * __buf,
-		     int32_t * __result);
-
-extern int srandom_r (unsigned int __seed, struct random_data *__buf);
-
-extern int initstate_r (unsigned int __seed, char * __statebuf,
-			size_t __statelen,
-			struct random_data * __buf);
-
-extern int setstate_r (char * __statebuf,
-		       struct random_data * __buf);
-
-extern int rand (void);
-extern void srand (unsigned int __seed);
-extern int rand_r (unsigned int *__seed);
-extern double drand48 (void);
-extern double erand48 (unsigned short int __xsubi[3]);
-
-extern long int lrand48 (void);
-extern long int nrand48 (unsigned short int __xsubi[3]);
-
-extern long int mrand48 (void);
-extern long int jrand48 (unsigned short int __xsubi[3]);
-
-extern void srand48 (long int __seedval);
-extern unsigned short int *seed48 (unsigned short int __seed16v[3]);
-extern void lcong48 (unsigned short int __param[7]);
-
-struct drand48_data
-  {
-    unsigned short int __x[3];
-    unsigned short int __old_x[3];
-    unsigned short int __c;
-    unsigned short int __init;
-     unsigned long long int __a;
-
-  };
-
-extern int drand48_r (struct drand48_data * __buffer,
-		      double * __result);
-extern int erand48_r (unsigned short int __xsubi[3],
-		      struct drand48_data * __buffer,
-		      double * __result);
-
-extern int lrand48_r (struct drand48_data * __buffer,
-		      long int * __result);
-extern int nrand48_r (unsigned short int __xsubi[3],
-		      struct drand48_data * __buffer,
-		      long int * __result);
-
-extern int mrand48_r (struct drand48_data * __buffer,
-		      long int * __result);
-extern int jrand48_r (unsigned short int __xsubi[3],
-		      struct drand48_data * __buffer,
-		      long int * __result);
-
-extern int srand48_r (long int __seedval, struct drand48_data *__buffer);
-
-extern int seed48_r (unsigned short int __seed16v[3],
-		     struct drand48_data *__buffer);
-
-extern int lcong48_r (unsigned short int __param[7],
-		      struct drand48_data *__buffer);
+// LJW_END
 
 extern void *malloc (size_t __size);
 extern void *calloc (size_t __nmemb, size_t __size);
 extern void *realloc (void *__ptr, size_t __size);
-extern void *reallocarray (void *__ptr, size_t __nmemb, size_t __size);
 extern void free (void *__ptr);
 extern void *alloca (size_t __size);
-extern void *valloc (size_t __size);
-extern int posix_memalign (void **__memptr, size_t __alignment, size_t __size);
-extern void *aligned_alloc (size_t __alignment, size_t __size);
-extern void abort (void);
-extern int atexit (void (*__func) (void));
-extern int at_quick_exit (void (*__func) (void));
-extern int on_exit (void (*__func) (int __status, void *__arg), void *__arg);
+
 extern void exit (int __status);
-extern void quick_exit (int __status);
-extern void _Exit (int __status);
 extern char *getenv (const char *__name);
-
-// LJW_END
-
 typedef int (*__compar_fn_t) (const void *, const void *);
 typedef __compar_fn_t comparison_fn_t;
 typedef int (*__compar_d_fn_t) (const void *, const void *, void *);
