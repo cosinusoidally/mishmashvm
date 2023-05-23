@@ -1148,7 +1148,6 @@ struct TCCState {
     char *outfile;
     int option_r;
     int do_bench;
-    int gen_deps;
     char *deps_outfile;
     int option_pthread;
     int argc;
@@ -22374,51 +22373,6 @@ static int strstart(const char *val, const char **str)
     *str = p;
     return 1;
 }
-# 1263 "tcc_src/libtcc.c"
-static int link_option(const char *str, const char *val, const char **ptr)
-{
-printf("link_option stub\n");
-exit(1);
-    const char *p, *q;
-    int ret;
-
-
-    if (*str++ != '-')
-        return 0;
-    if (*str == '-')
-        str++;
-
-
-    p = str;
-    q = val;
-
-    ret = 1;
-    if (q[0] == '?') {
-        ++q;
-        if (no_flag(&p))
-            ret = -1;
-    }
-
-    while (*q != '\0' && *q != '=') {
-        if (*p != *q)
-            return 0;
-        p++;
-        q++;
-    }
-
-
-    if (*q == '=') {
-        if (*p == 0)
-            *ptr = p;
-        if (*p != ',' && *p != '=')
-            return 0;
-        p++;
-    } else if (*p) {
-        return 0;
-    }
-    *ptr = p;
-    return ret;
-}
 
 typedef struct TCCOption {
     const char *name;
@@ -22795,10 +22749,6 @@ exit(1);
         case TCC_OPTION_P:
 exit(1);
             s->Pflag = atoi(optarg) + 1;
-            break;
-        case TCC_OPTION_MD:
-exit(1);
-            s->gen_deps = 1;
             break;
         case TCC_OPTION_MF:
 exit(1);
