@@ -13668,49 +13668,6 @@ static int prepare_dynamic_rel(TCCState *s1, Section *sr)
 {
 puts("relocate_rel stub\n");
 exit(1);
-    Elf32_Rel *rel;
-    int sym_index, type, count;
-
-    count = 0;
-    for (rel = (Elf32_Rel *) sr->data + 0; rel < (Elf32_Rel *) (sr->data + sr->data_offset); rel++) {
-        sym_index = ((rel->r_info) >> 8);
-        type = ((rel->r_info) & 0xff);
-        switch(type) {
-
-
-        case 1:
-            if (!get_sym_attr(s1, sym_index, 0)->dyn_index
-                && ((Elf32_Sym*)symtab_section->data + sym_index)->st_shndx == 0) {
-
-                rel->r_info = (((sym_index) << 8) + ((8) & 0xff));
-                break;
-            }
-
-
-
-
-
-            count++;
-            break;
-
-        case 2:
-
-
-
-            if (get_sym_attr(s1, sym_index, 0)->dyn_index)
-                count++;
-            break;
-
-        default:
-            break;
-        }
-    }
-    if (count) {
-
-        sr->sh_flags |= (1 << 1);
-        sr->sh_size = count * sizeof(Elf32_Rel);
-    }
-    return count;
 }
 
 static void build_got(TCCState *s1)
@@ -13718,12 +13675,6 @@ static void build_got(TCCState *s1)
 
 puts("relocate_rel stub\n");
 exit(1);
-    s1->got = new_section(s1, ".got", 1, (1 << 1) | (1 << 0));
-    s1->got->sh_entsize = 4;
-    set_elf_sym(symtab_section, 0, 4, (((1) << 4) + ((1) & 0xf)),
-                0, s1->got->sh_num, "_GLOBAL_OFFSET_TABLE_");
-
-    section_ptr_add(s1->got, 3 * 4);
 }
 
 
@@ -13736,70 +13687,6 @@ static struct sym_attr * put_got_entry(TCCState *s1, int dyn_reloc_type,
 {
 puts("relocate_rel stub\n");
 exit(1);
-    int need_plt_entry;
-    const char *name;
-    Elf32_Sym *sym;
-    struct sym_attr *attr;
-    unsigned got_offset;
-    char plt_name[100];
-    int len;
-
-    need_plt_entry = (dyn_reloc_type == 7);
-    attr = get_sym_attr(s1, sym_index, 1);
-
-
-
-
-    if (need_plt_entry ? attr->plt_offset : attr->got_offset)
-        return attr;
-
-
-    got_offset = s1->got->data_offset;
-    section_ptr_add(s1->got, 4);
-# 961 "tcc_src/tccelf.c"
-    sym = &((Elf32_Sym *) symtab_section->data)[sym_index];
-    name = (char *) symtab_section->link->data + sym->st_name;
-
-    if (s1->dynsym) {
-	if ((((unsigned char) (sym->st_info)) >> 4) == 0) {
-# 980 "tcc_src/tccelf.c"
-	    put_elf_reloc(s1->dynsym, s1->got, got_offset, 8,
-			  sym_index);
-	} else {
-	    if (0 == attr->dyn_index)
-                attr->dyn_index = set_elf_sym(s1->dynsym, sym->st_value, size,
-					      info, 0, sym->st_shndx, name);
-	    put_elf_reloc(s1->dynsym, s1->got, got_offset, dyn_reloc_type,
-			  attr->dyn_index);
-	}
-    } else {
-        put_elf_reloc(symtab_section, s1->got, got_offset, dyn_reloc_type,
-                      sym_index);
-    }
-
-    if (need_plt_entry) {
-        if (!s1->plt) {
-    	    s1->plt = new_section(s1, ".plt", 1,
-    			          (1 << 1) | (1 << 2));
-    	    s1->plt->sh_entsize = 4;
-        }
-
-        attr->plt_offset = create_plt_entry(s1, got_offset, attr);
-
-
-        len = strlen(name);
-        if (len > sizeof plt_name - 5)
-            len = sizeof plt_name - 5;
-        memcpy(plt_name, name, len);
-        strcpy(plt_name + len, "@plt");
-        attr->plt_sym = put_elf_sym(s1->symtab, attr->plt_offset, sym->st_size,
-            (((1) << 4) + ((2) & 0xf)), 0, s1->plt->sh_num, plt_name);
-
-    } else {
-        attr->got_offset = got_offset;
-    }
-
-    return attr;
 }
 
 
@@ -13807,77 +13694,6 @@ static void build_got_entries(TCCState *s1)
 {
 puts("relocate_rel stub\n");
 exit(1);
-    Section *s;
-    Elf32_Rel *rel;
-    Elf32_Sym *sym;
-    int i, type, gotplt_entry, reloc_type, sym_index;
-    struct sym_attr *attr;
-
-    for(i = 1; i < s1->nb_sections; i++) {
-        s = s1->sections[i];
-        if (s->sh_type != 9)
-            continue;
-
-        if (s->link != symtab_section)
-            continue;
-        for (rel = (Elf32_Rel *) s->data + 0; rel < (Elf32_Rel *) (s->data + s->data_offset); rel++) {
-            type = ((rel->r_info) & 0xff);
-            gotplt_entry = gotplt_entry_type(type);
-            sym_index = ((rel->r_info) >> 8);
-            sym = &((Elf32_Sym *)symtab_section->data)[sym_index];
-
-            if (gotplt_entry == NO_GOTPLT_ENTRY) {
-                continue;
-            }
-
-
-
-
-
-            if (gotplt_entry == AUTO_GOTPLT_ENTRY) {
-                if (sym->st_shndx == 0) {
-                    Elf32_Sym *esym;
-		    int dynindex;
-                    if (s1->output_type == 3 && ! 0)
-                        continue;
-# 1065 "tcc_src/tccelf.c"
-		    if (s1->dynsym) {
-
-			dynindex = get_sym_attr(s1, sym_index, 0)->dyn_index;
-			esym = (Elf32_Sym *)s1->dynsym->data + dynindex;
-			if (dynindex
-			    && (((esym->st_info) & 0xf) == 2
-				|| (((esym->st_info) & 0xf) == 0
-				    && ((sym->st_info) & 0xf) == 2)))
-			    goto jmp_slot;
-		    }
-                } else if (!(sym->st_shndx == 0xfff1
-
-			&& 4 == 8
-
-			))
-                    continue;
-            }
-# 1091 "tcc_src/tccelf.c"
-            if (code_reloc(type)) {
-            jmp_slot:
-                reloc_type = 7;
-            } else
-                reloc_type = 6;
-
-            if (!s1->got)
-                build_got(s1);
-
-            if (gotplt_entry == BUILD_GOT_ONLY)
-                continue;
-
-            attr = put_got_entry(s1, reloc_type, sym->st_size, sym->st_info,
-                                 sym_index);
-
-            if (reloc_type == 7)
-                rel->r_info = (((attr->plt_sym) << 8) + ((type) & 0xff));
-        }
-    }
 }
 
 
@@ -13885,10 +13701,6 @@ static void put_dt(Section *dynamic, int dt, Elf32_Addr val)
 {
 puts("relocate_rel stub\n");
 exit(1);
-    Elf32_Dyn *dyn;
-    dyn = section_ptr_add(dynamic, sizeof(Elf32_Dyn));
-    dyn->d_tag = dt;
-    dyn->d_un.d_val = val;
 }
 
 
@@ -13896,30 +13708,6 @@ static void add_init_array_defines(TCCState *s1, const char *section_name)
 {
 puts("relocate_rel stub\n");
 exit(1);
-    Section *s;
-    long end_offset;
-    char sym_start[1024];
-    char sym_end[1024];
-
-    snprintf(sym_start, sizeof(sym_start), "__%s_start", section_name + 1);
-    snprintf(sym_end, sizeof(sym_end), "__%s_end", section_name + 1);
-
-    s = find_section(s1, section_name);
-    if (!s) {
-        end_offset = 0;
-        s = data_section;
-    } else {
-        end_offset = s->data_offset;
-    }
-
-    set_elf_sym(symtab_section,
-                0, 0,
-                (((1) << 4) + ((0) & 0xf)), 0,
-                s->sh_num, sym_start);
-    set_elf_sym(symtab_section,
-                end_offset, 0,
-                (((1) << 4) + ((0) & 0xf)), 0,
-                s->sh_num, sym_end);
 }
 
 
@@ -13927,9 +13715,6 @@ static int tcc_add_support(TCCState *s1, const char *filename)
 {
 puts("relocate_rel stub\n");
 exit(1);
-    char buf[1024];
-    snprintf(buf, sizeof(buf), "%s/%s", s1->tcc_lib_path, filename);
-    return tcc_add_file(s1, buf);
 }
 
 static void tcc_add_linker_symbols(TCCState *s1)
