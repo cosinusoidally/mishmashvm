@@ -21056,10 +21056,8 @@ static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global)
 }
 
 
-static int tcc_assemble(TCCState *s1, int do_preprocess)
-{
+static int tcc_assemble(TCCState *s1, int do_preprocess) {
     int ret;
-
     cur_text_section = text_section;
     ind = cur_text_section->data_offset;
     nocode_wanted = 0;
@@ -21068,14 +21066,7 @@ static int tcc_assemble(TCCState *s1, int do_preprocess)
     return ret;
 }
 
-
-
-
-
-
-
-static void tcc_assemble_inline(TCCState *s1, char *str, int len, int global)
-{
+static void tcc_assemble_inline(TCCState *s1, char *str, int len, int global) {
     const int *saved_macro_ptr = macro_ptr;
     int dotid = set_idnum('.', 2);
 
@@ -21089,16 +21080,11 @@ static void tcc_assemble_inline(TCCState *s1, char *str, int len, int global)
     macro_ptr = saved_macro_ptr;
 }
 
-
-
-
 static int find_constraint(ASMOperand *operands, int nb_operands,
-                           const char *name, const char **pp)
-{
+                           const char *name, const char **pp) {
     int index;
     TokenSym *ts;
     const char *p;
-
     if (isnum(*name)) {
         index = 0;
         while (isnum(*name)) {
@@ -21131,13 +21117,11 @@ static int find_constraint(ASMOperand *operands, int nb_operands,
 }
 
 static void subst_asm_operands(ASMOperand *operands, int nb_operands,
-                               CString *out_str, CString *in_str)
-{
+                               CString *out_str, CString *in_str) {
     int c, index, modifier;
     const char *str;
     ASMOperand *op;
     SValue sv;
-
     cstr_new(out_str);
     str = in_str->data;
     for(;;) {
@@ -21151,8 +21135,6 @@ static void subst_asm_operands(ASMOperand *operands, int nb_operands,
             if (*str == 'c' || *str == 'n' ||
                 *str == 'b' || *str == 'w' || *str == 'h' || *str == 'k' ||
 		*str == 'q' ||
-
-
 		*str == 'P')
                 modifier = *str++;
             index = find_constraint(operands, nb_operands, str, &str);
@@ -21175,13 +21157,9 @@ static void subst_asm_operands(ASMOperand *operands, int nb_operands,
     }
 }
 
-
-static void parse_asm_operands(ASMOperand *operands, int *nb_operands_ptr,
-                               int is_output)
-{
+static void parse_asm_operands(ASMOperand *operands, int *nb_operands_ptr, int is_output) {
     ASMOperand *op;
     int nb_operands;
-
     if (tok != ':') {
         nb_operands = *nb_operands_ptr;
         for(;;) {
@@ -21208,10 +21186,6 @@ static void parse_asm_operands(ASMOperand *operands, int *nb_operands_ptr,
                 if (!(vtop->type.t & 0x0040))
                     test_lvalue();
             } else {
-
-
-
-
                 if ((vtop->r & 0x0100) &&
                     ((vtop->r & 0x003f) == 0x0031 ||
                      (vtop->r & 0x003f) < 0x0030) &&
@@ -21231,17 +21205,12 @@ static void parse_asm_operands(ASMOperand *operands, int *nb_operands_ptr,
     }
 }
 
-
-static void asm_instr(void)
-{
+static void asm_instr(void) {
     CString astr, astr1;
     ASMOperand operands[30];
     int nb_outputs, nb_operands, i, must_subst, out_reg;
     uint8_t clobber_regs[8];
-
     next();
-
-
     if (tok == TOK_VOLATILE1 || tok == TOK_VOLATILE2 || tok == TOK_VOLATILE3) {
         next();
     }
@@ -21253,17 +21222,13 @@ static void asm_instr(void)
     if (tok == ':') {
         next();
         must_subst = 1;
-
         parse_asm_operands(operands, &nb_operands, 1);
         nb_outputs = nb_operands;
         if (tok == ':') {
             next();
             if (tok != ')') {
-
                 parse_asm_operands(operands, &nb_operands, 0);
                 if (tok == ':') {
-
-
                     next();
                     for(;;) {
                         if (tok != 0xb9)
@@ -21281,12 +21246,8 @@ static void asm_instr(void)
         }
     }
     skip(')');
-
-
     if (tok != ';')
         expect("';'");
-
-
     save_regs(0);
     asm_compute_constraints(operands, nb_operands, nb_outputs,
                             clobber_regs, &out_reg);
