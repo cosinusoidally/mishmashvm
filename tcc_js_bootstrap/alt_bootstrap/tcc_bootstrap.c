@@ -173,33 +173,23 @@ typedef unsigned long long int __u_quad_t;
 typedef long long int __intmax_t;
 typedef unsigned long long int __uintmax_t;
 
-typedef __u_quad_t __dev_t;
-typedef unsigned int __uid_t;
-typedef unsigned int __gid_t;
-typedef unsigned long int __ino_t;
-typedef __u_quad_t __ino64_t;
-typedef unsigned int __mode_t;
-typedef unsigned int __nlink_t;
-typedef long int __off_t;
-typedef __quad_t __off64_t;
-typedef int __pid_t;
-typedef struct { int __val[2]; } __fsid_t;
-typedef long int __clock_t;
-typedef unsigned long int __rlim_t;
-typedef __u_quad_t __rlim64_t;
-typedef unsigned int __id_t;
-typedef long int __time_t;
-typedef unsigned int __useconds_t;
-typedef long int __suseconds_t;
-
-typedef int __daddr_t;
-typedef int __key_t;
-
-typedef int __clockid_t;
-
-
 // LJW_END
 
+typedef unsigned int __uid_t;
+
+typedef unsigned int __mode_t;
+
+typedef long int __off_t;
+
+typedef __quad_t __off64_t;
+
+typedef int __pid_t;
+
+typedef long int __clock_t;
+
+typedef long int __time_t;
+
+typedef long int __suseconds_t;
 typedef int __ssize_t;
 typedef long int __syscall_slong_t;
 typedef int __sig_atomic_t;
