@@ -13002,84 +13002,51 @@ static void tccelf_new(TCCState *s)
     get_sym_attr(s, 0, 1);
 }
 
-
-static void tccelf_bounds_new(TCCState *s)
-{
+static void tccelf_bounds_new(TCCState *s) {
 puts("stub\n");
 exit(1);
-
-    bounds_section = new_section(s, ".bounds",
-                                 1, (1 << 1));
-    lbounds_section = new_section(s, ".lbounds",
-                                  1, (1 << 1));
 }
 
-static void free_section(Section *s)
-{
+static void free_section(Section *s) {
     tcc_free(s->data);
 }
 
-static void tccelf_delete(TCCState *s1)
-{
+static void tccelf_delete(TCCState *s1) {
     int i;
-
-
     for(i = 1; i < s1->nb_sections; i++)
         free_section(s1->sections[i]);
     dynarray_reset(&s1->sections, &s1->nb_sections);
-
     for(i = 0; i < s1->nb_priv_sections; i++)
         free_section(s1->priv_sections[i]);
     dynarray_reset(&s1->priv_sections, &s1->nb_priv_sections);
-
-
-
     for ( i = 0; i < s1->nb_loaded_dlls; i++) {
         DLLReference *ref = s1->loaded_dlls[i];
         if ( ref->handle )
-
-
-
             dlclose(ref->handle);
-
     }
-
-
     dynarray_reset(&s1->loaded_dlls, &s1->nb_loaded_dlls);
     tcc_free(s1->sym_attrs);
-
     symtab_section = ((void*)0);
 }
 
-
-static void tccelf_begin_file(TCCState *s1)
-{
+static void tccelf_begin_file(TCCState *s1) {
     Section *s; int i;
     for (i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
         s->sh_offset = s->data_offset;
     }
-
     s = s1->symtab, s->reloc = s->hash, s->hash = ((void*)0);
-
-
-
 }
 
-
-
-static void tccelf_end_file(TCCState *s1)
-{
+static void tccelf_end_file(TCCState *s1) {
     Section *s = s1->symtab;
     int first_sym, nb_syms, *tr, i;
-
     first_sym = s->sh_offset / sizeof (Elf32_Sym);
     nb_syms = s->data_offset / sizeof (Elf32_Sym) - first_sym;
     s->data_offset = s->sh_offset;
     s->link->data_offset = s->link->sh_offset;
     s->hash = s->reloc, s->reloc = ((void*)0);
     tr = tcc_mallocz(nb_syms * sizeof *tr);
-
     for (i = 0; i < nb_syms; ++i) {
         Elf32_Sym *sym = (Elf32_Sym*)s->data + first_sym + i;
         if (sym->st_shndx == 0
@@ -13088,7 +13055,6 @@ static void tccelf_end_file(TCCState *s1)
         tr[i] = set_elf_sym(s, sym->st_value, sym->st_size, sym->st_info,
             sym->st_other, sym->st_shndx, s->link->data + sym->st_name);
     }
-
     for (i = 1; i < s1->nb_sections; i++) {
         Section *sr = s1->sections[i];
         if (sr->sh_type == 9 && sr->link == s) {
@@ -13104,10 +13070,8 @@ static void tccelf_end_file(TCCState *s1)
     tcc_free(tr);
 }
 
-static Section *new_section(TCCState *s1, const char *name, int sh_type, int sh_flags)
-{
+static Section *new_section(TCCState *s1, const char *name, int sh_type, int sh_flags) {
     Section *sec;
-
     sec = tcc_mallocz(sizeof(Section) + strlen(name));
     strcpy(sec->name, name);
     sec->sh_type = sh_type;
@@ -13128,39 +13092,32 @@ static Section *new_section(TCCState *s1, const char *name, int sh_type, int sh_
         sec->sh_addralign =  4;
         break;
     }
-
     if (sh_flags & 0x80000000) {
         dynarray_add(&s1->priv_sections, &s1->nb_priv_sections, sec);
     } else {
         sec->sh_num = s1->nb_sections;
         dynarray_add(&s1->sections, &s1->nb_sections, sec);
     }
-
     return sec;
 }
 
 static Section *new_symtab(TCCState *s1,
                            const char *symtab_name, int sh_type, int sh_flags,
                            const char *strtab_name,
-                           const char *hash_name, int hash_sh_flags)
-{
+                           const char *hash_name, int hash_sh_flags) {
     Section *symtab, *strtab, *hash;
     int *ptr, nb_buckets;
-
     symtab = new_section(s1, symtab_name, sh_type, sh_flags);
     symtab->sh_entsize = sizeof(Elf32_Sym);
     strtab = new_section(s1, strtab_name, 3, sh_flags);
     put_elf_str(strtab, "");
     symtab->link = strtab;
     put_elf_sym(symtab, 0, 0, 0, 0, 0, ((void*)0));
-
     nb_buckets = 1;
-
     hash = new_section(s1, hash_name, 5, hash_sh_flags);
     hash->sh_entsize = sizeof(int);
     symtab->hash = hash;
     hash->link = symtab;
-
     ptr = section_ptr_add(hash, (2 + nb_buckets + 1) * sizeof(int));
     ptr[0] = nb_buckets;
     ptr[1] = 1;
@@ -13168,12 +13125,9 @@ static Section *new_symtab(TCCState *s1,
     return symtab;
 }
 
-
-static void section_realloc(Section *sec, unsigned long new_size)
-{
+static void section_realloc(Section *sec, unsigned long new_size) {
     unsigned long size;
     unsigned char *data;
-
     size = sec->data_allocated;
     if (size == 0)
         size = 1;
@@ -13185,10 +13139,7 @@ static void section_realloc(Section *sec, unsigned long new_size)
     sec->data_allocated = size;
 }
 
-
-
-static size_t section_add(Section *sec, Elf32_Addr size, int align)
-{
+static size_t section_add(Section *sec, Elf32_Addr size, int align) {
     size_t offset, offset1;
 
     offset = (sec->data_offset + align - 1) & -align;
@@ -13201,47 +13152,26 @@ static size_t section_add(Section *sec, Elf32_Addr size, int align)
     return offset;
 }
 
-
-
-static void *section_ptr_add(Section *sec, Elf32_Addr size)
-{
+static void *section_ptr_add(Section *sec, Elf32_Addr size) {
     size_t offset = section_add(sec, size, 1);
     return sec->data + offset;
 }
 
-
-static void section_reserve(Section *sec, unsigned long size)
-{
+static void section_reserve(Section *sec, unsigned long size) {
     if (size > sec->data_allocated)
         section_realloc(sec, size);
     if (size > sec->data_offset)
         sec->data_offset = size;
 }
 
-
-
-static Section *find_section(TCCState *s1, const char *name)
-{
+static Section *find_section(TCCState *s1, const char *name) {
 puts("stub\n");
 exit(1);
-    Section *sec;
-    int i;
-    for(i = 1; i < s1->nb_sections; i++) {
-        sec = s1->sections[i];
-        if (!strcmp(name, sec->name))
-            return sec;
-    }
-
-    return new_section(s1, name, 1, (1 << 1));
 }
 
-
-
-static int put_elf_str(Section *s, const char *sym)
-{
+static int put_elf_str(Section *s, const char *sym) {
     int offset, len;
     char *ptr;
-
     len = strlen(sym) + 1;
     offset = s->data_offset;
     ptr = section_ptr_add(s, len);
@@ -13249,11 +13179,8 @@ static int put_elf_str(Section *s, const char *sym)
     return offset;
 }
 
-
-static unsigned long elf_hash(const unsigned char *name)
-{
+static unsigned long elf_hash(const unsigned char *name) {
     unsigned long h = 0, g;
-
     while (*name) {
         h = (h << 4) + *name++;
         g = h & 0xf0000000;
@@ -13264,20 +13191,14 @@ static unsigned long elf_hash(const unsigned char *name)
     return h;
 }
 
-
-
-static void rebuild_hash(Section *s, unsigned int nb_buckets)
-{
+static void rebuild_hash(Section *s, unsigned int nb_buckets) {
     Elf32_Sym *sym;
     int *ptr, *hash, nb_syms, sym_index, h;
     unsigned char *strtab;
-
     strtab = s->link->data;
     nb_syms = s->data_offset / sizeof(Elf32_Sym);
-
     if (!nb_buckets)
         nb_buckets = ((int*)s->hash->data)[0];
-
     s->hash->data_offset = 0;
     ptr = section_ptr_add(s->hash, (2 + nb_buckets + nb_syms) * sizeof(int));
     ptr[0] = nb_buckets;
@@ -13286,7 +13207,6 @@ static void rebuild_hash(Section *s, unsigned int nb_buckets)
     hash = ptr;
     memset(hash, 0, (nb_buckets + 1) * sizeof(int));
     ptr += nb_buckets + 1;
-
     sym = (Elf32_Sym *)s->data + 1;
     for(sym_index = 1; sym_index < nb_syms; sym_index++) {
         if ((((unsigned char) (sym->st_info)) >> 4) != 0) {
@@ -13301,21 +13221,17 @@ static void rebuild_hash(Section *s, unsigned int nb_buckets)
     }
 }
 
-
 static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
-    int info, int other, int shndx, const char *name)
-{
+    int info, int other, int shndx, const char *name) {
     int name_offset, sym_index;
     int nbuckets, h;
     Elf32_Sym *sym;
     Section *hs;
-
     sym = section_ptr_add(s, sizeof(Elf32_Sym));
     if (name && name[0])
         name_offset = put_elf_str(s->link, name);
     else
         name_offset = 0;
-
     sym->st_name = name_offset;
     sym->st_value = value;
     sym->st_size = size;
@@ -13328,15 +13244,12 @@ static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
         int *ptr, *base;
         ptr = section_ptr_add(hs, sizeof(int));
         base = (int *)hs->data;
-
         if ((((unsigned char) (info)) >> 4) != 0) {
-
             nbuckets = base[0];
             h = elf_hash((unsigned char *)s->link->data + name_offset) % nbuckets;
             *ptr = base[2 + h];
             base[2 + h] = sym_index;
             base[1]++;
-
             hs->nb_hashed_syms++;
             if (hs->nb_hashed_syms > 2 * nbuckets) {
                 rebuild_hash(s, 2 * nbuckets);
@@ -13349,13 +13262,11 @@ static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
     return sym_index;
 }
 
-static int find_elf_sym(Section *s, const char *name)
-{
+static int find_elf_sym(Section *s, const char *name) {
     Elf32_Sym *sym;
     Section *hs;
     int nbuckets, sym_index, h;
     const char *name1;
-
     hs = s->hash;
     if (!hs)
         return 0;
@@ -13372,31 +13283,15 @@ static int find_elf_sym(Section *s, const char *name)
     return 0;
 }
 
-
-static Elf32_Addr get_elf_sym_addr(TCCState *s, const char *name, int err)
-{
+static Elf32_Addr get_elf_sym_addr(TCCState *s, const char *name, int err) {
 puts("stub\n");
 exit(1);
-    int sym_index;
-    Elf32_Sym *sym;
-
-    sym_index = find_elf_sym(s->symtab, name);
-    sym = &((Elf32_Sym *)s->symtab->data)[sym_index];
-    if (!sym_index || sym->st_shndx == 0) {
-        if (err)
-            tcc_error("%s not defined", name);
-        return 0;
-    }
-    return sym->st_value;
 }
-
 
 void *tcc_get_symbol(TCCState *s, const char *name) {
 puts("stub\n");
 exit(1);
 }
-
-
 
 static void* tcc_get_symbol_err(TCCState *s, const char *name) {
     return (void*)(uintptr_t)get_elf_sym_addr(s, name, 1);
