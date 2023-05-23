@@ -22332,16 +22332,6 @@ static const FlagDef options_W[] = {
     { 0, 0, ((void*)0) }
 };
 
-static const FlagDef options_f[] = {
-    { ((size_t)&((TCCState *)0)->char_is_unsigned), 0, "unsigned-char" },
-    { ((size_t)&((TCCState *)0)->char_is_unsigned), 0x0002, "signed-char" },
-    { ((size_t)&((TCCState *)0)->nocommon), 0x0002, "common" },
-    { ((size_t)&((TCCState *)0)->leading_underscore), 0, "leading-underscore" },
-    { ((size_t)&((TCCState *)0)->ms_extensions), 0, "ms-extensions" },
-    { ((size_t)&((TCCState *)0)->dollars_in_identifiers), 0, "dollars-in-identifiers" },
-    { 0, 0, ((void*)0) }
-};
-
 static void parse_option_D(TCCState *s1, const char *optarg)
 {
     char *sym = tcc_strdup(optarg);
@@ -22385,14 +22375,12 @@ static int args_parser_make_argv(const char *r, int *argc, char ***argv)
             cstr_ccat(&str, c);
         }
         cstr_ccat(&str, 0);
-
         dynarray_add(argv, argc, tcc_strdup(str.data));
         cstr_free(&str);
         ++ret;
     }
     return ret;
 }
-
 
 static void args_parser_listfile(TCCState *s,
     const char *filename, int optind, int *pargc, char ***pargv)
@@ -22402,21 +22390,17 @@ static void args_parser_listfile(TCCState *s,
     char *p;
     int argc = 0;
     char **argv = ((void*)0);
-
     fd = open(filename, 00 | 0);
     if (fd < 0)
         tcc_error("listfile '%s' not found", filename);
-
     len = lseek(fd, 0, 2);
     p = tcc_malloc(len + 1), p[len] = 0;
     lseek(fd, 0, 0), read(fd, p, len), close(fd);
-
     for (i = 0; i < *pargc; ++i)
         if (i == optind)
             args_parser_make_argv(p, &argc, &argv);
         else
             dynarray_add(&argv, &argc, tcc_strdup((*pargv)[i]));
-
     tcc_free(p);
     dynarray_reset(&s->argv, &s->argc);
     *pargc = s->argc = argc, *pargv = s->argv = argv;
@@ -22547,10 +22531,6 @@ exit(1);
         case TCC_OPTION_v:
             do ++s->verbose; while (*optarg++ == 'v');
             ++noaction;
-            break;
-        case TCC_OPTION_f:
-            if (set_flag(s, options_f, optarg) < 0)
-                goto unsupported_option;
             break;
         case TCC_OPTION_W:
             if (set_flag(s, options_W, optarg) < 0)
