@@ -11801,7 +11801,6 @@ static void block(int *bsym, int *csym, int is_expr)
         }
         skip(';');
     } else if (tok == TOK_ASM1 || tok == TOK_ASM2 || tok == TOK_ASM3) {
-        asm_instr();
     } else {
         b = is_label();
         if (b) {
@@ -12518,9 +12517,6 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
 
 
 	    if (ad->asm_label) {
-		int reg = asm_parse_regvar(ad->asm_label);
-		if (reg >= 0)
-		    r = (r & ~0x003f) | reg;
 	    }
 
             sym = sym_push(v, type, r, addr);
@@ -12751,7 +12747,6 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym)
                 break;
             if (tok == TOK_ASM1 || tok == TOK_ASM2 || tok == TOK_ASM3) {
 
-                asm_global_instr();
                 continue;
             }
             if (tok >= TOK_DEFINE) {
@@ -18706,57 +18701,6 @@ static const uint16_t op0_codes[] = {
      0xd9fe, 0xd9ff, 0xd9e0, 0xd9e1, 0xdbe3, 0xdbe2, 0xd9d0, 0xd9c9,
     0xdfe0, 0x0f77, };
 
-static inline int get_reg_shift(TCCState *s1) {
-printf("get_reg_shift stub\n");
-exit(1);
-}
-
-static int asm_parse_reg(unsigned int *type) {
-printf("asm_parse_reg stub\n");
-exit(1);
-}
-
-static void parse_operand(TCCState *s1, Operand *op) {
-printf("parse_operand stub\n");
-exit(1);
-}
-
-
-static void gen_expr32(ExprValue *pe)
-{
-printf("gen_expr32 stub\n");
-exit(1);
-}
-
-static void gen_disp32(ExprValue *pe) {
-printf("gen_disp32 stub\n");
-exit(1);
-}
-
-static inline int asm_modrm(int reg, Operand *op) {
-printf("asm_modrm stub\n");
-exit(1);
-}
-
-static void asm_opcode(TCCState *s1, int opcode) {
-printf("asm_opcode stub\n");
-exit(1);
-}
-
-static inline int constraint_priority(const char *str) {
-printf("constraint_priority stub\n");
-exit(1);
-}
-
-static const char *skip_constraint_modifiers(const char *p) {
-printf("skip_constraint_modifiers stub\n");
-exit(1);
-}
-
-static int asm_parse_regvar (int t) {
-printf("asm_parse_regvar stub\n");
-exit(1);
-}
 
 static void asm_compute_constraints(ASMOperand *operands,
                                     int nb_operands, int nb_outputs,
@@ -18902,32 +18846,6 @@ printf("blah\n");
 puts(str);
 }
 
-static int find_constraint(ASMOperand *operands, int nb_operands,
-                           const char *name, const char **pp) {
-printf("set_symbol stub\n");
-exit(1);
-}
-
-static void subst_asm_operands(ASMOperand *operands, int nb_operands,
-                               CString *out_str, CString *in_str) {
-printf("set_symbol stub\n");
-exit(1);
-}
-
-static void parse_asm_operands(ASMOperand *operands, int *nb_operands_ptr, int is_output) {
-printf("set_symbol stub\n");
-exit(1);
-}
-
-static void asm_instr(void) {
-printf("set_symbol stub\n");
-exit(1);
-}
-
-static void asm_global_instr(void) {
-printf("set_symbol stub\n");
-exit(1);
-}
 
 static char *pstrcpy(char *buf, int buf_size, const char *s) {
     char *q, *q_end;
