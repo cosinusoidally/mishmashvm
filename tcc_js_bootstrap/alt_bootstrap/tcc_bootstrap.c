@@ -23112,24 +23112,11 @@ static void args_parser_listfile(TCCState *s,
     cstr_new(&linker_arg);
     while (optind < argc) {
         r = argv[optind];
-        if (r[0] == '@' && r[1] != '\0') {
-            args_parser_listfile(s, r + 1, optind, &argc, &argv);
-	    continue;
-        }
         optind++;
-        if (tool) {
-            if (r[0] == '-' && r[1] == 'v' && r[2] == 0)
-                ++s->verbose;
-            continue;
-        }
 reparse:
         if (r[0] != '-' || r[1] == '\0') {
-            if (r[0] != '@')
+            if (r[0] != '@'){
                 args_parser_add_file(s, r, s->filetype);
-            if (run) {
-                tcc_set_options(s, run);
-                arg_start = optind - 1;
-                break;
             }
             continue;
         }
@@ -23154,8 +23141,10 @@ reparse:
         }
         switch(popt->index) {
         case TCC_OPTION_HELP:
+exit(1);
             return 1;
         case TCC_OPTION_HELP2:
+exit(1);
             return 2;
         case TCC_OPTION_I:
             tcc_add_include_path(s, optarg);
@@ -23177,16 +23166,20 @@ reparse:
             s->nb_libraries++;
             break;
         case TCC_OPTION_pthread:
+exit(1);
             parse_option_D(s, "_REENTRANT");
             s->option_pthread = 1;
             break;
         case TCC_OPTION_bench:
+exit(1);
             s->do_bench = 1;
             break;
         case TCC_OPTION_bt:
+exit(1);
             tcc_set_num_callers(atoi(optarg));
             break;
         case TCC_OPTION_b:
+exit(1);
             s->do_bounds_check = 1;
             s->do_debug = 1;
             break;
@@ -23201,6 +23194,7 @@ reparse:
             s->output_type = x;
             break;
         case TCC_OPTION_d:
+exit(1);
             if (*optarg == 'D')
                 s->dflag = 3;
             else if (*optarg == 'M')
@@ -23216,6 +23210,7 @@ reparse:
             s->static_link = 1;
             break;
         case TCC_OPTION_std:
+exit(1);
             break;
         case TCC_OPTION_shared:
             x = 3;
@@ -23232,10 +23227,12 @@ reparse:
             break;
         case TCC_OPTION_r:
 
+exit(1);
             s->option_r = 1;
             x = 4;
             goto set_output_type;
         case TCC_OPTION_isystem:
+exit(1);
             tcc_add_sysinclude_path(s, optarg);
             break;
 	case TCC_OPTION_include:
@@ -23249,6 +23246,7 @@ reparse:
             s->nostdlib = 1;
             break;
         case TCC_OPTION_run:
+exit(1);
             run = optarg;
             x = 1;
             goto set_output_type;
@@ -23261,6 +23259,7 @@ reparse:
                 goto unsupported_option;
             break;
         case TCC_OPTION_m:
+exit(1);
             if (set_flag(s, options_m, optarg) < 0) {
                 if (x = atoi(optarg), x != 32 && x != 64)
                     goto unsupported_option;
@@ -23274,12 +23273,15 @@ reparse:
                 goto unsupported_option;
             break;
         case TCC_OPTION_w:
+exit(1);
             s->warn_none = 1;
             break;
         case TCC_OPTION_rdynamic:
+exit(1);
             s->rdynamic = 1;
             break;
         case TCC_OPTION_Wl:
+exit(1);
             if (linker_arg.size)
                 --linker_arg.size, cstr_ccat(&linker_arg, ',');
             cstr_cat(&linker_arg, optarg, 0);
@@ -23287,18 +23289,22 @@ reparse:
                 cstr_free(&linker_arg);
             break;
 	case TCC_OPTION_Wp:
+exit(1);
 	    r = optarg;
 	    goto reparse;
         case TCC_OPTION_E:
             x = 5;
             goto set_output_type;
         case TCC_OPTION_P:
+exit(1);
             s->Pflag = atoi(optarg) + 1;
             break;
         case TCC_OPTION_MD:
+exit(1);
             s->gen_deps = 1;
             break;
         case TCC_OPTION_MF:
+exit(1);
             s->deps_outfile = tcc_strdup(optarg);
             break;
         case TCC_OPTION_dumpversion:
@@ -23306,6 +23312,7 @@ reparse:
             exit(0);
             break;
         case TCC_OPTION_x:
+exit(1);
             if (*optarg == 'c')
                 s->filetype = 1;
             else if (*optarg == 'a')
@@ -23319,12 +23326,15 @@ reparse:
             last_o = atoi(optarg);
             break;
         case TCC_OPTION_print_search_dirs:
+exit(1);
             x = 4;
             goto extra_action;
         case TCC_OPTION_impdef:
+exit(1);
             x = 6;
             goto extra_action;
         case TCC_OPTION_ar:
+exit(1);
             x = 5;
         extra_action:
             arg_start = optind - 1;
@@ -23336,6 +23346,7 @@ reparse:
         case TCC_OPTION_pedantic:
         case TCC_OPTION_pipe:
         case TCC_OPTION_s:
+exit(1);
             break;
         default:
 unsupported_option:
