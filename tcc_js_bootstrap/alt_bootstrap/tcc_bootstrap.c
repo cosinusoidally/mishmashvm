@@ -1836,7 +1836,6 @@ static int tcc_add_crt(TCCState *s, const char *filename);
 static int tcc_add_dll(TCCState *s, const char *filename, int flags);
 static void tcc_add_pragma_libs(TCCState *s1);
 int tcc_add_library_err(TCCState *s, const char *f);
-void tcc_print_stats(TCCState *s, unsigned total_time);
 int tcc_parse_args(TCCState *s, int *argc, char ***argv, int optind);
 static struct BufferedFile *file;
 static int ch, tok;
@@ -2021,7 +2020,6 @@ static int find_elf_sym(Section *s, const char *name);
 static void put_elf_reloc(Section *symtab, Section *s, unsigned long offset, int type, int symbol);
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset, int type, int symbol, Elf32_Addr addend);
 
-static void put_stabs(const char *str, int type, int other, int desc, unsigned long value);
 static void put_stabs_r(const char *str, int type, int other, int desc, unsigned long value, Section *sec, int sym_index);
 static void put_stabn(int type, int other, int desc, int value);
 static void put_stabd(int type, int other, int desc);
@@ -4229,8 +4227,6 @@ static void preprocess(int is_bof)
             dynarray_add(&s1->target_deps, &s1->nb_target_deps,
                     tcc_strdup(buf1));
             ++s1->include_stack_ptr;
-            if (s1->do_debug)
-                put_stabs(file->filename, N_BINCL, 0, 0, 0);
             tok_flags |= 0x0002 | 0x0001;
             ch = file->buf_ptr[0];
             goto the_end;
@@ -4329,8 +4325,6 @@ include_done:
         if (file->fd > 0)
             total_lines += file->line_num - n;
         file->line_num = n;
-        if (s1->do_debug)
-    	    put_stabs(file->filename, N_BINCL, 0, 0, 0);
         break;
     case TOK_ERROR:
     case TOK_WARNING:
@@ -6228,30 +6222,15 @@ static void tcc_debug_line(TCCState *s1)
 
 static void tcc_debug_funcstart(TCCState *s1, Sym *sym)
 {
-    char buf[512];
-
-    if (!s1->do_debug)
-        return;
-
-
-
-    snprintf(buf, sizeof(buf), "%s:%c1",
-             funcname, sym->type.t & 0x00002000 ? 'f' : 'F');
-    put_stabs_r(buf, N_FUN, 0, file->line_num, 0,
-                cur_text_section, sym->c);
-
-    put_stabn(N_SLINE, 0, file->line_num, 0);
-
-    last_ind = 0;
-    last_line_num = 0;
+printf("tcc_debug_funcstart stub\n");
+exit(1);
 }
 
 
 static void tcc_debug_funcend(TCCState *s1, int size)
 {
-    if (!s1->do_debug)
-        return;
-    put_stabn(N_FUN, 0, 0, size);
+printf("tcc_debug_funcend stub\n");
+exit(1);
 }
 
 
@@ -12768,7 +12747,6 @@ static void gen_function(Sym *sym)
     vla_sp_loc = -1;
     vla_sp_root_loc = -1;
 
-    tcc_debug_funcstart(tcc_state, sym);
 
     sym_push2(&local_stack, 0x20000000, 0, 0);
     local_scope = 1;
@@ -12787,7 +12765,6 @@ static void gen_function(Sym *sym)
 
 
     elfsym(sym)->st_size = ind - func_ind;
-    tcc_debug_funcend(tcc_state, ind - func_ind);
 
     cur_text_section = ((void*)0);
     funcname = "";
@@ -13135,13 +13112,8 @@ static void tccelf_bounds_new(TCCState *s)
 
 static void tccelf_stab_new(TCCState *s)
 {
-    stab_section = new_section(s, ".stab", 1, 0);
-    stab_section->sh_entsize = sizeof(Stab_Sym);
-    stabstr_section = new_section(s, ".stabstr", 3, 0);
-    put_elf_str(stabstr_section, "");
-    stab_section->link = stabstr_section;
-
-    put_stabs("", 0, 0, 0, 0);
+printf("tccelf_stab_new stub\n");
+exit(1);
 }
 
 static void free_section(Section *s)
@@ -13694,40 +13666,23 @@ static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset)
 
 
 
-static void put_stabs(const char *str, int type, int other, int desc,
-                      unsigned long value)
-{
-    Stab_Sym *sym;
-
-    sym = section_ptr_add(stab_section, sizeof(Stab_Sym));
-    if (str) {
-        sym->n_strx = put_elf_str(stabstr_section, str);
-    } else {
-        sym->n_strx = 0;
-    }
-    sym->n_type = type;
-    sym->n_other = other;
-    sym->n_desc = desc;
-    sym->n_value = value;
-}
-
 static void put_stabs_r(const char *str, int type, int other, int desc,
                         unsigned long value, Section *sec, int sym_index)
 {
-    put_stabs(str, type, other, desc, value);
-    put_elf_reloc(symtab_section, stab_section,
-                  stab_section->data_offset - sizeof(unsigned int),
-                  1, sym_index);
+printf("put_stabs_r stub\n");
+exit(1);
 }
 
 static void put_stabn(int type, int other, int desc, int value)
 {
-    put_stabs(((void*)0), type, other, desc, value);
+printf("put_stabsn stub\n");
+exit(1);
 }
 
 static void put_stabd(int type, int other, int desc)
 {
-    put_stabs(((void*)0), type, other, desc, 0);
+printf("put_stabd stub\n");
+exit(1);
 }
 
 static struct sym_attr *get_sym_attr(TCCState *s1, int index, int alloc)
@@ -22086,20 +22041,8 @@ static void tcc_cleanup(void)
         s->output_format = 0;
     if (s->char_is_unsigned)
         tcc_define_symbol(s, "__CHAR_UNSIGNED__", ((void*)0));
-    if (!s->nostdinc) {
-        tcc_add_sysinclude_path(s, "{B}/include" ":" "" "/usr/local/include" "/" "i386-linux-gnu" ":" "" "/usr/local/include" ":" "" "/usr/include" "/" "i386-linux-gnu" ":" "" "/usr/include");
-    }
     if (s->do_debug) {
         tccelf_stab_new(s);
-    }
-    tcc_add_library_path(s, "" "/usr/" "lib" "/" "i386-linux-gnu" ":" "" "/usr/" "lib" ":" "" "/" "lib" "/" "i386-linux-gnu" ":" "" "/" "lib" ":" "" "/usr/local/" "lib" "/" "i386-linux-gnu" ":" "" "/usr/local/" "lib");
-# 975 "tcc_src/libtcc.c"
-    tcc_split_path(s, &s->crt_paths, &s->nb_crt_paths, "" "/usr/" "lib" "/" "i386-linux-gnu");
-    if ((output_type == 2 || output_type == 3) &&
-        !s->nostdlib) {
-        if (output_type != 3)
-            tcc_add_crt(s, "crt1.o");
-        tcc_add_crt(s, "crti.o");
     }
     return 0;
 }
@@ -22661,6 +22604,7 @@ reparse:
             s->nb_libraries++;
             break;
         case TCC_OPTION_g:
+exit(1);
             s->do_debug = 1;
             break;
         case TCC_OPTION_c:
@@ -22799,26 +22743,6 @@ unsupported_option:
     dynarray_reset(&argv, &argc);
 }
 
- void tcc_print_stats(TCCState *s, unsigned total_time)
-{
-    if (total_time < 1)
-        total_time = 1;
-    if (total_bytes < 1)
-        total_bytes = 1;
-    fprintf(stderr, "* %d idents, %d lines, %d bytes\n"
-                    "* %0.3f s, %u lines/s, %0.1f MB/s\n",
-           tok_ident - 256, total_lines, total_bytes,
-           (double)total_time/1000,
-           (unsigned)total_lines*1000/total_time,
-           (double)total_bytes/1000/total_time);
-
-
-
-}
-# 24 "tcc_src/tcc.c" 2
-
-# 1 "tcc_src/tcctools.c" 1
-# 36 "tcc_src/tcctools.c"
 typedef struct {
     char ar_name[16];
     char ar_date[12];
