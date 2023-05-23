@@ -20281,226 +20281,47 @@ static void asm_expr_unary(TCCState *s1, ExprValue *pe)
 
 static void asm_expr_prod(TCCState *s1, ExprValue *pe)
 {
-    int op;
-    ExprValue e2;
-
-    asm_expr_unary(s1, pe);
-    for(;;) {
-        op = tok;
-        if (op != '*' && op != '/' && op != '%' &&
-            op != 0x01 && op != 0x02)
-            break;
-        next();
-        asm_expr_unary(s1, &e2);
-        if (pe->sym || e2.sym)
-            tcc_error("invalid operation with label");
-        switch(op) {
-        case '*':
-            pe->v *= e2.v;
-            break;
-        case '/':
-            if (e2.v == 0) {
-            div_error:
-                tcc_error("division by zero");
-            }
-            pe->v /= e2.v;
-            break;
-        case '%':
-            if (e2.v == 0)
-                goto div_error;
-            pe->v %= e2.v;
-            break;
-        case 0x01:
-            pe->v <<= e2.v;
-            break;
-        default:
-        case 0x02:
-            pe->v >>= e2.v;
-            break;
-        }
-    }
+printf("asm_expr_prod stub\n");
+exit(1);
 }
 
-static void asm_expr_logic(TCCState *s1, ExprValue *pe)
-{
-    int op;
-    ExprValue e2;
-
-    asm_expr_prod(s1, pe);
-    for(;;) {
-        op = tok;
-        if (op != '&' && op != '|' && op != '^')
-            break;
-        next();
-        asm_expr_prod(s1, &e2);
-        if (pe->sym || e2.sym)
-            tcc_error("invalid operation with label");
-        switch(op) {
-        case '&':
-            pe->v &= e2.v;
-            break;
-        case '|':
-            pe->v |= e2.v;
-            break;
-        default:
-        case '^':
-            pe->v ^= e2.v;
-            break;
-        }
-    }
+static void asm_expr_logic(TCCState *s1, ExprValue *pe) {
+printf("asm_expr_logic stub\n");
+exit(1);
 }
 
-static inline void asm_expr_sum(TCCState *s1, ExprValue *pe)
-{
-    int op;
-    ExprValue e2;
-
-    asm_expr_logic(s1, pe);
-    for(;;) {
-        op = tok;
-        if (op != '+' && op != '-')
-            break;
-        next();
-        asm_expr_logic(s1, &e2);
-        if (op == '+') {
-            if (pe->sym != ((void*)0) && e2.sym != ((void*)0))
-                goto cannot_relocate;
-            pe->v += e2.v;
-            if (pe->sym == ((void*)0) && e2.sym != ((void*)0))
-                pe->sym = e2.sym;
-        } else {
-            pe->v -= e2.v;
-
-
-	    if (!e2.sym) {
-
-	    } else if (pe->sym == e2.sym) {
-
-		pe->sym = ((void*)0);
-	    } else {
-		Elf32_Sym *esym1, *esym2;
-		esym1 = elfsym(pe->sym);
-		esym2 = elfsym(e2.sym);
-		if (esym1 && esym1->st_shndx == esym2->st_shndx
-		    && esym1->st_shndx != 0) {
-
-		    pe->v += esym1->st_value - esym2->st_value;
-		    pe->sym = ((void*)0);
-		} else if (esym2->st_shndx == cur_text_section->sh_num) {
-
-
-		    pe->v -= esym2->st_value - ind - 4;
-		    pe->pcrel = 1;
-		    e2.sym = ((void*)0);
-		} else {
-cannot_relocate:
-		    tcc_error("invalid operation with label");
-		}
-	    }
-        }
-    }
+static inline void asm_expr_sum(TCCState *s1, ExprValue *pe) {
+printf("asm_expr_sum stub\n");
+exit(1);
 }
 
-static inline void asm_expr_cmp(TCCState *s1, ExprValue *pe)
-{
-    int op;
-    ExprValue e2;
-
-    asm_expr_sum(s1, pe);
-    for(;;) {
-        op = tok;
-	if (op != 0x94 && op != 0x95
-	    && (op > 0x9f || op < 0x96))
-            break;
-        next();
-        asm_expr_sum(s1, &e2);
-        if (pe->sym || e2.sym)
-            tcc_error("invalid operation with label");
-        switch(op) {
-	case 0x94:
-	    pe->v = pe->v == e2.v;
-	    break;
-	case 0x95:
-	    pe->v = pe->v != e2.v;
-	    break;
-	case 0x9c:
-	    pe->v = (int64_t)pe->v < (int64_t)e2.v;
-	    break;
-	case 0x9d:
-	    pe->v = (int64_t)pe->v >= (int64_t)e2.v;
-	    break;
-	case 0x9e:
-	    pe->v = (int64_t)pe->v <= (int64_t)e2.v;
-	    break;
-	case 0x9f:
-	    pe->v = (int64_t)pe->v > (int64_t)e2.v;
-	    break;
-        default:
-            break;
-        }
-
-	pe->v = -(int64_t)pe->v;
-    }
+static inline void asm_expr_cmp(TCCState *s1, ExprValue *pe) {
+printf("asm_expr_cmp stub\n");
+exit(1);
 }
 
-static void asm_expr(TCCState *s1, ExprValue *pe)
-{
-    asm_expr_cmp(s1, pe);
+static void asm_expr(TCCState *s1, ExprValue *pe) {
+printf("asm_expr stub\n");
+exit(1);
 }
 
-static int asm_int_expr(TCCState *s1)
-{
-    ExprValue e;
-    asm_expr(s1, &e);
-    if (e.sym)
-        expect("constant");
-    return e.v;
+static int asm_int_expr(TCCState *s1) {
+printf("asm_int_expr stub\n");
+exit(1);
 }
 
 static Sym* asm_new_label1(TCCState *s1, int label, int is_local,
-                           int sh_num, int value)
-{
-    Sym *sym;
-    Elf32_Sym *esym;
-
-    sym = asm_label_find(label);
-    if (sym) {
-	esym = elfsym(sym);
-
-
-
-        if (esym && esym->st_shndx != 0) {
-
-            if ((((sym)->type.t & (0x000f | (0 | 0x0010))) == (0 | 0x0010))
-                && (is_local == 1 || (sym->type.t & 0x00001000)))
-                goto new_label;
-            if (!(sym->type.t & 0x00001000))
-                tcc_error("assembler label '%s' already defined",
-                          get_tok_str(label, ((void*)0)));
-        }
-    } else {
-    new_label:
-        sym = asm_label_push(label);
-    }
-    if (!sym->c)
-      put_extern_sym2(sym, 0, 0, 0, 0);
-    esym = elfsym(sym);
-    esym->st_shndx = sh_num;
-    esym->st_value = value;
-    if (is_local != 2)
-        sym->type.t &= ~0x00001000;
-    return sym;
+                           int sh_num, int value) {
+printf("asm_new_label1 stub\n");
+exit(1);
 }
 
-static Sym* asm_new_label(TCCState *s1, int label, int is_local)
-{
-    return asm_new_label1(s1, label, is_local, cur_text_section->sh_num, ind);
+static Sym* asm_new_label(TCCState *s1, int label, int is_local) {
+printf("asm_new_label stub\n");
+exit(1);
 }
 
-
-
-static Sym* set_symbol(TCCState *s1, int label)
-{
+static Sym* set_symbol(TCCState *s1, int label) {
     long n;
     ExprValue e;
     Sym *sym;
@@ -20516,29 +20337,25 @@ static Sym* set_symbol(TCCState *s1, int label)
     return sym;
 }
 
-static void use_section1(TCCState *s1, Section *sec)
-{
+static void use_section1(TCCState *s1, Section *sec) {
     cur_text_section->data_offset = ind;
     cur_text_section = sec;
     ind = cur_text_section->data_offset;
 }
 
-static void use_section(TCCState *s1, const char *name)
-{
+static void use_section(TCCState *s1, const char *name) {
     Section *sec;
     sec = find_section(s1, name);
     use_section1(s1, sec);
 }
 
-static void push_section(TCCState *s1, const char *name)
-{
+static void push_section(TCCState *s1, const char *name) {
     Section *sec = find_section(s1, name);
     sec->prev = cur_text_section;
     use_section1(s1, sec);
 }
 
-static void pop_section(TCCState *s1)
-{
+static void pop_section(TCCState *s1) {
     Section *prev = cur_text_section->prev;
     if (!prev)
         tcc_error(".popsection without .pushsection");
