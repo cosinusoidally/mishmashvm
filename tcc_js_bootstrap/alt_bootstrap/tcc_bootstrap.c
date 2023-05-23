@@ -22377,6 +22377,8 @@ static int strstart(const char *val, const char **str)
 # 1263 "tcc_src/libtcc.c"
 static int link_option(const char *str, const char *val, const char **ptr)
 {
+printf("link_option stub\n");
+exit(1);
     const char *p, *q;
     int ret;
 
@@ -22428,6 +22430,8 @@ static const char *skip_linker_arg(const char **str)
 
 static void copy_linker_arg(char **pp, const char *s, int sep)
 {
+printf("copy_linker_arg stub\n");
+exit(1);
     const char *q = s;
     char *p = *pp;
     int l = 0;
@@ -22440,6 +22444,8 @@ static void copy_linker_arg(char **pp, const char *s, int sep)
 
 static int tcc_set_linker(TCCState *s, const char *option)
 {
+printf("tcc_set_linker stub\n");
+exit(1);
     while (*option) {
 
         const char *p = ((void*)0);
@@ -22483,8 +22489,6 @@ static int tcc_set_linker(TCCState *s, const char *option)
             ignoring = 1;
         } else if (link_option(option, "O", &p)) {
             ignoring = 1;
-        } else if (link_option(option, "export-all-symbols", &p)) {
-            s->rdynamic = 1;
         } else if (link_option(option, "rpath=", &p)) {
             copy_linker_arg(&s->rpath, p, ':');
         } else if (link_option(option, "enable-new-dtags", &p)) {
@@ -22656,14 +22660,6 @@ static const FlagDef options_f[] = {
     { ((size_t)&((TCCState *)0)->leading_underscore), 0, "leading-underscore" },
     { ((size_t)&((TCCState *)0)->ms_extensions), 0, "ms-extensions" },
     { ((size_t)&((TCCState *)0)->dollars_in_identifiers), 0, "dollars-in-identifiers" },
-    { 0, 0, ((void*)0) }
-};
-
-static const FlagDef options_m[] = {
-    { ((size_t)&((TCCState *)0)->ms_bitfields), 0, "ms-bitfields" },
-
-
-
     { 0, 0, ((void*)0) }
 };
 
@@ -22876,16 +22872,6 @@ exit(1);
             if (set_flag(s, options_f, optarg) < 0)
                 goto unsupported_option;
             break;
-        case TCC_OPTION_m:
-exit(1);
-            if (set_flag(s, options_m, optarg) < 0) {
-                if (x = atoi(optarg), x != 32 && x != 64)
-                    goto unsupported_option;
-                if (4 != x/8)
-                    return x;
-                ++noaction;
-            }
-            break;
         case TCC_OPTION_W:
             if (set_flag(s, options_W, optarg) < 0)
                 goto unsupported_option;
@@ -22893,18 +22879,6 @@ exit(1);
         case TCC_OPTION_w:
 exit(1);
             s->warn_none = 1;
-            break;
-        case TCC_OPTION_rdynamic:
-exit(1);
-            s->rdynamic = 1;
-            break;
-        case TCC_OPTION_Wl:
-exit(1);
-            if (linker_arg.size)
-                --linker_arg.size, cstr_ccat(&linker_arg, ',');
-            cstr_cat(&linker_arg, optarg, 0);
-            if (tcc_set_linker(s, linker_arg.data))
-                cstr_free(&linker_arg);
             break;
 	case TCC_OPTION_Wp:
 exit(1);
