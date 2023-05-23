@@ -18803,6 +18803,7 @@ static Sym *asm_label_push(int v) {
 printf("asm_label_push stub\n");
 exit(1);
 }
+
 static Sym* get_asm_sym(int name, Sym *csym)
 {
 printf("get_asm_sym stub\n");
@@ -18864,331 +18865,68 @@ exit(1);
 static Sym* set_symbol(TCCState *s1, int label) {
 printf("set_symbol stub\n");
 exit(1);
-    long n;
-    ExprValue e;
-    Sym *sym;
-    Elf32_Sym *esym;
-    next();
-    asm_expr(s1, &e);
-    n = e.v;
-    esym = elfsym(e.sym);
-    if (esym)
-	n += esym->st_value;
-    sym = asm_new_label1(s1, label, 2, esym ? esym->st_shndx : 0xfff1, n);
-    elfsym(sym)->st_other |= 0x04;
-    return sym;
 }
 
 static void use_section1(TCCState *s1, Section *sec) {
-    cur_text_section->data_offset = ind;
-    cur_text_section = sec;
-    ind = cur_text_section->data_offset;
+printf("set_symbol stub\n");
+exit(1);
 }
 
 static void use_section(TCCState *s1, const char *name) {
-    Section *sec;
-    sec = find_section(s1, name);
-    use_section1(s1, sec);
+printf("set_symbol stub\n");
+exit(1);
 }
 
 static void push_section(TCCState *s1, const char *name) {
-    Section *sec = find_section(s1, name);
-    sec->prev = cur_text_section;
-    use_section1(s1, sec);
+printf("set_symbol stub\n");
+exit(1);
 }
 
 static void pop_section(TCCState *s1) {
-    Section *prev = cur_text_section->prev;
-    if (!prev)
-        tcc_error(".popsection without .pushsection");
-    cur_text_section->prev = ((void*)0);
-    use_section1(s1, prev);
+printf("set_symbol stub\n");
+exit(1);
 }
 
 static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global) {
-    int opcode;
-    int saved_parse_flags = parse_flags;
-    parse_flags = 0x0008 | 0x0040;
-    if (do_preprocess)
-        parse_flags |= 0x0001;
-    for(;;) {
-        next();
-        if (tok == (-1))
-            break;
-        parse_flags |= 0x0004;
-    redo:
-        if (tok == '#') {
-            while (tok != 10)
-                next();
-        } else if (tok == 0xbe) {
-            const char *p;
-            int n;
-            p = tokc.str.data;
-            n = strtoul(p, (char **)&p, 10);
-            if (*p != '\0')
-                expect("':'");
-            asm_new_label(s1, asm_get_local_label_name(s1, n), 1);
-            next();
-            skip(':');
-            goto redo;
-        } else if (tok >= 256) {
-            opcode = tok;
-            next();
-            if (tok == ':') {
-                asm_new_label(s1, opcode, 0);
-                next();
-                goto redo;
-            } else if (tok == '=') {
-		set_symbol(s1, opcode);
-                goto redo;
-            } else {
-                asm_opcode(s1, opcode);
-            }
-        }
-        if (tok != ';' && tok != 10)
-            expect("end of line");
-        parse_flags &= ~0x0004;
-    }
-    parse_flags = saved_parse_flags;
-    return 0;
+printf("set_symbol stub\n");
+exit(1);
 }
 
 static int tcc_assemble(TCCState *s1, int do_preprocess) {
 printf("tcc_assemble stub\n");
 exit(1);
-    int ret;
-    cur_text_section = text_section;
-    ind = cur_text_section->data_offset;
-    nocode_wanted = 0;
-    ret = tcc_assemble_internal(s1, do_preprocess, 1);
-    cur_text_section->data_offset = ind;
-    return ret;
 }
 
 static void tcc_assemble_inline(TCCState *s1, char *str, int len, int global) {
 printf("blah\n");
 puts(str);
-    const int *saved_macro_ptr = macro_ptr;
-    int dotid = set_idnum('.', 2);
-
-    tcc_open_bf(s1, ":asm:", len);
-    memcpy(file->buffer, str, len);
-    macro_ptr = ((void*)0);
-    tcc_assemble_internal(s1, 0, global);
-    tcc_close();
-
-    set_idnum('.', dotid);
-    macro_ptr = saved_macro_ptr;
 }
 
 static int find_constraint(ASMOperand *operands, int nb_operands,
                            const char *name, const char **pp) {
-    int index;
-    TokenSym *ts;
-    const char *p;
-    if (isnum(*name)) {
-        index = 0;
-        while (isnum(*name)) {
-            index = (index * 10) + (*name) - '0';
-            name++;
-        }
-        if ((unsigned)index >= nb_operands)
-            index = -1;
-    } else if (*name == '[') {
-        name++;
-        p = strchr(name, ']');
-        if (p) {
-            ts = tok_alloc(name, p - name);
-            for(index = 0; index < nb_operands; index++) {
-                if (operands[index].id == ts->tok)
-                    goto found;
-            }
-            index = -1;
-        found:
-            name = p + 1;
-        } else {
-            index = -1;
-        }
-    } else {
-        index = -1;
-    }
-    if (pp)
-        *pp = name;
-    return index;
+printf("set_symbol stub\n");
+exit(1);
 }
 
 static void subst_asm_operands(ASMOperand *operands, int nb_operands,
                                CString *out_str, CString *in_str) {
-    int c, index, modifier;
-    const char *str;
-    ASMOperand *op;
-    SValue sv;
-    cstr_new(out_str);
-    str = in_str->data;
-    for(;;) {
-        c = *str++;
-        if (c == '%') {
-            if (*str == '%') {
-                str++;
-                goto add_char;
-            }
-            modifier = 0;
-            if (*str == 'c' || *str == 'n' ||
-                *str == 'b' || *str == 'w' || *str == 'h' || *str == 'k' ||
-		*str == 'q' ||
-		*str == 'P')
-                modifier = *str++;
-            index = find_constraint(operands, nb_operands, str, &str);
-            if (index < 0)
-                tcc_error("invalid operand reference after %%");
-            op = &operands[index];
-            sv = *op->vt;
-            if (op->reg >= 0) {
-                sv.r = op->reg;
-                if ((op->vt->r & 0x003f) == 0x0031 && op->is_memory)
-                    sv.r |= 0x0100;
-            }
-            subst_asm_operand(out_str, &sv, modifier);
-        } else {
-        add_char:
-            cstr_ccat(out_str, c);
-            if (c == '\0')
-                break;
-        }
-    }
+printf("set_symbol stub\n");
+exit(1);
 }
 
 static void parse_asm_operands(ASMOperand *operands, int *nb_operands_ptr, int is_output) {
-    ASMOperand *op;
-    int nb_operands;
-    if (tok != ':') {
-        nb_operands = *nb_operands_ptr;
-        for(;;) {
-	    CString astr;
-            if (nb_operands >= 30)
-                tcc_error("too many asm operands");
-            op = &operands[nb_operands++];
-            op->id = 0;
-            if (tok == '[') {
-                next();
-                if (tok < 256)
-                    expect("identifier");
-                op->id = tok;
-                next();
-                skip(']');
-            }
-	    parse_mult_str(&astr, "string constant");
-            op->constraint = tcc_malloc(astr.size);
-            strcpy(op->constraint, astr.data);
-	    cstr_free(&astr);
-            skip('(');
-            gexpr();
-            if (is_output) {
-                if (!(vtop->type.t & 0x0040))
-                    test_lvalue();
-            } else {
-                if ((vtop->r & 0x0100) &&
-                    ((vtop->r & 0x003f) == 0x0031 ||
-                     (vtop->r & 0x003f) < 0x0030) &&
-                    !strchr(op->constraint, 'm')) {
-                    gv(0x0001);
-                }
-            }
-            op->vt = vtop;
-            skip(')');
-            if (tok == ',') {
-                next();
-            } else {
-                break;
-            }
-        }
-        *nb_operands_ptr = nb_operands;
-    }
+printf("set_symbol stub\n");
+exit(1);
 }
 
 static void asm_instr(void) {
-    CString astr, astr1;
-    ASMOperand operands[30];
-    int nb_outputs, nb_operands, i, must_subst, out_reg;
-    uint8_t clobber_regs[8];
-    next();
-    if (tok == TOK_VOLATILE1 || tok == TOK_VOLATILE2 || tok == TOK_VOLATILE3) {
-        next();
-    }
-    parse_asm_str(&astr);
-    nb_operands = 0;
-    nb_outputs = 0;
-    must_subst = 0;
-    memset(clobber_regs, 0, sizeof(clobber_regs));
-    if (tok == ':') {
-        next();
-        must_subst = 1;
-        parse_asm_operands(operands, &nb_operands, 1);
-        nb_outputs = nb_operands;
-        if (tok == ':') {
-            next();
-            if (tok != ')') {
-                parse_asm_operands(operands, &nb_operands, 0);
-                if (tok == ':') {
-                    next();
-                    for(;;) {
-                        if (tok != 0xb9)
-                            expect("string constant");
-                        asm_clobber(clobber_regs, tokc.str.data);
-                        next();
-                        if (tok == ',') {
-                            next();
-                        } else {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    skip(')');
-    if (tok != ';')
-        expect("';'");
-    save_regs(0);
-    asm_compute_constraints(operands, nb_operands, nb_outputs,
-                            clobber_regs, &out_reg);
-    if (must_subst) {
-        subst_asm_operands(operands, nb_operands, &astr1, &astr);
-        cstr_free(&astr);
-    } else {
-        astr1 = astr;
-    }
-    asm_gen_code(operands, nb_operands, nb_outputs, 0,
-                 clobber_regs, out_reg);
-    tcc_assemble_inline(tcc_state, astr1.data, astr1.size - 1, 0);
-    next();
-    asm_gen_code(operands, nb_operands, nb_outputs, 1,
-                 clobber_regs, out_reg);
-    for(i=0;i<nb_operands;i++) {
-        ASMOperand *op;
-        op = &operands[i];
-        tcc_free(op->constraint);
-        vpop();
-    }
-    cstr_free(&astr1);
+printf("set_symbol stub\n");
+exit(1);
 }
 
 static void asm_global_instr(void) {
-    CString astr;
-    int saved_nocode_wanted = nocode_wanted;
-    nocode_wanted = 0;
-    next();
-    parse_asm_str(&astr);
-    skip(')');
-    if (tok != ';')
-        expect("';'");
-    cur_text_section = text_section;
-    ind = cur_text_section->data_offset;
-    tcc_assemble_inline(tcc_state, astr.data, astr.size - 1, 1);
-    cur_text_section->data_offset = ind;
-    next();
-    cstr_free(&astr);
-    nocode_wanted = saved_nocode_wanted;
+printf("set_symbol stub\n");
+exit(1);
 }
 
 static char *pstrcpy(char *buf, int buf_size, const char *s) {
