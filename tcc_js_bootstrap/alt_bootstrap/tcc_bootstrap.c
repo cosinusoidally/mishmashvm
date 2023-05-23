@@ -18894,18 +18894,15 @@ static int asm_parse_reg(unsigned int *type)
     return reg;
 }
 
-static void parse_operand(TCCState *s1, Operand *op)
-{
+static void parse_operand(TCCState *s1, Operand *op) {
     ExprValue e;
     int reg, indir;
     const char *p;
-
     indir = 0;
     if (tok == '*') {
         next();
         indir = (1 << OPT_INDIR);
     }
-
     if (tok == '%') {
         next();
         if (tok >= TOK_ASM_al && tok <= TOK_ASM_db7) {
@@ -18943,13 +18940,6 @@ static void parse_operand(TCCState *s1, Operand *op)
             if (op->reg == 0)
                 op->type |= (1 << OPT_ST0);
             goto no_skip;
-
-
-
-
-
-
-
         } else {
         reg_error:
             tcc_error("unknown register %%%s", get_tok_str(tok, &tokc));
@@ -18957,7 +18947,6 @@ static void parse_operand(TCCState *s1, Operand *op)
         next();
     no_skip: ;
     } else if (tok == '$') {
-
         next();
         asm_expr(s1, &e);
         op->type = (1 << OPT_IM32);
@@ -18969,13 +18958,8 @@ static void parse_operand(TCCState *s1, Operand *op)
                 op->type |= (1 << OPT_IM8S);
             if (op->e.v == (uint16_t)op->e.v)
                 op->type |= (1 << OPT_IM16);
-
-
-
-
         }
     } else {
-
         op->type = 0x40000000;
         op->reg = -1;
         op->reg2 = -1;
@@ -18990,7 +18974,6 @@ static void parse_operand(TCCState *s1, Operand *op)
                 op->e.v = 0;
                 op->e.sym = ((void*)0);
             } else {
-
                 asm_expr(s1, &e);
                 if (tok != ')')
                     expect(")");
@@ -19029,59 +19012,24 @@ static void parse_operand(TCCState *s1, Operand *op)
 
 static void gen_expr32(ExprValue *pe)
 {
-    if (pe->pcrel)
-
-
-	gen_addrpc32(0x0200, pe->sym, pe->v);
-    else
-	gen_addr32(pe->sym ? 0x0200 : 0, pe->sym, pe->v);
-}
-# 500 "tcc_src/i386-asm.c"
-static void gen_disp32(ExprValue *pe)
-{
-    Sym *sym = pe->sym;
-    Elf32_Sym *esym = elfsym(sym);
-    if (esym && esym->st_shndx == cur_text_section->sh_num) {
-
-
-
-
-        gen_le32(pe->v + esym->st_value - ind - 4);
-    } else {
-        if (sym && sym->type.t == 0) {
-            sym->type.t = 6;
-            sym->type.ref = ((void*)0);
-        }
-        gen_addrpc32(0x0200, sym, pe->v);
-    }
+printf("gen_expr32 stub\n");
+exit(1);
 }
 
+static void gen_disp32(ExprValue *pe) {
+printf("gen_disp32 stub\n");
+exit(1);
+}
 
-static inline int asm_modrm(int reg, Operand *op)
-{
+static inline int asm_modrm(int reg, Operand *op) {
     int mod, reg1, reg2, sib_reg1;
-
     if (op->type & (((1 << OPT_REG8) | (1 << OPT_REG16) | (1 << OPT_REG32) | 0) | (1 << OPT_MMX) | (1 << OPT_SSE))) {
         g(0xc0 + (reg << 3) + op->reg);
     } else if (op->reg == -1 && op->reg2 == -1) {
-
-
-
-
-
 	g(0x05 + (reg << 3));
-
 	gen_expr32(&op->e);
-
-
-
-
-
-
-
     } else {
         sib_reg1 = op->reg;
-
         if (sib_reg1 == -1) {
             sib_reg1 = 5;
             mod = 0x00;
@@ -19092,19 +19040,16 @@ static inline int asm_modrm(int reg, Operand *op)
         } else {
             mod = 0x80;
         }
-
         reg1 = op->reg;
         if (op->reg2 != -1)
             reg1 = 4;
         g(mod + (reg << 3) + reg1);
         if (reg1 == 4) {
-
             reg2 = op->reg2;
             if (reg2 == -1)
                 reg2 = 4;
             g((op->shift << 6) + (reg2 << 3) + sib_reg1);
         }
-
         if (mod == 0x40) {
             g(op->e.v);
         } else if (mod == 0x80 || op->reg == -1) {
@@ -19113,37 +19058,28 @@ static inline int asm_modrm(int reg, Operand *op)
     }
     return 0;
 }
-# 640 "tcc_src/i386-asm.c"
-static void maybe_print_stats (void)
-{
-  static int already = 1;
-  if (!already)
 
-    {
+static void maybe_print_stats (void) {
+  static int already = 1;
+  if (!already) {
         const struct ASMInstr *pa;
         int freq[4];
         int op_vals[500];
         int nb_op_vals, i, j;
-
 	already = 1;
         nb_op_vals = 0;
         memset(freq, 0, sizeof(freq));
         for(pa = asm_instrs; pa->sym != 0; pa++) {
             freq[pa->nb_ops]++;
-
                 for(j=0;j<nb_op_vals;j++) {
-
                     if (pa->instr_type == op_vals[j])
                         goto found;
                 }
-
                 op_vals[nb_op_vals++] = pa->instr_type;
             found: ;
-
         }
         for(i=0;i<nb_op_vals;i++) {
             int v = op_vals[i];
-
                 printf("%3d: %08x\n", i, v);
         }
         printf("size=%d nb=%d f0=%d f1=%d f2=%d f3=%d\n",
@@ -19153,8 +19089,7 @@ static void maybe_print_stats (void)
     }
 }
 
-static void asm_opcode(TCCState *s1, int opcode)
-{
+static void asm_opcode(TCCState *s1, int opcode) {
     const ASMInstr *pa;
     int i, modrm_index, modreg_index, reg, v, op1, seg_prefix, pc;
     int nb_ops, s;
@@ -19163,17 +19098,9 @@ static void asm_opcode(TCCState *s1, int opcode)
     int alltypes;
     int autosize;
     int p66;
-
-
-
-
     maybe_print_stats();
-
-
     if (opcode >= TOK_ASM_wait && opcode <= TOK_ASM_repnz)
         unget_tok(';');
-
-
     pop = ops;
     nb_ops = 0;
     seg_prefix = 0;
@@ -19201,12 +19128,8 @@ static void asm_opcode(TCCState *s1, int opcode)
             break;
         next();
     }
-
     s = 0;
-
 again:
-
-
     for(pa = asm_instrs; pa->sym != 0; pa++) {
 	int it = pa->instr_type & 0x70;
         s = 0;
@@ -19220,9 +19143,6 @@ again:
             s = (opcode - pa->sym) % 4;
 	    if ((pa->instr_type & (0x01 | 0x02)) == 0x02)
 	      {
-
-
-
 		if (((opcode - pa->sym + 1) % 4) == 0)
 		    continue;
 	        s++;
@@ -19234,20 +19154,9 @@ again:
         } else if (it == 0x50) {
             if (!(opcode >= pa->sym && opcode < pa->sym + 30))
                 continue;
-
-
-
-
 	    if (pa->instr_type & 0x02)
 	        s = 4 - 1;
         } else if (pa->instr_type & 0x01) {
-
-
-
-
-
-
-
             if (!(opcode >= pa->sym && opcode < pa->sym + 4))
                 continue;
             s = opcode - pa->sym;
@@ -19261,7 +19170,6 @@ again:
         }
         if (pa->nb_ops != nb_ops)
             continue;
-# 797 "tcc_src/i386-asm.c"
 	alltypes = 0;
         for(i = 0; i < nb_ops; i++) {
             int op1, op2;
@@ -19314,8 +19222,6 @@ again:
             tcc_error("bad operand with opcode '%s'",
                   get_tok_str(opcode, ((void*)0)));
         } else {
-
-
 	    TokenSym *ts = table_ident[opcode - 256];
 	    if (ts->len >= 6
 		&& strchr("wlq", ts->str[ts->len-1])
@@ -19326,19 +19232,8 @@ again:
             tcc_error("unknown opcode '%s'", ts->str);
         }
     }
-
     autosize = 4-1;
-
-
-
-
-
-
     if (s == autosize) {
-
-
-
-
         for(i = nb_ops - 1; s == autosize && i >= 0; i--) {
             if ((ops[i].type & ((1 << OPT_REG8) | (1 << OPT_REG16) | (1 << OPT_REG32) | 0)) && !(op_type[i] & ((1 << OPT_CL) | (1 << OPT_DX))))
                 s = reg_to_size[ops[i].type & ((1 << OPT_REG8) | (1 << OPT_REG16) | (1 << OPT_REG32) | 0)];
@@ -19354,14 +19249,10 @@ again:
                 tcc_error("cannot infer opcode suffix");
         }
     }
-# 900 "tcc_src/i386-asm.c"
     p66 = 0;
     if (s == 1)
         p66 = 1;
     else {
-
-
-
         for (i = 0; i < nb_ops; i++)
             if ((op_type[i] & ((1 << OPT_MMX) | (1 << OPT_SSE))) == ((1 << OPT_MMX) | (1 << OPT_SSE))
 	        && ops[i].type & (1 << OPT_SSE))
@@ -19369,17 +19260,14 @@ again:
     }
     if (p66)
         g(0x66);
-# 942 "tcc_src/i386-asm.c"
     if ((((pa->instr_type) & 0x70) == (0x10)))
         g(0x9b);
     if (seg_prefix)
         g(seg_prefix);
-
     v = pa->opcode;
     if (pa->instr_type & 0x100)
         v = ((v & ~0xff) << 8) | 0x0f00 | (v & 0xff);
     if ((v == 0x69 || v == 0x6b) && nb_ops == 2) {
-
         nb_ops = 3;
         ops[2] = ops[1];
         op_type[2] = op_type[1];
@@ -19388,28 +19276,20 @@ again:
         nb_ops = 0;
     } else if ((v == 0x06 || v == 0x07)) {
         if (ops[0].reg >= 4) {
-
             v = 0x0fa0 + (v - 0x06) + ((ops[0].reg - 4) << 3);
         } else {
             v += ops[0].reg << 3;
         }
         nb_ops = 0;
     } else if (v <= 0x05) {
-
         v += ((opcode - TOK_ASM_addb) / 4) << 3;
     } else if ((pa->instr_type & (0x70 | 0x08)) == 0x40) {
-
         v += ((opcode - pa->sym) / 6) << 3;
     }
-
-
     modrm_index = -1;
     modreg_index = -1;
     if (pa->instr_type & 0x08) {
 	if (!nb_ops) {
-
-
-
 	    i = 0;
 	    ops[i].type = ((1 << OPT_REG8) | (1 << OPT_REG16) | (1 << OPT_REG32) | 0);
 	    ops[i].reg = 0;
@@ -19420,18 +19300,12 @@ again:
             if (op_type[i] & 0x40000000)
                 goto modrm_found;
         }
-
         for(i = 0;i < nb_ops; i++) {
             if (op_type[i] & (((1 << OPT_REG8) | (1 << OPT_REG16) | (1 << OPT_REG32) | 0) | (1 << OPT_MMX) | (1 << OPT_SSE) | (1 << OPT_INDIR)))
                 goto modrm_found;
         }
-
-
-
     modrm_found:
         modrm_index = i;
-
-
         for(i = 0;i < nb_ops; i++) {
             int t = op_type[i];
             if (i != modrm_index &&
@@ -19441,12 +19315,7 @@ again:
             }
         }
     }
-
-
-
-
     if (pa->instr_type & 0x04) {
-
         if (v == 0xb0 && s >= 1)
             v += 7;
         for(i = 0; i < nb_ops; i++) {
@@ -19461,21 +19330,16 @@ again:
     if (nb_ops == 1 && pa->op_type[0] == OPT_DISP8) {
 	Elf32_Sym *esym;
         int jmp_disp;
-
-
 	esym = elfsym(ops[0].e.sym);
         if (!esym || esym->st_shndx != cur_text_section->sh_num)
             goto no_short_jump;
         jmp_disp = ops[0].e.v + esym->st_value - ind - 2 - (v >= 0xff);
         if (jmp_disp == (int8_t)jmp_disp) {
-
 	    ops[0].e.sym = 0;
             ops[0].e.v = jmp_disp;
 	    op_type[0] = (1 << OPT_IM8S);
         } else {
         no_short_jump:
-
-
 	    if (v == 0xeb)
 	        v = 0xe9;
 	    else if (v == 0x70)
@@ -19493,7 +19357,6 @@ again:
     if (op1)
         g(op1);
     g(v);
-
     if ((((pa->instr_type) & 0x70) == (0x20))) {
         reg = (opcode - pa->sym) / 4;
         if (reg == 6)
@@ -19505,33 +19368,23 @@ again:
     } else {
         reg = (pa->instr_type >> 13) & 7;
     }
-
     pc = 0;
     if (pa->instr_type & 0x08) {
-
-
 	if (modreg_index >= 0)
 	    reg = ops[modreg_index].reg;
         pc = asm_modrm(reg, &ops[modrm_index]);
     }
-
-
-
     if (!(pa->instr_type & 0x100)
 	&& (pa->opcode == 0x9a || pa->opcode == 0xea)) {
-
 	gen_expr32(&ops[1].e);
         if (ops[0].e.sym)
             tcc_error("cannot relocate");
         gen_le16(ops[0].e.v);
         return;
     }
-
     for(i = 0;i < nb_ops; i++) {
         v = op_type[i];
         if (v & ((1 << OPT_IM8) | (1 << OPT_IM16) | (1 << OPT_IM32) | 0 | (1 << OPT_IM8S) | (1 << OPT_ADDR))) {
-
-
             if ((v | (1 << OPT_IM8) | 0) == ((1 << OPT_IM8) | (1 << OPT_IM16) | (1 << OPT_IM32) | 0)) {
                 if (s == 0)
                     v = (1 << OPT_IM8);
@@ -19542,18 +19395,12 @@ again:
                 else
                     v = 0;
             }
-
             if ((v & ((1 << OPT_IM8) | (1 << OPT_IM8S) | (1 << OPT_IM16))) && ops[i].e.sym)
                 tcc_error("cannot relocate");
-
             if (v & ((1 << OPT_IM8) | (1 << OPT_IM8S))) {
                 g(ops[i].e.v);
             } else if (v & (1 << OPT_IM16)) {
                 gen_le16(ops[i].e.v);
-
-
-
-
 	    } else if (pa->op_type[i] == OPT_DISP || pa->op_type[i] == OPT_DISP8) {
                 gen_disp32(&ops[i].e);
             } else {
@@ -19561,8 +19408,6 @@ again:
             }
         }
     }
-
-
     if (pc)
         add32le(cur_text_section->data + pc - 4, pc - ind);
 }
@@ -19619,8 +19464,6 @@ static const char *skip_constraint_modifiers(const char *p) {
         p++;
     return p;
 }
-
-
 
 static int asm_parse_regvar (int t) {
 printf("asm_parse_regvar stub\n");
