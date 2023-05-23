@@ -13391,36 +13391,26 @@ exit(1);
 }
 
 
- void *tcc_get_symbol(TCCState *s, const char *name)
-{
+void *tcc_get_symbol(TCCState *s, const char *name) {
 puts("stub\n");
 exit(1);
-    return (void*)(uintptr_t)get_elf_sym_addr(s, name, 0);
 }
 
 
 
-static void* tcc_get_symbol_err(TCCState *s, const char *name)
-{
+static void* tcc_get_symbol_err(TCCState *s, const char *name) {
     return (void*)(uintptr_t)get_elf_sym_addr(s, name, 1);
 }
 
-
-
-
 static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
-                       int info, int other, int shndx, const char *name)
-{
+                       int info, int other, int shndx, const char *name) {
     Elf32_Sym *esym;
     int sym_bind, sym_index, sym_type, esym_bind;
     unsigned char sym_vis, esym_vis, new_vis;
-
     sym_bind = (((unsigned char) (info)) >> 4);
     sym_type = ((info) & 0xf);
     sym_vis = ((other) & 0x03);
-
     if (sym_bind != 0) {
-
         sym_index = find_elf_sym(s, name);
         if (!sym_index)
             goto do_def;
@@ -13430,8 +13420,6 @@ static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
             return sym_index;
         if (esym->st_shndx != 0) {
             esym_bind = (((unsigned char) (esym->st_info)) >> 4);
-
-
             esym_vis = ((esym->st_other) & 0x03);
             if (esym_vis == 0) {
                 new_vis = sym_vis;
@@ -13444,36 +13432,21 @@ static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
                              | new_vis;
             other = esym->st_other;
             if (shndx == 0) {
-
-
             } else if (sym_bind == 1 && esym_bind == 2) {
-
                 goto do_patch;
             } else if (sym_bind == 2 && esym_bind == 1) {
-
             } else if (sym_bind == 2 && esym_bind == 2) {
-
             } else if (sym_vis == 2 || sym_vis == 1) {
-
             } else if ((esym->st_shndx == 0xfff2
                             || esym->st_shndx == bss_section->sh_num)
                         && (shndx < 0xff00
                             && shndx != bss_section->sh_num)) {
-
                 goto do_patch;
             } else if (shndx == 0xfff2 || shndx == bss_section->sh_num) {
-
             } else if (s->sh_flags & 0x40000000) {
-
 	    } else if (esym->st_other & 0x04) {
-
-
 		goto do_patch;
             } else {
-
-
-
-
                 tcc_error_noabort("'%s' defined twice", name);
             }
         } else {
@@ -13494,20 +13467,14 @@ static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
     return sym_index;
 }
 
-
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset,
-                            int type, int symbol, Elf32_Addr addend)
-{
+                            int type, int symbol, Elf32_Addr addend) {
     char buf[256];
     Section *sr;
     Elf32_Rel *rel;
-
     sr = s->reloc;
     if (!sr) {
-
         snprintf(buf, sizeof(buf), ".rel%s", s->name);
-
-
         sr = new_section(tcc_state, buf, 9, symtab->sh_flags);
         sr->sh_entsize = sizeof(Elf32_Rel);
         sr->link = symtab;
@@ -13517,38 +13484,24 @@ static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset,
     rel = section_ptr_add(sr, sizeof(Elf32_Rel));
     rel->r_offset = offset;
     rel->r_info = (((symbol) << 8) + ((type) & 0xff));
-
-
-
     if (addend)
         tcc_error("non-zero addend on REL architecture");
 
 }
 
 static void put_elf_reloc(Section *symtab, Section *s, unsigned long offset,
-                           int type, int symbol)
-{
+                           int type, int symbol) {
 puts("stub\n");
 exit(1);
-    put_elf_reloca(symtab, s, offset, type, symbol, 0);
 }
 
-
-
-
-static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset)
-{
+static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset) {
     Section *sr = s->reloc;
     Elf32_Rel *r, *dest;
     ssize_t a;
     Elf32_Addr addr;
-
     if (oldrelocoffset + sizeof(*r) >= sr->data_offset)
       return;
-
-
-
-
     for (a = oldrelocoffset + sizeof(*r); a < sr->data_offset; a += sizeof(*r)) {
 	ssize_t i = a - sizeof(*r);
 	addr = ((Elf32_Rel*)(sr->data + a))->r_offset;
@@ -13559,7 +13512,6 @@ static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset)
 	    *(Elf32_Rel*)(sr->data + i) = tmp;
 	}
     }
-
     r = (Elf32_Rel*)(sr->data + oldrelocoffset);
     dest = r;
     for (; r < (Elf32_Rel*)(sr->data + sr->data_offset); r++) {
@@ -13570,15 +13522,12 @@ static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset)
     sr->data_offset = (unsigned char*)dest - sr->data + sizeof(*r);
 }
 
-static struct sym_attr *get_sym_attr(TCCState *s1, int index, int alloc)
-{
+static struct sym_attr *get_sym_attr(TCCState *s1, int index, int alloc) {
     int n;
     struct sym_attr *tab;
-
     if (index >= s1->nb_sym_attrs) {
         if (!alloc)
             return s1->sym_attrs;
-
         n = 1;
         while (index >= n)
             n *= 2;
@@ -13590,9 +13539,8 @@ static struct sym_attr *get_sym_attr(TCCState *s1, int index, int alloc)
     }
     return &s1->sym_attrs[index];
 }
-# 719 "tcc_src/tccelf.c"
-static void sort_syms(TCCState *s1, Section *s)
-{
+
+static void sort_syms(TCCState *s1, Section *s) {
     int *old_to_new_syms;
     Elf32_Sym *new_syms;
     int nb_syms, i;
@@ -13600,12 +13548,9 @@ static void sort_syms(TCCState *s1, Section *s)
     Elf32_Rel *rel;
     Section *sr;
     int type, sym_index;
-
     nb_syms = s->data_offset / sizeof(Elf32_Sym);
     new_syms = tcc_malloc(nb_syms * sizeof(Elf32_Sym));
     old_to_new_syms = tcc_malloc(nb_syms * sizeof(int));
-
-
     p = (Elf32_Sym *)s->data;
     q = new_syms;
     for(i = 0; i < nb_syms; i++) {
@@ -13615,11 +13560,8 @@ static void sort_syms(TCCState *s1, Section *s)
         }
         p++;
     }
-
     if( s->sh_size )
         s->sh_info = q - new_syms;
-
-
     p = (Elf32_Sym *)s->data;
     for(i = 0; i < nb_syms; i++) {
         if ((((unsigned char) (p->st_info)) >> 4) != 0) {
@@ -13628,12 +13570,8 @@ static void sort_syms(TCCState *s1, Section *s)
         }
         p++;
     }
-
-
     memcpy(s->data, new_syms, nb_syms * sizeof(Elf32_Sym));
     tcc_free(new_syms);
-
-
     for(i = 1; i < s1->nb_sections; i++) {
         sr = s1->sections[i];
         if (sr->sh_type == 9 && sr->link == s) {
@@ -13645,25 +13583,15 @@ static void sort_syms(TCCState *s1, Section *s)
             }
         }
     }
-
     tcc_free(old_to_new_syms);
 }
 
-
-
-
-
-static int alloc_sec_names(TCCState *s1, int file_type, Section *strsec)
-{
+static int alloc_sec_names(TCCState *s1, int file_type, Section *strsec) {
     int i;
     Section *s;
     int textrel = 0;
-
-
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
-
-
         if (file_type == 3 &&
             s->sh_type == 9 &&
             !(s->sh_flags & (1 << 1)) &&
@@ -13685,7 +13613,6 @@ static int alloc_sec_names(TCCState *s1, int file_type, Section *strsec)
     return textrel;
 }
 
-
 struct dyn_inf {
     Section *dynamic;
     Section *dynstr;
@@ -13697,8 +13624,6 @@ struct dyn_inf {
 
 
 };
-
-
 
 static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                            Section *interp, Section* strsec,
