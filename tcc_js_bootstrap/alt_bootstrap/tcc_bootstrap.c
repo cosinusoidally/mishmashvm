@@ -20546,13 +20546,10 @@ static void pop_section(TCCState *s1)
     use_section1(s1, prev);
 }
 
-static void asm_parse_directive(TCCState *s1, int global)
-{
+static void asm_parse_directive(TCCState *s1, int global) {
     int n, offset, v, size, tok1;
     Section *sec;
     uint8_t *ptr;
-
-
     sec = cur_text_section;
     switch(tok) {
     case TOK_ASMDIR_align:
@@ -20575,7 +20572,6 @@ static void asm_parse_directive(TCCState *s1, int global)
                 tcc_error("alignment must be a positive power of two");
             offset = (ind + n - 1) & -n;
             size = offset - ind;
-
             if (sec->sh_addralign < n)
                 sec->sh_addralign = n;
         } else {
@@ -20597,15 +20593,10 @@ static void asm_parse_directive(TCCState *s1, int global)
         ind += size;
         break;
     case TOK_ASMDIR_quad:
-
-
-
-
         next();
         for(;;) {
             uint64_t vl;
             const char *p;
-
             p = tokc.str.data;
             if (tok != 0xbe) {
             error_constant:
@@ -20627,7 +20618,6 @@ static void asm_parse_directive(TCCState *s1, int global)
             next();
         }
         break;
-
     case TOK_ASMDIR_byte:
         size = 1;
         goto asm_data;
@@ -20646,10 +20636,6 @@ static void asm_parse_directive(TCCState *s1, int global)
             if (sec->sh_type != 8) {
                 if (size == 4) {
                     gen_expr32(&e);
-
-
-
-
                 } else {
                     if (e.sym)
                         expect("constant");
@@ -20692,7 +20678,6 @@ static void asm_parse_directive(TCCState *s1, int global)
                     val = asm_int_expr(s1);
                 }
             }
-
             repeat_buf[0] = val;
             repeat_buf[1] = val >> 8;
             repeat_buf[2] = val >> 16;
@@ -20757,8 +20742,6 @@ static void asm_parse_directive(TCCState *s1, int global)
 	next();
 	tok1 = tok;
 	next();
-
-
 	if (tok == ',')
 	    set_symbol(s1, tok1);
 	break;
@@ -20787,7 +20770,6 @@ static void asm_parse_directive(TCCState *s1, int global)
         {
             const uint8_t *p;
             int i, size, t;
-
             t = tok;
             next();
             for(;;) {
@@ -20830,53 +20812,41 @@ static void asm_parse_directive(TCCState *s1, int global)
     case TOK_ASMDIR_file:
         {
             char filename[512];
-
             filename[0] = '\0';
             next();
-
             if (tok == 0xb9)
                 pstrcat(filename, sizeof(filename), tokc.str.data);
             else
                 pstrcat(filename, sizeof(filename), get_tok_str(tok, ((void*)0)));
-
             if (s1->warn_unsupported)
                 tcc_warning("ignoring .file %s", filename);
-
             next();
         }
         break;
     case TOK_ASMDIR_ident:
         {
             char ident[256];
-
             ident[0] = '\0';
             next();
-
             if (tok == 0xb9)
                 pstrcat(ident, sizeof(ident), tokc.str.data);
             else
                 pstrcat(ident, sizeof(ident), get_tok_str(tok, ((void*)0)));
-
             if (s1->warn_unsupported)
                 tcc_warning("ignoring .ident %s", ident);
-
             next();
         }
         break;
     case TOK_ASMDIR_size:
         {
             Sym *sym;
-
             next();
             sym = asm_label_find(tok);
             if (!sym) {
                 tcc_error("label not found: %s", get_tok_str(tok, ((void*)0)));
             }
-
-
             if (s1->warn_unsupported)
                 tcc_warning("ignoring .size %s,*", get_tok_str(tok, ((void*)0)));
-
             next();
             skip(',');
             while (tok != 10 && tok != ';' && tok != (-1)) {
@@ -20888,7 +20858,6 @@ static void asm_parse_directive(TCCState *s1, int global)
         {
             Sym *sym;
             const char *newtype;
-
             next();
             sym = get_asm_sym(tok, ((void*)0));
             next();
@@ -20900,14 +20869,12 @@ static void asm_parse_directive(TCCState *s1, int global)
                     next();
                 newtype = get_tok_str(tok, ((void*)0));
             }
-
             if (!strcmp(newtype, "function") || !strcmp(newtype, "STT_FUNC")) {
                 sym->type.t = (sym->type.t & ~0x000f) | 6;
             }
             else if (s1->warn_unsupported)
                 tcc_warning("change type of '%s' from 0x%x to '%s' ignored",
                     get_tok_str(sym->v, ((void*)0)), sym->type.t, newtype);
-
             next();
         }
         break;
@@ -20916,9 +20883,7 @@ static void asm_parse_directive(TCCState *s1, int global)
         {
             char sname[256];
 	    int old_nb_section = s1->nb_sections;
-
 	    tok1 = tok;
-
             next();
             sname[0] = '\0';
             while (tok != ';' && tok != 10 && tok != ',') {
@@ -20929,7 +20894,6 @@ static void asm_parse_directive(TCCState *s1, int global)
                 next();
             }
             if (tok == ',') {
-
                 next();
                 if (tok != 0xb9)
                     expect("string constant");
@@ -20946,9 +20910,6 @@ static void asm_parse_directive(TCCState *s1, int global)
 	        use_section(s1, sname);
 	    else
 	        push_section(s1, sname);
-
-
-
 	    if (old_nb_section != s1->nb_sections)
 	        cur_text_section->sh_addralign = 1;
         }
@@ -20968,7 +20929,6 @@ static void asm_parse_directive(TCCState *s1, int global)
 	next();
 	pop_section(s1);
 	break;
-
     case TOK_ASMDIR_code16:
         {
             next();
@@ -20981,26 +20941,15 @@ static void asm_parse_directive(TCCState *s1, int global)
             s1->seg_size = 32;
         }
         break;
-
-
-
-
-
-
-
     default:
         tcc_error("unknown assembler directive '.%s'", get_tok_str(tok, ((void*)0)));
         break;
     }
 }
 
-
-
-static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global)
-{
+static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global) {
     int opcode;
     int saved_parse_flags = parse_flags;
-
     parse_flags = 0x0008 | 0x0040;
     if (do_preprocess)
         parse_flags |= 0x0001;
@@ -21008,11 +20957,9 @@ static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global)
         next();
         if (tok == (-1))
             break;
-
         parse_flags |= 0x0004;
     redo:
         if (tok == '#') {
-
             while (tok != 10)
                 next();
         } else if (tok >= TOK_ASMDIR_byte && tok <= TOK_ASMDIR_section) {
@@ -21024,17 +20971,14 @@ static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global)
             n = strtoul(p, (char **)&p, 10);
             if (*p != '\0')
                 expect("':'");
-
             asm_new_label(s1, asm_get_local_label_name(s1, n), 1);
             next();
             skip(':');
             goto redo;
         } else if (tok >= 256) {
-
             opcode = tok;
             next();
             if (tok == ':') {
-
                 asm_new_label(s1, opcode, 0);
                 next();
                 goto redo;
@@ -21045,16 +20989,13 @@ static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global)
                 asm_opcode(s1, opcode);
             }
         }
-
         if (tok != ';' && tok != 10)
             expect("end of line");
         parse_flags &= ~0x0004;
     }
-
     parse_flags = saved_parse_flags;
     return 0;
 }
-
 
 static int tcc_assemble(TCCState *s1, int do_preprocess) {
     int ret;
