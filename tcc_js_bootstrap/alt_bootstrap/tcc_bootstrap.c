@@ -13702,15 +13702,13 @@ struct dyn_inf {
 
 static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                            Section *interp, Section* strsec,
-                           struct dyn_inf *dyninf, int *sec_order)
-{
+                           struct dyn_inf *dyninf, int *sec_order) {
     int i, j, k, file_type, sh_order_index, file_offset;
     unsigned long s_align;
     long long tmp;
     Elf32_Addr addr;
     Elf32_Phdr *ph;
     Section *s;
-
     file_type = s1->output_type;
     sh_order_index = 1;
     file_offset = 0;
@@ -13719,13 +13717,10 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
     s_align = 0x1000;
     if (s1->section_align)
         s_align = s1->section_align;
-
     if (phnum > 0) {
         if (s1->has_text_addr) {
             int a_offset, p_offset;
             addr = s1->text_addr;
-
-
             a_offset = (int) (addr & (s_align - 1));
             p_offset = file_offset & (s_align - 1);
             if (a_offset < p_offset)
@@ -13739,20 +13734,10 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
 
             addr += (file_offset & (s_align - 1));
         }
-
         ph = &phdr[0];
-
-
-
         if (interp)
             ph += 2;
-
-
         dyninf->rel_addr = dyninf->rel_size = 0;
-
-
-
-
         for(j = 0; j < 2; j++) {
             ph->p_type = 1;
             if (j == 0)
@@ -13760,16 +13745,9 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
             else
                 ph->p_flags = (1 << 2) | (1 << 1);
             ph->p_align = s_align;
-
-
-
-
-
-
             for(k = 0; k < 5; k++) {
                 for(i = 1; i < s1->nb_sections; i++) {
                     s = s1->sections[i];
-
                     if (j == 0) {
                         if ((s->sh_flags & ((1 << 1) | (1 << 0))) !=
                             (1 << 1))
@@ -13798,28 +13776,21 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                             continue;
                     }
                     sec_order[sh_order_index++] = i;
-
-
                     tmp = addr;
                     addr = (addr + s->sh_addralign - 1) &
                         ~(s->sh_addralign - 1);
                     file_offset += (int) ( addr - tmp );
                     s->sh_offset = file_offset;
                     s->sh_addr = addr;
-
-
                     if (ph->p_offset == 0) {
                         ph->p_offset = file_offset;
                         ph->p_vaddr = addr;
                         ph->p_paddr = ph->p_vaddr;
                     }
-
                     if (s->sh_type == 9) {
-# 1690 "tcc_src/tccelf.c"
                         if (dyninf->rel_size == 0)
                             dyninf->rel_addr = addr;
                         dyninf->rel_size += s->sh_size;
-
                     }
                     addr += s->sh_size;
                     if (s->sh_type != 8)
@@ -13827,10 +13798,6 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                 }
             }
 	    if (j == 0) {
-
-
-
-
 		ph->p_offset &= ~(ph->p_align - 1);
 		ph->p_vaddr &= ~(ph->p_align - 1);
 		ph->p_paddr &= ~(ph->p_align - 1);
@@ -13840,8 +13807,6 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
             ph++;
             if (j == 0) {
                 if (s1->output_format == 0) {
-
-
                     if ((addr & (s_align - 1)) != 0)
                         addr += s_align;
                 } else {
@@ -13851,47 +13816,35 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
             }
         }
     }
-
-
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
         if (phnum > 0 && (s->sh_flags & (1 << 1)))
             continue;
         sec_order[sh_order_index++] = i;
-
         file_offset = (file_offset + s->sh_addralign - 1) &
             ~(s->sh_addralign - 1);
         s->sh_offset = file_offset;
         if (s->sh_type != 8)
             file_offset += s->sh_size;
     }
-
     return file_offset;
 }
 
 static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
-                           int file_offset, int *sec_order)
-{
+                           int file_offset, int *sec_order) {
     int i, shnum, offset, size, file_type;
     Section *s;
     Elf32_Ehdr ehdr;
     Elf32_Shdr shdr, *sh;
-
     file_type = s1->output_type;
     shnum = s1->nb_sections;
-
     memset(&ehdr, 0, sizeof(ehdr));
-
     if (phnum > 0) {
         ehdr.e_phentsize = sizeof(Elf32_Phdr);
         ehdr.e_phnum = phnum;
         ehdr.e_phoff = sizeof(Elf32_Ehdr);
     }
-
-
     file_offset = (file_offset + 3) & -4;
-
-
     ehdr.e_ident[0] = 0x7f;
     ehdr.e_ident[1] = 'E';
     ehdr.e_ident[2] = 'L';
@@ -13899,7 +13852,6 @@ static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
     ehdr.e_ident[4] = 1;
     ehdr.e_ident[5] = 1;
     ehdr.e_ident[6] = 1;
-# 1910 "tcc_src/tccelf.c"
     switch(file_type) {
     default:
     case 2:
@@ -13921,11 +13873,9 @@ static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
     ehdr.e_shentsize = sizeof(Elf32_Shdr);
     ehdr.e_shnum = shnum;
     ehdr.e_shstrndx = shnum - 1;
-
     fwrite(&ehdr, 1, sizeof(Elf32_Ehdr), f);
     fwrite(phdr, 1, phnum * sizeof(Elf32_Phdr), f);
     offset = sizeof(Elf32_Ehdr) + phnum * sizeof(Elf32_Phdr);
-
     sort_syms(s1, symtab_section);
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[sec_order[i]];
@@ -13940,13 +13890,10 @@ static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
             offset += size;
         }
     }
-
-
     while (offset < ehdr.e_shoff) {
         fputc(0, f);
         offset++;
     }
-
     for(i = 0; i < s1->nb_sections; i++) {
         sh = &shdr;
         memset(sh, 0, sizeof(Elf32_Shdr));
@@ -13968,37 +13915,24 @@ static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
     }
 }
 
-
 static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
-                              Elf32_Phdr *phdr, int file_offset, int *sec_order)
-{
+                              Elf32_Phdr *phdr, int file_offset, int *sec_order) {
     int fd, mode, file_type;
     FILE *f;
-
     file_type = s1->output_type;
     if (file_type == 4)
         mode = 0666;
     else
         mode = 0777;
     unlink(filename);
-# 1999 "tcc_src/tccelf.c"
     f = fopen(filename, "wb");
     if (s1->verbose)
         printf("<- %s\n", filename);
-
-
-
-
-
-
     if (s1->output_format == 0)
         tcc_output_elf(s1, f, phnum, phdr, file_offset, sec_order);
     fclose(f);
-
     return 0;
 }
-
-
 
 static void tidy_section_headers(TCCState *s1, int *sec_order)
 {
