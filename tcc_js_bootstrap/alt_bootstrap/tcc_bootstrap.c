@@ -181,19 +181,12 @@ typedef unsigned long long int __uintmax_t;
 // LJW_END
 
 typedef unsigned int __uid_t;
-
 typedef unsigned int __mode_t;
-
 typedef long int __off_t;
-
 typedef __quad_t __off64_t;
-
 typedef int __pid_t;
-
 typedef long int __clock_t;
-
 typedef long int __time_t;
-
 typedef long int __suseconds_t;
 typedef int __ssize_t;
 typedef long int __syscall_slong_t;
