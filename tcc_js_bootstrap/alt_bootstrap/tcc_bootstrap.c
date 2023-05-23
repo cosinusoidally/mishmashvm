@@ -23109,9 +23109,7 @@ static void args_parser_listfile(TCCState *s,
     int tool = 0, arg_start = 0, noaction = optind;
     char **argv = *pargv;
     int argc = *pargc;
-
     cstr_new(&linker_arg);
-
     while (optind < argc) {
         r = argv[optind];
         if (r[0] == '@' && r[1] != '\0') {
@@ -23135,8 +23133,6 @@ reparse:
             }
             continue;
         }
-
-
         for(popt = tcc_options; ; ++popt) {
             const char *p1 = popt->name;
             const char *r1 = r + 1;
@@ -23156,7 +23152,6 @@ reparse:
                 continue;
             break;
         }
-
         switch(popt->index) {
         case TCC_OPTION_HELP:
             return 1;
@@ -23175,7 +23170,6 @@ reparse:
             tcc_add_library_path(s, optarg);
             break;
         case TCC_OPTION_B:
-
             tcc_set_lib_path(s, optarg);
             break;
         case TCC_OPTION_l:
@@ -23189,17 +23183,13 @@ reparse:
         case TCC_OPTION_bench:
             s->do_bench = 1;
             break;
-
         case TCC_OPTION_bt:
             tcc_set_num_callers(atoi(optarg));
             break;
-
-
         case TCC_OPTION_b:
             s->do_bounds_check = 1;
             s->do_debug = 1;
             break;
-
         case TCC_OPTION_g:
             s->do_debug = 1;
             break;
@@ -23226,8 +23216,6 @@ reparse:
             s->static_link = 1;
             break;
         case TCC_OPTION_std:
-
-
             break;
         case TCC_OPTION_shared:
             x = 3;
@@ -23261,9 +23249,6 @@ reparse:
             s->nostdlib = 1;
             break;
         case TCC_OPTION_run:
-
-
-
             run = optarg;
             x = 1;
             goto set_output_type;
@@ -23275,7 +23260,6 @@ reparse:
             if (set_flag(s, options_f, optarg) < 0)
                 goto unsupported_option;
             break;
-# 1855 "tcc_src/libtcc.c"
         case TCC_OPTION_m:
             if (set_flag(s, options_m, optarg) < 0) {
                 if (x = atoi(optarg), x != 32 && x != 64)
@@ -23352,7 +23336,6 @@ reparse:
         case TCC_OPTION_pedantic:
         case TCC_OPTION_pipe:
         case TCC_OPTION_s:
-
             break;
         default:
 unsupported_option:
@@ -23598,17 +23581,6 @@ static char *default_outputfile(TCCState *s, const char *first_file)
     return tcc_strdup(buf);
 }
 
-static unsigned getclock_ms(void)
-{
-
-
-
-    struct timeval tv;
-    gettimeofday(&tv, ((void*)0));
-    return tv.tv_sec*1000 + (tv.tv_usec+500)/1000;
-
-}
-
 int main(int argc0, char **argv0)
 {
     TCCState *s;
@@ -23679,8 +23651,6 @@ redo:
             ret = 1;
         }
     }
-    if (s->do_bench && (n | t | ret) == 0)
-        tcc_print_stats(s, getclock_ms() - start_time);
     tcc_delete(s);
     if (ret == 0 && n)
         goto redo;
