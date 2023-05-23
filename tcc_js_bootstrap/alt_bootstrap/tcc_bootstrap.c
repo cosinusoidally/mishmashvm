@@ -23591,19 +23591,6 @@ static void print_dirs(const char *msg, char **paths, int nb_paths)
         printf("  %s\n", paths[i]);
 }
 
-static void print_search_dirs(TCCState *s)
-{
-    printf("install: %s\n", s->tcc_lib_path);
-
-    print_dirs("include", s->sysinclude_paths, s->nb_sysinclude_paths);
-    print_dirs("libraries", s->library_paths, s->nb_library_paths);
-    printf("libtcc1:\n  %s/""libtcc1.a""\n", s->tcc_lib_path);
-
-    print_dirs("crt", s->crt_paths, s->nb_crt_paths);
-    printf("elfinterp:\n  %s\n",  "/lib/ld-linux.so.2");
-
-}
-
 static void set_environment(TCCState *s)
 {
     char * path;
@@ -23672,12 +23659,6 @@ redo:
             printf(version);
         if (opt == 3)
             return 0;
-        if (opt == 4) {
-            set_environment(s);
-            tcc_set_output_type(s, 1);
-            print_search_dirs(s);
-            return 0;
-        }
         n = s->nb_files;
         if (n == 0)
             tcc_error("no input files\n");
