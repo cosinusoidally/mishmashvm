@@ -13,9 +13,10 @@ echo "build tcc_boot3.o"
 
 ./tcc_linux.exe -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/ ${INCS} -o out.o
 
-# the following shouldn't be necessary, but can be useful for testing
-#rm tcc_linux.exe
-#gcc out.o -o tcc_linux.exe -lm -ldl
+# belt and braces, regen tcc_linux.exe using the newly generated out.o
+rm tcc_linux.exe
+tcc_bootstrap.exe -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a out.o -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl
+chmod +x tcc_linux.exe
 
 mv out.o ../libc_portable_proto/tcc_bin/tcc_boot3.o
 
@@ -35,3 +36,4 @@ echo "running second stage boostrap"
 cd ../libc_portable_proto
 
 ./bootstrap_tcc.sh
+sha256sum -c ../auxiliary/checksums.sha256sums
