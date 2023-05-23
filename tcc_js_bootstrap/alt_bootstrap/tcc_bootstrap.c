@@ -328,7 +328,6 @@ int tcc_compile_string(TCCState *s, const char *buf);
 int tcc_set_output_type(TCCState *s, int output_type);
 int tcc_add_library_path(TCCState *s, const char *pathname);
 int tcc_add_library(TCCState *s, const char *libraryname);
-int tcc_add_symbol(TCCState *s, const char *name, const void *val);
 int tcc_output_file(TCCState *s, const char *filename);
 int tcc_relocate(TCCState *s1, void *ptr);
 void *tcc_get_symbol(TCCState *s, const char *name);
@@ -22110,20 +22109,6 @@ static void tcc_add_pragma_libs(TCCState *s1)
         tcc_add_library_err(s1, s1->pragma_libs[i]);
 }
 
- int tcc_add_symbol(TCCState *s, const char *name, const void *val)
-{
-
-
-
-
-
-    set_elf_sym(symtab_section, (uintptr_t)val, 0,
-        (((1) << 4) + ((0) & 0xf)), 0,
-        0xfff1, name);
-
-    return 0;
-}
-
  void tcc_set_lib_path(TCCState *s, const char *path)
 {
     tcc_free(s->tcc_lib_path);
@@ -22153,12 +22138,10 @@ static int set_flag(TCCState *s, const FlagDef *flags, const char *name)
     int value, ret;
     const FlagDef *p;
     const char *r;
-
     value = 1;
     r = name;
     if (no_flag(&r))
         value = 0;
-
     for (ret = -1, p = flags; p->name; ++p) {
         if (ret) {
             if (strcmp(r, p->name))
