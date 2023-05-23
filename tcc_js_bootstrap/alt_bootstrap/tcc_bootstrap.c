@@ -427,22 +427,10 @@ struct __pthread_cond_s
   unsigned int __g_signals[2];
 };
 
+
+// LJW_END
+
 typedef unsigned long int pthread_t;
-
-typedef union
-{
-  char __size[4];
-  int __align;
-} pthread_mutexattr_t;
-
-typedef union
-{
-  char __size[4];
-  int __align;
-} pthread_condattr_t;
-
-typedef unsigned int pthread_key_t;
-typedef int  pthread_once_t;
 
 union pthread_attr_t
 {
@@ -451,59 +439,6 @@ union pthread_attr_t
 };
 
 typedef union pthread_attr_t pthread_attr_t;
-
-typedef union
-{
-  struct __pthread_mutex_s __data;
-  char __size[24];
-  long int __align;
-} pthread_mutex_t;
-
-typedef union
-{
-  struct __pthread_cond_s __data;
-  char __size[48];
-   long long int __align;
-} pthread_cond_t;
-
-typedef union
-{
-  struct __pthread_rwlock_arch_t __data;
-  char __size[32];
-  long int __align;
-} pthread_rwlock_t;
-
-typedef union
-{
-  char __size[8];
-  long int __align;
-} pthread_rwlockattr_t;
-
-typedef volatile int pthread_spinlock_t;
-
-typedef union
-{
-  char __size[20];
-  long int __align;
-} pthread_barrier_t;
-
-typedef union
-{
-  char __size[4];
-  int __align;
-} pthread_barrierattr_t;
-
-extern long int random (void);
-
-extern void srandom (unsigned int __seed);
-
-extern char *initstate (unsigned int __seed, char *__statebuf,
-			size_t __statelen);
-
-extern char *setstate (char *__statebuf);
-
-// LJW_END
-
 extern void *malloc (size_t __size);
 extern void *calloc (size_t __nmemb, size_t __size);
 extern void *realloc (void *__ptr, size_t __size);
