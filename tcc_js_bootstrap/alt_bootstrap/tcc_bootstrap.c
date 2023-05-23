@@ -12727,18 +12727,15 @@ static void free_inline_functions(TCCState *s)
 
 // LJW BOOKMARK UP 2
 
-static int decl0(int l, int is_for_loop_init, Sym *func_sym)
-{
+static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
     int v, has_init, r;
     CType type, btype;
     Sym *sym;
     AttributeDef ad;
-
     while (1) {
         if (!parse_btype(&btype, &ad)) {
             if (is_for_loop_init)
                 return 0;
-
             if (tok == ';' && l != 0x0033) {
                 next();
                 continue;
@@ -12746,12 +12743,9 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym)
             if (l != 0x0030)
                 break;
             if (tok == TOK_ASM1 || tok == TOK_ASM2 || tok == TOK_ASM3) {
-
                 continue;
             }
             if (tok >= TOK_DEFINE) {
-
-
                 btype.t = 3;
             } else {
                 if (tok != (-1))
@@ -12774,49 +12768,29 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym)
         }
         while (1) {
             type = btype;
-
-
-
-
-
 	    if ((type.t & 0x0040) && type.ref->c < 0) {
 		type.ref = sym_push(0x20000000, &type.ref->type, 0, type.ref->c);
 	    }
             type_decl(&type, &ad, &v, 2);
-
-
-
-
-
-
-
             if ((type.t & 0x000f) == 6) {
                 if ((type.t & 0x00002000) && (l == 0x0032)) {
                     tcc_error("function without file scope cannot be static");
                 }
-
-
                 sym = type.ref;
                 if (sym->f.func_type == 2 && l == 0x0030)
                     decl0(0x0033, 0, sym);
             }
-
             if (gnu_ext && (tok == TOK_ASM1 || tok == TOK_ASM2 || tok == TOK_ASM3)) {
                 ad.asm_label = asm_label_instr();
-
                 parse_attribute(&ad);
                 if (tok == '{')
                     expect(";");
             }
-# 7239 "tcc_src/tccgen.c"
             if (tok == '{') {
                 if (l != 0x0030)
                     tcc_error("cannot use local functions");
                 if ((type.t & 0x000f) != 6)
                     expect("function definition");
-
-
-
                 sym = type.ref;
                 while ((sym = sym->next) != ((void*)0)) {
                     if (!(sym->v & ~0x20000000))
@@ -12824,24 +12798,15 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym)
 		    if (sym->type.t == 0)
 		        sym->type = int_type;
 		}
-
-
                 if ((type.t & (0x00001000 | 0x00008000)) == (0x00001000 | 0x00008000))
                     type.t = (type.t & ~0x00001000) | 0x00002000;
-
-
                 sym = external_global_sym(v, &type, 0);
                 type.t &= ~0x00001000;
                 patch_storage(sym, &ad, &type);
-
-
-
-
                 if ((type.t & (0x00008000 | 0x00002000)) ==
                     (0x00008000 | 0x00002000)) {
                     struct InlineFunc *fn;
                     const char *filename;
-
                     filename = file ? file->filename : "";
                     fn = tcc_malloc(sizeof *fn + strlen(filename));
                     strcpy(fn->filename, filename);
@@ -12850,7 +12815,6 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym)
                     dynarray_add(&tcc_state->inline_fns,
 				 &tcc_state->nb_inline_fns, fn);
                 } else {
-
                     cur_text_section = ad.section;
                     if (!cur_text_section)
                         cur_text_section = text_section;
@@ -12875,8 +12839,6 @@ found:
 		    convert_parameter_type(&type);
 		    sym->type = type;
 		} else if (type.t & 0x00004000) {
-
-
                     sym = sym_find(v);
                     if (sym && sym->sym_scope == local_scope) {
                         if (!is_compatible_types(&sym->type, &type)
@@ -12892,11 +12854,8 @@ found:
                 } else {
                     r = 0;
                     if ((type.t & 0x000f) == 6) {
-
-
                         type.ref->f = ad.f;
                     } else if (!(type.t & 0x0040)) {
-
                         r |= lvalue_type(type.t);
                     }
                     has_init = (tok == '=');
@@ -12906,10 +12865,6 @@ found:
 			((type.t & 0x000f) == 6) ||
                         ((type.t & 0x0040) && (type.t & 0x00002000) &&
                          !has_init && l == 0x0030 && type.ref->c < 0)) {
-
-
-
-
                         type.t |= 0x00001000;
                         sym = external_sym(v, &type, r, &ad);
                         if (ad.alias_target) {
@@ -12919,8 +12874,6 @@ found:
                             esym = elfsym(alias_target);
                             if (!esym)
                                 tcc_error("unsupported forward __alias__ attribute");
-
-
                             sym->sym_scope = 0;
                             put_extern_sym2(sym, esym->st_shndx, esym->st_value, esym->st_size, 0);
                         }
@@ -12932,7 +12885,6 @@ found:
                         if (has_init)
                             next();
                         else if (l == 0x0030)
-
                             type.t |= 0x00001000;
                         decl_initializer_alloc(&type, &ad, r, has_init, v, l);
                     }
@@ -12951,51 +12903,31 @@ found:
     return 0;
 }
 
-static void decl(int l)
-{
+static void decl(int l) {
     decl0(l, 0, ((void*)0));
 }
-# 42 "tcc_src/libtcc.c" 2
-# 1 "tcc_src/tccelf.c" 1
-# 29 "tcc_src/tccelf.c"
+
 static Section *text_section, *data_section, *bss_section;
 static Section *common_section;
 static Section *cur_text_section;
-
 static Section *last_text_section;
-
-
-
 static Section *bounds_section;
 static Section *lbounds_section;
-
-
 static Section *symtab_section;
-
 static Section *stab_section, *stabstr_section;
-
-
 static int new_undef_sym = 0;
-# 55 "tcc_src/tccelf.c"
-static void tccelf_new(TCCState *s)
-{
 
+static void tccelf_new(TCCState *s) {
     dynarray_add(&s->sections, &s->nb_sections, ((void*)0));
-
-
     text_section = new_section(s, ".text", 1, (1 << 1) | (1 << 2));
     data_section = new_section(s, ".data", 1, (1 << 1) | (1 << 0));
     bss_section = new_section(s, ".bss", 8, (1 << 1) | (1 << 0));
     common_section = new_section(s, ".common", 8, 0x80000000);
     common_section->sh_num = 0xfff2;
-
-
     symtab_section = new_symtab(s, ".symtab", 2, 0,
                                 ".strtab",
                                 ".hashtab", 0x80000000);
     s->symtab = symtab_section;
-
-
     s->dynsymtab_section = new_symtab(s, ".dynsymtab", 2, 0x80000000|0x40000000,
                                       ".dynstrtab",
                                       ".dynhashtab", 0x80000000);
