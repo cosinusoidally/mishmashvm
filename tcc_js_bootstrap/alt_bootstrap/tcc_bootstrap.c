@@ -12167,9 +12167,6 @@ static void init_putv(CType *type, Section *sec, unsigned long c)
                 if (sizeof (long double) >= 10)
                     memcpy(ptr, &vtop->c.ld, 10);
 
-                else if (sizeof (long double) == sizeof (double))
-                    __asm__("fldl %1\nfstpt %0\n" : "=m" (*ptr) : "m" (vtop->c.ld));
-
                 else if (vtop->c.ld == 0.0)
                     ;
                 else
@@ -18897,6 +18894,8 @@ static inline int asm_modrm(int reg, Operand *op) {
 }
 
 static void asm_opcode(TCCState *s1, int opcode) {
+printf("asm_opcode stub\n");
+exit(1);
     const ASMInstr *pa;
     int i, modrm_index, modreg_index, reg, v, op1, seg_prefix, pc;
     int nb_ops, s;
@@ -19807,6 +19806,8 @@ static int tcc_assemble_internal(TCCState *s1, int do_preprocess, int global) {
 }
 
 static int tcc_assemble(TCCState *s1, int do_preprocess) {
+printf("tcc_assemble stub\n");
+exit(1);
     int ret;
     cur_text_section = text_section;
     ind = cur_text_section->data_offset;
@@ -19817,6 +19818,8 @@ static int tcc_assemble(TCCState *s1, int do_preprocess) {
 }
 
 static void tcc_assemble_inline(TCCState *s1, char *str, int len, int global) {
+printf("blah\n");
+puts(str);
     const int *saved_macro_ptr = macro_ptr;
     int dotid = set_idnum('.', 2);
 
