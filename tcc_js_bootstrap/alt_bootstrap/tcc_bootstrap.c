@@ -15893,6 +15893,8 @@ static int tcc_relocate_ex(TCCState *s1, void *ptr, Elf32_Addr ptr_diff);
 # 59 "tcc_src/tccrun.c"
  int tcc_relocate(TCCState *s1, void *ptr)
 {
+puts("blah\n");
+exit(1);
     int size;
     Elf32_Addr ptr_diff = 0;
 
@@ -15912,6 +15914,8 @@ static int tcc_relocate_ex(TCCState *s1, void *ptr, Elf32_Addr ptr_diff);
 
 static int tcc_relocate_ex(TCCState *s1, void *ptr, Elf32_Addr ptr_diff)
 {
+puts("blah\n");
+exit(1);
     Section *s;
     unsigned offset, length, fill, i, k;
     Elf32_Addr mem;
@@ -15974,6 +15978,8 @@ static int tcc_relocate_ex(TCCState *s1, void *ptr, Elf32_Addr ptr_diff)
 
 static void set_pages_executable(void *ptr, unsigned long length)
 {
+puts("blah\n");
+exit(1);
 
 
 
@@ -15998,6 +16004,8 @@ static void set_pages_executable(void *ptr, unsigned long length)
 
 static Elf32_Addr rt_printline(Elf32_Addr wanted_pc, const char *msg)
 {
+puts("blah\n");
+exit(1);
     char func_name[128], last_func_name[128];
     Elf32_Addr func_addr, last_pc, pc;
     const char *incl_files[32];
@@ -16140,6 +16148,8 @@ no_stabs:
 
 static void rt_error(ucontext_t *uc, const char *fmt, ...)
 {
+puts("blah\n");
+exit(1);
     va_list ap;
     Elf32_Addr pc;
     int i;
@@ -16165,6 +16175,8 @@ static void rt_error(ucontext_t *uc, const char *fmt, ...)
 
 static void sig_error(int signum, siginfo_t *siginf, void *puc)
 {
+puts("blah\n");
+exit(1);
     ucontext_t *uc = puc;
 
     switch(signum) {
@@ -16206,6 +16218,8 @@ static void sig_error(int signum, siginfo_t *siginf, void *puc)
 
 static void set_exception_handler(void)
 {
+puts("blah\n");
+exit(1);
     struct sigaction sigact;
 
 
@@ -16221,16 +16235,16 @@ static void set_exception_handler(void)
 # 571 "tcc_src/tccrun.c"
 static int rt_get_caller_pc(Elf32_Addr *paddr, ucontext_t *uc, int level)
 {
+puts("blah\n");
+exit(1);
     Elf32_Addr fp;
     int i;
 
     if (level == 0) {
-# 588 "tcc_src/tccrun.c"
         *paddr = uc->uc_mcontext.gregs[REG_EIP];
 
         return 0;
     } else {
-# 603 "tcc_src/tccrun.c"
         fp = uc->uc_mcontext.gregs[REG_EBP];
 
         for(i=1;i<level;i++) {
@@ -16243,10 +16257,7 @@ static int rt_get_caller_pc(Elf32_Addr *paddr, ucontext_t *uc, int level)
         return 0;
     }
 }
-# 44 "tcc_src/libtcc.c" 2
 
-# 1 "tcc_src/i386-gen.c" 1
-# 82 "tcc_src/i386-gen.c"
 static const int reg_classes[5] = {
       0x0001 | 0x0004,
       0x0001 | 0x0010,
@@ -17115,9 +17126,9 @@ static void gen_cvt_itof(int t)
     vtop->r = TREG_ST0;
 }
 
-
-static void gen_cvt_ftoi(int t)
-{
+static void gen_cvt_ftoi(int t) {
+puts("break\n");
+exit(1);
     int bt = vtop->type.t & 0x000f;
     if (bt == 8)
         vpush_global_sym(&func_old_type, TOK___fixsfdi);
@@ -17132,10 +17143,7 @@ static void gen_cvt_ftoi(int t)
     vtop->r2 = TREG_EDX;
 }
 
-
-static void gen_cvt_ftof(int t)
-{
-
+static void gen_cvt_ftof(int t) {
     gv(0x0002);
 }
 
