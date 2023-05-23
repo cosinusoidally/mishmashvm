@@ -21539,15 +21539,11 @@ static void strcat_printf(char *buf, int buf_size, const char *fmt, ...)
     ;
 }
 
-static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap)
-{
+static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap) {
     char buf[2048];
     BufferedFile **pf, *f;
-
     buf[0] = '\0';
-
-    for (f = file; f && f->filename[0] == ':'; f = f->prev)
-     ;
+    for (f = file; f && f->filename[0] == ':'; f = f->prev);
     if (f) {
         for(pf = s1->include_stack; pf < s1->include_stack_ptr; pf++)
             strcat_printf(buf, sizeof(buf), "In file included from %s:%d:\n",
@@ -21567,11 +21563,8 @@ static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap)
     else
         strcat_printf(buf, sizeof(buf), "error: ");
     strcat_vprintf(buf, sizeof(buf), fmt, ap);
-
     if (!s1->error_func) {
-
         if (s1->output_type == 5 && s1->ppfp == stdout)
-
             printf("\n"), fflush(stdout);
         fflush(stdout);
         fprintf(stderr, "%s\n", buf);
@@ -21583,56 +21576,39 @@ static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap)
         s1->nb_errors++;
 }
 
- void tcc_set_error_func(TCCState *s, void *error_opaque,
-                        void (*error_func)(void *opaque, const char *msg))
-{
+void tcc_set_error_func(TCCState *s, void *error_opaque,
+                        void (*error_func)(void *opaque, const char *msg)) {
     s->error_opaque = error_opaque;
     s->error_func = error_func;
 }
 
-
- void tcc_error_noabort(const char *fmt, ...)
-{
+void tcc_error_noabort(const char *fmt, ...) {
     TCCState *s1 = tcc_state;
     va_list ap;
-
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
     error1(s1, 0, fmt, ap);
-    ;
 }
 
- void tcc_error(const char *fmt, ...)
-{
+void tcc_error(const char *fmt, ...) {
     TCCState *s1 = tcc_state;
     va_list ap;
-
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
     error1(s1, 0, fmt, ap);
-    ;
     exit(1);
 }
 
- void tcc_warning(const char *fmt, ...)
-{
+void tcc_warning(const char *fmt, ...) {
     TCCState *s1 = tcc_state;
     va_list ap;
-
     if (s1->warn_none)
         return;
-
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
     error1(s1, 1, fmt, ap);
-    ;
 }
 
-
-
-
-static void tcc_open_bf(TCCState *s1, const char *filename, int initlen)
-{
+static void tcc_open_bf(TCCState *s1, const char *filename, int initlen) {
     BufferedFile *bf;
     int buflen = initlen ? initlen : 8192;
-
     bf = tcc_mallocz(sizeof(BufferedFile) + buflen);
     bf->buf_ptr = bf->buffer;
     bf->buf_end = bf->buffer + initlen;
@@ -21647,8 +21623,7 @@ static void tcc_open_bf(TCCState *s1, const char *filename, int initlen)
     tok_flags = 0x0001 | 0x0002;
 }
 
-static void tcc_close(void)
-{
+static void tcc_close(void) {
     BufferedFile *bf = file;
     if (bf->fd > 0) {
         close(bf->fd);
@@ -21660,8 +21635,7 @@ static void tcc_close(void)
     tcc_free(bf);
 }
 
-static int tcc_open(TCCState *s1, const char *filename)
-{
+static int tcc_open(TCCState *s1, const char *filename) {
     int fd;
     if (strcmp(filename, "-") == 0)
         fd = 0, filename = "<stdin>";
@@ -21673,9 +21647,6 @@ static int tcc_open(TCCState *s1, const char *filename)
     if (fd < 0)
         return -1;
     tcc_open_bf(s1, filename, 0);
-
-
-
     file->fd = fd;
     return fd;
 }
