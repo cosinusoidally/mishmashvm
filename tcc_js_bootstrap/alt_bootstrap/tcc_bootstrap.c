@@ -18712,135 +18712,13 @@ exit(1);
 }
 
 static int asm_parse_reg(unsigned int *type) {
-    int reg = 0;
-    *type = 0;
-    if (tok != '%')
-        goto error_32;
-    next();
-    if (tok >= TOK_ASM_eax && tok <= TOK_ASM_edi) {
-        reg = tok - TOK_ASM_eax;
-	*type = (1 << OPT_REG32);
-    } else {
-    error_32:
-        expect("register");
-    }
-    next();
-    return reg;
+printf("asm_parse_reg stub\n");
+exit(1);
 }
 
 static void parse_operand(TCCState *s1, Operand *op) {
-    ExprValue e;
-    int reg, indir;
-    const char *p;
-    indir = 0;
-    if (tok == '*') {
-        next();
-        indir = (1 << OPT_INDIR);
-    }
-    if (tok == '%') {
-        next();
-        if (tok >= TOK_ASM_al && tok <= TOK_ASM_db7) {
-            reg = tok - TOK_ASM_al;
-            op->type = 1 << (reg >> 3);
-            op->reg = reg & 7;
-            if ((op->type & ((1 << OPT_REG8) | (1 << OPT_REG16) | (1 << OPT_REG32) | 0)) && op->reg == TREG_EAX)
-                op->type |= (1 << OPT_EAX);
-            else if (op->type == (1 << OPT_REG8) && op->reg == TREG_ECX)
-                op->type |= (1 << OPT_CL);
-            else if (op->type == (1 << OPT_REG16) && op->reg == TREG_EDX)
-                op->type |= (1 << OPT_DX);
-        } else if (tok >= TOK_ASM_dr0 && tok <= TOK_ASM_dr7) {
-            op->type = (1 << OPT_DB);
-            op->reg = tok - TOK_ASM_dr0;
-        } else if (tok >= TOK_ASM_es && tok <= TOK_ASM_gs) {
-            op->type = (1 << OPT_SEG);
-            op->reg = tok - TOK_ASM_es;
-        } else if (tok == TOK_ASM_st) {
-            op->type = (1 << OPT_ST);
-            op->reg = 0;
-            next();
-            if (tok == '(') {
-                next();
-                if (tok != 0xbe)
-                    goto reg_error;
-                p = tokc.str.data;
-                reg = p[0] - '0';
-                if ((unsigned)reg >= 8 || p[1] != '\0')
-                    goto reg_error;
-                op->reg = reg;
-                next();
-                skip(')');
-            }
-            if (op->reg == 0)
-                op->type |= (1 << OPT_ST0);
-            goto no_skip;
-        } else {
-        reg_error:
-            tcc_error("unknown register %%%s", get_tok_str(tok, &tokc));
-        }
-        next();
-    no_skip: ;
-    } else if (tok == '$') {
-        next();
-        asm_expr(s1, &e);
-        op->type = (1 << OPT_IM32);
-        op->e = e;
-        if (!op->e.sym) {
-            if (op->e.v == (uint8_t)op->e.v)
-                op->type |= (1 << OPT_IM8);
-            if (op->e.v == (int8_t)op->e.v)
-                op->type |= (1 << OPT_IM8S);
-            if (op->e.v == (uint16_t)op->e.v)
-                op->type |= (1 << OPT_IM16);
-        }
-    } else {
-        op->type = 0x40000000;
-        op->reg = -1;
-        op->reg2 = -1;
-        op->shift = 0;
-        if (tok != '(') {
-            asm_expr(s1, &e);
-            op->e = e;
-        } else {
-            next();
-            if (tok == '%') {
-                unget_tok('(');
-                op->e.v = 0;
-                op->e.sym = ((void*)0);
-            } else {
-                asm_expr(s1, &e);
-                if (tok != ')')
-                    expect(")");
-                next();
-                op->e.v = e.v;
-                op->e.sym = e.sym;
-            }
-	    op->e.pcrel = 0;
-        }
-        if (tok == '(') {
-	    unsigned int type = 0;
-            next();
-            if (tok != ',') {
-                op->reg = asm_parse_reg(&type);
-            }
-            if (tok == ',') {
-                next();
-                if (tok != ',') {
-                    op->reg2 = asm_parse_reg(&type);
-                }
-                if (tok == ',') {
-                    next();
-                    op->shift = get_reg_shift(s1);
-                }
-            }
-	    if (type & (1 << OPT_REG32))
-	        op->type |= 0;
-            skip(')');
-        }
-        if (op->reg == -1 && op->reg2 == -1)
-            op->type |= (1 << OPT_ADDR);
-    }
-    op->type |= indir;
+printf("parse_operand stub\n");
+exit(1);
 }
 
 
@@ -18856,41 +18734,8 @@ exit(1);
 }
 
 static inline int asm_modrm(int reg, Operand *op) {
-    int mod, reg1, reg2, sib_reg1;
-    if (op->type & (((1 << OPT_REG8) | (1 << OPT_REG16) | (1 << OPT_REG32) | 0) | (1 << OPT_MMX) | (1 << OPT_SSE))) {
-        g(0xc0 + (reg << 3) + op->reg);
-    } else if (op->reg == -1 && op->reg2 == -1) {
-	g(0x05 + (reg << 3));
-	gen_expr32(&op->e);
-    } else {
-        sib_reg1 = op->reg;
-        if (sib_reg1 == -1) {
-            sib_reg1 = 5;
-            mod = 0x00;
-        } else if (op->e.v == 0 && !op->e.sym && op->reg != 5) {
-            mod = 0x00;
-        } else if (op->e.v == (int8_t)op->e.v && !op->e.sym) {
-            mod = 0x40;
-        } else {
-            mod = 0x80;
-        }
-        reg1 = op->reg;
-        if (op->reg2 != -1)
-            reg1 = 4;
-        g(mod + (reg << 3) + reg1);
-        if (reg1 == 4) {
-            reg2 = op->reg2;
-            if (reg2 == -1)
-                reg2 = 4;
-            g((op->shift << 6) + (reg2 << 3) + sib_reg1);
-        }
-        if (mod == 0x40) {
-            g(op->e.v);
-        } else if (mod == 0x80 || op->reg == -1) {
-	    gen_expr32(&op->e);
-        }
-    }
-    return 0;
+printf("asm_modrm stub\n");
+exit(1);
 }
 
 static void asm_opcode(TCCState *s1, int opcode) {
@@ -18899,6 +18744,8 @@ exit(1);
 }
 
 static inline int constraint_priority(const char *str) {
+printf("constraint_priority stub\n");
+exit(1);
     int priority, c, pr;
     priority = 0;
     for(;;) {
@@ -18946,6 +18793,8 @@ static inline int constraint_priority(const char *str) {
 }
 
 static const char *skip_constraint_modifiers(const char *p) {
+printf("skip_constraint_modifiers stub\n");
+exit(1);
     while (*p == '=' || *p == '&' || *p == '+' || *p == '%')
         p++;
     return p;
@@ -18960,6 +18809,8 @@ static void asm_compute_constraints(ASMOperand *operands,
                                     int nb_operands, int nb_outputs,
                                     const uint8_t *clobber_regs,
                                     int *pout_reg) {
+printf("asm_compute_constraints stub\n");
+exit(1);
     ASMOperand *op;
     int sorted_op[30];
     int i, j, k, p1, p2, tmp, reg, c, reg_mask;
@@ -19155,6 +19006,8 @@ static void asm_compute_constraints(ASMOperand *operands,
 
 static void subst_asm_operand(CString *add_str,
                               SValue *sv, int modifier) {
+printf("asm_gen_code stub\n");
+exit(1);
     int r, reg, size, val;
     char buf[64];
     r = sv->r;
@@ -19238,6 +19091,8 @@ static void asm_gen_code(ASMOperand *operands, int nb_operands,
                          int nb_outputs, int is_output,
                          uint8_t *clobber_regs,
                          int out_reg) {
+printf("asm_gen_code stub\n");
+exit(1);
     uint8_t regs_allocated[8];
     ASMOperand *op;
     int i, reg;
