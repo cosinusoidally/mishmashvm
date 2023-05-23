@@ -19059,36 +19059,6 @@ static inline int asm_modrm(int reg, Operand *op) {
     return 0;
 }
 
-static void maybe_print_stats (void) {
-  static int already = 1;
-  if (!already) {
-        const struct ASMInstr *pa;
-        int freq[4];
-        int op_vals[500];
-        int nb_op_vals, i, j;
-	already = 1;
-        nb_op_vals = 0;
-        memset(freq, 0, sizeof(freq));
-        for(pa = asm_instrs; pa->sym != 0; pa++) {
-            freq[pa->nb_ops]++;
-                for(j=0;j<nb_op_vals;j++) {
-                    if (pa->instr_type == op_vals[j])
-                        goto found;
-                }
-                op_vals[nb_op_vals++] = pa->instr_type;
-            found: ;
-        }
-        for(i=0;i<nb_op_vals;i++) {
-            int v = op_vals[i];
-                printf("%3d: %08x\n", i, v);
-        }
-        printf("size=%d nb=%d f0=%d f1=%d f2=%d f3=%d\n",
-               (int)sizeof(asm_instrs),
-	       (int)sizeof(asm_instrs) / (int)sizeof(ASMInstr),
-               freq[0], freq[1], freq[2], freq[3]);
-    }
-}
-
 static void asm_opcode(TCCState *s1, int opcode) {
     const ASMInstr *pa;
     int i, modrm_index, modreg_index, reg, v, op1, seg_prefix, pc;
@@ -19098,7 +19068,6 @@ static void asm_opcode(TCCState *s1, int opcode) {
     int alltypes;
     int autosize;
     int p66;
-    maybe_print_stats();
     if (opcode >= TOK_ASM_wait && opcode <= TOK_ASM_repnz)
         unget_tok(';');
     pop = ops;
