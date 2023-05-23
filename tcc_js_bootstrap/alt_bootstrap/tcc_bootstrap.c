@@ -14004,49 +14004,7 @@ static void tidy_section_headers(TCCState *s1, int *sec_order)
 {
 puts("stub\n");
 exit(1);
-    int i, nnew, l, *backmap;
-    Section **snew, *s;
-    Elf32_Sym *sym;
-
-    snew = tcc_malloc(s1->nb_sections * sizeof(snew[0]));
-    backmap = tcc_malloc(s1->nb_sections * sizeof(backmap[0]));
-    for (i = 0, nnew = 0, l = s1->nb_sections; i < s1->nb_sections; i++) {
-	s = s1->sections[sec_order[i]];
-	if (!i || s->sh_name) {
-	    backmap[sec_order[i]] = nnew;
-	    snew[nnew] = s;
-	    ++nnew;
-	} else {
-	    backmap[sec_order[i]] = 0;
-	    snew[--l] = s;
-	}
-    }
-    for (i = 0; i < nnew; i++) {
-	s = snew[i];
-	if (s) {
-	    s->sh_num = i;
-            if (s->sh_type == 9)
-		s->sh_info = backmap[s->sh_info];
-	}
-    }
-
-    for (sym = (Elf32_Sym *) symtab_section->data + 1; sym < (Elf32_Sym *) (symtab_section->data + symtab_section->data_offset); sym++)
-	if (sym->st_shndx != 0 && sym->st_shndx < 0xff00)
-	    sym->st_shndx = backmap[sym->st_shndx];
-    if( !s1->static_link ) {
-        for (sym = (Elf32_Sym *) s1->dynsym->data + 1; sym < (Elf32_Sym *) (s1->dynsym->data + s1->dynsym->data_offset); sym++)
-	    if (sym->st_shndx != 0 && sym->st_shndx < 0xff00)
-	        sym->st_shndx = backmap[sym->st_shndx];
-    }
-    for (i = 0; i < s1->nb_sections; i++)
-	sec_order[i] = i;
-    tcc_free(s1->sections);
-    s1->sections = snew;
-    s1->nb_sections = nnew;
-    tcc_free(backmap);
 }
-
-
 
 static int elf_output_file(TCCState *s1, const char *filename)
 {
@@ -14056,7 +14014,6 @@ static int elf_output_file(TCCState *s1, const char *filename)
     Elf32_Sym *sym;
     Section *strsec, *interp, *dynamic, *dynstr;
     int textrel;
-
     file_type = s1->output_type;
     s1->nb_errors = 0;
     ret = -1;
@@ -14074,7 +14031,6 @@ static int elf_output_file(TCCState *s1, const char *filename)
         dyninf.dynamic = dynamic;
         dyninf.dynstr = dynstr;
         dyninf.data_offset = dynamic->data_offset;
-//        fill_dynamic(s1, &dyninf);
         dynamic->sh_size = dynamic->data_offset;
         dynstr->sh_size = dynstr->data_offset;
     }
@@ -14090,27 +14046,12 @@ static int elf_output_file(TCCState *s1, const char *filename)
     shnum = s1->nb_sections;
     sec_order = tcc_malloc(sizeof(int) * shnum);
     sec_order[0] = 0;
-
-
     file_offset = layout_sections(s1, phdr, phnum, interp, strsec, &dyninf,
                                   sec_order);
-
-
-
     if (file_type != 4) {
-//        fill_unloadable_phdr(phdr, phnum, interp, dynamic);
         if (dynamic) {
             dynamic->data_offset = dyninf.data_offset;
-//          fill_dynamic(s1, &dyninf);
-
-
             write32le(s1->got->data, dynamic->sh_addr);
-/*
-            if (file_type == 2
-                || (0 && file_type == 3))
-                relocate_plt(s1);
-*/
-
             for (sym = (Elf32_Sym *) s1->dynsym->data + 1; sym < (Elf32_Sym *) (s1->dynsym->data + s1->dynsym->data_offset); sym++) {
                 if (sym->st_shndx != 0 && sym->st_shndx < 0xff00) {
 
@@ -14118,18 +14059,8 @@ static int elf_output_file(TCCState *s1, const char *filename)
                 }
             }
         }
-
-
-
-//        ret = final_sections_reloc(s1);
-        if (ret)
-            goto the_end;
 	tidy_section_headers(s1, sec_order);
-
-
     }
-
-
     ret = tcc_write_elf_file(s1, filename, phnum, phdr, file_offset, sec_order);
     s1->nb_sections = shnum;
  the_end:
