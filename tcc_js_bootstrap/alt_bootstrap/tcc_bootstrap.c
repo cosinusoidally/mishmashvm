@@ -17141,6 +17141,8 @@ static void gen_cvt_ftof(int t)
 
 static void ggoto(void)
 {
+puts("relocate_init stub\n");
+exit(1);
     gcall_or_jmp(1);
     vtop--;
 }
@@ -17151,6 +17153,8 @@ static void ggoto(void)
 
 static void gen_bounded_ptr_add(void)
 {
+puts("relocate_init stub\n");
+exit(1);
 
     gv2(0x0004, 0x0020);
 
@@ -17169,6 +17173,8 @@ static void gen_bounded_ptr_add(void)
 
 static void gen_bounded_ptr_deref(void)
 {
+puts("relocate_init stub\n");
+exit(1);
     Elf32_Addr func;
     int  size, align;
     Elf32_Rel *rel;
@@ -17210,12 +17216,16 @@ static void gen_bounded_ptr_deref(void)
 
 static void gen_vla_sp_save(int addr) {
 
+puts("relocate_init stub\n");
+exit(1);
     o(0x89);
     gen_modrm(TREG_ESP, 0x0032, ((void*)0), addr);
 }
 
 
 static void gen_vla_sp_restore(int addr) {
+puts("relocate_init stub\n");
+exit(1);
     o(0x8b);
     gen_modrm(TREG_ESP, 0x0032, ((void*)0), addr);
 }
@@ -17223,6 +17233,8 @@ static void gen_vla_sp_restore(int addr) {
 
 static void gen_vla_alloc(CType *type, int align) {
 
+puts("relocate_init stub\n");
+exit(1);
 
 
 
@@ -17244,6 +17256,8 @@ static void gen_vla_alloc(CType *type, int align) {
 # 27 "tcc_src/i386-link.c"
 int code_reloc (int reloc_type)
 {
+puts("relocate_init stub\n");
+exit(1);
     switch (reloc_type) {
 	case 8:
 	case 20:
@@ -17272,6 +17286,8 @@ int code_reloc (int reloc_type)
 
 int gotplt_entry_type (int reloc_type)
 {
+puts("relocate_init stub\n");
+exit(1);
     switch (reloc_type) {
 	case 8:
 	case 20:
@@ -17306,6 +17322,8 @@ int gotplt_entry_type (int reloc_type)
 
 static unsigned create_plt_entry(TCCState *s1, unsigned got_offset, struct sym_attr *attr)
 {
+puts("relocate_init stub\n");
+exit(1);
     Section *plt = s1->plt;
     uint8_t *p;
     int modrm;
@@ -17352,6 +17370,8 @@ static unsigned create_plt_entry(TCCState *s1, unsigned got_offset, struct sym_a
 
 static void relocate_plt(TCCState *s1)
 {
+puts("relocate_init stub\n");
+exit(1);
     uint8_t *p, *p_end;
 
     if (!s1->plt)
@@ -17375,6 +17395,8 @@ static Elf32_Rel *qrel;
 
 void relocate_init(Section *sr)
 {
+puts("relocate_init stub\n");
+exit(1);
     qrel = (Elf32_Rel *) sr->data;
 }
 
