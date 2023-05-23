@@ -23438,6 +23438,8 @@ static int contains_any(const char *s, const char *list) {
 
 static void gen_makedeps(TCCState *s, const char *target, const char *filename)
 {
+printf("gen_makedeps stub\n");
+exit(1);
     FILE *depout;
     char buf[1024];
     int i;
@@ -23701,15 +23703,11 @@ redo:
         }
     }
     if (0 == ret) {
-        if (s->output_type == 1) {
-            ret = tcc_run(s, argc, argv);
-        } else {
-            if (!s->outfile)
-                s->outfile = default_outputfile(s, first_file);
-            if (tcc_output_file(s, s->outfile))
-                ret = 1;
-            else if (s->gen_deps)
-                gen_makedeps(s, s->outfile, s->deps_outfile);
+        if (!s->outfile){
+            s->outfile = default_outputfile(s, first_file);
+        }
+        if (tcc_output_file(s, s->outfile)){
+            ret = 1;
         }
     }
     if (s->do_bench && (n | t | ret) == 0)
