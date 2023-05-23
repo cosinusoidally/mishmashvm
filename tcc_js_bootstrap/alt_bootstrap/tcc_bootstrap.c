@@ -6350,26 +6350,6 @@ static void put_extern_sym2(Sym *sym, int sh_num,
 
     if (!sym->c) {
         name = get_tok_str(sym->v, ((void*)0));
-
-        if (tcc_state->do_bounds_check) {
-
-
-
-            switch(sym->v) {
-# 366 "tcc_src/tccgen.c"
-            case TOK_memcpy:
-            case TOK_memmove:
-            case TOK_memset:
-            case TOK_strlen:
-            case TOK_strcpy:
-            case TOK_alloca:
-                strcpy(buf, "__bound_");
-                strcat(buf, name);
-                name = buf;
-                break;
-            }
-        }
-
         t = sym->type.t;
         if ((t & 0x000f) == 6) {
             sym_type = 2;
@@ -10305,11 +10285,6 @@ static void indir(void)
     if (!(vtop->type.t & 0x0040) && !(vtop->type.t & 0x0400)
         && (vtop->type.t & 0x000f) != 6) {
         vtop->r |= lvalue_type(vtop->type.t);
-
-
-        if (tcc_state->do_bounds_check)
-            vtop->r |= 0x0800;
-
     }
 }
 
@@ -10899,7 +10874,7 @@ static void unary(void)
                 vtop->r |= lvalue_type(vtop->type.t);
 
 
-                if (tcc_state->do_bounds_check && (vtop->r & 0x003f) != 0x0032)
+                if (0 && (vtop->r & 0x003f) != 0x0032)
                     vtop->r |= 0x0800;
 
             }
@@ -12558,7 +12533,7 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
     Sym *sym = ((void*)0);
     int saved_nocode_wanted = nocode_wanted;
 
-    int bcheck = tcc_state->do_bounds_check && !(nocode_wanted > 0);
+    int bcheck = 0;
 
 
     if (type->t & 0x00002000)
@@ -14177,38 +14152,6 @@ static int tcc_add_support(TCCState *s1, const char *filename)
     char buf[1024];
     snprintf(buf, sizeof(buf), "%s/%s", s1->tcc_lib_path, filename);
     return tcc_add_file(s1, buf);
-}
-
-static void tcc_add_bcheck(TCCState *s1)
-{
-exit(1);
-
-    Elf32_Addr *ptr;
-    int sym_index;
-
-    if (0 == s1->do_bounds_check)
-        return;
-
-    ptr = section_ptr_add(bounds_section, sizeof(*ptr));
-    *ptr = 0;
-    set_elf_sym(symtab_section, 0, 0,
-                (((1) << 4) + ((0) & 0xf)), 0,
-                bounds_section->sh_num, "__bounds_start");
-
-    sym_index = set_elf_sym(symtab_section, 0, 0,
-                (((1) << 4) + ((0) & 0xf)), 0,
-                0, "__bound_init");
-    if (s1->output_type != 1) {
-
-        Section *init_section = find_section(s1, ".init");
-        unsigned char *pinit = section_ptr_add(init_section, 5);
-        pinit[0] = 0xe8;
-        write32le(pinit + 1, -4);
-        put_elf_reloc(symtab_section, init_section,
-            init_section->data_offset - 4, 2, sym_index);
-
-    }
-
 }
 
 static void tcc_add_linker_symbols(TCCState *s1)
