@@ -22751,7 +22751,6 @@ static void args_parser_listfile(TCCState *s,
 {
     const TCCOption *popt;
     const char *optarg, *r;
-    const char *run = ((void*)0);
     int last_o = -1;
     int x;
     CString linker_arg;
@@ -22808,11 +22807,6 @@ reparse:
             args_parser_add_file(s, optarg, 4);
             s->nb_libraries++;
             break;
-        case TCC_OPTION_b:
-exit(1);
-            s->do_bounds_check = 1;
-            s->do_debug = 1;
-            break;
         case TCC_OPTION_g:
             s->do_debug = 1;
             break;
@@ -22856,7 +22850,6 @@ exit(1);
             s->outfile = tcc_strdup(optarg);
             break;
         case TCC_OPTION_r:
-
 exit(1);
             s->option_r = 1;
             x = 4;
@@ -22875,11 +22868,6 @@ exit(1);
         case TCC_OPTION_nostdlib:
             s->nostdlib = 1;
             break;
-        case TCC_OPTION_run:
-exit(1);
-            run = optarg;
-            x = 1;
-            goto set_output_type;
         case TCC_OPTION_v:
             do ++s->verbose; while (*optarg++ == 'v');
             ++noaction;
