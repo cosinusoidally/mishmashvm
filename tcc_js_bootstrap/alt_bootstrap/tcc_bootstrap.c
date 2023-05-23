@@ -1833,7 +1833,6 @@ static void tcc_close(void);
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags);
 static int tcc_add_crt(TCCState *s, const char *filename);
 static int tcc_add_dll(TCCState *s, const char *filename, int flags);
-static void tcc_add_pragma_libs(TCCState *s1);
 int tcc_add_library_err(TCCState *s, const char *f);
 int tcc_parse_args(TCCState *s, int *argc, char ***argv, int optind);
 static struct BufferedFile *file;
@@ -15577,12 +15576,6 @@ static int ld_next(TCCState *s1, char *name, int name_size)
     return c;
 }
 
-static int ld_add_file(TCCState *s1, const char filename[])
-{
-printf("ld_add_file stub\n");
-exit(1);
-}
-
 static inline int new_undef_syms(void)
 {
     int ret = 0;
@@ -15637,9 +15630,6 @@ static int ld_add_file_list(TCCState *s1, const char *cmd, int as_needed)
         } else {
 
             if (!as_needed) {
-                ret = ld_add_file(s1, filename);
-                if (ret)
-                    goto lib_parse_error;
                 if (group) {
 
                     dynarray_add(&libs, &nblibs, tcc_strdup(filename));
@@ -15657,8 +15647,6 @@ static int ld_add_file_list(TCCState *s1, const char *cmd, int as_needed)
         while (new_undef_syms()) {
             int i;
 
-            for (i = 0; i < nblibs; i ++)
-                ld_add_file(s1, libs[i]);
         }
     }
 lib_parse_error:
@@ -22029,11 +22017,6 @@ static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags)
 {
     tcc_split_path(s, &s->library_paths, &s->nb_library_paths, pathname);
     return 0;
-}
-
-static void tcc_add_pragma_libs(TCCState *s1) {
-printf("tcc_add_pragma_libs stub\n");
-exit(1);
 }
 
 void tcc_set_lib_path(TCCState *s, const char *path) {
