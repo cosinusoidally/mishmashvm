@@ -17143,8 +17143,6 @@ static void ggoto(void)
 {
 puts("relocate_init stub\n");
 exit(1);
-    gcall_or_jmp(1);
-    vtop--;
 }
 
 
@@ -17155,18 +17153,6 @@ static void gen_bounded_ptr_add(void)
 {
 puts("relocate_init stub\n");
 exit(1);
-
-    gv2(0x0004, 0x0020);
-
-    vtop -= 2;
-    save_regs(0);
-
-    gen_static_call(TOK___bound_ptr_add);
-
-    vtop++;
-    vtop->r = TREG_EAX | 0x8000;
-
-    vtop->c.i = (cur_text_section->reloc->data_offset - sizeof(Elf32_Rel));
 }
 
 
@@ -17175,41 +17161,6 @@ static void gen_bounded_ptr_deref(void)
 {
 puts("relocate_init stub\n");
 exit(1);
-    Elf32_Addr func;
-    int  size, align;
-    Elf32_Rel *rel;
-    Sym *sym;
-
-    size = 0;
-
-    if (!is_float(vtop->type.t)) {
-        if (vtop->r & 0x1000)
-            size = 1;
-        else if (vtop->r & 0x2000)
-            size = 2;
-    }
-    if (!size)
-        size = type_size(&vtop->type, &align);
-    switch(size) {
-    case  1: func = TOK___bound_ptr_indir1; break;
-    case  2: func = TOK___bound_ptr_indir2; break;
-    case  4: func = TOK___bound_ptr_indir4; break;
-    case  8: func = TOK___bound_ptr_indir8; break;
-    case 12: func = TOK___bound_ptr_indir12; break;
-    case 16: func = TOK___bound_ptr_indir16; break;
-    default:
-        tcc_error("unhandled size when dereferencing bounded pointer");
-        func = 0;
-        break;
-    }
-
-
-
-    rel = (Elf32_Rel *)(cur_text_section->reloc->data + vtop->c.i);
-    sym = external_global_sym(func, &func_old_type, 0);
-    if (!sym->c)
-        put_extern_sym(sym, ((void*)0), 0, 0);
-    rel->r_info = (((sym->c) << 8) + ((((rel->r_info) & 0xff)) & 0xff));
 }
 
 
@@ -17218,67 +17169,24 @@ static void gen_vla_sp_save(int addr) {
 
 puts("relocate_init stub\n");
 exit(1);
-    o(0x89);
-    gen_modrm(TREG_ESP, 0x0032, ((void*)0), addr);
 }
 
 
 static void gen_vla_sp_restore(int addr) {
 puts("relocate_init stub\n");
 exit(1);
-    o(0x8b);
-    gen_modrm(TREG_ESP, 0x0032, ((void*)0), addr);
 }
 
 
 static void gen_vla_alloc(CType *type, int align) {
-
 puts("relocate_init stub\n");
 exit(1);
-
-
-
-
-
-    int r;
-    r = gv(0x0001);
-
-    o(0x2b);
-    o(0xe0 | r);
-
-
-    o(0xf0e483);
-    vpop();
-
 }
-# 46 "tcc_src/libtcc.c" 2
-# 1 "tcc_src/i386-link.c" 1
-# 27 "tcc_src/i386-link.c"
+
 int code_reloc (int reloc_type)
 {
 puts("relocate_init stub\n");
 exit(1);
-    switch (reloc_type) {
-	case 8:
-	case 20:
-        case 1:
-	case 10:
-	case 9:
-	case 3:
-	case 43:
-	case 6:
-	case 5:
-            return 0;
-
-	case 21:
-	case 2:
-	case 4:
-	case 7:
-            return 1;
-    }
-
-    tcc_error ("Unknown relocation type: %d", reloc_type);
-    return -1;
 }
 
 
@@ -17288,82 +17196,12 @@ int gotplt_entry_type (int reloc_type)
 {
 puts("relocate_init stub\n");
 exit(1);
-    switch (reloc_type) {
-	case 8:
-	case 20:
-	case 6:
-	case 7:
-	case 5:
-            return NO_GOTPLT_ENTRY;
-
-        case 1:
-
-
-
-            return AUTO_GOTPLT_ENTRY;
-
-	case 21:
-	case 2:
-            return AUTO_GOTPLT_ENTRY;
-
-	case 10:
-	case 9:
-            return BUILD_GOT_ONLY;
-
-	case 3:
-	case 43:
-	case 4:
-            return ALWAYS_GOTPLT_ENTRY;
-    }
-
-    tcc_error ("Unknown relocation type: %d", reloc_type);
-    return -1;
 }
 
 static unsigned create_plt_entry(TCCState *s1, unsigned got_offset, struct sym_attr *attr)
 {
 puts("relocate_init stub\n");
 exit(1);
-    Section *plt = s1->plt;
-    uint8_t *p;
-    int modrm;
-    unsigned plt_offset, relofs;
-
-
-    if (s1->output_type == 3)
-        modrm = 0xa3;
-    else
-        modrm = 0x25;
-
-
-
-
-    if (plt->data_offset == 0) {
-        p = section_ptr_add(plt, 16);
-        p[0] = 0xff;
-        p[1] = modrm + 0x10;
-        write32le(p + 2, 4);
-        p[6] = 0xff;
-        p[7] = modrm;
-        write32le(p + 8, 4 * 2);
-    }
-    plt_offset = plt->data_offset;
-
-
-
-
-    relofs = s1->got->reloc ? s1->got->reloc->data_offset : 0;
-
-
-    p = section_ptr_add(plt, 16);
-    p[0] = 0xff;
-    p[1] = modrm;
-    write32le(p + 2, got_offset);
-    p[6] = 0x68;
-    write32le(p + 7, relofs);
-    p[11] = 0xe9;
-    write32le(p + 12, -(plt->data_offset));
-    return plt_offset;
 }
 
 
@@ -17372,32 +17210,12 @@ static void relocate_plt(TCCState *s1)
 {
 puts("relocate_init stub\n");
 exit(1);
-    uint8_t *p, *p_end;
-
-    if (!s1->plt)
-      return;
-
-    p = s1->plt->data;
-    p_end = p + s1->plt->data_offset;
-
-    if (p < p_end) {
-        add32le(p + 2, s1->got->sh_addr);
-        add32le(p + 8, s1->got->sh_addr);
-        p += 16;
-        while (p < p_end) {
-            add32le(p + 2, s1->got->sh_addr);
-            p += 16;
-        }
-    }
 }
-
-static Elf32_Rel *qrel;
 
 void relocate_init(Section *sr)
 {
 puts("relocate_init stub\n");
 exit(1);
-    qrel = (Elf32_Rel *) sr->data;
 }
 
 
