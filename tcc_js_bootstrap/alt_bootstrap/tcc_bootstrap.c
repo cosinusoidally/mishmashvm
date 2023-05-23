@@ -14006,31 +14006,6 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
     return file_offset;
 }
 
-static void fill_unloadable_phdr(Elf32_Phdr *phdr, int phnum, Section *interp,
-                                 Section *dynamic)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-
-static void fill_dynamic(TCCState *s1, struct dyn_inf *dyninf)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-
-static int final_sections_reloc(TCCState *s1)
-{
-puts("relocate_rel stub\n");
-exit(1);
-}
-
-
-
 static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
                            int file_offset, int *sec_order)
 {
@@ -14249,7 +14224,7 @@ static int elf_output_file(TCCState *s1, const char *filename)
         dyninf.dynamic = dynamic;
         dyninf.dynstr = dynstr;
         dyninf.data_offset = dynamic->data_offset;
-        fill_dynamic(s1, &dyninf);
+//        fill_dynamic(s1, &dyninf);
         dynamic->sh_size = dynamic->data_offset;
         dynstr->sh_size = dynstr->data_offset;
     }
@@ -14273,10 +14248,10 @@ static int elf_output_file(TCCState *s1, const char *filename)
 
 
     if (file_type != 4) {
-        fill_unloadable_phdr(phdr, phnum, interp, dynamic);
+//        fill_unloadable_phdr(phdr, phnum, interp, dynamic);
         if (dynamic) {
             dynamic->data_offset = dyninf.data_offset;
-            fill_dynamic(s1, &dyninf);
+//          fill_dynamic(s1, &dyninf);
 
 
             write32le(s1->got->data, dynamic->sh_addr);
@@ -14295,7 +14270,7 @@ static int elf_output_file(TCCState *s1, const char *filename)
 
 
 
-        ret = final_sections_reloc(s1);
+//        ret = final_sections_reloc(s1);
         if (ret)
             goto the_end;
 	tidy_section_headers(s1, sec_order);
@@ -17572,11 +17547,6 @@ void relocate_init(Section *sr)
     qrel = (Elf32_Rel *) sr->data;
 }
 
-void relocate(TCCState *s1, Elf32_Rel *rel, int type, unsigned char *ptr, Elf32_Addr addr, Elf32_Addr val)
-{
-puts("relocate stub\n");
-exit(1);
-}
 
 static char *pstrcpy(char *buf, int buf_size, const char *s) {
     char *q, *q_end;
