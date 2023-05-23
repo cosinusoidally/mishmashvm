@@ -14140,6 +14140,8 @@ static int elf_output_file(TCCState *s1, const char *filename)
 
 static void *load_data(int fd, unsigned long file_offset, unsigned long size)
 {
+puts("stub\n");
+exit(1);
     void *data;
 
     data = tcc_malloc(size);
@@ -14159,21 +14161,6 @@ static int tcc_object_type(int fd, Elf32_Ehdr *h)
 {
 puts("stub\n");
 exit(1);
-    int size = read(fd, h, sizeof *h);
-    if (size == sizeof *h && 0 == memcmp(h, "\177ELF", 4)) {
-        if (h->e_type == 1)
-            return 1;
-        if (h->e_type == 3)
-            return 2;
-    } else if (size >= 8) {
-        if (0 == memcmp(h, "!<arch>\012", 8))
-            return 3;
-
-
-
-
-    }
-    return 0;
 }
 
 
@@ -14183,277 +14170,6 @@ static int tcc_load_object_file(TCCState *s1,
 {
 puts("stub\n");
 exit(1);
-    Elf32_Ehdr ehdr;
-    Elf32_Shdr *shdr, *sh;
-    int size, i, j, offset, offseti, nb_syms, sym_index, ret, seencompressed;
-    unsigned char *strsec, *strtab;
-    int *old_to_new_syms;
-    char *sh_name, *name;
-    SectionMergeInfo *sm_table, *sm;
-    Elf32_Sym *sym, *symtab;
-    Elf32_Rel *rel;
-    Section *s;
-
-    int stab_index;
-    int stabstr_index;
-
-    stab_index = stabstr_index = 0;
-
-    lseek(fd, file_offset, 0);
-    if (tcc_object_type(fd, &ehdr) != 1)
-        goto fail1;
-
-    if (ehdr.e_ident[5] != 1 ||
-        ehdr.e_machine != 3) {
-    fail1:
-        tcc_error_noabort("invalid object file");
-        return -1;
-    }
-
-    shdr = load_data(fd, file_offset + ehdr.e_shoff,
-                     sizeof(Elf32_Shdr) * ehdr.e_shnum);
-    sm_table = tcc_mallocz(sizeof(SectionMergeInfo) * ehdr.e_shnum);
-
-
-    sh = &shdr[ehdr.e_shstrndx];
-    strsec = load_data(fd, file_offset + sh->sh_offset, sh->sh_size);
-
-
-    old_to_new_syms = ((void*)0);
-    symtab = ((void*)0);
-    strtab = ((void*)0);
-    nb_syms = 0;
-    seencompressed = 0;
-    for(i = 1; i < ehdr.e_shnum; i++) {
-        sh = &shdr[i];
-        if (sh->sh_type == 2) {
-            if (symtab) {
-                tcc_error_noabort("object must contain only one symtab");
-            fail:
-                ret = -1;
-                goto the_end;
-            }
-            nb_syms = sh->sh_size / sizeof(Elf32_Sym);
-            symtab = load_data(fd, file_offset + sh->sh_offset, sh->sh_size);
-            sm_table[i].s = symtab_section;
-
-
-            sh = &shdr[sh->sh_link];
-            strtab = load_data(fd, file_offset + sh->sh_offset, sh->sh_size);
-        }
-	if (sh->sh_flags & (1 << 11))
-	    seencompressed = 1;
-    }
-
-
-
-    for(i = 1; i < ehdr.e_shnum; i++) {
-
-        if (i == ehdr.e_shstrndx)
-            continue;
-        sh = &shdr[i];
-        sh_name = (char *) strsec + sh->sh_name;
-
-        if (sh->sh_type != 1 &&
-            sh->sh_type != 9 &&
-
-
-
-            sh->sh_type != 8 &&
-            sh->sh_type != 16 &&
-            sh->sh_type != 14 &&
-            sh->sh_type != 15 &&
-            strcmp(sh_name, ".stabstr")
-            )
-            continue;
-	if (seencompressed
-	    && (!strncmp(sh_name, ".debug_", sizeof(".debug_")-1)
-		|| (sh->sh_type == 9
-		    && !strncmp((char*)strsec + shdr[sh->sh_info].sh_name,
-			        ".debug_", sizeof(".debug_")-1))))
-	  continue;
-        if (sh->sh_addralign < 1)
-            sh->sh_addralign = 1;
-
-        for(j = 1; j < s1->nb_sections;j++) {
-            s = s1->sections[j];
-            if (!strcmp(s->name, sh_name)) {
-                if (!strncmp(sh_name, ".gnu.linkonce",
-                             sizeof(".gnu.linkonce") - 1)) {
-
-
-
-
-                    sm_table[i].link_once = 1;
-                    goto next;
-                } else {
-                    goto found;
-                }
-            }
-        }
-
-        s = new_section(s1, sh_name, sh->sh_type, sh->sh_flags & ~(1 << 9));
-
-
-        s->sh_addralign = sh->sh_addralign;
-        s->sh_entsize = sh->sh_entsize;
-        sm_table[i].new_section = 1;
-    found:
-        if (sh->sh_type != s->sh_type) {
-            tcc_error_noabort("invalid section type");
-            goto fail;
-        }
-
-
-        offset = s->data_offset;
-
-        if (0 == strcmp(sh_name, ".stab")) {
-            stab_index = i;
-            goto no_align;
-        }
-        if (0 == strcmp(sh_name, ".stabstr")) {
-            stabstr_index = i;
-            goto no_align;
-        }
-
-        size = sh->sh_addralign - 1;
-        offset = (offset + size) & ~size;
-        if (sh->sh_addralign > s->sh_addralign)
-            s->sh_addralign = sh->sh_addralign;
-        s->data_offset = offset;
-    no_align:
-        sm_table[i].offset = offset;
-        sm_table[i].s = s;
-
-        size = sh->sh_size;
-        if (sh->sh_type != 8) {
-            unsigned char *ptr;
-            lseek(fd, file_offset + sh->sh_offset, 0);
-            ptr = section_ptr_add(s, size);
-            read(fd, ptr, size);
-        } else {
-            s->data_offset += size;
-        }
-    next: ;
-    }
-
-
-    if (stab_index && stabstr_index) {
-        Stab_Sym *a, *b;
-        unsigned o;
-        s = sm_table[stab_index].s;
-        a = (Stab_Sym *)(s->data + sm_table[stab_index].offset);
-        b = (Stab_Sym *)(s->data + s->data_offset);
-        o = sm_table[stabstr_index].offset;
-        while (a < b)
-            a->n_strx += o, a++;
-    }
-
-
-
-    for(i = 1; i < ehdr.e_shnum; i++) {
-        s = sm_table[i].s;
-        if (!s || !sm_table[i].new_section)
-            continue;
-        sh = &shdr[i];
-        if (sh->sh_link > 0)
-            s->link = sm_table[sh->sh_link].s;
-        if (sh->sh_type == 9) {
-            s->sh_info = sm_table[sh->sh_info].s->sh_num;
-
-            s1->sections[s->sh_info]->reloc = s;
-        }
-    }
-    sm = sm_table;
-
-
-    old_to_new_syms = tcc_mallocz(nb_syms * sizeof(int));
-
-    sym = symtab + 1;
-    for(i = 1; i < nb_syms; i++, sym++) {
-        if (sym->st_shndx != 0 &&
-            sym->st_shndx < 0xff00) {
-            sm = &sm_table[sym->st_shndx];
-            if (sm->link_once) {
-
-
-
-                if ((((unsigned char) (sym->st_info)) >> 4) != 0) {
-                    name = (char *) strtab + sym->st_name;
-                    sym_index = find_elf_sym(symtab_section, name);
-                    if (sym_index)
-                        old_to_new_syms[i] = sym_index;
-                }
-                continue;
-            }
-
-            if (!sm->s)
-                continue;
-
-            sym->st_shndx = sm->s->sh_num;
-
-            sym->st_value += sm->offset;
-        }
-
-        name = (char *) strtab + sym->st_name;
-        sym_index = set_elf_sym(symtab_section, sym->st_value, sym->st_size,
-                                sym->st_info, sym->st_other,
-                                sym->st_shndx, name);
-        old_to_new_syms[i] = sym_index;
-    }
-
-
-    for(i = 1; i < ehdr.e_shnum; i++) {
-        s = sm_table[i].s;
-        if (!s)
-            continue;
-        sh = &shdr[i];
-        offset = sm_table[i].offset;
-        switch(s->sh_type) {
-        case 9:
-
-            offseti = sm_table[sh->sh_info].offset;
-            for (rel = (Elf32_Rel *) s->data + (offset / sizeof(*rel)); rel < (Elf32_Rel *) (s->data + s->data_offset); rel++) {
-                int type;
-                unsigned sym_index;
-
-                type = ((rel->r_info) & 0xff);
-                sym_index = ((rel->r_info) >> 8);
-
-                if (sym_index >= nb_syms)
-                    goto invalid_reloc;
-                sym_index = old_to_new_syms[sym_index];
-
-                if (!sym_index && !sm->link_once
-
-
-
-                   ) {
-                invalid_reloc:
-                    tcc_error_noabort("Invalid relocation entry [%2d] '%s' @ %.8x",
-                        i, strsec + sh->sh_name, rel->r_offset);
-                    goto fail;
-                }
-                rel->r_info = (((sym_index) << 8) + ((type) & 0xff));
-
-                rel->r_offset += offseti;
-# 2557 "tcc_src/tccelf.c"
-            }
-            break;
-        default:
-            break;
-        }
-    }
-
-    ret = 0;
- the_end:
-    tcc_free(symtab);
-    tcc_free(strtab);
-    tcc_free(old_to_new_syms);
-    tcc_free(sm_table);
-    tcc_free(strsec);
-    tcc_free(shdr);
-    return ret;
 }
 
 typedef struct ArchiveHeader {
@@ -14470,16 +14186,12 @@ static int get_be32(const uint8_t *b)
 {
 puts("stub\n");
 exit(1);
-    return b[3] | (b[2] << 8) | (b[1] << 16) | (b[0] << 24);
 }
 
 static long get_be64(const uint8_t *b)
 {
 puts("stub\n");
 exit(1);
-  long long ret = get_be32(b);
-  ret = (ret << 32) | (unsigned)get_be32(b+4);
-  return (long)ret;
 }
 
 
@@ -14487,44 +14199,6 @@ static int tcc_load_alacarte(TCCState *s1, int fd, int size, int entrysize)
 {
 puts("stub\n");
 exit(1);
-    long i, bound, nsyms, sym_index, off, ret;
-    uint8_t *data;
-    const char *ar_names, *p;
-    const uint8_t *ar_index;
-    Elf32_Sym *sym;
-
-    data = tcc_malloc(size);
-    if (read(fd, data, size) != size)
-        goto fail;
-    nsyms = entrysize == 4 ? get_be32(data) : get_be64(data);
-    ar_index = data + entrysize;
-    ar_names = (char *) ar_index + nsyms * entrysize;
-
-    do {
-        bound = 0;
-        for(p = ar_names, i = 0; i < nsyms; i++, p += strlen(p)+1) {
-            sym_index = find_elf_sym(symtab_section, p);
-            if(sym_index) {
-                sym = &((Elf32_Sym *)symtab_section->data)[sym_index];
-                if(sym->st_shndx == 0) {
-                    off = (entrysize == 4
-			   ? get_be32(ar_index + i * 4)
-			   : get_be64(ar_index + i * 8))
-			  + sizeof(ArchiveHeader);
-                    ++bound;
-                    if(tcc_load_object_file(s1, fd, off) < 0) {
-                    fail:
-                        ret = -1;
-                        goto the_end;
-                    }
-                }
-            }
-        }
-    } while(bound);
-    ret = 0;
- the_end:
-    tcc_free(data);
-    return ret;
 }
 
 
@@ -14532,370 +14206,30 @@ static int tcc_load_archive(TCCState *s1, int fd)
 {
 puts("stub\n");
 exit(1);
-    ArchiveHeader hdr;
-    char ar_size[11];
-    char ar_name[17];
-    char magic[8];
-    int size, len, i;
-    unsigned long file_offset;
-
-
-    read(fd, magic, sizeof(magic));
-
-    for(;;) {
-        len = read(fd, &hdr, sizeof(hdr));
-        if (len == 0)
-            break;
-        if (len != sizeof(hdr)) {
-            tcc_error_noabort("invalid archive");
-            return -1;
-        }
-        memcpy(ar_size, hdr.ar_size, sizeof(hdr.ar_size));
-        ar_size[sizeof(hdr.ar_size)] = '\0';
-        size = strtol(ar_size, ((void*)0), 0);
-        memcpy(ar_name, hdr.ar_name, sizeof(hdr.ar_name));
-        for(i = sizeof(hdr.ar_name) - 1; i >= 0; i--) {
-            if (ar_name[i] != ' ')
-                break;
-        }
-        ar_name[i + 1] = '\0';
-        file_offset = lseek(fd, 0, 1);
-
-        size = (size + 1) & ~1;
-        if (!strcmp(ar_name, "/")) {
-
-            if(s1->alacarte_link)
-                return tcc_load_alacarte(s1, fd, size, 4);
-	} else if (!strcmp(ar_name, "/SYM64/")) {
-            if(s1->alacarte_link)
-                return tcc_load_alacarte(s1, fd, size, 8);
-        } else {
-            Elf32_Ehdr ehdr;
-            if (tcc_object_type(fd, &ehdr) == 1) {
-                if (tcc_load_object_file(s1, fd, file_offset) < 0)
-                    return -1;
-            }
-        }
-        lseek(fd, file_offset + size, 0);
-    }
-    return 0;
 }
-
-
-
-
 
 static int tcc_load_dll(TCCState *s1, int fd, const char *filename, int level)
 {
 puts("stub\n");
 exit(1);
-    Elf32_Ehdr ehdr;
-    Elf32_Shdr *shdr, *sh, *sh1;
-    int i, j, nb_syms, nb_dts, sym_bind, ret;
-    Elf32_Sym *sym, *dynsym;
-    Elf32_Dyn *dt, *dynamic;
-    unsigned char *dynstr;
-    const char *name, *soname;
-    DLLReference *dllref;
-
-    read(fd, &ehdr, sizeof(ehdr));
-
-
-    if (ehdr.e_ident[5] != 1 ||
-        ehdr.e_machine != 3) {
-        tcc_error_noabort("bad architecture");
-        return -1;
-    }
-
-
-    shdr = load_data(fd, ehdr.e_shoff, sizeof(Elf32_Shdr) * ehdr.e_shnum);
-
-
-    nb_syms = 0;
-    nb_dts = 0;
-    dynamic = ((void*)0);
-    dynsym = ((void*)0);
-    dynstr = ((void*)0);
-    for(i = 0, sh = shdr; i < ehdr.e_shnum; i++, sh++) {
-        switch(sh->sh_type) {
-        case 6:
-            nb_dts = sh->sh_size / sizeof(Elf32_Dyn);
-            dynamic = load_data(fd, sh->sh_offset, sh->sh_size);
-            break;
-        case 11:
-            nb_syms = sh->sh_size / sizeof(Elf32_Sym);
-            dynsym = load_data(fd, sh->sh_offset, sh->sh_size);
-            sh1 = &shdr[sh->sh_link];
-            dynstr = load_data(fd, sh1->sh_offset, sh1->sh_size);
-            break;
-        default:
-            break;
-        }
-    }
-
-
-    soname = tcc_basename(filename);
-
-    for(i = 0, dt = dynamic; i < nb_dts; i++, dt++) {
-        if (dt->d_tag == 14) {
-            soname = (char *) dynstr + dt->d_un.d_val;
-        }
-    }
-
-
-    for(i = 0; i < s1->nb_loaded_dlls; i++) {
-        dllref = s1->loaded_dlls[i];
-        if (!strcmp(soname, dllref->name)) {
-
-            if (level < dllref->level)
-                dllref->level = level;
-            ret = 0;
-            goto the_end;
-        }
-    }
-
-
-    dllref = tcc_mallocz(sizeof(DLLReference) + strlen(soname));
-    dllref->level = level;
-    strcpy(dllref->name, soname);
-    dynarray_add(&s1->loaded_dlls, &s1->nb_loaded_dlls, dllref);
-
-
-    for(i = 1, sym = dynsym + 1; i < nb_syms; i++, sym++) {
-        sym_bind = (((unsigned char) (sym->st_info)) >> 4);
-        if (sym_bind == 0)
-            continue;
-        name = (char *) dynstr + sym->st_name;
-        set_elf_sym(s1->dynsymtab_section, sym->st_value, sym->st_size,
-                    sym->st_info, sym->st_other, sym->st_shndx, name);
-    }
-
-
-    for(i = 0, dt = dynamic; i < nb_dts; i++, dt++) {
-        switch(dt->d_tag) {
-        case 1:
-            name = (char *) dynstr + dt->d_un.d_val;
-            for(j = 0; j < s1->nb_loaded_dlls; j++) {
-                dllref = s1->loaded_dlls[j];
-                if (!strcmp(name, dllref->name))
-                    goto already_loaded;
-            }
-        already_loaded:
-            break;
-        }
-    }
-    ret = 0;
- the_end:
-    tcc_free(dynstr);
-    tcc_free(dynsym);
-    tcc_free(dynamic);
-    tcc_free(shdr);
-    return ret;
 }
-
-
-
-
 
 static int ld_next(TCCState *s1, char *name, int name_size)
 {
 puts("stub\n");
 exit(1);
-    int c;
-    char *q;
-
- redo:
-    switch(ch) {
-    case ' ':
-    case '\t':
-    case '\f':
-    case '\v':
-    case '\r':
-    case '\n':
-        inp();
-        goto redo;
-    case '/':
-        minp();
-        if (ch == '*') {
-            file->buf_ptr = parse_comment(file->buf_ptr);
-            ch = file->buf_ptr[0];
-            goto redo;
-        } else {
-            q = name;
-            *q++ = '/';
-            goto parse_name;
-        }
-        break;
-    case '\\':
-        ch = handle_eob();
-        if (ch != '\\')
-            goto redo;
-
-
-    case 'a':
-       case 'b':
-       case 'c':
-       case 'd':
-       case 'e':
-       case 'f':
-       case 'g':
-       case 'h':
-       case 'i':
-       case 'j':
-       case 'k':
-       case 'l':
-       case 'm':
-       case 'n':
-       case 'o':
-       case 'p':
-       case 'q':
-       case 'r':
-       case 's':
-       case 't':
-       case 'u':
-       case 'v':
-       case 'w':
-       case 'x':
-       case 'y':
-       case 'z':
-
-    case 'A':
-       case 'B':
-       case 'C':
-       case 'D':
-       case 'E':
-       case 'F':
-       case 'G':
-       case 'H':
-       case 'I':
-       case 'J':
-       case 'K':
-       case 'L':
-       case 'M':
-       case 'N':
-       case 'O':
-       case 'P':
-       case 'Q':
-       case 'R':
-       case 'S':
-       case 'T':
-       case 'U':
-       case 'V':
-       case 'W':
-       case 'X':
-       case 'Y':
-       case 'Z':
-    case '_':
-    case '.':
-    case '$':
-    case '~':
-        q = name;
-    parse_name:
-        for(;;) {
-            if (!((ch >= 'a' && ch <= 'z') ||
-                  (ch >= 'A' && ch <= 'Z') ||
-                  (ch >= '0' && ch <= '9') ||
-                  strchr("/.-_+=$:\\,~", ch)))
-                break;
-            if ((q - name) < name_size - 1) {
-                *q++ = ch;
-            }
-            minp();
-        }
-        *q = '\0';
-        c = 256;
-        break;
-    case (-1):
-        c = (-1);
-        break;
-    default:
-        c = ch;
-        inp();
-        break;
-    }
-    return c;
 }
 
 static inline int new_undef_syms(void)
 {
 puts("stub\n");
 exit(1);
-    int ret = 0;
-    ret = new_undef_sym;
-    new_undef_sym = 0;
-    return ret;
 }
 
 static int ld_add_file_list(TCCState *s1, const char *cmd, int as_needed)
 {
 puts("stub\n");
 exit(1);
-    char filename[1024], libname[1024];
-    int t, group, nblibs = 0, ret = 0;
-    char **libs = ((void*)0);
-
-    group = !strcmp(cmd, "GROUP");
-    if (!as_needed)
-        new_undef_syms();
-    t = ld_next(s1, filename, sizeof(filename));
-    if (t != '(')
-        expect("(");
-    t = ld_next(s1, filename, sizeof(filename));
-    for(;;) {
-        libname[0] = '\0';
-        if (t == (-1)) {
-            tcc_error_noabort("unexpected end of file");
-            ret = -1;
-            goto lib_parse_error;
-        } else if (t == ')') {
-            break;
-        } else if (t == '-') {
-            t = ld_next(s1, filename, sizeof(filename));
-            if ((t != 256) || (filename[0] != 'l')) {
-                tcc_error_noabort("library name expected");
-                ret = -1;
-                goto lib_parse_error;
-            }
-            pstrcpy(libname, sizeof libname, &filename[1]);
-            if (s1->static_link) {
-                snprintf(filename, sizeof filename, "lib%s.a", libname);
-            } else {
-                snprintf(filename, sizeof filename, "lib%s.so", libname);
-            }
-        } else if (t != 256) {
-            tcc_error_noabort("filename expected");
-            ret = -1;
-            goto lib_parse_error;
-        }
-        if (!strcmp(filename, "AS_NEEDED")) {
-            ret = ld_add_file_list(s1, cmd, 1);
-            if (ret)
-                goto lib_parse_error;
-        } else {
-
-            if (!as_needed) {
-                if (group) {
-
-                    dynarray_add(&libs, &nblibs, tcc_strdup(filename));
-                    if (libname[0] != '\0')
-                        dynarray_add(&libs, &nblibs, tcc_strdup(libname));
-                }
-            }
-        }
-        t = ld_next(s1, filename, sizeof(filename));
-        if (t == ',') {
-            t = ld_next(s1, filename, sizeof(filename));
-        }
-    }
-    if (group && !as_needed) {
-        while (new_undef_syms()) {
-            int i;
-
-        }
-    }
-lib_parse_error:
-    dynarray_reset(&libs, &nblibs);
-    return ret;
 }
 
 
@@ -14904,42 +14238,6 @@ static int tcc_load_ldscript(TCCState *s1)
 {
 puts("stub\n");
 exit(1);
-    char cmd[64];
-    char filename[1024];
-    int t, ret;
-
-    ch = handle_eob();
-    for(;;) {
-        t = ld_next(s1, cmd, sizeof(cmd));
-        if (t == (-1))
-            return 0;
-        else if (t != 256)
-            return -1;
-        if (!strcmp(cmd, "INPUT") ||
-            !strcmp(cmd, "GROUP")) {
-            ret = ld_add_file_list(s1, cmd, 0);
-            if (ret)
-                return ret;
-        } else if (!strcmp(cmd, "OUTPUT_FORMAT") ||
-                   !strcmp(cmd, "TARGET")) {
-
-            t = ld_next(s1, cmd, sizeof(cmd));
-            if (t != '(')
-                expect("(");
-            for(;;) {
-                t = ld_next(s1, filename, sizeof(filename));
-                if (t == (-1)) {
-                    tcc_error_noabort("unexpected end of file");
-                    return -1;
-                } else if (t == ')') {
-                    break;
-                }
-            }
-        } else {
-            return -1;
-        }
-    }
-    return 0;
 }
 
 // LJW BOOKMARK GOING UP
