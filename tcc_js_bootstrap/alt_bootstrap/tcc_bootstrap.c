@@ -23679,9 +23679,6 @@ redo:
 		n = s->nb_files;
 	    }
         }
-
-        if (s->do_bench)
-            start_time = getclock_ms();
     }
     set_environment(s);
     if (s->output_type == 0)
