@@ -17693,63 +17693,12 @@ static void gfunc_prolog(CType *func_type)
 
     else if (func_vc)
         func_ret_sub = 4;
-
-
-
-
-    if (tcc_state->do_bounds_check) {
-        func_bound_offset = lbounds_section->data_offset;
-        func_bound_ind = ind;
-        oad(0xb8, 0);
-        oad(0xb8, 0);
-    }
-
 }
-
 
 static void gfunc_epilog(void)
 {
     Elf32_Addr v, saved_ind;
-
-
-    if (tcc_state->do_bounds_check
-     && func_bound_offset != lbounds_section->data_offset) {
-        Elf32_Addr saved_ind;
-        Elf32_Addr *bounds_ptr;
-        Sym *sym_data;
-
-
-        bounds_ptr = section_ptr_add(lbounds_section, sizeof(Elf32_Addr));
-        *bounds_ptr = 0;
-
-
-        saved_ind = ind;
-        ind = func_bound_ind;
-        sym_data = get_sym_ref(&char_pointer_type, lbounds_section,
-                               func_bound_offset, lbounds_section->data_offset);
-        greloc(cur_text_section, sym_data,
-               ind + 1, 1);
-        oad(0xb8, 0);
-        gen_static_call(TOK___bound_local_new);
-        ind = saved_ind;
-
-
-        o(0x5250);
-        greloc(cur_text_section, sym_data, ind + 1, 1);
-        oad(0xb8, 0);
-        gen_static_call(TOK___bound_local_delete);
-        o(0x585a);
-    }
-
-
-
     v = (-loc + 3) & -4;
-
-
-
-
-
-
     o(0xc9);
     if (func_ret_sub == 0) {
         o(0xc3);
@@ -17760,24 +17709,14 @@ static void gfunc_epilog(void)
     }
     saved_ind = ind;
     ind = func_sub_sp_offset - (9 + 0);
-
-
-
-
-
-
     {
         o(0xe58955);
         o(0xec81);
         gen_le32(v);
-
-
-
     }
     o(0x53 * 0);
     ind = saved_ind;
 }
-
 
 static int gjmp(int t)
 {
