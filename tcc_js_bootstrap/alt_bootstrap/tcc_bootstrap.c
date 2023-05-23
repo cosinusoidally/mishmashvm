@@ -14157,31 +14157,6 @@ typedef struct SectionMergeInfo {
     uint8_t link_once;
 } SectionMergeInfo;
 
-static int tcc_object_type(int fd, Elf32_Ehdr *h)
-{
-puts("stub\n");
-exit(1);
-}
-
-
-
-static int tcc_load_object_file(TCCState *s1,
-                                int fd, unsigned long file_offset)
-{
-puts("stub\n");
-exit(1);
-}
-
-typedef struct ArchiveHeader {
-    char ar_name[16];
-    char ar_date[12];
-    char ar_uid[6];
-    char ar_gid[6];
-    char ar_mode[8];
-    char ar_size[10];
-    char ar_fmag[2];
-} ArchiveHeader;
-
 // LJW BOOKMARK GOING UP
 
 static const int reg_classes[5] = {
@@ -15488,11 +15463,11 @@ static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags) 
         Elf32_Ehdr ehdr;
         int fd, obj_type;
         fd = file->fd;
-        obj_type = tcc_object_type(fd, &ehdr);
+//        obj_type = tcc_object_type(fd, &ehdr);
         lseek(fd, 0, 0);
         switch (obj_type) {
         case 1:
-            ret = tcc_load_object_file(s1, fd, 0);
+//            ret = tcc_load_object_file(s1, fd, 0);
             break;
         case 2:
             if (s1->output_type == 1) {
