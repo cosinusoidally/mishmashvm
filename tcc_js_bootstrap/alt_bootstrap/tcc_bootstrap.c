@@ -2036,7 +2036,6 @@ static int tcc_object_type(int fd, Elf32_Ehdr *h);
 static int tcc_load_object_file(TCCState *s1, int fd, unsigned long file_offset);
 static int tcc_load_archive(TCCState *s1, int fd);
 static void tcc_add_bcheck(TCCState *s1);
-static void tcc_add_runtime(TCCState *s1);
 
 static void build_got_entries(TCCState *s1);
 static struct sym_attr *get_sym_attr(TCCState *s1, int index, int alloc);
@@ -14182,6 +14181,7 @@ static int tcc_add_support(TCCState *s1, const char *filename)
 
 static void tcc_add_bcheck(TCCState *s1)
 {
+exit(1);
 
     Elf32_Addr *ptr;
     int sym_index;
@@ -14214,6 +14214,8 @@ static void tcc_add_bcheck(TCCState *s1)
 
 static void tcc_add_runtime(TCCState *s1)
 {
+printf("tcc_add_runtime stub\n");
+exit(1);
     tcc_add_bcheck(s1);
     tcc_add_pragma_libs(s1);
 
@@ -15051,62 +15053,10 @@ static int elf_output_file(TCCState *s1, const char *filename)
     sec_order = ((void*)0);
     interp = dynamic = dynstr = ((void*)0);
     textrel = 0;
-
-    if (file_type != 4) {
-
-        tcc_add_runtime(s1);
-	resolve_common_syms(s1);
-
-        if (!s1->static_link) {
-            if (file_type == 2) {
-                char *ptr;
-
-                const char *elfint = getenv("LD_SO");
-                if (elfint == ((void*)0))
-                    elfint = "/lib/ld-linux.so.2";
-
-                interp = new_section(s1, ".interp", 1, (1 << 1));
-                interp->sh_addralign = 1;
-                ptr = section_ptr_add(interp, 1 + strlen(elfint));
-                strcpy(ptr, elfint);
-            }
-
-
-            s1->dynsym = new_symtab(s1, ".dynsym", 11, (1 << 1),
-                                    ".dynstr",
-                                    ".hash", (1 << 1));
-            dynstr = s1->dynsym->link;
-
-
-            dynamic = new_section(s1, ".dynamic", 6,
-                                  (1 << 1) | (1 << 0));
-            dynamic->link = dynstr;
-            dynamic->sh_entsize = sizeof(Elf32_Dyn);
-
-            build_got(s1);
-
-            if (file_type == 2) {
-                bind_exe_dynsyms(s1);
-                if (s1->nb_errors)
-                    goto the_end;
-                bind_libs_dynsyms(s1);
-            } else {
-
-                export_global_syms(s1);
-            }
-        }
-        build_got_entries(s1);
-    }
-
-
     strsec = new_section(s1, ".shstrtab", 3, 0);
     put_elf_str(strsec, "");
-
-
     textrel = alloc_sec_names(s1, file_type, strsec);
-
     if (dynamic) {
-
         for(i = 0; i < s1->nb_loaded_dlls; i++) {
             DLLReference *dllref = s1->loaded_dlls[i];
             if (dllref->level == 0)
@@ -17018,25 +16968,8 @@ static int tcc_relocate_ex(TCCState *s1, void *ptr, Elf32_Addr ptr_diff)
     Section *s;
     unsigned offset, length, fill, i, k;
     Elf32_Addr mem;
-
-    if (((void*)0) == ptr) {
-        s1->nb_errors = 0;
-
-
-
-        tcc_add_runtime(s1);
-	resolve_common_syms(s1);
-        build_got_entries(s1);
-
-        if (s1->nb_errors)
-            return -1;
-    }
-
     offset = 0, mem = (Elf32_Addr)ptr;
     fill = -mem & 63;
-
-
-
     for (k = 0; k < 2; ++k) {
         for(i = 1; i < s1->nb_sections; i++) {
             s = s1->sections[i];
@@ -17051,35 +16984,16 @@ static int tcc_relocate_ex(TCCState *s1, void *ptr, Elf32_Addr ptr_diff)
                 s->sh_addr = mem + offset + ptr_diff;
             else
                 s->sh_addr = mem + offset;
-
-
-
-
-
             offset += s->data_offset;
             fill = -(mem + offset) & 15;
         }
-
-
-
-
         fill = -(mem + offset) & 63;
-
     }
-
-
     relocate_syms(s1, s1->symtab, 1);
     if (s1->nb_errors)
         return -1;
-
     if (0 == mem)
         return offset + 63;
-
-
-
-
-
-
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
         if (s->reloc)
