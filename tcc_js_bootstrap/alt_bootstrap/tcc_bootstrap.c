@@ -15443,11 +15443,6 @@ static int tcc_load_dll(TCCState *s1, int fd, const char *filename, int level)
                 if (!strcmp(name, dllref->name))
                     goto already_loaded;
             }
-            if (tcc_add_dll(s1, name, 0x20) < 0) {
-                tcc_error_noabort("referenced dll '%s' not found", name);
-                ret = -1;
-                goto the_end;
-            }
         already_loaded:
             break;
         }
@@ -15584,13 +15579,8 @@ static int ld_next(TCCState *s1, char *name, int name_size)
 
 static int ld_add_file(TCCState *s1, const char filename[])
 {
-    if (filename[0] == '/') {
-        if (""[0] == '\0'
-            && tcc_add_file_internal(s1, filename, 0x40) == 0)
-            return 0;
-        filename = tcc_basename(filename);
-    }
-    return tcc_add_dll(s1, filename, 0);
+printf("ld_add_file stub\n");
+exit(1);
 }
 
 static inline int new_undef_syms(void)
@@ -22041,82 +22031,15 @@ static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags)
     return 0;
 }
 
-static int tcc_add_library_internal(TCCState *s, const char *fmt,
-    const char *filename, int flags, char **paths, int nb_paths)
-{
-    char buf[1024];
-    int i;
-
-    for(i = 0; i < nb_paths; i++) {
-        snprintf(buf, sizeof(buf), fmt, paths[i], filename);
-        if (tcc_add_file_internal(s, buf, flags | 0x40) == 0)
-            return 0;
-    }
-    return -1;
+static void tcc_add_pragma_libs(TCCState *s1) {
+printf("tcc_add_pragma_libs stub\n");
+exit(1);
 }
 
-
-
-static int tcc_add_dll(TCCState *s, const char *filename, int flags)
-{
-    return tcc_add_library_internal(s, "%s/%s", filename, flags,
-        s->library_paths, s->nb_library_paths);
-}
-
-static int tcc_add_crt(TCCState *s, const char *filename)
-{
-    if (-1 == tcc_add_library_internal(s, "%s/%s",
-        filename, 0, s->crt_paths, s->nb_crt_paths))
-        tcc_error_noabort("file '%s' not found", filename);
-    return 0;
-}
-
-
- int tcc_add_library(TCCState *s, const char *libraryname)
-{
-
-
-
-
-
-
-
-    const char *libs[] = { "%s/lib%s.so", "%s/lib%s.a", ((void*)0) };
-    const char **pp = s->static_link ? libs + 1 : libs;
-
-    while (*pp) {
-        if (0 == tcc_add_library_internal(s, *pp,
-            libraryname, 0, s->library_paths, s->nb_library_paths))
-            return 0;
-        ++pp;
-    }
-    return -1;
-}
-
- int tcc_add_library_err(TCCState *s, const char *libname)
-{
-    int ret = tcc_add_library(s, libname);
-    if (ret < 0)
-        tcc_error_noabort("library '%s' not found", libname);
-    return ret;
-}
-
-
-static void tcc_add_pragma_libs(TCCState *s1)
-{
-    int i;
-    for (i = 0; i < s1->nb_pragma_libs; i++)
-        tcc_add_library_err(s1, s1->pragma_libs[i]);
-}
-
- void tcc_set_lib_path(TCCState *s, const char *path)
-{
+void tcc_set_lib_path(TCCState *s, const char *path) {
     tcc_free(s->tcc_lib_path);
     s->tcc_lib_path = tcc_strdup(path);
 }
-
-
-
 
 typedef struct FlagDef {
     uint16_t offset;
