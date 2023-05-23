@@ -14211,27 +14211,6 @@ exit(1);
 
 }
 
-
-static void tcc_add_runtime(TCCState *s1)
-{
-printf("tcc_add_runtime stub\n");
-exit(1);
-    tcc_add_bcheck(s1);
-    tcc_add_pragma_libs(s1);
-
-    if (!s1->nostdlib) {
-        tcc_add_library_err(s1, "c");
-# 1205 "tcc_src/tccelf.c"
-        tcc_add_support(s1, "libtcc1.a");
-
-        if (s1->output_type != 1)
-            tcc_add_crt(s1, "crtn.o");
-    }
-}
-
-
-
-
 static void tcc_add_linker_symbols(TCCState *s1)
 {
     char buf[1024];
@@ -15062,33 +15041,24 @@ static int elf_output_file(TCCState *s1, const char *filename)
             if (dllref->level == 0)
                 put_dt(dynamic, 1, put_elf_str(dynstr, dllref->name));
         }
-
         if (s1->rpath)
             put_dt(dynamic, s1->enable_new_dtags ? 29 : 15,
                    put_elf_str(dynstr, s1->rpath));
-
         if (file_type == 3) {
             if (s1->soname)
                 put_dt(dynamic, 14, put_elf_str(dynstr, s1->soname));
-
-
             if (textrel)
                 put_dt(dynamic, 22, 0);
         }
-
         if (s1->symbolic)
             put_dt(dynamic, 16, 0);
-
         dyninf.dynamic = dynamic;
         dyninf.dynstr = dynstr;
-
         dyninf.data_offset = dynamic->data_offset;
         fill_dynamic(s1, &dyninf);
         dynamic->sh_size = dynamic->data_offset;
         dynstr->sh_size = dynstr->data_offset;
     }
-
-
     if (file_type == 4)
         phnum = 0;
     else if (file_type == 3)
@@ -15097,14 +15067,8 @@ static int elf_output_file(TCCState *s1, const char *filename)
         phnum = 2;
     else
         phnum = 5;
-
-
     phdr = tcc_mallocz(phnum * sizeof(Elf32_Phdr));
-
-
     shnum = s1->nb_sections;
-
-
     sec_order = tcc_malloc(sizeof(int) * shnum);
     sec_order[0] = 0;
 
@@ -22239,44 +22203,25 @@ static void tcc_cleanup(void)
  int tcc_set_output_type(TCCState *s, int output_type)
 {
     s->output_type = output_type;
-
-
     if (output_type == 4)
         s->output_format = 0;
-
     if (s->char_is_unsigned)
         tcc_define_symbol(s, "__CHAR_UNSIGNED__", ((void*)0));
-
     if (!s->nostdinc) {
-
-
         tcc_add_sysinclude_path(s, "{B}/include" ":" "" "/usr/local/include" "/" "i386-linux-gnu" ":" "" "/usr/local/include" ":" "" "/usr/include" "/" "i386-linux-gnu" ":" "" "/usr/include");
     }
-
-
-    if (s->do_bounds_check) {
-
-        tccelf_bounds_new(s);
-
-        tcc_define_symbol(s, "__BOUNDS_CHECKING_ON", ((void*)0));
-    }
-
     if (s->do_debug) {
-
         tccelf_stab_new(s);
     }
-
     tcc_add_library_path(s, "" "/usr/" "lib" "/" "i386-linux-gnu" ":" "" "/usr/" "lib" ":" "" "/" "lib" "/" "i386-linux-gnu" ":" "" "/" "lib" ":" "" "/usr/local/" "lib" "/" "i386-linux-gnu" ":" "" "/usr/local/" "lib");
 # 975 "tcc_src/libtcc.c"
     tcc_split_path(s, &s->crt_paths, &s->nb_crt_paths, "" "/usr/" "lib" "/" "i386-linux-gnu");
-
     if ((output_type == 2 || output_type == 3) &&
         !s->nostdlib) {
         if (output_type != 3)
             tcc_add_crt(s, "crt1.o");
         tcc_add_crt(s, "crti.o");
     }
-
     return 0;
 }
 
