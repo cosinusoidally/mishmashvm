@@ -330,7 +330,6 @@ int tcc_add_library_path(TCCState *s, const char *pathname);
 int tcc_add_library(TCCState *s, const char *libraryname);
 int tcc_add_symbol(TCCState *s, const char *name, const void *val);
 int tcc_output_file(TCCState *s, const char *filename);
-int tcc_run(TCCState *s, int argc, char **argv);
 int tcc_relocate(TCCState *s1, void *ptr);
 void *tcc_get_symbol(TCCState *s, const char *name);
 
@@ -2151,9 +2150,6 @@ static void asm_clobber(uint8_t *clobber_regs, const char *str);
 static int rt_num_callers;
 static const char **rt_bound_error_msg;
 static void *rt_prog_main;
-static void tcc_set_num_callers(int n);
-
-static void tcc_run_free(TCCState *s1);
 
 static int gnu_ext = 1;
 
@@ -17017,74 +17013,6 @@ static int tcc_relocate_ex(TCCState *s1, void *ptr, Elf32_Addr ptr_diff);
     return 0;
 }
 
-static void tcc_run_free(TCCState *s1)
-{
-    int i;
-
-    for (i = 0; i < s1->nb_runtime_mem; ++i) {
-# 109 "tcc_src/tccrun.c"
-        tcc_free(s1->runtime_mem[i]);
-
-    }
-    tcc_free(s1->runtime_mem);
-}
-
-
- int tcc_run(TCCState *s1, int argc, char **argv)
-{
-    int (*prog_main)(int, char **);
-
-    s1->runtime_main = "main";
-    if ((s1->dflag & 16) && !find_elf_sym(s1->symtab, s1->runtime_main))
-        return 0;
-    if (tcc_relocate(s1, (void*)1) < 0)
-        return -1;
-    prog_main = tcc_get_symbol_err(s1, s1->runtime_main);
-
-
-    if (s1->do_debug) {
-        set_exception_handler();
-        rt_prog_main = prog_main;
-    }
-
-
-    (*__errno_location ()) = 0;
-
-
-    if (s1->do_bounds_check) {
-        void (*bound_init)(void);
-        void (*bound_exit)(void);
-        void (*bound_new_region)(void *p, Elf32_Addr size);
-        int  (*bound_delete_region)(void *p);
-        int i, ret;
-
-
-        rt_bound_error_msg = tcc_get_symbol_err(s1, "__bound_error_msg");
-
-        bound_init = tcc_get_symbol_err(s1, "__bound_init");
-        bound_exit = tcc_get_symbol_err(s1, "__bound_exit");
-        bound_new_region = tcc_get_symbol_err(s1, "__bound_new_region");
-        bound_delete_region = tcc_get_symbol_err(s1, "__bound_delete_region");
-
-        bound_init();
-
-        bound_new_region(argv, argc*sizeof(argv[0]));
-        for (i=0; i<argc; ++i)
-            bound_new_region(argv[i], strlen(argv[i]) + 1);
-
-        ret = (*prog_main)(argc, argv);
-
-
-        for (i=0; i<argc; ++i)
-            bound_delete_region(argv[i]);
-        bound_delete_region(argv);
-        bound_exit();
-        return ret;
-    }
-
-    return (*prog_main)(argc, argv);
-}
-# 179 "tcc_src/tccrun.c"
 static int tcc_relocate_ex(TCCState *s1, void *ptr, Elf32_Addr ptr_diff)
 {
     Section *s;
@@ -17209,13 +17137,6 @@ static void set_pages_executable(void *ptr, unsigned long length)
 
 
 }
-# 331 "tcc_src/tccrun.c"
-static void tcc_set_num_callers(int n)
-{
-    rt_num_callers = n;
-}
-
-
 
 static Elf32_Addr rt_printline(Elf32_Addr wanted_pc, const char *msg)
 {
@@ -22378,20 +22299,13 @@ static void tcc_cleanup(void)
  void tcc_delete(TCCState *s1)
 {
     tcc_cleanup();
-
-
     tccelf_delete(s1);
-
-
     dynarray_reset(&s1->library_paths, &s1->nb_library_paths);
     dynarray_reset(&s1->crt_paths, &s1->nb_crt_paths);
-
-
     dynarray_reset(&s1->cached_includes, &s1->nb_cached_includes);
     dynarray_reset(&s1->include_paths, &s1->nb_include_paths);
     dynarray_reset(&s1->sysinclude_paths, &s1->nb_sysinclude_paths);
     dynarray_reset(&s1->cmd_include_files, &s1->nb_cmd_include_files);
-
     tcc_free(s1->tcc_lib_path);
     tcc_free(s1->soname);
     tcc_free(s1->rpath);
@@ -22403,12 +22317,6 @@ static void tcc_cleanup(void)
     dynarray_reset(&s1->target_deps, &s1->nb_target_deps);
     dynarray_reset(&s1->pragma_libs, &s1->nb_pragma_libs);
     dynarray_reset(&s1->argv, &s1->argc);
-
-
-
-    tcc_run_free(s1);
-
-
     tcc_free(s1);
     if (0 == --nb_states)
         tcc_memcheck();
@@ -23158,19 +23066,6 @@ reparse:
         case TCC_OPTION_l:
             args_parser_add_file(s, optarg, 4);
             s->nb_libraries++;
-            break;
-        case TCC_OPTION_pthread:
-exit(1);
-            parse_option_D(s, "_REENTRANT");
-            s->option_pthread = 1;
-            break;
-        case TCC_OPTION_bench:
-exit(1);
-            s->do_bench = 1;
-            break;
-        case TCC_OPTION_bt:
-exit(1);
-            tcc_set_num_callers(atoi(optarg));
             break;
         case TCC_OPTION_b:
 exit(1);
