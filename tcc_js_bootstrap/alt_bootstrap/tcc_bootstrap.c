@@ -13643,93 +13643,31 @@ static void sort_syms(TCCState *s1, Section *s)
 
 static void relocate_syms(TCCState *s1, Section *symtab, int do_resolve)
 {
-    Elf32_Sym *sym;
-    int sym_bind, sh_num;
-    const char *name;
-
-    for (sym = (Elf32_Sym *) symtab->data + 1; sym < (Elf32_Sym *) (symtab->data + symtab->data_offset); sym++) {
-        sh_num = sym->st_shndx;
-        if (sh_num == 0) {
-            name = (char *) s1->symtab->link->data + sym->st_name;
-
-            if (do_resolve) {
-
-                void *addr = dlsym(((void *) 0), name);
-                if (addr) {
-                    sym->st_value = (Elf32_Addr) addr;
-
-
-
-                    goto found;
-                }
-
-
-            } else if (s1->dynsym && find_elf_sym(s1->dynsym, name))
-                goto found;
-
-
-            if (!strcmp(name, "_fp_hw"))
-                goto found;
-
-
-            sym_bind = (((unsigned char) (sym->st_info)) >> 4);
-            if (sym_bind == 2)
-                sym->st_value = 0;
-            else
-                tcc_error_noabort("undefined symbol '%s'", name);
-        } else if (sh_num < 0xff00) {
-
-            sym->st_value += s1->sections[sym->st_shndx]->sh_addr;
-        }
-    found: ;
-    }
+puts("relocate_syms stub\n");
+exit(1);
 }
 
 
 
 static void relocate_section(TCCState *s1, Section *s)
 {
-    Section *sr = s->reloc;
-    Elf32_Rel *rel;
-    Elf32_Sym *sym;
-    int type, sym_index;
-    unsigned char *ptr;
-    Elf32_Addr tgt, addr;
-
-    relocate_init(sr);
-
-    for (rel = (Elf32_Rel *) sr->data + 0; rel < (Elf32_Rel *) (sr->data + sr->data_offset); rel++) {
-        ptr = s->data + rel->r_offset;
-        sym_index = ((rel->r_info) >> 8);
-        sym = &((Elf32_Sym *)symtab_section->data)[sym_index];
-        type = ((rel->r_info) & 0xff);
-        tgt = sym->st_value;
-
-
-
-        addr = s->sh_addr + rel->r_offset;
-        relocate(s1, rel, type, ptr, addr, tgt);
-    }
-
-    if (sr->sh_flags & (1 << 1))
-        sr->link = s1->dynsym;
+puts("relocate_section stub\n");
+exit(1);
 }
 
 
 static void relocate_rel(TCCState *s1, Section *sr)
 {
-    Section *s;
-    Elf32_Rel *rel;
-
-    s = s1->sections[sr->sh_info];
-    for (rel = (Elf32_Rel *) sr->data + 0; rel < (Elf32_Rel *) (sr->data + sr->data_offset); rel++)
-        rel->r_offset += s->sh_addr;
+puts("relocate_rel stub\n");
+exit(1);
 }
 
 
 
 static int prepare_dynamic_rel(TCCState *s1, Section *sr)
 {
+puts("relocate_rel stub\n");
+exit(1);
     Elf32_Rel *rel;
     int sym_index, type, count;
 
@@ -13778,6 +13716,8 @@ static int prepare_dynamic_rel(TCCState *s1, Section *sr)
 static void build_got(TCCState *s1)
 {
 
+puts("relocate_rel stub\n");
+exit(1);
     s1->got = new_section(s1, ".got", 1, (1 << 1) | (1 << 0));
     s1->got->sh_entsize = 4;
     set_elf_sym(symtab_section, 0, 4, (((1) << 4) + ((1) & 0xf)),
@@ -13794,6 +13734,8 @@ static struct sym_attr * put_got_entry(TCCState *s1, int dyn_reloc_type,
                                        unsigned long size,
                                        int info, int sym_index)
 {
+puts("relocate_rel stub\n");
+exit(1);
     int need_plt_entry;
     const char *name;
     Elf32_Sym *sym;
@@ -13863,6 +13805,8 @@ static struct sym_attr * put_got_entry(TCCState *s1, int dyn_reloc_type,
 
 static void build_got_entries(TCCState *s1)
 {
+puts("relocate_rel stub\n");
+exit(1);
     Section *s;
     Elf32_Rel *rel;
     Elf32_Sym *sym;
@@ -13939,6 +13883,8 @@ static void build_got_entries(TCCState *s1)
 
 static void put_dt(Section *dynamic, int dt, Elf32_Addr val)
 {
+puts("relocate_rel stub\n");
+exit(1);
     Elf32_Dyn *dyn;
     dyn = section_ptr_add(dynamic, sizeof(Elf32_Dyn));
     dyn->d_tag = dt;
@@ -13948,6 +13894,8 @@ static void put_dt(Section *dynamic, int dt, Elf32_Addr val)
 
 static void add_init_array_defines(TCCState *s1, const char *section_name)
 {
+puts("relocate_rel stub\n");
+exit(1);
     Section *s;
     long end_offset;
     char sym_start[1024];
@@ -13977,6 +13925,8 @@ static void add_init_array_defines(TCCState *s1, const char *section_name)
 
 static int tcc_add_support(TCCState *s1, const char *filename)
 {
+puts("relocate_rel stub\n");
+exit(1);
     char buf[1024];
     snprintf(buf, sizeof(buf), "%s/%s", s1->tcc_lib_path, filename);
     return tcc_add_file(s1, buf);
@@ -13984,6 +13934,8 @@ static int tcc_add_support(TCCState *s1, const char *filename)
 
 static void tcc_add_linker_symbols(TCCState *s1)
 {
+puts("relocate_rel stub\n");
+exit(1);
     char buf[1024];
     int i;
     Section *s;
@@ -14043,6 +13995,8 @@ static void tcc_add_linker_symbols(TCCState *s1)
 
 static void resolve_common_syms(TCCState *s1)
 {
+puts("relocate_rel stub\n");
+exit(1);
     Elf32_Sym *sym;
 
 
@@ -14062,6 +14016,8 @@ static void resolve_common_syms(TCCState *s1)
 static void tcc_output_binary(TCCState *s1, FILE *f,
                               const int *sec_order)
 {
+puts("relocate_rel stub\n");
+exit(1);
     Section *s;
     int i, offset, size;
 
@@ -14083,6 +14039,8 @@ static void tcc_output_binary(TCCState *s1, FILE *f,
 
 static void fill_got_entry(TCCState *s1, Elf32_Rel *rel)
 {
+puts("relocate_rel stub\n");
+exit(1);
     int sym_index = ((rel->r_info) >> 8);
     Elf32_Sym *sym = &((Elf32_Sym *) symtab_section->data)[sym_index];
     struct sym_attr *attr = get_sym_attr(s1, sym_index, 0);
@@ -14101,6 +14059,8 @@ static void fill_got_entry(TCCState *s1, Elf32_Rel *rel)
 
 static void fill_got(TCCState *s1)
 {
+puts("relocate_rel stub\n");
+exit(1);
     Section *s;
     Elf32_Rel *rel;
     int i;
@@ -14130,6 +14090,8 @@ static void fill_got(TCCState *s1)
 
 static void fill_local_got_entries(TCCState *s1)
 {
+puts("relocate_rel stub\n");
+exit(1);
     Elf32_Rel *rel;
     for (rel = (Elf32_Rel *) s1->got->reloc->data + 0; rel < (Elf32_Rel *) (s1->got->reloc->data + s1->got->reloc->data_offset); rel++) {
 	if (((rel->r_info) & 0xff) == 8) {
@@ -14155,6 +14117,8 @@ static void fill_local_got_entries(TCCState *s1)
 
 static void bind_exe_dynsyms(TCCState *s1)
 {
+puts("relocate_rel stub\n");
+exit(1);
     const char *name;
     int sym_index, index;
     Elf32_Sym *sym, *esym;
@@ -14241,6 +14205,8 @@ static void bind_exe_dynsyms(TCCState *s1)
 
 static void bind_libs_dynsyms(TCCState *s1)
 {
+puts("relocate_rel stub\n");
+exit(1);
     const char *name;
     int sym_index;
     Elf32_Sym *sym, *esym;
@@ -14267,6 +14233,8 @@ static void bind_libs_dynsyms(TCCState *s1)
 
 static void export_global_syms(TCCState *s1)
 {
+puts("relocate_rel stub\n");
+exit(1);
     int dynindex, index;
     const char *name;
     Elf32_Sym *sym;
@@ -14504,6 +14472,8 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
 static void fill_unloadable_phdr(Elf32_Phdr *phdr, int phnum, Section *interp,
                                  Section *dynamic)
 {
+puts("relocate_rel stub\n");
+exit(1);
     Elf32_Phdr *ph;
 
 
@@ -14548,6 +14518,8 @@ static void fill_unloadable_phdr(Elf32_Phdr *phdr, int phnum, Section *interp,
 
 static void fill_dynamic(TCCState *s1, struct dyn_inf *dyninf)
 {
+puts("relocate_rel stub\n");
+exit(1);
     Section *dynamic = dyninf->dynamic;
 
 
@@ -14571,6 +14543,8 @@ static void fill_dynamic(TCCState *s1, struct dyn_inf *dyninf)
 
 static int final_sections_reloc(TCCState *s1)
 {
+puts("relocate_rel stub\n");
+exit(1);
     int i;
     Section *s;
 
@@ -18151,6 +18125,8 @@ void relocate_init(Section *sr)
 
 void relocate(TCCState *s1, Elf32_Rel *rel, int type, unsigned char *ptr, Elf32_Addr addr, Elf32_Addr val)
 {
+puts("relocate stub\n");
+exit(1);
     int sym_index, esym_index;
 
     sym_index = ((rel->r_info) >> 8);
