@@ -137,14 +137,12 @@ typedef unsigned int		uintptr_t;
 // START TCC code
 
 struct TCCState;
-
 typedef struct TCCState TCCState;
-
 TCCState *tcc_new(void);
 void tcc_delete(TCCState *s);
 void tcc_set_lib_path(TCCState *s, const char *path);
 void tcc_set_error_func(TCCState *s, void *error_opaque,
-    void (*error_func)(void *opaque, const char *msg));
+void (*error_func)(void *opaque, const char *msg));
 void tcc_set_options(TCCState *s, const char *str);
 int tcc_add_include_path(TCCState *s, const char *pathname);
 int tcc_add_sysinclude_path(TCCState *s, const char *pathname);
@@ -154,10 +152,7 @@ int tcc_add_file(TCCState *s, const char *filename);
 int tcc_compile_string(TCCState *s, const char *buf);
 int tcc_set_output_type(TCCState *s, int output_type);
 int tcc_add_library_path(TCCState *s, const char *pathname);
-int tcc_add_library(TCCState *s, const char *libraryname);
 int tcc_output_file(TCCState *s, const char *filename);
-int tcc_relocate(TCCState *s1, void *ptr);
-void *tcc_get_symbol(TCCState *s, const char *name);
 
 // ELF stuff
 
@@ -3741,22 +3736,6 @@ static int macro_subst_tok(
         goto add_cstr1;
     } else if (tok == TOK___FILE__) {
         cstrval = file->filename;
-        goto add_cstr;
-    } else if (tok == TOK___DATE__ || tok == TOK___TIME__) {
-        time_t ti;
-        struct tm *tm;
-
-        time(&ti);
-        tm = localtime(&ti);
-        if (tok == TOK___DATE__) {
-            snprintf(buf, sizeof(buf), "%s %2d %d",
-                     ab_month_name[tm->tm_mon], tm->tm_mday, tm->tm_year + 1900);
-        } else {
-            snprintf(buf, sizeof(buf), "%02d:%02d:%02d",
-                     tm->tm_hour, tm->tm_min, tm->tm_sec);
-        }
-        cstrval = buf;
-    add_cstr:
         t1 = 0xb9;
     add_cstr1:
         cstr_new(&cstr);
