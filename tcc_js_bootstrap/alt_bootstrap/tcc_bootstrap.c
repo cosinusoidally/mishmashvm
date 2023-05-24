@@ -2816,13 +2816,11 @@ static void bn_zero(unsigned int *bn)
     }
 }
 
-static void parse_number(const char *p)
-{
+static void parse_number(const char *p) {
     int b, t, shift, frac_bits, s, exp_val, ch;
     char *q;
     unsigned int bn[2];
     double d;
-
     q = token_buf;
     ch = *p++;
     t = ch;
@@ -10540,33 +10538,26 @@ static void gen_function(Sym *sym)
     check_vstack();
 }
 
-static void gen_inline_functions(TCCState *s)
-{
+static void gen_inline_functions(TCCState *s) {
     Sym *sym;
     int inline_generated, i, ln;
     struct InlineFunc *fn;
-
     ln = file->line_num;
-
     do {
         inline_generated = 0;
         for (i = 0; i < s->nb_inline_fns; ++i) {
             fn = s->inline_fns[i];
             sym = fn->sym;
             if (sym && sym->c) {
-
-
                 fn->sym = ((void*)0);
                 if (file)
                     pstrcpy(file->filename, sizeof file->filename, fn->filename);
                 sym->type.t &= ~0x00008000;
-
                 begin_macro(fn->func_str, 1);
                 next();
                 cur_text_section = text_section;
                 gen_function(sym);
                 end_macro();
-
                 inline_generated = 1;
             }
         }
@@ -10678,7 +10669,6 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
                 break;
             } else {
 		if (l == 0x0033) {
-
 		    for (sym = func_sym->next; sym; sym = sym->next)
 			if ((sym->v & ~0x20000000) == v)
 			    goto found;
