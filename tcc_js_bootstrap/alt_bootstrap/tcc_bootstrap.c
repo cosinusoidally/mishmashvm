@@ -878,6 +878,10 @@ static inline int toup(int c) {
     return (c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c;
 }
 
+int IS_ENUM(int t){
+    return ((t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20));
+}
+
 static Sym *sym_free_first;
 static void **sym_pools;
 static int nb_sym_pools;
@@ -6603,7 +6607,7 @@ static int type_size(CType *type, int *a)
             *a = 4;
             return 4;
         }
-    } else if (((type->t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20)) && type->ref->c == -1) {
+    } else if (IS_ENUM(type->t) && type->ref->c == -1) {
         return -1;
     } else if (bt == 10) {
         *a = 4;
@@ -6763,7 +6767,7 @@ static void type_to_str(char *buf, int buf_size,
     if (((t & 0x0020) && bt == 1)
         || ((t & 0x0010)
             && (bt == 2 || bt == 3 || bt == 4)
-            && !((t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20))
+            && !IS_ENUM(t)
             ))
         pstrcat(buf, buf_size, (t & 0x0010) ? "unsigned " : "signed ");
 
@@ -10626,9 +10630,6 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
             }
             if (l != VT_CONST)
                 break;
-            if (tok == TOK_ASM1 || tok == TOK_ASM2 || tok == TOK_ASM3) {
-                continue;
-            }
             if (tok >= TOK_DEFINE) {
                 btype.t = VT_INT;
             } else {
@@ -10645,7 +10646,7 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
                 next();
                 continue;
 	    }
-            if (((btype.t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20))) {
+            if (IS_ENUM(btype.t)) {
                 next();
                 continue;
             }
