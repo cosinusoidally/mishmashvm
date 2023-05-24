@@ -1407,25 +1407,21 @@ static void cstr_wccat(CString *cstr, int ch)
     cstr->size = size;
 }
 
-static void cstr_new(CString *cstr)
-{
+static void cstr_new(CString *cstr) {
     memset(cstr, 0, sizeof(CString));
 }
 
 
-static void cstr_free(CString *cstr)
-{
+static void cstr_free(CString *cstr) {
     tal_free_impl(cstr_alloc, cstr->data);
     cstr_new(cstr);
 }
 
-static void cstr_reset(CString *cstr)
-{
+static void cstr_reset(CString *cstr) {
     cstr->size = 0;
 }
 
-static void add_char(CString *cstr, int c)
-{
+static void add_char(CString *cstr, int c) {
     if (c == '\'' || c == '\"' || c == '\\') {
         cstr_ccat(cstr, '\\');
     }
@@ -1443,8 +1439,7 @@ static void add_char(CString *cstr, int c)
     }
 }
 
-static TokenSym *tok_alloc_new(TokenSym **pts, const char *str, int len)
-{
+static TokenSym *tok_alloc_new(TokenSym **pts, const char *str, int len) {
     TokenSym *ts, **ptable;
     int i;
 
@@ -1471,8 +1466,7 @@ static TokenSym *tok_alloc_new(TokenSym **pts, const char *str, int len)
     return ts;
 }
 
-static TokenSym *tok_alloc(const char *str, int len)
-{
+static TokenSym *tok_alloc(const char *str, int len) {
     TokenSym *ts, **pts;
     int i;
     unsigned int h;
@@ -1493,8 +1487,7 @@ static TokenSym *tok_alloc(const char *str, int len)
     return tok_alloc_new(pts, str, len);
 }
 
-static const char *get_tok_str(int v, CValue *cv)
-{
+static const char *get_tok_str(int v, CValue *cv) {
     char *p;
     int i, len;
 
@@ -1596,8 +1589,7 @@ static const char *get_tok_str(int v, CValue *cv)
     return cstr_buf.data;
 }
 
-static int handle_eob(void)
-{
+static int handle_eob(void) {
     BufferedFile *bf = file;
     int len;
 
@@ -1623,16 +1615,14 @@ static int handle_eob(void)
     }
 }
 
-static inline void inp(void)
-{
+static inline void inp(void) {
     ch = *(++(file->buf_ptr));
     if (ch == '\\')
         ch = handle_eob();
 }
 
 
-static int handle_stray_noerror(void)
-{
+static int handle_stray_noerror(void) {
     while (ch == '\\') {
         inp();
         if (ch == '\n') {
@@ -1652,18 +1642,13 @@ static int handle_stray_noerror(void)
     return 0;
 }
 
-static void handle_stray(void)
-{
+static void handle_stray(void) {
     if (handle_stray_noerror())
         tcc_error("stray '\\' in program");
 }
 
-
-
-static int handle_stray1(uint8_t *p)
-{
+static int handle_stray1(uint8_t *p) {
     int c;
-
     file->buf_ptr = p;
     if (p >= file->buf_end) {
         c = handle_eob();
@@ -1682,17 +1667,14 @@ static int handle_stray1(uint8_t *p)
     return c;
 }
 
-static void minp(void)
-{
+static void minp(void) {
     inp();
     if (ch == '\\')
         handle_stray();
 }
 
-static uint8_t *parse_line_comment(uint8_t *p)
-{
+static uint8_t *parse_line_comment(uint8_t *p) {
     int c;
-
     p++;
     for(;;) {
         c = *p;
@@ -1725,10 +1707,8 @@ static uint8_t *parse_line_comment(uint8_t *p)
     return p;
 }
 
-static uint8_t *parse_comment(uint8_t *p)
-{
+static uint8_t *parse_comment(uint8_t *p) {
     int c;
-
     p++;
     for(;;) {
         for(;;) {
@@ -1796,21 +1776,18 @@ static uint8_t *parse_comment(uint8_t *p)
     return p;
 }
 
-static int set_idnum(int c, int val)
-{
+static int set_idnum(int c, int val) {
     int prev = isidnum_table[c - (-1)];
     isidnum_table[c - (-1)] = val;
     return prev;
 }
 
-static inline void skip_spaces(void)
-{
+static inline void skip_spaces(void) {
     while (isidnum_table[ch - (-1)] & 1)
         minp();
 }
 
-static inline int check_space(int t, int *spc)
-{
+static inline int check_space(int t, int *spc) {
     if (t < 256 && (isidnum_table[t - (-1)] & 1)) {
         if (*spc)
             return 1;
@@ -1821,8 +1798,7 @@ static inline int check_space(int t, int *spc)
 }
 
 static uint8_t *parse_pp_string(uint8_t *p,
-                                int sep, CString *str)
-{
+                                int sep, CString *str) {
     int c;
     p++;
     for(;;) {
@@ -1880,8 +1856,7 @@ static uint8_t *parse_pp_string(uint8_t *p,
     return p;
 }
 
-static void preprocess_skip(void)
-{
+static void preprocess_skip(void) {
     int a, start_of_line, c, in_warn_or_error;
     uint8_t *p;
 
@@ -1968,45 +1943,37 @@ _default:
     file->buf_ptr = p;
 }
 
-static inline void tok_str_new(TokenString *s)
-{
+static inline void tok_str_new(TokenString *s) {
     s->str = ((void*)0);
     s->len = s->lastlen = 0;
     s->allocated_len = 0;
     s->last_line_num = -1;
 }
 
-static TokenString *tok_str_alloc(void)
-{
+static TokenString *tok_str_alloc(void) {
     TokenString *str = tal_realloc_impl(&tokstr_alloc, 0, sizeof *str);
     tok_str_new(str);
     return str;
 }
 
-static int *tok_str_dup(TokenString *s)
-{
+static int *tok_str_dup(TokenString *s) {
     int *str;
-
     str = tal_realloc_impl(&tokstr_alloc, 0, s->len * sizeof(int));
     memcpy(str, s->str, s->len * sizeof(int));
     return str;
 }
 
-static void tok_str_free_str(int *str)
-{
+static void tok_str_free_str(int *str) {
     tal_free_impl(tokstr_alloc, str);
 }
 
-static void tok_str_free(TokenString *str)
-{
+static void tok_str_free(TokenString *str) {
     tok_str_free_str(str->str);
     tal_free_impl(tokstr_alloc, str);
 }
 
-static int *tok_str_realloc(TokenString *s, int new_size)
-{
+static int *tok_str_realloc(TokenString *s, int new_size) {
     int *str, size;
-
     size = s->allocated_len;
     if (size < 16)
         size = 16;
@@ -2020,10 +1987,8 @@ static int *tok_str_realloc(TokenString *s, int new_size)
     return s->str;
 }
 
-static void tok_str_add(TokenString *s, int t)
-{
+static void tok_str_add(TokenString *s, int t) {
     int len, *str;
-
     len = s->len;
     str = s->str;
     if (len >= s->allocated_len)
@@ -2032,8 +1997,7 @@ static void tok_str_add(TokenString *s, int t)
     s->len = len;
 }
 
-static void begin_macro(TokenString *str, int alloc)
-{
+static void begin_macro(TokenString *str, int alloc) {
     str->alloc = alloc;
     str->prev = macro_stack;
     str->prev_ptr = macro_ptr;
@@ -2042,8 +2006,7 @@ static void begin_macro(TokenString *str, int alloc)
     macro_stack = str;
 }
 
-static void end_macro(void)
-{
+static void end_macro(void) {
     TokenString *str = macro_stack;
     macro_stack = str->prev;
     macro_ptr = str->prev_ptr;
@@ -2055,8 +2018,7 @@ static void end_macro(void)
     }
 }
 
-static void tok_str_add2(TokenString *s, int t, CValue *cv)
-{
+static void tok_str_add2(TokenString *s, int t, CValue *cv) {
     int len, *str;
 
     len = s->lastlen = s->len;
@@ -2107,8 +2069,7 @@ static void tok_str_add2(TokenString *s, int t, CValue *cv)
     s->len = len;
 }
 
-static void tok_str_add_tok(TokenString *s)
-{
+static void tok_str_add_tok(TokenString *s) {
     CValue cval;
 
     if (file->line_num != s->last_line_num) {
@@ -2119,8 +2080,7 @@ static void tok_str_add_tok(TokenString *s)
     tok_str_add2(s, tok, &tokc);
 }
 
-static inline void TOK_GET(int *t, const int **pp, CValue *cv)
-{
+static inline void TOK_GET(int *t, const int **pp, CValue *cv) {
     const int *p = *pp;
     int n, *tab;
 
@@ -2166,11 +2126,9 @@ static inline void TOK_GET(int *t, const int **pp, CValue *cv)
     *pp = p;
 }
 
-static int macro_is_equal(const int *a, const int *b)
-{
+static int macro_is_equal(const int *a, const int *b) {
     CValue cv;
     int t;
-
     if (!a || !b)
         return 1;
     while (*a && *b) {
@@ -2184,10 +2142,8 @@ static int macro_is_equal(const int *a, const int *b)
     return !(*a || *b);
 }
 
-static inline void define_push(int v, int macro_type, int *str, Sym *first_arg)
-{
+static inline void define_push(int v, int macro_type, int *str, Sym *first_arg) {
     Sym *s, *o;
-
     o = define_find(v);
     s = sym_push2(&define_stack, v, macro_type, 0);
     s->d = str;
@@ -2197,23 +2153,20 @@ static inline void define_push(int v, int macro_type, int *str, Sym *first_arg)
 	tcc_warning("%s redefined", get_tok_str(v, ((void*)0)));
 }
 
-static void define_undef(Sym *s)
-{
+static void define_undef(Sym *s) {
     int v = s->v;
     if (v >= 256 && v < tok_ident)
         table_ident[v - 256]->sym_define = ((void*)0);
 }
 
-static inline Sym *define_find(int v)
-{
+static inline Sym *define_find(int v) {
     v -= 256;
     if ((unsigned)v >= (unsigned)(tok_ident - 256))
         return ((void*)0);
     return table_ident[v]->sym_define;
 }
 
-static void free_defines(Sym *b)
-{
+static void free_defines(Sym *b) {
     while (define_stack != b) {
         Sym *top = define_stack;
         define_stack = top->prev;
@@ -2232,16 +2185,14 @@ static void free_defines(Sym *b)
     }
 }
 
-static Sym *label_find(int v)
-{
+static Sym *label_find(int v) {
     v -= 256;
     if ((unsigned)v >= (unsigned)(tok_ident - 256))
         return ((void*)0);
     return table_ident[v]->sym_label;
 }
 
-static Sym *label_push(Sym **ptop, int v, int flags)
-{
+static Sym *label_push(Sym **ptop, int v, int flags) {
     Sym *s, **ps;
     s = sym_push2(ptop, v, 0, 0);
     s->r = flags;
@@ -2255,8 +2206,7 @@ static Sym *label_push(Sym **ptop, int v, int flags)
     return s;
 }
 
-static void label_pop(Sym **ptop, Sym *slast, int keep)
-{
+static void label_pop(Sym **ptop, Sym *slast, int keep) {
     Sym *s, *s1;
     for(s = *ptop; s != slast; s = s1) {
         s1 = s->prev;
@@ -2278,11 +2228,9 @@ static void label_pop(Sym **ptop, Sym *slast, int keep)
         *ptop = slast;
 }
 
-static int expr_preprocess(void)
-{
+static int expr_preprocess(void) {
     int c, t;
     TokenString *str;
-
     str = tok_str_alloc();
     pp_expr = 1;
     while (tok != 10 && tok != (-1)) {
@@ -2319,8 +2267,7 @@ static int expr_preprocess(void)
     return c != 0;
 }
 
-static void parse_define(void)
-{
+static void parse_define(void) {
     Sym *s, *first, **ps;
     int v, t, varg, is_vaargs, spc;
     int saved_parse_flags = parse_flags;
@@ -2392,13 +2339,11 @@ bad_twosharp:
     define_push(v, t, tok_str_dup(&tokstr_buf), first);
 }
 
-static CachedInclude *search_cached_include(TCCState *s1, const char *filename, int add)
-{
+static CachedInclude *search_cached_include(TCCState *s1, const char *filename, int add) {
     const unsigned char *s;
     unsigned int h;
     CachedInclude *e;
     int i;
-
     h = 1;
     s = (unsigned char *) filename;
     while (*s) {
@@ -2426,13 +2371,11 @@ static CachedInclude *search_cached_include(TCCState *s1, const char *filename, 
     return e;
 }
 
-static void preprocess(int is_bof)
-{
+static void preprocess(int is_bof) {
     TCCState *s1 = tcc_state;
     int i, c, n, saved_parse_flags;
     char buf[1024], *q;
     Sym *s;
-
     saved_parse_flags = parse_flags;
     parse_flags = 0x0001
         | 0x0002
@@ -2673,12 +2616,9 @@ include_done:
     parse_flags = saved_parse_flags;
 }
 
-// LJW BOOKMARK
-static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long)
-{
+static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long) {
     int c, n;
     const uint8_t *p;
-
     p = buf;
     for(;;) {
         c = *p;
@@ -2686,7 +2626,6 @@ static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long
             break;
         if (c == '\\') {
             p++;
-
             c = *p;
             switch(c) {
             case '0': case '1': case '2': case '3':
@@ -2818,8 +2757,7 @@ static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long
         cstr_wccat(outstr, '\0');
 }
 
-static void parse_string(const char *s, int len)
-{
+static void parse_string(const char *s, int len) {
     uint8_t buf[1000], *p = buf;
     int is_long, sep;
 
@@ -2864,8 +2802,7 @@ static void parse_string(const char *s, int len)
     }
 }
 
-static void bn_lshift(unsigned int *bn, int shift, int or_val)
-{
+static void bn_lshift(unsigned int *bn, int shift, int or_val) {
     int i;
     unsigned int v;
     for(i=0;i<2;i++) {
@@ -2875,8 +2812,7 @@ static void bn_lshift(unsigned int *bn, int shift, int or_val)
     }
 }
 
-static void bn_zero(unsigned int *bn)
-{
+static void bn_zero(unsigned int *bn) {
     int i;
     for(i=0;i<2;i++) {
         bn[i] = 0;
@@ -11619,28 +11555,19 @@ static int oad(int c, int s)
     return t;
 }
 
-
-
-
-
-static void gen_addr32(int r, Sym *sym, int c)
-{
+static void gen_addr32(int r, Sym *sym, int c) {
     if (r & 0x0200)
         greloc(cur_text_section, sym, ind, 1);
     gen_le32(c);
 }
 
-static void gen_addrpc32(int r, Sym *sym, int c)
-{
+static void gen_addrpc32(int r, Sym *sym, int c) {
     if (r & 0x0200)
         greloc(cur_text_section, sym, ind, 2);
     gen_le32(c - 4);
 }
 
-
-
-static void gen_modrm(int op_reg, int r, Sym *sym, int c)
-{
+static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
     op_reg = op_reg << 3;
     if ((r & 0x003f) == 0x0030) {
 
@@ -11661,16 +11588,9 @@ static void gen_modrm(int op_reg, int r, Sym *sym, int c)
 }
 
 
-static void load(int r, SValue *sv)
-{
+static void load(int r, SValue *sv) {
     int v, t, ft, fc, fr;
     SValue v1;
-
-
-
-
-
-
     fr = sv->r;
     ft = sv->type.t & ~0x0020;
     fc = sv->c.i;
@@ -11739,16 +11659,8 @@ static void load(int r, SValue *sv)
     }
 }
 
-
-static void store(int r, SValue *v)
-{
+static void store(int r, SValue *v) {
     int fr, bt, ft, fc;
-
-
-
-
-
-
     ft = v->type.t;
     fc = v->c.i;
     fr = v->r & 0x003f;
@@ -11782,8 +11694,7 @@ static void store(int r, SValue *v)
     }
 }
 
-static void gadd_sp(int val)
-{
+static void gadd_sp(int val) {
     if (val == (char)val) {
         o(0xc483);
         g(val);
@@ -11792,17 +11703,12 @@ static void gadd_sp(int val)
     }
 }
 
-
-static void gen_static_call(int v)
-{
+static void gen_static_call(int v) {
     Sym *sym;
-
     sym = external_global_sym(v, &func_old_type, 0);
     oad(0xe8, -4);
     greloc(cur_text_section, sym, ind-4, 2);
 }
-
-
 
 static void gcall_or_jmp(int is_jmp) {
     int r;
