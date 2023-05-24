@@ -755,6 +755,8 @@ enum blah {
     VT_STORAGE = (VT_EXTERN | VT_STATIC | VT_TYPEDEF | VT_INLINE),
     VT_ARRAY = 0x0040,
     VT_VLA = 0x0400,
+    VT_BYTE = 1,
+    VT_UNSIGNED = 0x0010,
 };
 
 enum TOKS {
@@ -769,6 +771,14 @@ enum SYMS {
 
 enum FUNCS {
     FUNC_OLD = 2,
+    FUNC_CDECL = 0,
+};
+
+enum PARSE_FLAGS {
+    PARSE_FLAG_PREPROCESS = 0x0001,
+    PARSE_FLAG_TOK_NUM = 0x0002,
+    PARSE_FLAG_TOK_STR = 0x0040,
+
 };
 
 static int gnu_ext;
@@ -4404,22 +4414,22 @@ static int tccgen_compile(TCCState *s1)
 {
     cur_text_section = ((void*)0);
     funcname = "";
-    anon_sym = 0x10000000;
+    anon_sym = SYM_FIRST_ANOM;
     section_sym = 0;
     const_wanted = 0;
     nocode_wanted = 0x80000000;
-    int_type.t = 3;
-    char_pointer_type.t = 1;
+    int_type.t = VT_INT;
+    char_pointer_type.t = VT_BYTE;
     mk_pointer(&char_pointer_type);
-    size_type.t = 3 | 0x0010;
-    ptrdiff_type.t = 3;
-    func_old_type.t = 6;
-    func_old_type.ref = sym_push(0x20000000, &int_type, 0, 0);
-    func_old_type.ref->f.func_call = 0;
-    func_old_type.ref->f.func_type = 2;
-    parse_flags = 0x0001 | 0x0002 | 0x0040;
+    size_type.t = VT_INT | VT_UNSIGNED;
+    ptrdiff_type.t = VT_INT;
+    func_old_type.t = VT_FUNC;
+    func_old_type.ref = sym_push(SYM_FIELD, &int_type, 0, 0);
+    func_old_type.ref->f.func_call = FUNC_CDECL;
+    func_old_type.ref->f.func_type = FUNC_OLD;
+    parse_flags = PARSE_FLAG_PREPROCESS | PARSE_FLAG_TOK_NUM | PARSE_FLAG_TOK_STR;
     next();
-    decl(0x0030);
+    decl(VT_CONST);
     gen_inline_functions(s1);
     check_vstack();
     return 0;
