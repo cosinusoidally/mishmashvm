@@ -739,7 +739,7 @@ enum tcc_token {
      ,TOK_strcpy
 };
 
-enum blah {
+enum VTS {
     VT_CMP = 0x0033,
     VT_CONST = 0x0030,
     VT_INT = 3,
@@ -761,6 +761,14 @@ enum blah {
     VT_LONG = 0x0800,
     VT_DOUBLE = 9,
     VT_LLONG = 4,
+    VT_BOOL = 11,
+    VT_FLOAT = 8,
+    VT_LDOUBLE = 10,
+    VT_STRUCT_SHIFT = 20,
+    VT_ENUM = (2 << VT_STRUCT_SHIFT),
+    VT_UNION = (1 << VT_STRUCT_SHIFT | VT_STRUCT),
+    VT_CONSTANT = 0x0100,
+    VT_VOLATILE = 0x0200,
 };
 
 enum TOKS {
@@ -7691,31 +7699,31 @@ static int parse_btype(CType *type, AttributeDef *ad) {
             next();
             break;
         case TOK_BOOL:
-            u = 11;
+            u = VT_BOOL;
             goto basic_type;
         case TOK_FLOAT:
-            u = 8;
+            u = VT_FLOAT;
             goto basic_type;
         case TOK_DOUBLE:
-            if ((t & (0x000f|0x0800)) == 0x0800) {
-                t = (t & ~(0x000f|0x0800)) | 10;
+            if ((t & (VT_BTYPE|VT_LONG)) == VT_LONG) {
+                t = (t & ~(VT_BTYPE|VT_LONG)) | VT_LDOUBLE;
             } else {
-                u = 9;
+                u = VT_DOUBLE;
                 goto basic_type;
             }
             next();
             break;
         case TOK_ENUM:
-            struct_decl(&type1, (2 << 20));
+            struct_decl(&type1, VT_ENUM);
         basic_type2:
             u = type1.t;
             type->ref = type1.ref;
             goto basic_type1;
         case TOK_STRUCT:
-            struct_decl(&type1, 7);
+            struct_decl(&type1, VT_STRUCT);
             goto basic_type2;
         case TOK_UNION:
-            struct_decl(&type1, (1 << 20 | 7));
+            struct_decl(&type1, VT_UNION);
             goto basic_type2;
 
 
@@ -7723,7 +7731,7 @@ static int parse_btype(CType *type, AttributeDef *ad) {
         case TOK_CONST2:
         case TOK_CONST3:
             type->t = t;
-            parse_btype_qualify(type, 0x0100);
+            parse_btype_qualify(type, VT_CONSTANT);
             t = type->t;
             next();
             break;
@@ -7731,7 +7739,7 @@ static int parse_btype(CType *type, AttributeDef *ad) {
         case TOK_VOLATILE2:
         case TOK_VOLATILE3:
             type->t = t;
-            parse_btype_qualify(type, 0x0200);
+            parse_btype_qualify(type, VT_VOLATILE);
             t = type->t;
             next();
             break;
