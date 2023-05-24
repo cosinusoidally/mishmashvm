@@ -12622,22 +12622,14 @@ static int tcc_open(TCCState *s1, const char *filename) {
 
 static int tcc_compile(TCCState *s1) {
     Sym *define_start;
-    int filetype, is_asm;
+    int filetype;
     define_start = define_stack;
     filetype = s1->filetype;
-    is_asm = filetype == 2 || filetype == 3;
     tccelf_begin_file(s1);
     s1->nb_errors = 0;
     s1->error_set_jmp_enabled = 1;
-    preprocess_start(s1, is_asm);
-    if (s1->output_type == 5) {
-        tcc_preprocess(s1);
-    } else if (is_asm) {
-puts("assembly broken\n");
-exit(1);
-    } else {
-        tccgen_compile(s1);
-    }
+    preprocess_start(s1, 0);
+    tccgen_compile(s1);
     s1->error_set_jmp_enabled = 0;
     preprocess_end(s1);
     free_inline_functions(s1);
