@@ -5051,58 +5051,38 @@ static void save_reg_upstack(int r, int n)
     int l, saved, size, align;
     SValue *p, *p1, sv;
     CType *type;
-
     if ((r &= 0x003f) >= 0x0030)
         return;
     if (nocode_wanted)
         return;
-
-
     saved = 0;
     l = 0;
     for(p = (__vstack + 1), p1 = vtop - n; p <= p1; p++) {
         if ((p->r & 0x003f) == r ||
             ((p->type.t & 0x000f) == 4 && (p->r2 & 0x003f) == r)) {
-
             if (!saved) {
-
                 r = p->r & 0x003f;
-
                 type = &p->type;
                 if ((p->r & 0x0100) ||
                     (!is_float(type->t) && (type->t & 0x000f) != 4))
-
-
-
                     type = &int_type;
-
                 size = type_size(type, &align);
                 loc = (loc - size) & -align;
                 sv.type.t = type->t;
                 sv.r = 0x0032 | 0x0100;
                 sv.c.i = loc;
                 store(r, &sv);
-
-
                 if (r == TREG_ST0) {
                     o(0xd8dd);
                 }
-
-
-
                 if ((type->t & 0x000f) == 4) {
                     sv.c.i += 4;
                     store(p->r2, &sv);
                 }
-
                 l = loc;
                 saved = 1;
             }
-
             if (p->r & 0x0100) {
-
-
-
                 p->r = (p->r & ~(0x003f | 0x8000)) | 0x0031;
             } else {
                 p->r = lvalue_type(p->type.t) | 0x0032;
@@ -5112,7 +5092,7 @@ static void save_reg_upstack(int r, int n)
         }
     }
 }
-# 1062 "tcc_src/tccgen.c"
+
 static int get_reg(int rc)
 {
     int r;
