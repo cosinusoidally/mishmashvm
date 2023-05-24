@@ -11537,24 +11537,7 @@ static int elf_output_file(TCCState *s1, const char *filename)
     strsec = new_section(s1, ".shstrtab", 3, 0);
     put_elf_str(strsec, "");
     textrel = alloc_sec_names(s1, file_type, strsec);
-    if (dynamic) {
-        for(i = 0; i < s1->nb_loaded_dlls; i++) {
-            DLLReference *dllref = s1->loaded_dlls[i];
-        }
-        dyninf.dynamic = dynamic;
-        dyninf.dynstr = dynstr;
-        dyninf.data_offset = dynamic->data_offset;
-        dynamic->sh_size = dynamic->data_offset;
-        dynstr->sh_size = dynstr->data_offset;
-    }
-    if (file_type == 4)
-        phnum = 0;
-    else if (file_type == 3)
-        phnum = 3;
-    else if (s1->static_link)
-        phnum = 2;
-    else
-        phnum = 5;
+    phnum = 0;
     phdr = tcc_mallocz(phnum * sizeof(Elf32_Phdr));
     shnum = s1->nb_sections;
     sec_order = tcc_malloc(sizeof(int) * shnum);
