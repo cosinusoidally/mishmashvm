@@ -6795,7 +6795,7 @@ static void type_to_str(char *buf, int buf_size,
     maybe_long:
         if (t & 0x0800)
             tstr = "long";
-        if (!((t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20)))
+        if (!IS_ENUM(t))
             goto add_tstr;
         tstr = "enum ";
         goto tstruct;
@@ -6914,7 +6914,7 @@ static void gen_assign_cast(CType *dt)
 
 
 		if ((type1->t & (0x000f|0x0800)) != (type2->t & (0x000f|0x0800))
-                    || ((type1->t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20)) || ((type2->t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20))
+                    || IS_ENUM(type1->t) || IS_ENUM(type2->t)
                     )
 		    tcc_warning("assignment from incompatible pointer type");
 	    }
@@ -7426,7 +7426,7 @@ static void struct_decl(CType *type, int u)
         if (s && (s->sym_scope == local_scope || tok != '{')) {
             if (u == s->type.t)
                 goto do_decl;
-            if (u == (2 << 20) && ((s->type.t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20)))
+            if (u == (2 << 20) && IS_ENUM(s->type.t))
                 goto do_decl;
             tcc_error("redefinition of '%s'", get_tok_str(v, ((void*)0)));
         }
@@ -8632,34 +8632,19 @@ static void unary(void)
             const char *name = get_tok_str(t, ((void*)0));
             if (tok != '(')
                 tcc_error("'%s' undeclared", name);
-
-
             if (tcc_state->warn_implicit_function_declaration
-
-
-
-
-
             )
                 tcc_warning("implicit declaration of function '%s'", name);
             s = external_global_sym(t, &func_old_type, 0);
         }
-
         r = s->r;
-
-
         if ((r & 0x003f) < 0x0030)
             r = (r & ~0x003f) | 0x0032;
-
         vset(&s->type, r, s->c);
-
-
-
 	vtop->sym = s;
-
         if (r & 0x0200) {
             vtop->c.i = 0;
-        } else if (r == 0x0030 && ((s->type.t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (3 << 20))) {
+        } else if (r == 0x0030 && IS_ENUM(s->type.t)) {
             vtop->c.i = s->enum_val;
         }
         break;
