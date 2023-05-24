@@ -770,10 +770,18 @@ enum VTS {
     VT_CONSTANT = 0x0100,
     VT_VOLATILE = 0x0200,
     VT_DEFSIGN = 0x0020,
+    VT_VALMASK = 0x003f,
+    VT_LVAL = 0x0100,
 };
 
 enum TOKS {
     TOK_EOF = -1,
+    TOK_ULT = 0x92,
+    TOK_GT = 0x9f,
+    TOK_GE = 0x9d,
+    TOK_EQ = 0x94,
+    TOK_NE = 0x95,
+    TOK_LE = 0x9e,
 };
 
 enum SYMS {
@@ -800,6 +808,16 @@ enum MISC {
 
 enum TYPES {
     TYPE_DIRECT = 2,
+};
+
+enum RCS {
+    RC_INT = 0x0001,
+    RC_FLOAT = 0x0002,
+    RC_EAX = 0x0004,
+    RC_ST0 = 0x0008,
+    RC_ECX = 0x0010,
+    RC_EDX = 0x0020,
+    RC_EBX = 0x0040,
 };
 
 static int gnu_ext;
@@ -12127,69 +12145,60 @@ static void gen_opi(int op)
 
 static void gen_opf(int op) {
     int a, ft, fc, swapped, r;
-
-
-    if ((vtop[-1].r & (0x003f | 0x0100)) == 0x0030) {
+    if ((vtop[-1].r & (VT_VALMASK | VT_LVAL)) == VT_CONST) {
         vswap();
-        gv(0x0002);
+        gv(RC_FLOAT);
         vswap();
     }
-    if ((vtop[0].r & (0x003f | 0x0100)) == 0x0030)
-        gv(0x0002);
-
-
-    if ((vtop[-1].r & 0x0100) &&
-        (vtop[0].r & 0x0100)) {
+    if ((vtop[0].r & (VT_VALMASK | VT_LVAL)) == VT_CONST)
+        gv(RC_FLOAT);
+    if ((vtop[-1].r & VT_LVAL) &&
+        (vtop[0].r & VT_LVAL)) {
         vswap();
-        gv(0x0002);
+        gv(RC_FLOAT);
         vswap();
     }
     swapped = 0;
-
-
-    if (vtop[-1].r & 0x0100) {
+    if (vtop[-1].r & VT_LVAL) {
         vswap();
         swapped = 1;
     }
-    if (op >= 0x92 && op <= 0x9f) {
-
+    if (op >= TOK_ULT && op <= TOK_GT) {
         load(TREG_ST0, vtop);
         save_reg(TREG_EAX);
-        if (op == 0x9d || op == 0x9f)
+        if (op == TOK_GE || op == TOK_GT)
             swapped = !swapped;
-        else if (op == 0x94 || op == 0x95)
+        else if (op == TOK_EQ || op == TOK_NE)
             swapped = 0;
         if (swapped)
             o(0xc9d9);
-        if (op == 0x94 || op == 0x95)
+        if (op == TOK_EQ || op == TOK_NE)
             o(0xe9da);
         else
             o(0xd9de);
         o(0xe0df);
-        if (op == 0x94) {
+        if (op == TOK_EQ) {
             o(0x45e480);
             o(0x40fC80);
-        } else if (op == 0x95) {
+        } else if (op == TOK_NE) {
             o(0x45e480);
             o(0x40f480);
-            op = 0x95;
-        } else if (op == 0x9d || op == 0x9e) {
+            op = TOK_NE;
+        } else if (op == TOK_GE || op == TOK_LE) {
             o(0x05c4f6);
-            op = 0x94;
+            op = TOK_EQ;
         } else {
             o(0x45c4f6);
-            op = 0x94;
+            op = TOK_EQ;
         }
         vtop--;
-        vtop->r = 0x0033;
+        vtop->r = VT_CMP;
         vtop->c.i = op;
     } else {
-
         if ((vtop->type.t & 0x000f) == 10) {
             load(TREG_ST0, vtop);
             swapped = !swapped;
         }
-
         switch(op) {
         default:
         case '+':
@@ -12215,7 +12224,6 @@ static void gen_opf(int op) {
             o(0xde);
             o(0xc1 + (a << 3));
         } else {
-
             r = vtop->r;
             if ((r & 0x003f) == 0x0031) {
                 SValue v1;
@@ -12226,7 +12234,6 @@ static void gen_opf(int op) {
                 load(r, &v1);
                 fc = 0;
             }
-
             if ((ft & 0x000f) == 9)
                 o(0xdc);
             else
