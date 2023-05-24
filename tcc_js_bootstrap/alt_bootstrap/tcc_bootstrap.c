@@ -418,9 +418,6 @@ struct TCCState {
     int nostdlib;
     int alacarte_link;
     char *tcc_lib_path;
-    char *soname;
-    char *rpath;
-    int enable_new_dtags;
     int output_type;
     int output_format;
     int char_is_unsigned;
@@ -435,11 +432,7 @@ struct TCCState {
     Elf32_Addr text_addr;
     int has_text_addr;
     unsigned section_align;
-    char *init_symbol;
-    char *fini_symbol;
     int seg_size;
-    DLLReference **loaded_dlls;
-    int nb_loaded_dlls;
     char **include_paths;
     int nb_include_paths;
     char **sysinclude_paths;
@@ -452,7 +445,6 @@ struct TCCState {
     int nb_cmd_include_files;
     void *error_opaque;
     void (*error_func)(void *opaque, const char *msg);
-    int error_set_jmp_enabled;
     int nb_errors;
     FILE *ppfp;
     enum {
@@ -473,8 +465,6 @@ struct TCCState {
     int nb_cached_includes;
     int pack_stack[8];
     int *pack_stack_ptr;
-    char **pragma_libs;
-    int nb_pragma_libs;
     struct InlineFunc **inline_fns;
     int nb_inline_fns;
     Section **sections;
@@ -482,19 +472,14 @@ struct TCCState {
     Section **priv_sections;
     int nb_priv_sections;
     Section *dynsymtab_section;
-    Section *dynsym;
     Section *symtab;
     struct sym_attr *sym_attrs;
     int nb_sym_attrs;
-    const char *runtime_main;
-    void **runtime_mem;
-    int nb_runtime_mem;
     struct filespec **files;
     int nb_files;
     int nb_libraries;
     int filetype;
     char *outfile;
-    int option_r;
     int argc;
     char **argv;
 };
@@ -10699,12 +10684,6 @@ static void tccelf_delete(TCCState *s1) {
     for(i = 0; i < s1->nb_priv_sections; i++)
         free_section(s1->priv_sections[i]);
     dynarray_reset(&s1->priv_sections, &s1->nb_priv_sections);
-    for ( i = 0; i < s1->nb_loaded_dlls; i++) {
-        DLLReference *ref = s1->loaded_dlls[i];
-        if ( ref->handle )
-            dlclose(ref->handle);
-    }
-    dynarray_reset(&s1->loaded_dlls, &s1->nb_loaded_dlls);
     tcc_free(s1->sym_attrs);
     symtab_section = ((void*)0);
 }
@@ -12367,13 +12346,8 @@ static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap) {
         for(pf = s1->include_stack; pf < s1->include_stack_ptr; pf++)
             strcat_printf(buf, sizeof(buf), "In file included from %s:%d:\n",
                 (*pf)->filename, (*pf)->line_num);
-        if (s1->error_set_jmp_enabled) {
             strcat_printf(buf, sizeof(buf), "%s:%d: ",
                 f->filename, f->line_num - !!(tok_flags & 0x0001));
-        } else {
-            strcat_printf(buf, sizeof(buf), "%s: ",
-                f->filename);
-        }
     } else {
         strcat_printf(buf, sizeof(buf), "tcc: ");
     }
@@ -12471,10 +12445,8 @@ static int tcc_compile(TCCState *s1) {
     filetype = s1->filetype;
     tccelf_begin_file(s1);
     s1->nb_errors = 0;
-    s1->error_set_jmp_enabled = 1;
     preprocess_start(s1, 0);
     tccgen_compile(s1);
-    s1->error_set_jmp_enabled = 0;
     preprocess_end(s1);
     free_inline_functions(s1);
     free_defines(define_start);
@@ -12589,14 +12561,9 @@ void tcc_delete(TCCState *s1) {
     dynarray_reset(&s1->sysinclude_paths, &s1->nb_sysinclude_paths);
     dynarray_reset(&s1->cmd_include_files, &s1->nb_cmd_include_files);
     tcc_free(s1->tcc_lib_path);
-    tcc_free(s1->soname);
-    tcc_free(s1->rpath);
-    tcc_free(s1->init_symbol);
-    tcc_free(s1->fini_symbol);
     tcc_free(s1->outfile);
     dynarray_reset(&s1->files, &s1->nb_files);
     dynarray_reset(&s1->target_deps, &s1->nb_target_deps);
-    dynarray_reset(&s1->pragma_libs, &s1->nb_pragma_libs);
     dynarray_reset(&s1->argv, &s1->argc);
     tcc_free(s1);
 }
@@ -12975,7 +12942,7 @@ redo:
         }
         s->filetype = 0;
         s->alacarte_link = 1;
-        if (--n == 0 || ret || (s->output_type == 4 && !s->option_r)){
+        if (--n == 0 || ret || (s->output_type == 4 && !0)){
             break;
         }
     }
