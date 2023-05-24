@@ -12612,13 +12612,7 @@ static void tcc_close(void) {
 
 static int tcc_open(TCCState *s1, const char *filename) {
     int fd;
-    if (strcmp(filename, "-") == 0)
-        fd = 0, filename = "<stdin>";
-    else
-        fd = open(filename, 00 | 0);
-    if ((s1->verbose == 2 && fd >= 0) || s1->verbose == 3)
-        printf("%s %*s%s\n", fd < 0 ? "nf":"->",
-               (int)(s1->include_stack_ptr - s1->include_stack), "", filename);
+    fd = open(filename, 00 | 0);
     if (fd < 0)
         return -1;
     tcc_open_bf(s1, filename, 0);
@@ -12795,34 +12789,9 @@ int tcc_add_sysinclude_path(TCCState *s, const char *pathname) {
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags) {
     int ret;
     ret = tcc_open(s1, filename);
-    if (ret < 0) {
-        if (flags & 0x10)
-            tcc_error_noabort("file '%s' not found", filename);
-        return ret;
-    }
     dynarray_add(&s1->target_deps, &s1->nb_target_deps,
             tcc_strdup(filename));
-    if (flags & 0x40) {
-        Elf32_Ehdr ehdr;
-        int fd, obj_type;
-        fd = file->fd;
-        lseek(fd, 0, 0);
-        switch (obj_type) {
-        case 2:
-            if (s1->output_type == 1) {
-                ret = 0;
-                if (((void*)0) == dlopen(filename, 0x00100 | 0x00001))
-                    ret = -1;
-            }
-            break;
-        default:
-            if (ret < 0)
-                tcc_error_noabort("unrecognized file type");
-            break;
-        }
-    } else {
-        ret = tcc_compile(s1);
-    }
+    ret = tcc_compile(s1);
     tcc_close();
     return ret;
 }
