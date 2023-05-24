@@ -779,9 +779,6 @@ static int tcc_open(TCCState *s1, const char *filename);
 static void tcc_close(void);
 
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags);
-static int tcc_add_crt(TCCState *s, const char *filename);
-static int tcc_add_dll(TCCState *s, const char *filename, int flags);
-int tcc_add_library_err(TCCState *s, const char *f);
 int tcc_parse_args(TCCState *s, int *argc, char ***argv, int optind);
 static struct BufferedFile *file;
 static int ch, tok;
@@ -849,7 +846,6 @@ int IS_ENUM(int t){
 static Sym *sym_free_first;
 static void **sym_pools;
 static int nb_sym_pools;
-
 static Sym *global_stack;
 static Sym *local_stack;
 static Sym *local_label_stack;
@@ -857,9 +853,7 @@ static Sym *global_label_stack;
 static Sym *define_stack;
 static CType char_pointer_type, func_old_type, int_type, size_type;
 static SValue __vstack[1+  256], *vtop, *pvtop;
-
 static int rsym, anon_sym, ind, loc;
-
 static int const_wanted;
 static int nocode_wanted;
 static int global_expr;
@@ -868,15 +862,9 @@ static int func_var;
 static int func_vc;
 static int last_line_num, last_ind, func_ind;
 static const char *funcname;
-static int g_debug;
-
-static void tcc_debug_funcstart(TCCState *s1, Sym *sym);
-static void tcc_debug_funcend(TCCState *s1, int size);
-
 static int tccgen_compile(TCCState *s1);
 static void free_inline_functions(TCCState *s);
 static void check_vstack(void);
-
 static inline int is_float(int t);
 static int ieee_finite(double d);
 static void test_lvalue(void);
@@ -890,7 +878,6 @@ static void vpush_global_sym(CType *type, int v);
 static void vrote(SValue *e, int n);
 static void vrott(int n);
 static void vrotb(int n);
-
 static void vpushv(SValue *v);
 static void save_reg(int r);
 static void save_reg_upstack(int r, int n);
@@ -906,7 +893,6 @@ static void mk_pointer(CType *type);
 static void vstore(void);
 static void inc(int post, int c);
 static void parse_mult_str (CString *astr, const char *msg);
-static void parse_asm_str(CString *astr);
 static int lvalue_type(int t);
 static void indir(void);
 static void unary(void);
@@ -914,7 +900,6 @@ static void expr_prod(void);
 static void expr_sum(void);
 static void gexpr(void);
 static int expr_const(void);
-
 static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size);
 
 typedef struct {
@@ -928,22 +913,16 @@ typedef struct {
 static Section *text_section, *data_section, *bss_section;
 static Section *common_section;
 static Section *cur_text_section;
-
 static Section *last_text_section;
-
 static Section *bounds_section;
 static Section *lbounds_section;
 static void tccelf_bounds_new(TCCState *s);
-
 static Section *symtab_section;
-
 static Section *stab_section, *stabstr_section;
-
 static void tccelf_new(TCCState *s);
 static void tccelf_delete(TCCState *s);
 static void tccelf_begin_file(TCCState *s1);
 static void tccelf_end_file(TCCState *s1);
-
 static Section *new_section(TCCState *s1, const char *name, int sh_type, int sh_flags);
 static void section_realloc(Section *sec, unsigned long new_size);
 static size_t section_add(Section *sec, Elf32_Addr size, int align);
@@ -951,39 +930,23 @@ static void *section_ptr_add(Section *sec, Elf32_Addr size);
 static void section_reserve(Section *sec, unsigned long size);
 static Section *find_section(TCCState *s1, const char *name);
 static Section *new_symtab(TCCState *s1, const char *symtab_name, int sh_type, int sh_flags, const char *strtab_name, const char *hash_name, int hash_sh_flags);
-
 static void put_extern_sym2(Sym *sym, int sh_num, Elf32_Addr value, unsigned long size, int can_add_underscore);
 static void put_extern_sym(Sym *sym, Section *section, Elf32_Addr value, unsigned long size);
-
 static void greloc(Section *s, Sym *sym, unsigned long offset, int type);
-
 static void greloca(Section *s, Sym *sym, unsigned long offset, int type, Elf32_Addr addend);
-
 static int put_elf_str(Section *s, const char *sym);
 static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int info, int other, int shndx, const char *name);
 static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int info, int other, int shndx, const char *name);
 static int find_elf_sym(Section *s, const char *name);
 static void put_elf_reloc(Section *symtab, Section *s, unsigned long offset, int type, int symbol);
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset, int type, int symbol, Elf32_Addr addend);
-
-
 static void resolve_common_syms(TCCState *s1);
 static void relocate_syms(TCCState *s1, Section *symtab, int do_resolve);
 static void relocate_section(TCCState *s1, Section *s);
-
 static int tcc_object_type(int fd, Elf32_Ehdr *h);
 static int tcc_load_object_file(TCCState *s1, int fd, unsigned long file_offset);
-static int tcc_load_archive(TCCState *s1, int fd);
-static void tcc_add_bcheck(TCCState *s1);
-
-static void build_got_entries(TCCState *s1);
 static struct sym_attr *get_sym_attr(TCCState *s1, int index, int alloc);
 static void squeeze_multi_relocs(Section *sec, size_t oldrelocoffset);
-
-
-static void *tcc_get_symbol_err(TCCState *s, const char *name);
-static int tcc_load_dll(TCCState *s1, int fd, const char *filename, int level);
-static int tcc_load_ldscript(TCCState *s1);
 static uint8_t *parse_comment(uint8_t *p);
 static void minp(void);
 static inline void inp(void);
@@ -1043,48 +1006,21 @@ static void gen_le16(int c);
 static void gen_le32(int c);
 static void gen_addr32(int r, Sym *sym, int c);
 static void gen_addrpc32(int r, Sym *sym, int c);
-static void gen_bounded_ptr_add(void);
-static void gen_bounded_ptr_deref(void);
-static int find_constraint(ASMOperand *operands, int nb_operands, const char *name, const char **pp);
-static Sym* get_asm_sym(int name, Sym *csym);
-static void asm_expr(TCCState *s1, ExprValue *pe);
-static int asm_int_expr(TCCState *s1);
-static int tcc_assemble(TCCState *s1, int do_preprocess);
-
-static void gen_expr32(ExprValue *pe);
-
-static void asm_opcode(TCCState *s1, int opcode);
-static int asm_parse_regvar(int t);
-static void asm_compute_constraints(ASMOperand *operands, int nb_operands, int nb_outputs, const uint8_t *clobber_regs, int *pout_reg);
-static void subst_asm_operand(CString *add_str, SValue *sv, int modifier);
-static void asm_gen_code(ASMOperand *operands, int nb_operands, int nb_outputs, int is_output, uint8_t *clobber_regs, int out_reg);
-static void asm_clobber(uint8_t *clobber_regs, const char *str);
-static int rt_num_callers;
-static const char **rt_bound_error_msg;
-static void *rt_prog_main;
-
 static int gnu_ext = 1;
-
 static int tcc_ext = 1;
-
 static struct TCCState *tcc_state;
-
 static int nb_states;
-
 static int tok_flags;
 static int parse_flags;
-
 static struct BufferedFile *file;
 static int ch, tok;
 static CValue tokc;
 static const int *macro_ptr;
 static CString tokcstr;
-
 static int total_lines;
 static int total_bytes;
 static int tok_ident;
 static TokenSym **table_ident;
-
 static TokenSym *hash_ident[16384];
 static char token_buf[1024 + 1];
 static CString cstr_buf;
@@ -1096,11 +1032,9 @@ static int pp_once;
 static int pp_expr;
 static int pp_counter;
 static void tok_print(const char *msg, const int *str);
-
 static struct TinyAlloc *toksym_alloc;
 static struct TinyAlloc *tokstr_alloc;
 static struct TinyAlloc *cstr_alloc;
-
 static TokenString *macro_stack;
 
 static const char tcc_keywords[] =
@@ -4237,7 +4171,6 @@ static int func_var;
 static int func_vc;
 static int last_line_num, last_ind, func_ind;
 static const char *funcname;
-static int g_debug;
 
 static CType char_pointer_type, func_old_type, int_type, size_type, ptrdiff_type;
 
