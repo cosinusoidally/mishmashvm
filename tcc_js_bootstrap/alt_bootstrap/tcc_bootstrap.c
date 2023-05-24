@@ -769,6 +769,7 @@ enum VTS {
     VT_UNION = (1 << VT_STRUCT_SHIFT | VT_STRUCT),
     VT_CONSTANT = 0x0100,
     VT_VOLATILE = 0x0200,
+    VT_DEFSIGN = 0x0020,
 };
 
 enum TOKS {
@@ -791,6 +792,10 @@ enum PARSE_FLAGS {
     PARSE_FLAG_TOK_NUM = 0x0002,
     PARSE_FLAG_TOK_STR = 0x0040,
 
+};
+
+enum MISC {
+    LONG_SIZE = 4,
 };
 
 static int gnu_ext;
@@ -7746,9 +7751,9 @@ static int parse_btype(CType *type, AttributeDef *ad) {
         case TOK_SIGNED1:
         case TOK_SIGNED2:
         case TOK_SIGNED3:
-            if ((t & (0x0020|0x0010)) == (0x0020|0x0010))
+            if ((t & (VT_DEFSIGN|VT_UNSIGNED)) == (VT_DEFSIGN|VT_UNSIGNED))
                 tcc_error("signed and unsigned modifier");
-            t |= 0x0020;
+            t |= VT_DEFSIGN;
             next();
             typespec_found = 1;
             break;
@@ -7760,25 +7765,25 @@ static int parse_btype(CType *type, AttributeDef *ad) {
             next();
             break;
         case TOK_UNSIGNED:
-            if ((t & (0x0020|0x0010)) == 0x0020)
+            if ((t & (VT_DEFSIGN|VT_UNSIGNED)) == VT_DEFSIGN)
                 tcc_error("signed and unsigned modifier");
-            t |= 0x0020 | 0x0010;
+            t |= VT_DEFSIGN | VT_UNSIGNED;
             next();
             typespec_found = 1;
             break;
 
 
         case TOK_EXTERN:
-            g = 0x00001000;
+            g = VT_EXTERN;
             goto storage;
         case TOK_STATIC:
-            g = 0x00002000;
+            g = VT_STATIC;
             goto storage;
         case TOK_TYPEDEF:
-            g = 0x00004000;
+            g = VT_TYPEDEF;
             goto storage;
        storage:
-            if (t & (0x00001000|0x00002000|0x00004000) & ~g)
+            if (t & (VT_EXTERN|VT_STATIC|VT_TYPEDEF) & ~g)
                 tcc_error("multiple storage classes");
             t |= g;
             next();
@@ -7786,7 +7791,7 @@ static int parse_btype(CType *type, AttributeDef *ad) {
         case TOK_INLINE1:
         case TOK_INLINE2:
         case TOK_INLINE3:
-            t |= 0x00008000;
+            t |= VT_INLINE;
             next();
             break;
 
@@ -7796,7 +7801,7 @@ static int parse_btype(CType *type, AttributeDef *ad) {
             parse_attribute(ad);
             if (ad->attr_mode) {
                 u = ad->attr_mode -1;
-                t = (t & ~(0x000f|0x0800)) | u;
+                t = (t & ~(VT_BTYPE|VT_LONG)) | u;
             }
             break;
 
@@ -7805,8 +7810,7 @@ static int parse_btype(CType *type, AttributeDef *ad) {
         case TOK_TYPEOF3:
             next();
             parse_expr_type(&type1);
-
-            type1.t &= ~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)&~0x00004000);
+            type1.t &= ~(VT_STORAGE&~VT_TYPEDEF);
 	    if (type1.ref)
                 sym_to_attr(ad, type1.ref);
             goto basic_type2;
@@ -7814,11 +7818,11 @@ static int parse_btype(CType *type, AttributeDef *ad) {
             if (typespec_found)
                 goto the_end;
             s = sym_find(tok);
-            if (!s || !(s->type.t & 0x00004000))
+            if (!s || !(s->type.t & VT_TYPEDEF))
                 goto the_end;
-            t &= ~(0x000f|0x0800);
-            u = t & ~(0x0100 | 0x0200), t ^= u;
-            type->t = (s->type.t & ~0x00004000) | u;
+            t &= ~(VT_BTYPE|VT_LONG);
+            u = t & ~(VT_CONSTANT | VT_VOLATILE), t ^= u;
+            type->t = (s->type.t & ~VT_TYPEDEF) | u;
             type->ref = s->type.ref;
             if (t)
                 parse_btype_qualify(type, t);
@@ -7834,17 +7838,12 @@ static int parse_btype(CType *type, AttributeDef *ad) {
     }
 the_end:
     if (tcc_state->char_is_unsigned) {
-        if ((t & (0x0020|0x000f)) == 1)
-            t |= 0x0010;
+        if ((t & (VT_DEFSIGN|VT_BTYPE)) == VT_BYTE)
+            t |= VT_UNSIGNED;
     }
-
-    bt = t & (0x000f|0x0800);
-    if (bt == 0x0800)
-        t |= 4 == 8 ? 4 : 3;
-
-
-
-
+    bt = t & (VT_BTYPE|VT_LONG);
+    if (bt == VT_LONG)
+        t |= LONG_SIZE == 8 ? VT_LLONG : VT_INT;
     type->t = t;
     return type_found;
 }
