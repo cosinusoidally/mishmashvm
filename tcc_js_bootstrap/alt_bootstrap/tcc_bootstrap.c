@@ -3904,27 +3904,22 @@ no_subst:
     }
 }
 
-
-static void next(void)
-{
+static void next(void) {
  redo:
-    if (parse_flags & 0x0010)
+    if (parse_flags & 0x0010){
         next_nomacro_spc();
-    else
+    } else {
         next_nomacro();
-
+    }
     if (macro_ptr) {
         if (tok == 0xcc || tok == 0xcb) {
-
             goto redo;
         } else if (tok == 0) {
-
             end_macro();
             goto redo;
         }
     } else if (tok >= 256 && (parse_flags & 0x0001)) {
         Sym *s;
-
         s = define_find(tok);
         if (s) {
             Sym *nested_list = ((void*)0);
@@ -3935,7 +3930,6 @@ static void next(void)
             goto redo;
         }
     }
-
     if (tok == 0xbe) {
         if  (parse_flags & 0x0002)
             parse_number((char *)tokc.str.data);
@@ -3945,10 +3939,7 @@ static void next(void)
     }
 }
 
-
-
-static inline void unget_tok(int last_tok)
-{
+static inline void unget_tok(int last_tok) {
 
     TokenString *str = tok_str_alloc();
     tok_str_add2(str, tok, &tokc);
