@@ -4864,9 +4864,6 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r, int has
 static void decl(int l);
 static int decl0(int l, int is_for_loop_init, Sym *);
 static void expr_eq(void);
-static void vla_runtime_type_size(CType *type, int *a);
-static void vla_sp_restore(void);
-static void vla_sp_restore_root(void);
 static int is_compatible_unqualified_types(CType *type1, CType *type2);
 static inline int64_t expr_const64(void);
 static void vpush64(int ty, unsigned long long v);
@@ -4883,21 +4880,12 @@ static inline int is_float(int t)
     return bt == 10 || bt == 9 || bt == 8 || bt == 14;
 }
 
-
-
-
 static int ieee_finite(double d)
 {
     int p[4];
     memcpy(p, &d, sizeof(double));
     return ((unsigned)((p[1] | 0x800fffff) + 1)) >> 31;
 }
-
-
-
-
-
-
 
 static void test_lvalue(void)
 {
@@ -4919,33 +4907,20 @@ static int tccgen_compile(TCCState *s1)
     section_sym = 0;
     const_wanted = 0;
     nocode_wanted = 0x80000000;
-
-
     int_type.t = 3;
     char_pointer_type.t = 1;
     mk_pointer(&char_pointer_type);
-
     size_type.t = 3 | 0x0010;
     ptrdiff_type.t = 3;
-
-
-
-
-
-
-
     func_old_type.t = 6;
     func_old_type.ref = sym_push(0x20000000, &int_type, 0, 0);
     func_old_type.ref->f.func_call = 0;
     func_old_type.ref->f.func_type = 2;
-
-# 273 "tcc_src/tccgen.c"
     parse_flags = 0x0001 | 0x0002 | 0x0040;
     next();
     decl(0x0030);
     gen_inline_functions(s1);
     check_vstack();
-
     return 0;
 }
 
@@ -6615,7 +6590,6 @@ static int pointed_size(CType *type)
 static void vla_runtime_pointed_size(CType *type)
 {
     int align;
-    vla_runtime_type_size(pointed_type(type), &align);
 }
 
 static inline int is_null_pointer(SValue *p)
@@ -7192,31 +7166,6 @@ static int type_size(CType *type, int *a)
         return 1;
     }
 }
-
-
-
-static void vla_runtime_type_size(CType *type, int *a)
-{
-    if (type->t & 0x0400) {
-        type_size(&type->ref->type, a);
-        vset(&int_type, 0x0032|0x0100, type->ref->c);
-    } else {
-        vpushi(type_size(type, a));
-    }
-}
-
-static void vla_sp_restore(void) {
-    if (vlas_in_scope) {
-//        gen_vla_sp_restore(vla_sp_loc);
-    }
-}
-
-static void vla_sp_restore_root(void) {
-    if (vlas_in_scope) {
-//        gen_vla_sp_restore(vla_sp_root_loc);
-    }
-}
-
 
 static inline CType *pointed_type(CType *type)
 {
@@ -8674,29 +8623,6 @@ static inline void convert_parameter_type(CType *pt)
     }
 }
 
-static void parse_asm_str(CString *astr)
-{
-    skip('(');
-    parse_mult_str(astr, "string constant");
-}
-
-
-static int asm_label_instr(void)
-{
-    int v;
-    CString astr;
-
-    next();
-    parse_asm_str(&astr);
-    skip(')');
-
-
-
-    v = tok_alloc(astr.data, astr.size - 1)->tok;
-    cstr_free(&astr);
-    return v;
-}
-
 static int post_type(CType *type, AttributeDef *ad, int storage, int td)
 {
     int n, l, t1, arg_size, align;
@@ -8817,7 +8743,6 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td)
             loc &= -align;
             n = loc;
 
-            vla_runtime_type_size(type, &align);
             gen_op('*');
             vset(&int_type, 0x0032|0x0100, n);
             vswap();
@@ -9235,7 +9160,6 @@ static void unary(void)
                     tcc_error("sizeof applied to an incomplete type");
                 vpushs(size);
             } else {
-                vla_runtime_type_size(&type, &align);
             }
         } else {
             vpushs(align);
@@ -10290,7 +10214,6 @@ static void block(int *bsym, int *csym, int is_expr)
 	nocode_wanted &= ~0x20000000;
         next();
         d = ind;
-        vla_sp_restore();
         skip('(');
         gexpr();
         skip(')');
@@ -10357,7 +10280,6 @@ static void block(int *bsym, int *csym, int is_expr)
 
         if (vlas_in_scope > saved_vlas_in_scope) {
             vla_sp_loc = saved_vlas_in_scope ? block_vla_sp_loc : vla_sp_root_loc;
-            vla_sp_restore();
         }
         vlas_in_scope = saved_vlas_in_scope;
 
@@ -10389,7 +10311,6 @@ static void block(int *bsym, int *csym, int is_expr)
 
         if (!csym)
             tcc_error("cannot continue");
-        vla_sp_restore_root();
         *csym = gjmp(*csym);
         next();
         skip(';');
@@ -10412,7 +10333,6 @@ static void block(int *bsym, int *csym, int is_expr)
         skip(';');
         d = ind;
         c = ind;
-        vla_sp_restore();
         a = 0;
         b = 0;
         if (tok != ';') {
@@ -10423,7 +10343,6 @@ static void block(int *bsym, int *csym, int is_expr)
         if (tok != ')') {
             e = gjmp(0);
             c = ind;
-            vla_sp_restore();
             gexpr();
             vpop();
             gjmp_addr(d);
@@ -10447,7 +10366,6 @@ static void block(int *bsym, int *csym, int is_expr)
         a = 0;
         b = 0;
         d = ind;
-        vla_sp_restore();
 	saved_nocode_wanted = nocode_wanted;
         block(&a, &b, 0);
         skip(TOK_WHILE);
@@ -10546,7 +10464,6 @@ static void block(int *bsym, int *csym, int is_expr)
                 if (s->r == 2)
                     s->r = 1;
             }
-            vla_sp_restore_root();
 	    if (s->r & 1)
                 s->jnext = gjmp(s->jnext);
             else
@@ -10572,7 +10489,6 @@ static void block(int *bsym, int *csym, int is_expr)
                 s = label_push(&global_label_stack, b, 0);
             }
             s->jnext = ind;
-            vla_sp_restore();
 
         block_after_label:
 	    nocode_wanted &= ~0x20000000;
@@ -11345,32 +11261,7 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
         }
 
     }
-
-    if (type->t & 0x0400) {
-        int a;
-
-        if ((nocode_wanted > 0))
-            goto no_alloc;
-
-
-        if (vlas_in_scope == 0) {
-            if (vla_sp_root_loc == -1)
-                vla_sp_root_loc = (loc -= 4);
-//            gen_vla_sp_save(vla_sp_root_loc);
-        }
-
-        vla_runtime_type_size(type, &a);
-//        gen_vla_alloc(type, a);
-
-
-
-
-
-//        gen_vla_sp_save(addr);
-        vla_sp_loc = addr;
-        vlas_in_scope++;
-
-    } else if (has_init) {
+    if (has_init) {
 	size_t oldreloc_offset = 0;
 	if (sec && sec->reloc)
 	  oldreloc_offset = sec->reloc->data_offset;
@@ -11382,14 +11273,11 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
         if (flexible_array)
             flexible_array->type.ref->c = -1;
     }
-
  no_alloc:
-
     if (init_str) {
         end_macro();
         next();
     }
-
     nocode_wanted = saved_nocode_wanted;
 }
 
@@ -11535,12 +11423,6 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
                 sym = type.ref;
                 if (sym->f.func_type == 2 && l == 0x0030)
                     decl0(0x0033, 0, sym);
-            }
-            if (gnu_ext && (tok == TOK_ASM1 || tok == TOK_ASM2 || tok == TOK_ASM3)) {
-                ad.asm_label = asm_label_instr();
-                parse_attribute(&ad);
-                if (tok == '{')
-                    expect(";");
             }
             if (tok == '{') {
                 if (l != 0x0030)
@@ -11688,11 +11570,6 @@ static void tccelf_new(TCCState *s) {
                                       ".dynstrtab",
                                       ".dynhashtab", 0x80000000);
     get_sym_attr(s, 0, 1);
-}
-
-static void tccelf_bounds_new(TCCState *s) {
-puts("stub\n");
-exit(1);
 }
 
 static void free_section(Section *s) {
@@ -12827,8 +12704,6 @@ static void gcall_or_jmp(int is_jmp)
 static uint8_t fastcall_regs[3] = { TREG_EAX, TREG_EDX, TREG_ECX };
 static uint8_t fastcallw_regs[2] = { TREG_ECX, TREG_EDX };
 
-
-
 static int gfunc_sret(CType *vt, int variadic, CType *ret, int *ret_align, int *regsize)
 {
 # 412 "tcc_src/i386-gen.c"
@@ -13823,29 +13698,16 @@ static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags) 
         Elf32_Ehdr ehdr;
         int fd, obj_type;
         fd = file->fd;
-//        obj_type = tcc_object_type(fd, &ehdr);
         lseek(fd, 0, 0);
         switch (obj_type) {
-        case 1:
-//            ret = tcc_load_object_file(s1, fd, 0);
-            break;
         case 2:
             if (s1->output_type == 1) {
                 ret = 0;
                 if (((void*)0) == dlopen(filename, 0x00100 | 0x00001))
                     ret = -1;
-            } else {
-/*
-                ret = tcc_load_dll(s1, fd, filename,
-                                   (flags & 0x20) != 0);
-*/
             }
             break;
-        case 3:
-//            ret = tcc_load_archive(s1, fd);
-            break;
         default:
-//            ret = tcc_load_ldscript(s1);
             if (ret < 0)
                 tcc_error_noabort("unrecognized file type");
             break;
