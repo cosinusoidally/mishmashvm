@@ -1136,8 +1136,7 @@ typedef struct tal_header_t {
     unsigned  size;
 } tal_header_t;
 
-static TinyAlloc *tal_new(TinyAlloc **pal, unsigned limit, unsigned size)
-{
+static TinyAlloc *tal_new(TinyAlloc **pal, unsigned limit, unsigned size) {
     TinyAlloc *al = tcc_mallocz(sizeof(TinyAlloc));
     al->p = al->buffer = tcc_malloc(size);
     al->limit = limit;
@@ -1146,8 +1145,7 @@ static TinyAlloc *tal_new(TinyAlloc **pal, unsigned limit, unsigned size)
     return al;
 }
 
-static void tal_delete(TinyAlloc *al)
-{
+static void tal_delete(TinyAlloc *al) {
     TinyAlloc *next;
 tail_call:
     if (!al)
@@ -1159,8 +1157,7 @@ tail_call:
     goto tail_call;
 }
 
-static void tal_free_impl(TinyAlloc *al, void *p )
-{
+static void tal_free_impl(TinyAlloc *al, void *p ) {
     if (!p)
         return;
 tail_call:
@@ -1176,8 +1173,7 @@ tail_call:
         tcc_free(p);
 }
 
-static void *tal_realloc_impl(TinyAlloc **pal, void *p, unsigned size )
-{
+static void *tal_realloc_impl(TinyAlloc **pal, void *p, unsigned size ) {
     tal_header_t *header;
     void *ret;
     int is_own;
@@ -1229,8 +1225,7 @@ tail_call:
     return ret;
 }
 
-static void cstr_realloc(CString *cstr, int new_size)
-{
+static void cstr_realloc(CString *cstr, int new_size) {
     int size;
 
     size = cstr->size_allocated;
@@ -1242,8 +1237,7 @@ static void cstr_realloc(CString *cstr, int new_size)
     cstr->size_allocated = size;
 }
 
-static inline void cstr_ccat(CString *cstr, int ch)
-{
+static inline void cstr_ccat(CString *cstr, int ch) {
     int size;
     size = cstr->size + 1;
     if (size > cstr->size_allocated)
@@ -1252,8 +1246,7 @@ static inline void cstr_ccat(CString *cstr, int ch)
     cstr->size = size;
 }
 
-static void cstr_cat(CString *cstr, const char *str, int len)
-{
+static void cstr_cat(CString *cstr, const char *str, int len) {
     int size;
     if (len <= 0)
         len = strlen(str) + 1 + len;
@@ -1264,8 +1257,7 @@ static void cstr_cat(CString *cstr, const char *str, int len)
     cstr->size = size;
 }
 
-static void cstr_wccat(CString *cstr, int ch)
-{
+static void cstr_wccat(CString *cstr, int ch) {
     int size;
     size = cstr->size + sizeof(nwchar_t);
     if (size > cstr->size_allocated)
@@ -1309,7 +1301,6 @@ static void add_char(CString *cstr, int c) {
 static TokenSym *tok_alloc_new(TokenSym **pts, const char *str, int len) {
     TokenSym *ts, **ptable;
     int i;
-
     if (tok_ident >= 0x10000000)
         tcc_error("memory full (symbols)");
     i = tok_ident - 256;
@@ -1317,7 +1308,6 @@ static TokenSym *tok_alloc_new(TokenSym **pts, const char *str, int len) {
         ptable = tcc_realloc(table_ident, (i + 512) * sizeof(TokenSym *));
         table_ident = ptable;
     }
-
     ts = tal_realloc_impl(&toksym_alloc, 0, sizeof(TokenSym) + len);
     table_ident[i] = ts;
     ts->tok = tok_ident++;
@@ -1337,7 +1327,6 @@ static TokenSym *tok_alloc(const char *str, int len) {
     TokenSym *ts, **pts;
     int i;
     unsigned int h;
-
     h = 1;
     for(i=0;i<len;i++)
         h = ((h) + ((h) << 5) + ((h) >> 27) + (((unsigned char *)str)[i]));
@@ -1357,10 +1346,8 @@ static TokenSym *tok_alloc(const char *str, int len) {
 static const char *get_tok_str(int v, CValue *cv) {
     char *p;
     int i, len;
-
     cstr_reset(&cstr_buf);
     p = cstr_buf.data;
-
     switch(v) {
     case 0xb5:
     case 0xb6:
@@ -1425,7 +1412,6 @@ static const char *get_tok_str(int v, CValue *cv) {
         return strcpy(p, "<eof>");
     default:
         if (v < 256) {
-
             const unsigned char *q = tok_two_chars;
             while (*q) {
                 if (q[2] == v) {
@@ -1487,7 +1473,6 @@ static inline void inp(void) {
     if (ch == '\\')
         ch = handle_eob();
 }
-
 
 static int handle_stray_noerror(void) {
     while (ch == '\\') {
