@@ -11911,12 +11911,6 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
     return 0;
 }
 
-static void tidy_section_headers(TCCState *s1, int *sec_order)
-{
-puts("stub\n");
-exit(1);
-}
-
 static int elf_output_file(TCCState *s1, const char *filename)
 {
     int i, ret, phnum, shnum, file_type, file_offset, *sec_order;
@@ -11970,7 +11964,6 @@ static int elf_output_file(TCCState *s1, const char *filename)
                 }
             }
         }
-	tidy_section_headers(s1, sec_order);
     }
     ret = tcc_write_elf_file(s1, filename, phnum, phdr, file_offset, sec_order);
     s1->nb_sections = shnum;
