@@ -739,6 +739,31 @@ enum tcc_token {
      ,TOK_strcpy
 };
 
+enum blah {
+    VT_CMP = 0x0033,
+    VT_CONST = 0x0030,
+    VT_INT = 3,
+    VT_BTYPE = 0x000f,
+    VT_STRUCT = 7,
+    VT_FUNC = 6,
+    VT_STATIC = 0x00002000,
+    VT_LOCAL = 0x0032,
+};
+
+enum TOKS {
+    TOK_EOF = -1,
+};
+
+enum SYMS {
+    SYM_FIELD = 0x20000000,
+    SYM_STRUCT = 0x40000000,
+    SYM_FIRST_ANOM = 0x10000000,
+};
+
+enum FUNCS {
+    FUNC_OLD = 2,
+};
+
 static int gnu_ext;
 
 static int tcc_ext;
@@ -10588,27 +10613,27 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
         if (!parse_btype(&btype, &ad)) {
             if (is_for_loop_init)
                 return 0;
-            if (tok == ';' && l != 0x0033) {
+            if (tok == ';' && l != VT_CMP) {
                 next();
                 continue;
             }
-            if (l != 0x0030)
+            if (l != VT_CONST)
                 break;
             if (tok == TOK_ASM1 || tok == TOK_ASM2 || tok == TOK_ASM3) {
                 continue;
             }
             if (tok >= TOK_DEFINE) {
-                btype.t = 3;
+                btype.t = VT_INT;
             } else {
-                if (tok != (-1))
+                if (tok != (TOK_EOF))
                     expect("declaration");
                 break;
             }
         }
         if (tok == ';') {
-	    if ((btype.t & 0x000f) == 7) {
+	    if ((btype.t & VT_BTYPE) == VT_STRUCT) {
 		int v = btype.ref->v;
-		if (!(v & 0x20000000) && (v & ~0x40000000) >= 0x10000000)
+		if (!(v & SYM_FIELD) && (v & ~SYM_STRUCT) >= SYM_FIRST_ANOM)
         	    tcc_warning("unnamed struct/union that defines no instances");
                 next();
                 continue;
@@ -10624,12 +10649,12 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
 		type.ref = sym_push(0x20000000, &type.ref->type, 0, type.ref->c);
 	    }
             type_decl(&type, &ad, &v, 2);
-            if ((type.t & 0x000f) == 6) {
-                if ((type.t & 0x00002000) && (l == 0x0032)) {
+            if ((type.t & VT_BTYPE) == VT_FUNC) {
+                if ((type.t & VT_STATIC) && (l == VT_LOCAL)) {
                     tcc_error("function without file scope cannot be static");
                 }
                 sym = type.ref;
-                if (sym->f.func_type == 2 && l == 0x0030)
+                if (sym->f.func_type == FUNC_OLD && l == VT_CONST)
                     decl0(0x0033, 0, sym);
             }
             if (tok == '{') {
