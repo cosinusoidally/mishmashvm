@@ -3283,8 +3283,7 @@ keep_tok_flags:
     file->buf_ptr = p;
 }
 
-static void next_nomacro_spc(void)
-{
+static void next_nomacro_spc(void) {
     if (macro_ptr) {
     redo:
         tok = *macro_ptr;
@@ -3301,8 +3300,7 @@ static void next_nomacro_spc(void)
 
 }
 
-static void next_nomacro(void)
-{
+static void next_nomacro(void) {
     do {
         next_nomacro_spc();
     } while (tok < 256 && (isidnum_table[tok - (-1)] & 1));
@@ -3314,8 +3312,7 @@ static void macro_subst(
     const int *macro_str
     );
 
-static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
-{
+static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args) {
     int t, t0, t1, spc;
     const int *st;
     Sym *s;
@@ -3418,8 +3415,7 @@ static char const ab_month_name[12][4] =
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
-static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2)
-{
+static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2) {
     CString cstr;
     int n, ret = 1;
     cstr_new(&cstr);
@@ -3448,9 +3444,7 @@ static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2)
     return ret;
 }
 
-// LJW BOOKMARK
-static inline int *macro_twosharps(const int *ptr0)
-{
+static inline int *macro_twosharps(const int *ptr0) {
     int t;
     CValue cval;
     TokenString macro_str1;
@@ -3499,8 +3493,7 @@ static inline int *macro_twosharps(const int *ptr0)
     return macro_str1.str;
 }
 
-static int next_argstream(Sym **nested_list, TokenString *ws_str)
-{
+static int next_argstream(Sym **nested_list, TokenString *ws_str) {
     int t;
     const int *p;
     Sym *sa;
@@ -3555,11 +3548,7 @@ static int next_argstream(Sym **nested_list, TokenString *ws_str)
     }
 }
 
-static int macro_subst_tok(
-    TokenString *tok_str,
-    Sym **nested_list,
-    Sym *s)
-{
+static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
     Sym *args, *sa, *sa1;
     int parlevel, t, t1, spc;
     TokenString str;
@@ -3688,52 +3677,33 @@ static int macro_subst_tok(
     return 0;
 }
 
-// LJW BOOKMARK
-static void macro_subst(
-    TokenString *tok_str,
-    Sym **nested_list,
-    const int *macro_str
-    )
-{
+static void macro_subst( TokenString *tok_str, Sym **nested_list, const int *macro_str) {
     Sym *s;
     int t, spc, nosubst;
     CValue cval;
-
     spc = nosubst = 0;
-
     while (1) {
         TOK_GET(&t, &macro_str, &cval);
         if (t <= 0)
             break;
-
         if (t >= 256 && 0 == nosubst) {
             s = define_find(t);
             if (s == ((void*)0))
                 goto no_subst;
-
-
             if (sym_find2(*nested_list, t)) {
-
                 tok_str_add2(tok_str, 0xcc, ((void*)0));
                 goto no_subst;
             }
-
-            {
-                TokenString str;
-                str.str = (int*)macro_str;
-                begin_macro(&str, 2);
-
-                tok = t;
-                macro_subst_tok(tok_str, nested_list, s);
-
-                if (str.alloc == 3) {
-
-                    break;
-                }
-
-                macro_str = macro_ptr;
-                end_macro ();
+            TokenString str;
+            str.str = (int*)macro_str;
+            begin_macro(&str, 2);
+            tok = t;
+            macro_subst_tok(tok_str, nested_list, s);
+            if (str.alloc == 3) {
+                break;
             }
+            macro_str = macro_ptr;
+            end_macro ();
             if (tok_str->len)
                 spc = is_space(t = tok_str->str[tok_str->lastlen]);
         } else {
@@ -3751,7 +3721,6 @@ no_subst:
             if (t == 0xcc)
                 nosubst = 1;
         }
-
         if (t == TOK_DEFINED && pp_expr)
             nosubst = 2;
     }
@@ -3793,7 +3762,6 @@ static void next(void) {
 }
 
 static inline void unget_tok(int last_tok) {
-
     TokenString *str = tok_str_alloc();
     tok_str_add2(str, tok, &tokc);
     tok_str_add(str, 0);
