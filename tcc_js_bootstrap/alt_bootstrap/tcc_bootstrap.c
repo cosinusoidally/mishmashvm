@@ -1356,26 +1356,18 @@ static void build_got_entries(TCCState *s1);
 static struct sym_attr *get_sym_attr(TCCState *s1, int index, int alloc);
 static void squeeze_multi_relocs(Section *sec, size_t oldrelocoffset);
 
-static Elf32_Addr get_elf_sym_addr(TCCState *s, const char *name, int err);
 
 static void *tcc_get_symbol_err(TCCState *s, const char *name);
-
 static int tcc_load_dll(TCCState *s1, int fd, const char *filename, int level);
 static int tcc_load_ldscript(TCCState *s1);
 static uint8_t *parse_comment(uint8_t *p);
 static void minp(void);
 static inline void inp(void);
 static int handle_eob(void);
-
 static int code_reloc (int reloc_type);
-static int gotplt_entry_type (int reloc_type);
-static unsigned create_plt_entry(TCCState *s1, unsigned got_offset, struct sym_attr *attr);
 static void relocate_init(Section *sr);
 static void relocate(TCCState *s1, Elf32_Rel *rel, int type, unsigned char *ptr, Elf32_Addr addr, Elf32_Addr val);
-static void relocate_plt(TCCState *s1);
-
 static const int reg_classes[5];
-
 static void gsym_addr(int t, int a);
 static void gsym(int t);
 static void load(int r, SValue *sv);
@@ -1387,23 +1379,17 @@ static void gfunc_epilog(void);
 static int gjmp(int t);
 static void gjmp_addr(int a);
 static int gtst(int inv, int t);
-
 static void gtst_addr(int inv, int a);
-
 static void gen_opi(int op);
 static void gen_opf(int op);
 static void gen_cvt_ftoi(int t);
 static void gen_cvt_ftof(int t);
 static void ggoto(void);
-
 static void o(unsigned int c);
-
 static void gen_cvt_itof(int t);
-
 static void gen_vla_sp_save(int addr);
 static void gen_vla_sp_restore(int addr);
 static void gen_vla_alloc(CType *type, int align);
-
 static inline uint16_t read16le(unsigned char *p) {
     return p[0] | (uint16_t)p[1] << 8;
 }
@@ -1428,18 +1414,13 @@ static inline void write64le(unsigned char *p, uint64_t x) {
 static inline void add64le(unsigned char *p, int64_t x) {
     write64le(p, read64le(p) + x);
 }
-
 static void g(int c);
 static void gen_le16(int c);
 static void gen_le32(int c);
 static void gen_addr32(int r, Sym *sym, int c);
 static void gen_addrpc32(int r, Sym *sym, int c);
-
 static void gen_bounded_ptr_add(void);
 static void gen_bounded_ptr_deref(void);
-static void asm_instr(void);
-static void asm_global_instr(void);
-
 static int find_constraint(ASMOperand *operands, int nb_operands, const char *name, const char **pp);
 static Sym* get_asm_sym(int name, Sym *csym);
 static void asm_expr(TCCState *s1, ExprValue *pe);
@@ -2606,12 +2587,6 @@ static void label_pop(Sym **ptop, Sym *slast, int keep)
         *ptop = slast;
 }
 
-static void maybe_run_test(TCCState *s) {
-puts("stub\n");
-exit(1);
-}
-
-// LJW BOOKMARK
 static int expr_preprocess(void)
 {
     int c, t;
@@ -2628,8 +2603,6 @@ static int expr_preprocess(void)
                 next_nomacro();
             if (tok < 256)
                 expect("identifier");
-            if (tcc_state->run_test)
-                maybe_run_test(tcc_state);
             c = define_find(tok) != 0;
             if (t == '(') {
                 next_nomacro();
@@ -5573,34 +5546,6 @@ static void gaddrof(void)
 
 }
 
-
-
-static void gbound(void)
-{
-    int lval_type;
-    CType type1;
-
-    vtop->r &= ~0x0800;
-
-    if (vtop->r & 0x0100) {
-
-        if (!(vtop->r & 0x8000)) {
-            lval_type = vtop->r & ((0x1000 | 0x2000 | 0x4000) | 0x0100);
-
-            type1 = vtop->type;
-            vtop->type.t = 5;
-            gaddrof();
-            vpushi(0);
-//            gen_bounded_ptr_add();
-            vtop->r |= lval_type;
-            vtop->type = type1;
-        }
-
-//        gen_bounded_ptr_deref();
-    }
-}
-
-
 static void incr_bf_adr(int o)
 {
     vtop->type = char_pointer_type;
@@ -5752,10 +5697,6 @@ static int gv(int rc)
 	    init_putv(&vtop->type, data_section, offset);
 	    vtop->r |= 0x0100;
         }
-
-        if (vtop->r & 0x0800)
-            gbound();
-
 
         r = vtop->r & 0x003f;
         rc2 = (rc & 0x0002) ? 0x0002 : 0x0001;
@@ -7444,11 +7385,6 @@ static void vstore(void) {
     } else if (dbt == 0) {
         --vtop;
     } else {
-            if (vtop[-1].r & 0x0800) {
-                vswap();
-                gbound();
-                vswap();
-            }
             rc = 0x0001;
             if (is_float(ft)) {
                 rc = 0x0002;
@@ -11525,20 +11461,6 @@ static int find_elf_sym(Section *s, const char *name) {
     return 0;
 }
 
-static Elf32_Addr get_elf_sym_addr(TCCState *s, const char *name, int err) {
-puts("stub\n");
-exit(1);
-}
-
-void *tcc_get_symbol(TCCState *s, const char *name) {
-puts("stub\n");
-exit(1);
-}
-
-static void* tcc_get_symbol_err(TCCState *s, const char *name) {
-    return (void*)(uintptr_t)get_elf_sym_addr(s, name, 1);
-}
-
 static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
                        int info, int other, int shndx, const char *name) {
     Elf32_Sym *esym;
@@ -11624,12 +11546,6 @@ static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset,
     if (addend)
         tcc_error("non-zero addend on REL architecture");
 
-}
-
-static void put_elf_reloc(Section *symtab, Section *s, unsigned long offset,
-                           int type, int symbol) {
-puts("stub\n");
-exit(1);
 }
 
 static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset) {
@@ -11918,7 +11834,6 @@ static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
     default:
     case 2:
         ehdr.e_type = 2;
-        ehdr.e_entry = get_elf_sym_addr(s1, "_start", 1);
         break;
     case 3:
         ehdr.e_type = 3;
