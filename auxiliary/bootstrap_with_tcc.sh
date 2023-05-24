@@ -19,9 +19,9 @@ LINK_CMD=" -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../..
 
 PHASE1_ARGS="-DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c ./alt_bootstrap/tcc_bootstrap.c -o out.o"
 
-PHASE2_1_ARGS="-DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/ ${INCS} -o out.o"
+PHASE2_1_ARGS="-DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -I tcc_src/ ${INCS} -o out.o"
 
-PHASE2_2_ARGS="-nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/ ${INCS} -o out.o"
+PHASE2_2_ARGS="-nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -I tcc_src/ ${INCS} -o out.o"
 
 ./tcc_linux.exe ${PHASE1_ARGS}
 rm tcc_linux.exe

@@ -13956,89 +13956,25 @@ typedef struct TCCOption {
 } TCCOption;
 
 enum {
-    TCC_OPTION_HELP,
-    TCC_OPTION_HELP2,
-    TCC_OPTION_v,
     TCC_OPTION_I,
     TCC_OPTION_D,
-    TCC_OPTION_U,
-    TCC_OPTION_P,
     TCC_OPTION_L,
-    TCC_OPTION_B,
     TCC_OPTION_l,
-    TCC_OPTION_bench,
-    TCC_OPTION_bt,
-    TCC_OPTION_b,
-    TCC_OPTION_g,
     TCC_OPTION_c,
-    TCC_OPTION_dumpversion,
-    TCC_OPTION_d,
-    TCC_OPTION_static,
-    TCC_OPTION_std,
-    TCC_OPTION_shared,
-    TCC_OPTION_soname,
     TCC_OPTION_o,
-    TCC_OPTION_r,
-    TCC_OPTION_s,
-    TCC_OPTION_traditional,
-    TCC_OPTION_Wl,
-    TCC_OPTION_Wp,
-    TCC_OPTION_W,
-    TCC_OPTION_O,
-    TCC_OPTION_mfloat_abi,
-    TCC_OPTION_m,
-    TCC_OPTION_f,
-    TCC_OPTION_isystem,
-    TCC_OPTION_iwithprefix,
-    TCC_OPTION_include,
     TCC_OPTION_nostdinc,
     TCC_OPTION_nostdlib,
-    TCC_OPTION_print_search_dirs,
-    TCC_OPTION_rdynamic,
-    TCC_OPTION_param,
-    TCC_OPTION_pedantic,
-    TCC_OPTION_pthread,
-    TCC_OPTION_run,
-    TCC_OPTION_w,
-    TCC_OPTION_pipe,
-    TCC_OPTION_E,
-    TCC_OPTION_MD,
-    TCC_OPTION_MF,
-    TCC_OPTION_x,
-    TCC_OPTION_ar,
-    TCC_OPTION_impdef
 };
 
 static const TCCOption tcc_options[] = {
     { "I", TCC_OPTION_I, 0x0001 },
     { "D", TCC_OPTION_D, 0x0001 },
-    { "U", TCC_OPTION_U, 0x0001 },
-    { "P", TCC_OPTION_P, 0x0001 | 0x0002 },
     { "L", TCC_OPTION_L, 0x0001 },
-    { "B", TCC_OPTION_B, 0x0001 },
     { "l", TCC_OPTION_l, 0x0001 | 0x0002 },
     { "c", TCC_OPTION_c, 0 },
-    { "shared", TCC_OPTION_shared, 0 },
     { "o", TCC_OPTION_o, 0x0001 },
-    { "-param", TCC_OPTION_param, 0x0001 },
-    { "r", TCC_OPTION_r, 0 },
-    { "s", TCC_OPTION_s, 0 },
-    { "Wl,", TCC_OPTION_Wl, 0x0001 | 0x0002 },
-    { "Wp,", TCC_OPTION_Wp, 0x0001 | 0x0002 },
-    { "W", TCC_OPTION_W, 0x0001 | 0x0002 },
-    { "O", TCC_OPTION_O, 0x0001 | 0x0002 },
-    { "m", TCC_OPTION_m, 0x0001 | 0x0002 },
-    { "f", TCC_OPTION_f, 0x0001 | 0x0002 },
-    { "include", TCC_OPTION_include, 0x0001 },
     { "nostdinc", TCC_OPTION_nostdinc, 0 },
     { "nostdlib", TCC_OPTION_nostdlib, 0 },
-    { "print-search-dirs", TCC_OPTION_print_search_dirs, 0 },
-    { "w", TCC_OPTION_w, 0 },
-    { "pipe", TCC_OPTION_pipe, 0},
-    { "E", TCC_OPTION_E, 0},
-    { "MD", TCC_OPTION_MD, 0},
-    { "MF", TCC_OPTION_MF, 0x0001 },
-    { "x", TCC_OPTION_x, 0x0001 },
 
     { ((void*)0), 0, 0 },
 };
@@ -14175,22 +14111,12 @@ reparse:
         case TCC_OPTION_D:
             parse_option_D(s, optarg);
             break;
-        case TCC_OPTION_U:
-            tcc_undefine_symbol(s, optarg);
-            break;
         case TCC_OPTION_L:
             tcc_add_library_path(s, optarg);
-            break;
-        case TCC_OPTION_B:
-            tcc_set_lib_path(s, optarg);
             break;
         case TCC_OPTION_l:
             args_parser_add_file(s, optarg, 4);
             s->nb_libraries++;
-            break;
-        case TCC_OPTION_g:
-exit(1);
-            s->do_debug = 1;
             break;
         case TCC_OPTION_c:
             x = 4;
@@ -14199,31 +14125,6 @@ exit(1);
                 tcc_warning("-%s: overriding compiler action already specified", popt->name);
             s->output_type = x;
             break;
-        case TCC_OPTION_d:
-exit(1);
-            if (*optarg == 'D')
-                s->dflag = 3;
-            else if (*optarg == 'M')
-                s->dflag = 7;
-            else if (*optarg == 't')
-                s->dflag = 16;
-            else if (isnum(*optarg))
-                g_debug = atoi(optarg);
-            else
-                goto unsupported_option;
-            break;
-        case TCC_OPTION_static:
-            s->static_link = 1;
-            break;
-        case TCC_OPTION_std:
-exit(1);
-            break;
-        case TCC_OPTION_shared:
-            x = 3;
-            goto set_output_type;
-        case TCC_OPTION_soname:
-            s->soname = tcc_strdup(optarg);
-            break;
         case TCC_OPTION_o:
             if (s->outfile) {
                 tcc_warning("multiple -o option");
@@ -14231,65 +14132,11 @@ exit(1);
             }
             s->outfile = tcc_strdup(optarg);
             break;
-        case TCC_OPTION_r:
-exit(1);
-            s->option_r = 1;
-            x = 4;
-            goto set_output_type;
-        case TCC_OPTION_isystem:
-exit(1);
-            tcc_add_sysinclude_path(s, optarg);
-            break;
-	case TCC_OPTION_include:
-	    dynarray_add(&s->cmd_include_files,
-			 &s->nb_cmd_include_files, tcc_strdup(optarg));
-	    break;
         case TCC_OPTION_nostdinc:
             s->nostdinc = 1;
             break;
         case TCC_OPTION_nostdlib:
             s->nostdlib = 1;
-            break;
-        case TCC_OPTION_v:
-            do ++s->verbose; while (*optarg++ == 'v');
-            ++noaction;
-            break;
-        case TCC_OPTION_W:
-            if (set_flag(s, options_W, optarg) < 0)
-                goto unsupported_option;
-            break;
-        case TCC_OPTION_w:
-exit(1);
-            s->warn_none = 1;
-            break;
-	case TCC_OPTION_Wp:
-exit(1);
-	    r = optarg;
-	    goto reparse;
-        case TCC_OPTION_E:
-            x = 5;
-            goto set_output_type;
-        case TCC_OPTION_P:
-exit(1);
-            s->Pflag = atoi(optarg) + 1;
-            break;
-        case TCC_OPTION_dumpversion:
-            printf ("%s\n", "0.9.27");
-            exit(0);
-            break;
-        case TCC_OPTION_x:
-exit(1);
-            if (*optarg == 'c')
-                s->filetype = 1;
-            else if (*optarg == 'a')
-                s->filetype = 3;
-            else if (*optarg == 'n')
-                s->filetype = 0;
-            else
-                tcc_warning("unsupported language '%s'", optarg);
-            break;
-        case TCC_OPTION_O:
-            last_o = atoi(optarg);
             break;
         default:
 unsupported_option:
