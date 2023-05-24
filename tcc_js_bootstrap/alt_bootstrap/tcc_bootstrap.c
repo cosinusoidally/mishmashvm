@@ -10628,7 +10628,7 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
                 }
                 sym = type.ref;
                 if (sym->f.func_type == FUNC_OLD && l == VT_CONST)
-                    decl0(0x0033, 0, sym);
+                    decl0(VT_CMP, 0, sym);
             }
             if (tok == '{') {
                 if (l != VT_CONST)
