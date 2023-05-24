@@ -114,10 +114,22 @@ union float_long {
 
 # HACK tcc_bootstrap.c does not support asm
 
-extern udiv_qrnnd();
-extern count_leading_zeros();
-extern sub_ddmmss();
-extern umul_ppmm();
+udiv_qrnnd(){
+puts("udiv_qrnnd stub\n");
+exit(1);
+}
+count_leading_zeros(){
+puts("count_leading_zeros stub\n");
+exit(1);
+}
+sub_ddmmss(){
+puts("sub_ddmmss stub\n");
+exit(1);
+}
+umul_ppmm(){
+puts("umul_ppmm stub\n");
+exit(1);
+}
 
 #if 0
 #define sub_ddmmss(sh, sl, ah, al, bh, bl) \

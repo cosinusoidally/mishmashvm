@@ -1,6 +1,6 @@
 typedef unsigned int USItype;
 
-sub_ddmmss(sh, sl, ah, al, bh, bl) {
+sub_ddmmss_asm(sh, sl, ah, al, bh, bl) {
   __asm__ ("subl %5,%1\n\tsbbl %3,%0"
            : "=r" ((USItype) (sh)),
              "=&r" ((USItype) (sl)) 
@@ -9,14 +9,14 @@ sub_ddmmss(sh, sl, ah, al, bh, bl) {
              "1" ((USItype) (al)),
              "g" ((USItype) (bl)));
 }
-umul_ppmm(w1, w0, u, v) {
+umul_ppmm_asm(w1, w0, u, v) {
   __asm__ ("mull %3"
            : "=a" ((USItype) (w0)),
              "=d" ((USItype) (w1))
            : "%0" ((USItype) (u)),
              "rm" ((USItype) (v)));
 }
-udiv_qrnnd(q, r, n1, n0, dv) {
+udiv_qrnnd_asm(q, r, n1, n0, dv) {
   __asm__ ("divl %4"
            : "=a" ((USItype) (q)),
              "=d" ((USItype) (r)) 
@@ -24,7 +24,7 @@ udiv_qrnnd(q, r, n1, n0, dv) {
              "1" ((USItype) (n1)),
              "rm" ((USItype) (dv)));
 }
-count_leading_zeros(count, x) {
+count_leading_zeros_asm(count, x) {
     USItype __cbtmp;
     __asm__ ("bsrl %1,%0"
              : "=r" (__cbtmp) : "rm" ((USItype) (x)));
