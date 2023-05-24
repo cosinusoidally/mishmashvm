@@ -11852,8 +11852,7 @@ static void gen_static_call(int v)
 
 
 
-static void gcall_or_jmp(int is_jmp)
-{
+static void gcall_or_jmp(int is_jmp) {
     int r;
     if ((vtop->r & (0x003f | 0x0100)) == 0x0030 && (vtop->r & 0x0200)) {
 
@@ -11867,9 +11866,6 @@ static void gcall_or_jmp(int is_jmp)
     }
     if (!is_jmp) {
         int rt;
-
-
-
         rt = vtop->type.ref->type.t;
         switch (rt & 0x000f) {
             case 1:
@@ -11897,19 +11893,12 @@ static void gcall_or_jmp(int is_jmp)
 static uint8_t fastcall_regs[3] = { TREG_EAX, TREG_EDX, TREG_ECX };
 static uint8_t fastcallw_regs[2] = { TREG_ECX, TREG_EDX };
 
-static int gfunc_sret(CType *vt, int variadic, CType *ret, int *ret_align, int *regsize)
-{
-# 412 "tcc_src/i386-gen.c"
+static int gfunc_sret(CType *vt, int variadic, CType *ret, int *ret_align, int *regsize) {
     *ret_align = 1;
     return 0;
-
 }
 
-
-
-
-static void gfunc_call(int nb_args)
-{
+static void gfunc_call(int nb_args) {
     int size, align, r, args_size, i, func_call;
     Sym *func_sym;
 
@@ -11946,8 +11935,6 @@ static void gfunc_call(int nb_args)
             g(0x00);
             args_size += size;
         } else {
-
-
             r = gv(0x0001);
             if ((vtop->type.t & 0x000f) == 4) {
                 size = 8;
@@ -11993,7 +11980,7 @@ static void gfunc_call(int nb_args)
         gadd_sp(args_size);
     vtop--;
 }
-# 513 "tcc_src/i386-gen.c"
+
 static void gfunc_prolog(CType *func_type)
 {
     int addr, align, size, func_call, fastcall_nb_regs;
@@ -12019,38 +12006,20 @@ static void gfunc_prolog(CType *func_type)
         fastcall_regs_ptr = ((void*)0);
     }
     param_index = 0;
-
     ind += (9 + 0);
     func_sub_sp_offset = ind;
-
-
     func_vt = sym->type;
     func_var = (sym->f.func_type == 3);
-
-
-
-
-
     if ((func_vt.t & 0x000f) == 7) {
-
-
         func_vc = addr;
         addr += 4;
         param_index++;
     }
-
     while ((sym = sym->next) != ((void*)0)) {
         type = &sym->type;
         size = type_size(type, &align);
         size = (size + 3) & ~3;
-
-
-
-
-
-
         if (param_index < fastcall_nb_regs) {
-
             loc -= 4;
             o(0x89);
             gen_modrm(fastcall_regs_ptr[param_index], 0x0032, ((void*)0), loc);
@@ -12064,10 +12033,8 @@ static void gfunc_prolog(CType *func_type)
         param_index++;
     }
     func_ret_sub = 0;
-
     if (func_call == 1 || func_call == 5)
         func_ret_sub = addr - 8;
-
     else if (func_vc)
         func_ret_sub = 4;
 }
@@ -12095,14 +12062,12 @@ static void gfunc_epilog(void)
     ind = saved_ind;
 }
 
-static int gjmp(int t)
-{
+static int gjmp(int t) {
     return oad(0xe9,t);
 }
 
 
-static void gjmp_addr(int a)
-{
+static void gjmp_addr(int a) {
     int r;
     r = a - ind - 2;
     if (r == (char)r) {
@@ -12113,8 +12078,7 @@ static void gjmp_addr(int a)
     }
 }
 
-static void gtst_addr(int inv, int a)
-{
+static void gtst_addr(int inv, int a) {
     int v = vtop->r & 0x003f;
     if (v == 0x0033) {
 	inv ^= (vtop--)->c.i;
@@ -12139,9 +12103,7 @@ static void gtst_addr(int inv, int a)
     }
 }
 
-
-static int gtst(int inv, int t)
-{
+static int gtst(int inv, int t) {
     int v = vtop->r & 0x003f;
     if (nocode_wanted) {
         ;
@@ -12180,7 +12142,6 @@ static void gen_opi(int op)
         opc = 0;
     gen_op8:
         if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
-
             vswap();
             r = gv(0x0001);
             vswap();
@@ -12274,14 +12235,11 @@ static void gen_opi(int op)
     case '%':
     case 0xb1:
     case 0xc2:
-
-
         gv2(0x0004, 0x0010);
         r = vtop[-1].r;
         fr = vtop[0].r;
         vtop--;
         save_reg(TREG_EDX);
-
         save_reg_upstack(TREG_EAX, 1);
         if (op == 0xc2) {
             o(0xf7);
@@ -12309,11 +12267,7 @@ static void gen_opi(int op)
     }
 }
 
-
-
-
-static void gen_opf(int op)
-{
+static void gen_opf(int op) {
     int a, ft, fc, swapped, r;
 
 
