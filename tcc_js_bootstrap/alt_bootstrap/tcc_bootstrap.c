@@ -12195,6 +12195,7 @@ static void gen_opf(int op) {
         vtop->r = VT_CMP;
         vtop->c.i = op;
     } else {
+// LJW BOOKMARK convert defines into enums
         if ((vtop->type.t & 0x000f) == 10) {
             load(TREG_ST0, vtop);
             swapped = !swapped;
