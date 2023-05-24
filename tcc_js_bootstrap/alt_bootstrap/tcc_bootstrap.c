@@ -13203,22 +13203,6 @@ static void print_dirs(const char *msg, char **paths, int nb_paths) {
         printf("  %s\n", paths[i]);
 }
 
-static char *default_outputfile(TCCState *s, const char *first_file) {
-    char buf[1024];
-    char *ext;
-    const char *name = "a";
-
-    if (first_file && strcmp(first_file, "-"))
-        name = tcc_basename(first_file);
-    snprintf(buf, sizeof(buf), "%s", name);
-    ext = tcc_fileextension(buf);
-    if (s->output_type == 4 && !s->option_r && *ext)
-        strcpy(ext, ".o");
-    else
-        strcpy(buf, "a.out");
-    return tcc_strdup(buf);
-}
-
 int main(int argc0, char **argv0) {
     TCCState *s;
     int ret, opt, n = 0, t = 0;
@@ -13245,15 +13229,11 @@ redo:
         }
         s->filetype = 0;
         s->alacarte_link = 1;
-        if (--n == 0 || ret
-            || (s->output_type == 4 && !s->option_r)){
+        if (--n == 0 || ret || (s->output_type == 4 && !s->option_r)){
             break;
         }
     }
     if (0 == ret) {
-        if (!s->outfile){
-            s->outfile = default_outputfile(s, first_file);
-        }
         if (tcc_output_file(s, s->outfile)){
             ret = 1;
         }
