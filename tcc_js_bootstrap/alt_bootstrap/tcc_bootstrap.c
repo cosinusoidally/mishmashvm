@@ -1367,13 +1367,6 @@ static void minp(void);
 static inline void inp(void);
 static int handle_eob(void);
 
-enum gotplt_entry {
-    NO_GOTPLT_ENTRY,
-    BUILD_GOT_ONLY,
-    AUTO_GOTPLT_ENTRY,
-    ALWAYS_GOTPLT_ENTRY
-};
-
 static int code_reloc (int reloc_type);
 static int gotplt_entry_type (int reloc_type);
 static unsigned create_plt_entry(TCCState *s1, unsigned got_offset, struct sym_attr *attr);
@@ -1581,15 +1574,13 @@ static const unsigned char tok_two_chars[] =
 
 static void next_nomacro_spc(void);
 
-static void skip(int c)
-{
+static void skip(int c) {
     if (tok != c)
         tcc_error("'%c' expected (got \"%s\")", c, get_tok_str(tok, &tokc));
     next();
 }
 
-static void expect(const char *msg)
-{
+static void expect(const char *msg) {
     tcc_error("%s expected", msg);
 }
 
@@ -2615,18 +2606,9 @@ static void label_pop(Sym **ptop, Sym *slast, int keep)
         *ptop = slast;
 }
 
-static void maybe_run_test(TCCState *s)
-{
-    const char *p;
-    if (s->include_stack_ptr != s->include_stack)
-        return;
-    p = get_tok_str(tok, ((void*)0));
-    if (0 != memcmp(p, "test_", 5))
-        return;
-    if (0 != --s->run_test)
-        return;
-    fprintf(s->ppfp, "\n[%s]\n" + !(s->dflag & 32), p), fflush(s->ppfp);
-    define_push(tok, 0, ((void*)0), ((void*)0));
+static void maybe_run_test(TCCState *s) {
+puts("stub\n");
+exit(1);
 }
 
 // LJW BOOKMARK
@@ -2778,90 +2760,6 @@ static CachedInclude *search_cached_include(TCCState *s1, const char *filename, 
     e->hash_next = s1->cached_includes_hash[h];
     s1->cached_includes_hash[h] = s1->nb_cached_includes;
     return e;
-}
-
-static void pragma_parse(TCCState *s1)
-{
-    next_nomacro();
-    if (tok == TOK_push_macro || tok == TOK_pop_macro) {
-        int t = tok, v;
-        Sym *s;
-        if (next(), tok != '(')
-            goto pragma_err;
-        if (next(), tok != 0xb9)
-            goto pragma_err;
-        v = tok_alloc(tokc.str.data, tokc.str.size - 1)->tok;
-        if (next(), tok != ')')
-            goto pragma_err;
-        if (t == TOK_push_macro) {
-            while (((void*)0) == (s = define_find(v)))
-                define_push(v, 0, ((void*)0), ((void*)0));
-            s->type.ref = s;
-        } else {
-            for (s = define_stack; s; s = s->prev)
-                if (s->v == v && s->type.ref == s) {
-                    s->type.ref = ((void*)0);
-                    break;
-                }
-        }
-        if (s)
-            table_ident[v - 256]->sym_define = s->d ? s : ((void*)0);
-        else
-            tcc_warning("unbalanced #pragma pop_macro");
-        pp_debug_tok = t, pp_debug_symv = v;
-    } else if (tok == TOK_once) {
-        search_cached_include(s1, file->filename, 1)->once = pp_once;
-
-    } else if (s1->output_type == 5) {
-        unget_tok(' ');
-        unget_tok(TOK_PRAGMA);
-        unget_tok('#');
-        unget_tok(10);
-    } else if (tok == TOK_pack) {
-        next();
-        skip('(');
-          {
-            int val = 0;
-            if (tok != ')') {
-                if (tok != 0xb5)
-                    goto pragma_err;
-                val = tokc.i;
-                if (val < 1 || val > 16 || (val & (val - 1)) != 0)
-                    goto pragma_err;
-                next();
-            }
-            *s1->pack_stack_ptr = val;
-        }
-        if (tok != ')')
-            goto pragma_err;
-
-    } else if (tok == TOK_comment) {
-        char *p; int t;
-        next();
-        skip('(');
-        t = tok;
-        next();
-        skip(',');
-        if (tok != 0xb9)
-            goto pragma_err;
-        p = tcc_strdup((char *)tokc.str.data);
-        next();
-        if (tok != ')')
-            goto pragma_err;
-        if (t == TOK_lib) {
-            dynarray_add(&s1->pragma_libs, &s1->nb_pragma_libs, p);
-        } else {
-            if (t == TOK_option)
-                tcc_set_options(s1, p);
-            tcc_free(p);
-        }
-    } else if (s1->warn_unsupported) {
-        tcc_warning("#pragma %s is ignored", get_tok_str(tok, &tokc));
-    }
-    return;
-pragma_err:
-    tcc_error("malformed #pragma directive");
-    return;
 }
 
 static void preprocess(int is_bof)
@@ -3092,9 +2990,6 @@ include_done:
             tcc_error("#error %s", buf);
         else
             tcc_warning("#warning %s", buf);
-        break;
-    case TOK_PRAGMA:
-        pragma_parse(s1);
         break;
     case 10:
         goto the_end;
