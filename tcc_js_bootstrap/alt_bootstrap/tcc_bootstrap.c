@@ -7481,20 +7481,16 @@ static void gen_assign_cast(CType *dt)
 }
 
 
-static void vstore(void)
-{
+static void vstore(void) {
     int sbt, dbt, ft, r, t, size, align, bit_size, bit_pos, rc, delayed_cast;
-
     ft = vtop[-1].type.t;
     sbt = vtop->type.t & 0x000f;
     dbt = ft & 0x000f;
     if ((((sbt == 3 || sbt == 2) && dbt == 1) ||
          (sbt == 3 && dbt == 2))
 	&& !(vtop->type.t & 0x0080)) {
-
         delayed_cast = 0x0400;
         vtop->type.t = ft & (~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)|(((1 << (6+6)) - 1) << 20 | 0x0080)));
-
         if (ft & 0x0100)
             tcc_warning("assignment of read-only location");
     } else {
@@ -7502,46 +7498,27 @@ static void vstore(void)
         if (!(ft & 0x0080))
             gen_assign_cast(&vtop[-1].type);
     }
-
     if (sbt == 7) {
-
-
-
             size = type_size(&vtop->type, &align);
-
-
             vswap();
             vtop->type.t = 5;
             gaddrof();
-# 3111 "tcc_src/tccgen.c"
             vpush_global_sym(&func_old_type, TOK_memmove);
-
             vswap();
-
             vpushv(vtop - 2);
             vtop->type.t = 5;
             gaddrof();
-
             vpushi(size);
             gfunc_call(3);
-
-
     } else if (ft & 0x0080) {
-
-
-
         vdup(), vtop[-1] = vtop[-2];
-
         bit_pos = (((ft) >> 20) & 0x3f);
         bit_size = (((ft) >> (20 + 6)) & 0x3f);
-
         vtop[-1].type.t = ft & ~(((1 << (6+6)) - 1) << 20 | 0x0080);
-
         if ((ft & 0x000f) == 11) {
             gen_cast(&vtop[-1].type);
             vtop[-1].type.t = (vtop[-1].type.t & ~0x000f) | (1 | 0x0010);
         }
-
         r = adjust_bf(vtop - 1, bit_pos, bit_size);
         if (r == 7) {
             gen_cast_s((ft & 0x000f) == 4 ? 4 : 3);
@@ -7549,81 +7526,53 @@ static void vstore(void)
         } else {
             unsigned long long mask = (1ULL << bit_size) - 1;
             if ((ft & 0x000f) != 11) {
-
                 if ((vtop[-1].type.t & 0x000f) == 4)
                     vpushll(mask);
                 else
                     vpushi((unsigned)mask);
                 gen_op('&');
             }
-
             vpushi(bit_pos);
             gen_op(0x01);
             vswap();
-
             vdup();
             vrott(3);
-
             if ((vtop->type.t & 0x000f) == 4)
                 vpushll(~(mask << bit_pos));
             else
                 vpushi(~((unsigned)mask << bit_pos));
             gen_op('&');
             gen_op('|');
-
             vstore();
-
             vpop();
         }
     } else if (dbt == 0) {
         --vtop;
     } else {
-
-
             if (vtop[-1].r & 0x0800) {
                 vswap();
                 gbound();
                 vswap();
             }
-
             rc = 0x0001;
             if (is_float(ft)) {
                 rc = 0x0002;
-
-
-
-
-
-
-
             }
             r = gv(rc);
-
             if ((vtop[-1].r & 0x003f) == 0x0031) {
                 SValue sv;
                 t = get_reg(0x0001);
-
-
-
                 sv.type.t = 3;
-
                 sv.r = 0x0032 | 0x0100;
                 sv.c.i = vtop[-1].c.i;
                 load(t, &sv);
                 vtop[-1].r = t | 0x0100;
             }
-
-
-
-
-
             if ((ft & 0x000f) == 4) {
                 int addr_type = 3, load_size = 4, load_type = 3;
-
                 vtop[-1].type.t = load_type;
                 store(r, vtop - 1);
                 vswap();
-
                 vtop->type.t = addr_type;
                 gaddrof();
                 vpushi(load_size);
@@ -7631,7 +7580,6 @@ static void vstore(void)
                 vtop->r |= 0x0100;
                 vswap();
                 vtop[-1].type.t = load_type;
-
                 store(vtop->r2, vtop - 1);
             } else {
                 store(r, vtop - 1);
@@ -7642,7 +7590,6 @@ static void vstore(void)
         vtop->r |= delayed_cast;
     }
 }
-
 
 static void inc(int post, int c)
 {
