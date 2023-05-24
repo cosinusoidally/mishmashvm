@@ -753,6 +753,8 @@ enum blah {
     VT_INLINE = 0x00008000,
     VT_TYPEDEF = 0x00004000,
     VT_STORAGE = (VT_EXTERN | VT_STATIC | VT_TYPEDEF | VT_INLINE),
+    VT_ARRAY = 0x0040,
+    VT_VLA = 0x0400,
 };
 
 enum TOKS {
@@ -10708,16 +10710,16 @@ found:
 		    if (type.t & VT_STORAGE)
 		        tcc_error("storage class specified for '%s'",
 				  get_tok_str(v, ((void*)0)));
-		    if (sym->type.t != 0)
+		    if (sym->type.t != VT_VOID)
 		        tcc_error("redefinition of parameter '%s'",
 				  get_tok_str(v, ((void*)0)));
 		    convert_parameter_type(&type);
 		    sym->type = type;
-		} else if (type.t & 0x00004000) {
+		} else if (type.t & VT_TYPEDEF) {
                     sym = sym_find(v);
                     if (sym && sym->sym_scope == local_scope) {
                         if (!is_compatible_types(&sym->type, &type)
-                            || !(sym->type.t & 0x00004000))
+                            || !(sym->type.t & VT_TYPEDEF))
                             tcc_error("incompatible redefinition of '%s'",
                                 get_tok_str(v, ((void*)0)));
                         sym->type = type;
@@ -10728,19 +10730,19 @@ found:
                     sym->f = ad.f;
                 } else {
                     r = 0;
-                    if ((type.t & 0x000f) == 6) {
+                    if ((type.t & VT_BTYPE) == VT_FUNC) {
                         type.ref->f = ad.f;
-                    } else if (!(type.t & 0x0040)) {
+                    } else if (!(type.t & VT_ARRAY)) {
                         r |= lvalue_type(type.t);
                     }
                     has_init = (tok == '=');
-                    if (has_init && (type.t & 0x0400))
+                    if (has_init && (type.t & VT_VLA))
                         tcc_error("variable length array cannot be initialized");
-                    if (((type.t & 0x00001000) && (!has_init || l != 0x0030)) ||
-			((type.t & 0x000f) == 6) ||
-                        ((type.t & 0x0040) && (type.t & 0x00002000) &&
-                         !has_init && l == 0x0030 && type.ref->c < 0)) {
-                        type.t |= 0x00001000;
+                    if (((type.t & VT_EXTERN) && (!has_init || l != VT_CONST)) ||
+			((type.t & VT_BTYPE) == VT_FUNC) ||
+                        ((type.t & VT_ARRAY) && (type.t & VT_STATIC) &&
+                         !has_init && l == VT_CONST && type.ref->c < 0)) {
+                        type.t |= VT_EXTERN;
                         sym = external_sym(v, &type, r, &ad);
                         if (ad.alias_target) {
                             Elf32_Sym *esym;
@@ -10753,14 +10755,14 @@ found:
                             put_extern_sym2(sym, esym->st_shndx, esym->st_value, esym->st_size, 0);
                         }
                     } else {
-                        if (type.t & 0x00002000)
-                            r |= 0x0030;
+                        if (type.t & VT_STATIC)
+                            r |= VT_CONST;
                         else
                             r |= l;
                         if (has_init)
                             next();
-                        else if (l == 0x0030)
-                            type.t |= 0x00001000;
+                        else if (l == VT_CONST)
+                            type.t |= VT_EXTERN;
                         decl_initializer_alloc(&type, &ad, r, has_init, v, l);
                     }
                 }
