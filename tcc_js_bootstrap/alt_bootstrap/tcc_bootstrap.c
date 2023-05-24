@@ -748,6 +748,11 @@ enum blah {
     VT_FUNC = 6,
     VT_STATIC = 0x00002000,
     VT_LOCAL = 0x0032,
+    VT_VOID = 0,
+    VT_EXTERN = 0x00001000,
+    VT_INLINE = 0x00008000,
+    VT_TYPEDEF = 0x00004000,
+    VT_STORAGE = (VT_EXTERN | VT_STATIC | VT_TYPEDEF | VT_INLINE),
 };
 
 enum TOKS {
@@ -10658,24 +10663,24 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
                     decl0(0x0033, 0, sym);
             }
             if (tok == '{') {
-                if (l != 0x0030)
+                if (l != VT_CONST)
                     tcc_error("cannot use local functions");
-                if ((type.t & 0x000f) != 6)
+                if ((type.t & VT_BTYPE) != VT_FUNC)
                     expect("function definition");
                 sym = type.ref;
                 while ((sym = sym->next) != ((void*)0)) {
-                    if (!(sym->v & ~0x20000000))
+                    if (!(sym->v & ~SYM_FIELD))
                         expect("identifier");
-		    if (sym->type.t == 0)
+		    if (sym->type.t == VT_VOID)
 		        sym->type = int_type;
 		}
-                if ((type.t & (0x00001000 | 0x00008000)) == (0x00001000 | 0x00008000))
-                    type.t = (type.t & ~0x00001000) | 0x00002000;
+                if ((type.t & (VT_EXTERN | VT_INLINE)) == (VT_EXTERN | VT_INLINE))
+                    type.t = (type.t & ~VT_EXTERN) | VT_STATIC;
                 sym = external_global_sym(v, &type, 0);
-                type.t &= ~0x00001000;
+                type.t &= ~VT_EXTERN;
                 patch_storage(sym, &ad, &type);
-                if ((type.t & (0x00008000 | 0x00002000)) ==
-                    (0x00008000 | 0x00002000)) {
+                if ((type.t & (VT_INLINE | VT_STATIC)) ==
+                    (VT_INLINE | VT_STATIC)) {
                     struct InlineFunc *fn;
                     const char *filename;
                     filename = file ? file->filename : "";
@@ -10693,14 +10698,14 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
                 }
                 break;
             } else {
-		if (l == 0x0033) {
+		if (l == VT_CMP) {
 		    for (sym = func_sym->next; sym; sym = sym->next)
-			if ((sym->v & ~0x20000000) == v)
+			if ((sym->v & ~SYM_FIELD) == v)
 			    goto found;
 		    tcc_error("declaration for parameter '%s' but no such parameter",
 			      get_tok_str(v, ((void*)0)));
 found:
-		    if (type.t & (0x00001000 | 0x00002000 | 0x00004000 | 0x00008000))
+		    if (type.t & VT_STORAGE)
 		        tcc_error("storage class specified for '%s'",
 				  get_tok_str(v, ((void*)0)));
 		    if (sym->type.t != 0)
