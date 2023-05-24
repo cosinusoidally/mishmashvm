@@ -13245,8 +13245,7 @@ static void set_environment(TCCState *s)
     }
 }
 
-static char *default_outputfile(TCCState *s, const char *first_file)
-{
+static char *default_outputfile(TCCState *s, const char *first_file) {
     char buf[1024];
     char *ext;
     const char *name = "a";
@@ -13255,7 +13254,6 @@ static char *default_outputfile(TCCState *s, const char *first_file)
         name = tcc_basename(first_file);
     snprintf(buf, sizeof(buf), "%s", name);
     ext = tcc_fileextension(buf);
-# 228 "tcc_src/tcc.c"
     if (s->output_type == 4 && !s->option_r && *ext)
         strcpy(ext, ".o");
     else
@@ -13263,8 +13261,7 @@ static char *default_outputfile(TCCState *s, const char *first_file)
     return tcc_strdup(buf);
 }
 
-int main(int argc0, char **argv0)
-{
+int main(int argc0, char **argv0) {
     TCCState *s;
     int ret, opt, n = 0, t = 0;
     unsigned start_time = 0;
@@ -13275,31 +13272,7 @@ redo:
     argc = argc0, argv = argv0;
     s = tcc_new();
     opt = tcc_parse_args(s, &argc, &argv, 1);
-    if ((n | t) == 0) {
-        if (opt == 1)
-            return printf(help), 1;
-        if (opt == 2)
-            return printf(help2), 1;
-        if (s->verbose)
-            printf(version);
-        if (opt == 3)
-            return 0;
-        n = s->nb_files;
-        if (n == 0)
-            tcc_error("no input files\n");
-        if (s->output_type == 5) {
-            if (s->outfile) {
-                ppfp = fopen(s->outfile, "w");
-                if (!ppfp)
-                    tcc_error("could not write '%s'", s->outfile);
-            }
-        } else if(s->output_type == 4 && !s->option_r) {
-            if (s->nb_libraries)
-                tcc_error("cannot specify libraries with -c");
-            if (n > 1 && s->outfile)
-                tcc_error("cannot specify output file with -c many files");
-        }
-    }
+    n = s->nb_files;
     set_environment(s);
     tcc_set_output_type(s, s->output_type);
     s->ppfp = ppfp;
