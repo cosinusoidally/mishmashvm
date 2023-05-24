@@ -18,153 +18,35 @@ typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
 typedef unsigned long long int uint64_t;
 void *alloca(size_t size);
-typedef enum
-{
-  P_ALL,
-  P_PID,
-  P_PGID
-} idtype_t;
-typedef float _Float32;
-typedef double _Float64;
-typedef double _Float32x;
-typedef long double _Float64x;
-typedef struct
-{
-    int quot;
-    int rem;
-} div_t;
-typedef struct
-{
-    long int quot;
-    long int rem;
-} ldiv_t;
-typedef struct
-{
-    long long int quot;
-    long long int rem;
-} lldiv_t;
-extern size_t __ctype_get_mb_cur_max (void);
-extern double atof (const char *__nptr);
 extern int atoi (const char *__nptr);
-extern long int atol (const char *__nptr);
-extern long long int atoll (const char *__nptr);
 extern double strtod (const char * __nptr,
 		      char ** __endptr);
 extern float strtof (const char * __nptr,
 		     char ** __endptr);
 extern long double strtold (const char * __nptr,
 			    char ** __endptr);
-extern _Float32 strtof32 (const char * __nptr,
-			  char ** __endptr);
-extern _Float64 strtof64 (const char * __nptr,
-			  char ** __endptr);
-extern _Float32x strtof32x (const char * __nptr,
-			    char ** __endptr);
-extern _Float64x strtof64x (const char * __nptr,
-			    char ** __endptr);
-extern long int strtol (const char * __nptr,
-			char ** __endptr, int __base);
 extern unsigned long int strtoul (const char * __nptr,
 				  char ** __endptr, int __base);
-extern long long int strtoq (const char * __nptr,
-			     char ** __endptr, int __base);
-extern unsigned long long int strtouq (const char * __nptr,
-				       char ** __endptr, int __base);
-extern long long int strtoll (const char * __nptr,
-			      char ** __endptr, int __base);
-
-extern unsigned long long int strtoull (const char * __nptr,
-					char ** __endptr, int __base);
-
-extern int strfromd (char *__dest, size_t __size, const char *__format,
-		     double __f);
-
-extern int strfromf (char *__dest, size_t __size, const char *__format,
-		     float __f);
-
-extern int strfroml (char *__dest, size_t __size, const char *__format,
-		     long double __f);
-
-extern int strfromf32 (char *__dest, size_t __size, const char * __format,
-		       _Float32 __f);
-
-extern int strfromf64 (char *__dest, size_t __size, const char * __format,
-		       _Float64 __f);
-
-extern int strfromf32x (char *__dest, size_t __size, const char * __format,
-			_Float32x __f);
-
-extern int strfromf64x (char *__dest, size_t __size, const char * __format,
-			_Float64x __f);
-
-extern char *l64a (long int __n);
-
-
-extern long int a64l (const char *__s);
-
 typedef unsigned char __u_char;
 typedef unsigned short int __u_short;
 typedef unsigned int __u_int;
 typedef unsigned long int __u_long;
-
 typedef signed char __int8_t;
 typedef unsigned char __uint8_t;
 typedef signed short int __int16_t;
 typedef unsigned short int __uint16_t;
 typedef signed int __int32_t;
 typedef unsigned int __uint32_t;
-
 typedef signed long long int __int64_t;
 typedef unsigned long long int __uint64_t;
-
-typedef long long int __quad_t;
-typedef unsigned long long int __u_quad_t;
-
-typedef long long int __intmax_t;
-typedef unsigned long long int __uintmax_t;
-
-// LJW_END
-
-typedef unsigned int __uid_t;
-typedef unsigned int __mode_t;
-typedef long int __off_t;
-typedef __quad_t __off64_t;
-typedef int __pid_t;
-typedef long int __clock_t;
 typedef long int __time_t;
-typedef long int __suseconds_t;
 typedef int __ssize_t;
-typedef long int __syscall_slong_t;
-typedef int __sig_atomic_t;
-typedef __mode_t mode_t;
 typedef __ssize_t ssize_t;
 typedef __time_t time_t;
 typedef __int8_t int8_t;
 typedef __int16_t int16_t;
 typedef __int32_t int32_t;
 typedef __int64_t int64_t;
-typedef struct
-{
-  unsigned long int __val[(1024 / (8 * sizeof (unsigned long int)))];
-} __sigset_t;
-typedef __sigset_t sigset_t;
-struct timeval
-{
-  __time_t tv_sec;
-  __suseconds_t tv_usec;
-};
-struct timespec
-{
-  __time_t tv_sec;
-  __syscall_slong_t tv_nsec;
-};
-typedef unsigned long int pthread_t;
-union pthread_attr_t
-{
-  char __size[36];
-  long int __align;
-};
-typedef union pthread_attr_t pthread_attr_t;
 extern void *malloc (size_t __size);
 extern void *calloc (size_t __nmemb, size_t __size);
 extern void *realloc (void *__ptr, size_t __size);
@@ -14127,15 +14009,7 @@ enum {
     TCC_OPTION_impdef
 };
 
-
-
-
 static const TCCOption tcc_options[] = {
-    { "h", TCC_OPTION_HELP, 0 },
-    { "-help", TCC_OPTION_HELP, 0 },
-    { "?", TCC_OPTION_HELP, 0 },
-    { "hh", TCC_OPTION_HELP2, 0 },
-    { "v", TCC_OPTION_v, 0x0001 | 0x0002 },
     { "I", TCC_OPTION_I, 0x0001 },
     { "D", TCC_OPTION_D, 0x0001 },
     { "U", TCC_OPTION_U, 0x0001 },
@@ -14143,40 +14017,18 @@ static const TCCOption tcc_options[] = {
     { "L", TCC_OPTION_L, 0x0001 },
     { "B", TCC_OPTION_B, 0x0001 },
     { "l", TCC_OPTION_l, 0x0001 | 0x0002 },
-    { "bench", TCC_OPTION_bench, 0 },
-
-    { "bt", TCC_OPTION_bt, 0x0001 },
-
-
-    { "b", TCC_OPTION_b, 0 },
-
-    { "g", TCC_OPTION_g, 0x0001 | 0x0002 },
     { "c", TCC_OPTION_c, 0 },
-    { "dumpversion", TCC_OPTION_dumpversion, 0},
-    { "d", TCC_OPTION_d, 0x0001 | 0x0002 },
-    { "static", TCC_OPTION_static, 0 },
-    { "std", TCC_OPTION_std, 0x0001 | 0x0002 },
     { "shared", TCC_OPTION_shared, 0 },
-    { "soname", TCC_OPTION_soname, 0x0001 },
     { "o", TCC_OPTION_o, 0x0001 },
     { "-param", TCC_OPTION_param, 0x0001 },
-    { "pedantic", TCC_OPTION_pedantic, 0},
-    { "pthread", TCC_OPTION_pthread, 0},
-    { "run", TCC_OPTION_run, 0x0001 | 0x0002 },
-    { "rdynamic", TCC_OPTION_rdynamic, 0 },
     { "r", TCC_OPTION_r, 0 },
     { "s", TCC_OPTION_s, 0 },
-    { "traditional", TCC_OPTION_traditional, 0 },
     { "Wl,", TCC_OPTION_Wl, 0x0001 | 0x0002 },
     { "Wp,", TCC_OPTION_Wp, 0x0001 | 0x0002 },
     { "W", TCC_OPTION_W, 0x0001 | 0x0002 },
     { "O", TCC_OPTION_O, 0x0001 | 0x0002 },
-
-
-
     { "m", TCC_OPTION_m, 0x0001 | 0x0002 },
     { "f", TCC_OPTION_f, 0x0001 | 0x0002 },
-    { "isystem", TCC_OPTION_isystem, 0x0001 },
     { "include", TCC_OPTION_include, 0x0001 },
     { "nostdinc", TCC_OPTION_nostdinc, 0 },
     { "nostdlib", TCC_OPTION_nostdlib, 0 },
@@ -14187,9 +14039,6 @@ static const TCCOption tcc_options[] = {
     { "MD", TCC_OPTION_MD, 0},
     { "MF", TCC_OPTION_MF, 0x0001 },
     { "x", TCC_OPTION_x, 0x0001 },
-    { "ar", TCC_OPTION_ar, 0},
-
-
 
     { ((void*)0), 0, 0 },
 };
