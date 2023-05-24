@@ -13171,24 +13171,13 @@ unsupported_option:
     return 1;
 }
 
- void tcc_set_options(TCCState *s, const char *r)
-{
+void tcc_set_options(TCCState *s, const char *r) {
     char **argv = ((void*)0);
     int argc = 0;
     args_parser_make_argv(r, &argc, &argv);
     tcc_parse_args(s, &argc, &argv, 0);
     dynarray_reset(&argv, &argc);
 }
-
-typedef struct {
-    char ar_name[16];
-    char ar_date[12];
-    char ar_uid[6];
-    char ar_gid[6];
-    char ar_mode[8];
-    char ar_size[10];
-    char ar_fmag[2];
-} ArHdr;
 
 static unsigned long le2belong(unsigned long ul) {
     return ((ul & 0xFF0000)>>8)+((ul & 0xFF000000)>>24) +
@@ -13207,42 +13196,11 @@ static int contains_any(const char *s, const char *list) {
   return 0;
 }
 
-static const char help[] =
-    "Tiny C Compiler ""0.9.27"" - Copyright (C) 2001-2006 Fabrice Bellard\n";
-
-static const char help2[] =
-    "Tiny C Compiler ""0.9.27"" - More Options\n";
-
-static const char version[] =
-    "tcc version ""0.9.27"" ("
-        "i386"
-        " Linux"
-    ")\n";
-
-static void print_dirs(const char *msg, char **paths, int nb_paths)
-{
+static void print_dirs(const char *msg, char **paths, int nb_paths) {
     int i;
     printf("%s:\n%s", msg, nb_paths ? "" : "  -\n");
     for(i = 0; i < nb_paths; i++)
         printf("  %s\n", paths[i]);
-}
-
-static void set_environment(TCCState *s)
-{
-    char * path;
-
-    path = getenv("C_INCLUDE_PATH");
-    if(path != ((void*)0)) {
-        tcc_add_sysinclude_path(s, path);
-    }
-    path = getenv("CPATH");
-    if(path != ((void*)0)) {
-        tcc_add_include_path(s, path);
-    }
-    path = getenv("LIBRARY_PATH");
-    if(path != ((void*)0)) {
-        tcc_add_library_path(s, path);
-    }
 }
 
 static char *default_outputfile(TCCState *s, const char *first_file) {
@@ -13273,7 +13231,6 @@ redo:
     s = tcc_new();
     opt = tcc_parse_args(s, &argc, &argv, 1);
     n = s->nb_files;
-    set_environment(s);
     tcc_set_output_type(s, s->output_type);
     s->ppfp = ppfp;
     for (first_file = ((void*)0), ret = 0;;) {
