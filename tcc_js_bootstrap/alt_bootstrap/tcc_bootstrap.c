@@ -414,78 +414,46 @@ struct sym_attr {
 };
 
 struct TCCState {
-
-    int verbose;
     int nostdinc;
     int nostdlib;
-    int nocommon;
-    int static_link;
-    int rdynamic;
-    int symbolic;
     int alacarte_link;
-
     char *tcc_lib_path;
     char *soname;
     char *rpath;
     int enable_new_dtags;
-
     int output_type;
-
     int output_format;
-
     int char_is_unsigned;
     int leading_underscore;
-    int ms_extensions;
     int dollars_in_identifiers;
-    int ms_bitfields;
-
     int warn_write_strings;
     int warn_unsupported;
     int warn_error;
     int warn_none;
     int warn_implicit_function_declaration;
     int warn_gcc_compat;
-
-    int do_debug;
-
-    int do_bounds_check;
-
-    int run_test;
-
     Elf32_Addr text_addr;
     int has_text_addr;
-
     unsigned section_align;
-
     char *init_symbol;
     char *fini_symbol;
-
     int seg_size;
-
     DLLReference **loaded_dlls;
     int nb_loaded_dlls;
-
-
     char **include_paths;
     int nb_include_paths;
-
     char **sysinclude_paths;
     int nb_sysinclude_paths;
-
     char **library_paths;
     int nb_library_paths;
-
     char **crt_paths;
     int nb_crt_paths;
-
     char **cmd_include_files;
     int nb_cmd_include_files;
-
     void *error_opaque;
     void (*error_func)(void *opaque, const char *msg);
     int error_set_jmp_enabled;
     int nb_errors;
-
     FILE *ppfp;
     enum {
 	LINE_MACRO_OUTPUT_FORMAT_GCC,
@@ -494,59 +462,39 @@ struct TCCState {
     LINE_MACRO_OUTPUT_FORMAT_P10 = 11
     } Pflag;
     char dflag;
-
     char **target_deps;
     int nb_target_deps;
-
     BufferedFile *include_stack[32];
     BufferedFile **include_stack_ptr;
-
     int ifdef_stack[64];
     int *ifdef_stack_ptr;
-
     int cached_includes_hash[32];
     CachedInclude **cached_includes;
     int nb_cached_includes;
-
-
     int pack_stack[8];
     int *pack_stack_ptr;
     char **pragma_libs;
     int nb_pragma_libs;
-
     struct InlineFunc **inline_fns;
     int nb_inline_fns;
-
     Section **sections;
     int nb_sections;
-
     Section **priv_sections;
     int nb_priv_sections;
-
-    Section *got;
-    Section *plt;
-
     Section *dynsymtab_section;
-
     Section *dynsym;
-
     Section *symtab;
-
     struct sym_attr *sym_attrs;
     int nb_sym_attrs;
-
     const char *runtime_main;
     void **runtime_mem;
     int nb_runtime_mem;
-
     struct filespec **files;
     int nb_files;
     int nb_libraries;
     int filetype;
     char *outfile;
     int option_r;
-    int do_bench;
-    int option_pthread;
     int argc;
     char **argv;
 };
@@ -7112,7 +7060,7 @@ static void struct_layout(CType *type, AttributeDef *ad)
 {
     int size, align, maxalign, offset, c, bit_pos, bit_size;
     int packed, a, bt, prevbt, prev_bit_size;
-    int pcc = !tcc_state->ms_bitfields;
+    int pcc = 0;
     int pragma_pack = *tcc_state->pack_stack_ptr;
     Sym *f;
 
@@ -7497,8 +7445,6 @@ do_decl:
                     	    else {
 				int v = btype.ref->v;
 				if (!(v & 0x20000000) && (v & ~0x40000000) < 0x10000000) {
-				    if (tcc_state->ms_extensions == 0)
-                        		expect("identifier");
 				}
                     	    }
                         }
@@ -10396,8 +10342,6 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
         if (!sec) {
             if (has_init)
                 sec = data_section;
-            else if (tcc_state->nocommon)
-                sec = bss_section;
         }
 
         if (sec) {
@@ -11205,8 +11149,7 @@ static int alloc_sec_names(TCCState *s1, int file_type, Section *strsec) {
             0) {
                 if (s1->sections[s->sh_info]->sh_flags & (1 << 2))
                     textrel = 1;
-        } else if (s1->do_debug ||
-            file_type == 4 ||
+        } else if ( file_type == 4 ||
             (s->sh_flags & (1 << 1)) ||
 	    i == (s1->nb_sections - 1)) {
 
@@ -11225,10 +11168,6 @@ struct dyn_inf {
     unsigned long data_offset;
     Elf32_Addr rel_addr;
     Elf32_Addr rel_size;
-
-
-
-
 };
 
 static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
@@ -12600,9 +12539,7 @@ TCCState *tcc_new(void) {
     tcc_state = s;
     ++nb_states;
     s->alacarte_link = 1;
-    s->nocommon = 1;
     s->warn_implicit_function_declaration = 1;
-    s->ms_extensions = 1;
     s->seg_size = 32;
     tcc_set_lib_path(s, "/tmp/tcc/lib/tcc");
     tccelf_new(s);
@@ -12977,10 +12914,6 @@ unsupported_option:
     *pargv = argv + arg_start;
     if (optind != noaction)
         return 0;
-    if (s->verbose == 2)
-        return 4;
-    if (s->verbose)
-        return 3;
     return 1;
 }
 
