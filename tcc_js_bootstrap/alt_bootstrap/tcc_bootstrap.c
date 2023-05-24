@@ -757,6 +757,10 @@ enum blah {
     VT_VLA = 0x0400,
     VT_BYTE = 1,
     VT_UNSIGNED = 0x0010,
+    VT_SHORT = 2,
+    VT_LONG = 0x0800,
+    VT_DOUBLE = 9,
+    VT_LLONG = 4,
 };
 
 enum TOKS {
@@ -7633,72 +7637,59 @@ static void parse_btype_qualify(CType *type, int qualifiers)
 
 
 
-static int parse_btype(CType *type, AttributeDef *ad)
-{
+static int parse_btype(CType *type, AttributeDef *ad) {
     int t, u, bt, st, type_found, typespec_found, g;
     Sym *s;
     CType type1;
-
     memset(ad, 0, sizeof(AttributeDef));
     type_found = 0;
     typespec_found = 0;
     t = 3;
     bt = st = -1;
     type->ref = ((void*)0);
-
     while(1) {
         switch(tok) {
         case TOK_EXTENSION:
-
             next();
             continue;
-
-
         case TOK_CHAR:
-            u = 1;
+            u = VT_BYTE;
         basic_type:
             next();
         basic_type1:
-            if (u == 2 || u == 0x0800) {
-                if (st != -1 || (bt != -1 && bt != 3))
+            if (u == VT_SHORT || u == VT_LONG) {
+                if (st != -1 || (bt != -1 && bt != VT_INT))
                     tmbt: tcc_error("too many basic types");
                 st = u;
             } else {
-                if (bt != -1 || (st != -1 && u != 3))
+                if (bt != -1 || (st != -1 && u != VT_INT))
                     goto tmbt;
                 bt = u;
             }
-            if (u != 3)
-                t = (t & ~(0x000f|0x0800)) | u;
+            if (u != VT_INT)
+                t = (t & ~(VT_BTYPE|VT_LONG)) | u;
             typespec_found = 1;
             break;
         case TOK_VOID:
-            u = 0;
+            u = VT_VOID;
             goto basic_type;
         case TOK_SHORT:
-            u = 2;
+            u = VT_SHORT;
             goto basic_type;
         case TOK_INT:
-            u = 3;
+            u = VT_INT;
             goto basic_type;
         case TOK_LONG:
-            if ((t & 0x000f) == 9) {
-                t = (t & ~(0x000f|0x0800)) | 10;
-            } else if ((t & (0x000f|0x0800)) == 0x0800) {
-                t = (t & ~(0x000f|0x0800)) | 4;
+            if ((t & VT_BTYPE) == VT_DOUBLE) {
+                t = (t & ~(VT_BTYPE|VT_LONG)) | VT_DOUBLE;
+            } else if ((t & (VT_BTYPE|VT_LONG)) == VT_LONG) {
+                t = (t & ~(VT_BTYPE|VT_LONG)) | VT_LLONG;
             } else {
-                u = 0x0800;
+                u = VT_LONG;
                 goto basic_type;
             }
             next();
             break;
-
-
-
-
-
-
-
         case TOK_BOOL:
             u = 11;
             goto basic_type;
