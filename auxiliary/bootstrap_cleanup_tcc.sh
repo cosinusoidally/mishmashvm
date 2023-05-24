@@ -4,6 +4,8 @@ cd ../tcc_js_bootstrap
 echo "build tcc_linux.exe"
 rm tcc_linux.exe
 rm libtcc1.o
+rm libtcc1_bootstrap.o
+rm libtcc1_bootstrap_asm.o
 rm ../tests/nodejs/lib/addon.o
 rm ../tests/nodejs/lib/addon_linux.node
 rm ../tests/nodejs/lib/addon_win32.node

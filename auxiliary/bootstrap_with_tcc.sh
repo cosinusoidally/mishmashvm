@@ -15,21 +15,63 @@ echo "build tcc_boot3.o"
 # Note for now we use the prebuilt tcc_bootstrap.exe for the linking phase
 # since there are currently some issues with the linking phase in tcc_bootstrap.c
 
-./tcc_linux.exe -DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/ ${INCS} -o out.o
+LINK_CMD=" -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a out.o -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl"
+
+PHASE1_ARGS="-DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c ./alt_bootstrap/tcc_bootstrap.c -o out.o"
+
+PHASE2_1_ARGS="-DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/ ${INCS} -o out.o"
+
+PHASE2_2_ARGS="-nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/ ${INCS} -o out.o"
+
+./tcc_linux.exe ${PHASE1_ARGS}
 rm tcc_linux.exe
-tcc_bootstrap.exe -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a out.o -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl
+tcc_bootstrap.exe ${LINK_CMD}
 chmod +x tcc_linux.exe
 rm out.o
 
-./tcc_linux.exe -DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/ ${INCS} -o out.o
+./tcc_linux.exe ${PHASE1_ARGS}
 rm tcc_linux.exe
-tcc_bootstrap.exe -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a out.o -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl
+tcc_bootstrap.exe ${LINK_CMD}
 chmod +x tcc_linux.exe
 rm out.o
 
-./tcc_linux.exe -DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -Wall -O0 -I tcc_src/ ${INCS} -o out.o
+./tcc_linux.exe ${PHASE1_ARGS}
 rm tcc_linux.exe
-tcc_bootstrap.exe -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a out.o -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl
+tcc_bootstrap.exe ${LINK_CMD}
+chmod +x tcc_linux.exe
+
+# this is just to stop the self hosted building of libtcc1_bootstrap.o
+# from regressing further
+./tcc_linux.exe -nostdinc -nostdlib -c alt_bootstrap/libtcc1_bootstrap.c -o libtcc1_bootstrap.o
+# need to build asm with tcc_bootstrap.exe (still broken atm)
+tcc_bootstrap.exe -c alt_bootstrap/libtcc1_bootstrap_asm.c libtcc1_bootstrap_asm.o
+# uncomment to test libtcc1_bootstrap.o as libtcc1.o
+# broken atm
+#LINK_CMD=" -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1_bootstrap_asm.o libtcc1_bootstrap.o ../../linux_lib_bin/libc_nonshared.a out.o -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl"
+
+# phase 2
+
+./tcc_linux.exe ${PHASE2_1_ARGS}
+rm tcc_linux.exe
+tcc_bootstrap.exe ${LINK_CMD}
+chmod +x tcc_linux.exe
+rm out.o
+
+./tcc_linux.exe ${PHASE2_2_ARGS}
+rm tcc_linux.exe
+tcc_bootstrap.exe ${LINK_CMD}
+chmod +x tcc_linux.exe
+rm out.o
+
+./tcc_linux.exe ${PHASE2_2_ARGS}
+rm tcc_linux.exe
+tcc_bootstrap.exe ${LINK_CMD}
+chmod +x tcc_linux.exe
+rm out.o
+
+./tcc_linux.exe ${PHASE2_2_ARGS}
+rm tcc_linux.exe
+tcc_bootstrap.exe ${LINK_CMD}
 chmod +x tcc_linux.exe
 
 mv out.o ../libc_portable_proto/tcc_bin/tcc_boot3.o
