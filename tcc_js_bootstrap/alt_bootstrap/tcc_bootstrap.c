@@ -798,6 +798,10 @@ enum MISC {
     LONG_SIZE = 4,
 };
 
+enum TYPES {
+    TYPE_DIRECT = 2,
+};
+
 static int gnu_ext;
 
 static int tcc_ext;
@@ -10626,10 +10630,10 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
         }
         while (1) {
             type = btype;
-	    if ((type.t & 0x0040) && type.ref->c < 0) {
-		type.ref = sym_push(0x20000000, &type.ref->type, 0, type.ref->c);
+	    if ((type.t & VT_ARRAY) && type.ref->c < 0) {
+		type.ref = sym_push(SYM_FIELD, &type.ref->type, 0, type.ref->c);
 	    }
-            type_decl(&type, &ad, &v, 2);
+            type_decl(&type, &ad, &v, TYPE_DIRECT);
             if ((type.t & VT_BTYPE) == VT_FUNC) {
                 if ((type.t & VT_STATIC) && (l == VT_LOCAL)) {
                     tcc_error("function without file scope cannot be static");
