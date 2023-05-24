@@ -11544,18 +11544,6 @@ static int elf_output_file(TCCState *s1, const char *filename)
     sec_order[0] = 0;
     file_offset = layout_sections(s1, phdr, phnum, interp, strsec, &dyninf,
                                   sec_order);
-    if (file_type != 4) {
-        if (dynamic) {
-            dynamic->data_offset = dyninf.data_offset;
-            write32le(s1->got->data, dynamic->sh_addr);
-            for (sym = (Elf32_Sym *) s1->dynsym->data + 1; sym < (Elf32_Sym *) (s1->dynsym->data + s1->dynsym->data_offset); sym++) {
-                if (sym->st_shndx != 0 && sym->st_shndx < 0xff00) {
-
-                    sym->st_value += s1->sections[sym->st_shndx]->sh_addr;
-                }
-            }
-        }
-    }
     ret = tcc_write_elf_file(s1, filename, phnum, phdr, file_offset, sec_order);
     s1->nb_sections = shnum;
  the_end:
@@ -11569,8 +11557,6 @@ int tcc_output_file(TCCState *s, const char *filename) {
     ret = elf_output_file(s, filename);
     return ret;
 }
-
-// LJW BOOKMARK GOING UP
 
 static const int reg_classes[5] = {
       0x0001 | 0x0004,
