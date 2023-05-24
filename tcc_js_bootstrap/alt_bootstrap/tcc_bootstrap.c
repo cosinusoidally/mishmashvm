@@ -652,24 +652,6 @@ enum tcc_token {
 
      ,TOK___fixunssfdi
      ,TOK___fixunsdfdi
-     ,TOK___fixsfdi
-     ,TOK___fixdfdi
-     ,TOK___fixxfdi
-
-     ,TOK_alloca
-     ,TOK___bound_ptr_add
-     ,TOK___bound_ptr_indir1
-     ,TOK___bound_ptr_indir2
-     ,TOK___bound_ptr_indir4
-     ,TOK___bound_ptr_indir8
-     ,TOK___bound_ptr_indir12
-     ,TOK___bound_ptr_indir16
-     ,TOK___bound_main_arg
-     ,TOK___bound_local_new
-     ,TOK___bound_local_delete
-
-     ,TOK_strlen
-     ,TOK_strcpy
 };
 
 enum VTS {
