@@ -11504,17 +11504,9 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
                               Elf32_Phdr *phdr, int file_offset, int *sec_order) {
     int fd, mode, file_type;
     FILE *f;
-    file_type = s1->output_type;
-    if (file_type == 4)
-        mode = 0666;
-    else
-        mode = 0777;
     unlink(filename);
     f = fopen(filename, "wb");
-    if (s1->verbose)
-        printf("<- %s\n", filename);
-    if (s1->output_format == 0)
-        tcc_output_elf(s1, f, phnum, phdr, file_offset, sec_order);
+    tcc_output_elf(s1, f, phnum, phdr, file_offset, sec_order);
     fclose(f);
     return 0;
 }
@@ -12839,21 +12831,7 @@ int tcc_add_file(TCCState *s, const char *filename) {
     int filetype = s->filetype;
     int flags = 0x10;
     if (filetype == 0) {
-        const char *ext = tcc_fileextension(filename);
-        if (ext[0]) {
-            ext++;
-            if (!strcmp(ext, "S"))
-                filetype = 3;
-            else if (!strcmp(ext, "s"))
-                filetype = 2;
-            else if (!strcmp(ext, "c") || !strcmp(ext, "i"))
-                filetype = 1;
-            else
-                flags |= 0x40;
-        } else {
-            filetype = 1;
-        }
-        s->filetype = filetype;
+        s->filetype = 1;
     }
     return tcc_add_file_internal(s, filename, flags);
 }
