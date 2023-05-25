@@ -11277,9 +11277,6 @@ static void gcall_or_jmp(int is_jmp) {
     }
 }
 
-static uint8_t fastcall_regs[3] = { TREG_EAX, TREG_EDX, TREG_ECX };
-static uint8_t fastcallw_regs[2] = { TREG_ECX, TREG_EDX };
-
 static int gfunc_sret(CType *vt, int variadic, CType *ret, int *ret_align, int *regsize) {
     *ret_align = 1;
     return 0;
@@ -11337,28 +11334,7 @@ static void gfunc_call(int nb_args) {
     save_regs(0);
     func_sym = vtop->type.ref;
     func_call = func_sym->f.func_call;
-
-    if ((func_call >= 2 && func_call <= 4) ||
-        func_call == 5) {
-        int fastcall_nb_regs;
-        uint8_t *fastcall_regs_ptr;
-        if (func_call == 5) {
-            fastcall_regs_ptr = fastcallw_regs;
-            fastcall_nb_regs = 2;
-        } else {
-            fastcall_regs_ptr = fastcall_regs;
-            fastcall_nb_regs = func_call - 2 + 1;
-        }
-        for(i = 0;i < fastcall_nb_regs; i++) {
-            if (args_size <= 0)
-                break;
-            o(0x58 + fastcall_regs_ptr[i]);
-
-            args_size -= 4;
-        }
-    }
-
-    else if ((vtop->type.ref->type.t & 0x000f) == 7)
+    if ((vtop->type.ref->type.t & 0x000f) == 7)
         args_size -= 4;
 
     gcall_or_jmp(0);
@@ -11368,30 +11344,16 @@ static void gfunc_call(int nb_args) {
     vtop--;
 }
 
-static void gfunc_prolog(CType *func_type)
-{
-    int addr, align, size, func_call, fastcall_nb_regs;
+static void gfunc_prolog(CType *func_type) {
+    int addr, align, size, func_call;
     int param_index, param_addr;
-    uint8_t *fastcall_regs_ptr;
     Sym *sym;
     CType *type;
-
     sym = func_type->ref;
     func_call = sym->f.func_call;
     addr = 8;
     loc = 0;
     func_vc = 0;
-
-    if (func_call >= 2 && func_call <= 4) {
-        fastcall_nb_regs = func_call - 2 + 1;
-        fastcall_regs_ptr = fastcall_regs;
-    } else if (func_call == 5) {
-        fastcall_nb_regs = 2;
-        fastcall_regs_ptr = fastcallw_regs;
-    } else {
-        fastcall_nb_regs = 0;
-        fastcall_regs_ptr = ((void*)0);
-    }
     param_index = 0;
     ind += (9 + 0);
     func_sub_sp_offset = ind;
@@ -11406,15 +11368,8 @@ static void gfunc_prolog(CType *func_type)
         type = &sym->type;
         size = type_size(type, &align);
         size = (size + 3) & ~3;
-        if (param_index < fastcall_nb_regs) {
-            loc -= 4;
-            o(0x89);
-            gen_modrm(fastcall_regs_ptr[param_index], 0x0032, ((void*)0), loc);
-            param_addr = loc;
-        } else {
-            param_addr = addr;
-            addr += size;
-        }
+        param_addr = addr;
+        addr += size;
         sym_push(sym->v & ~0x20000000, type,
                  0x0032 | lvalue_type(type->t), param_addr);
         param_index++;
