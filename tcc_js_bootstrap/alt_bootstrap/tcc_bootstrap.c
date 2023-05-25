@@ -113,6 +113,10 @@ enum {
     TREG_ESP = 4
 };
 
+// note we can't really use this NULL definition as it causes a bunch of
+// compiler warns complaining about converting from an int to pointer
+const int NULL = 0;
+
 extern double strtod (const char * __nptr,
 		      char ** __endptr);
 extern float strtof (const char * __nptr,
@@ -573,13 +577,13 @@ enum tcc_token {
      ,TOK___fixunsdfdi
 };
 
-int TOK_HASH_INIT = 1;
-int TOK_HASH_SIZE = 16384;
+const int TOK_HASH_INIT = 1;
+const int TOK_HASH_SIZE = 16384;
 unsigned int TOK_HASH_FUNC(unsigned int h,unsigned int c) {
     return ((h) + ((h) << 5) + ((h) >> 27) + (c));
 }
 
-int CACHED_INCLUDES_HASH_SIZE = 32;
+const int CACHED_INCLUDES_HASH_SIZE = 32;
 
 enum VTS {
     VT_CMP = 0x0033,
@@ -723,6 +727,11 @@ enum RCS {
     RC_ECX = 0x0010,
     RC_EDX = 0x0020,
     RC_EBX = 0x0040,
+};
+
+enum MACROS {
+    MACRO_OBJ = 0,
+    MACRO_FUNC = 1,
 };
 
 static int gnu_ext;
@@ -12050,11 +12059,11 @@ TCCState *tcc_new(void) {
     s->seg_size = 32;
     tccelf_new(s);
     tccpp_new(s);
-    define_push(TOK___LINE__, 0, ((void*)0), ((void*)0));
-    define_push(TOK___FILE__, 0, ((void*)0), ((void*)0));
-    define_push(TOK___DATE__, 0, ((void*)0), ((void*)0));
-    define_push(TOK___TIME__, 0, ((void*)0), ((void*)0));
-    define_push(TOK___COUNTER__, 0, ((void*)0), ((void*)0));
+    define_push(TOK___LINE__, MACRO_OBJ, ((void*)0), ((void*)0));
+    define_push(TOK___FILE__, MACRO_OBJ, ((void*)0), ((void*)0));
+    define_push(TOK___DATE__, MACRO_OBJ, ((void*)0), ((void*)0));
+    define_push(TOK___TIME__, MACRO_OBJ, ((void*)0), ((void*)0));
+    define_push(TOK___COUNTER__, MACRO_OBJ, ((void*)0), ((void*)0));
     char buffer[32];
     sprintf(buffer, "0.9.27");
     tcc_define_symbol(s, "__TINYC__", buffer);
