@@ -663,13 +663,76 @@ enum VTS {
 };
 
 enum TOKS {
-    TOK_EOF = -1,
-    TOK_ULT = 0x92,
-    TOK_GT = 0x9f,
-    TOK_GE = 0x9d,
-    TOK_EQ = 0x94,
-    TOK_NE = 0x95,
-    TOK_LE = 0x9e,
+    TOK_ULT=0x92,
+    TOK_UGE=0x93,
+    TOK_EQ =0x94,
+    TOK_NE =0x95,
+    TOK_ULE=0x96,
+    TOK_UGT=0x97,
+    TOK_Nset=0x98,
+    TOK_Nclear=0x99,
+    TOK_LT =0x9c,
+    TOK_GE =0x9d,
+    TOK_LE =0x9e,
+    TOK_GT =0x9f,
+    TOK_LAND =0xa0,
+    TOK_LOR  =0xa1,
+    TOK_DEC  =0xa2,
+    TOK_MID  =0xa3, /* inc/dec, to void constant */
+    TOK_INC  =0xa4,
+    TOK_UDIV =0xb0, /* unsigned division */
+    TOK_UMOD =0xb1, /* unsigned modulo */
+    TOK_PDIV =0xb2, /* fast division with undefined rounding for pointers */
+    TOK_CCHAR = 0xb3, /* char constant in tokc */
+    TOK_LCHAR = 0xb4,
+    TOK_CINT  = 0xb5, /* number in tokc */
+    TOK_CUINT = 0xb6, /* unsigned int constant */
+    TOK_CLLONG= 0xb7, /* long long constant */
+    TOK_CULLONG=0xb8, /* unsigned long long constant */
+    TOK_STR    =0xb9, /* pointer to string in tokc */
+    TOK_LSTR   =0xba,
+    TOK_CFLOAT =0xbb, /* float constant */
+    TOK_CDOUBLE=0xbc, /* double constant */
+    TOK_CLDOUBLE=0xbd, /* long double constant */
+    TOK_PPNUM  =0xbe, /* preprocessor number */
+    TOK_PPSTR  =0xbf, /* preprocessor string */
+    TOK_LINENUM=0xc0, /* line number info */
+    TOK_TWODOTS=0xa8, /* C++ token ? */
+    TOK_UMULL  = 0xc2, /* unsigned 32x32 -> 64 mul */
+    TOK_ADDC1  = 0xc3, /* add with carry generation */
+    TOK_ADDC2  = 0xc4, /* add with carry use */
+    TOK_SUBC1  = 0xc5, /* add with carry generation */
+    TOK_SUBC2  = 0xc6, /* add with carry use */
+    TOK_ARROW  = 0xc7,
+    TOK_DOTS   = 0xc8, /* three dots */
+    TOK_SHR    = 0xc9, /* unsigned shift right */
+    TOK_TWOSHARPS=0xca, /* ## preprocessing token */
+    TOK_PLCHLDR= 0xcb, /* placeholder token as defined in C99 */
+    TOK_NOSUBST= 0xcc, /* means following token has already been pp'd */
+    TOK_PPJOIN = 0xcd, /* A '##' in the right position to mean pasting */
+    TOK_CLONG  = 0xce, /* long constant */
+    TOK_CULONG = 0xcf, /* unsigned long constant */
+    TOK_SHL = 0x01, /* shift left */
+    TOK_SAR = 0x02, /* signed shift right */
+    TOK_A_MOD=0xa5,
+    TOK_A_AND=0xa6,
+    TOK_A_MUL=0xaa,
+    TOK_A_ADD=0xab,
+    TOK_A_SUB=0xad,
+    TOK_A_DIV=0xaf,
+    TOK_A_XOR=0xde,
+    TOK_A_OR =0xfc,
+    TOK_A_SHL=0x81,
+    TOK_A_SAR=0x82,
+    TOK_EOF  =    (-1),  /* end of file */
+    TOK_LINEFEED =10,    /* line feed */
+    TOK_IDENT=256,
+    TOK_ASM_int=TOK_INT,
+    TOK_UIDENT=TOK_DEFINE,
+    TOK_FLAG_BOL = 0x0001, /* beginning of line before */
+    TOK_FLAG_BOF = 0x0002, /* beginning of file before */
+    TOK_FLAG_ENDIF=0x0004, /* a endif was found matching starting #ifdef */
+    TOK_FLAG_EOF = 0x0008, /* end of file */
 };
 
 enum SYMS {
@@ -1322,12 +1385,13 @@ static const char *get_tok_str(int v, CValue *cv) {
     cstr_reset(&cstr_buf);
     p = cstr_buf.data;
     switch(v) {
-    case 0xb5:
-    case 0xb6:
-    case 0xce:
-    case 0xcf:
-    case 0xb7:
-    case 0xb8:
+    case TOK_CINT:
+    case TOK_CUINT:
+    case TOK_CLONG:
+    case TOK_CULONG:
+    case TOK_CLLONG:
+    case TOK_CULLONG:
+
         sprintf(p, "%llu", (unsigned long long)cv->i);
         break;
     case 0xb4:
