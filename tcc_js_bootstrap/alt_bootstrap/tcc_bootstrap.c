@@ -172,15 +172,13 @@ extern long double strtold (const char *__nptr, char **__endptr);
 
 struct TCCState;
 typedef struct TCCState TCCState;
-// LJW BOOKMARK
 TCCState *tcc_new(void);
 void tcc_delete(TCCState *s);
 void tcc_set_error_func(TCCState *s, void *error_opaque,
 void (*error_func)(void *opaque, const char *msg));
-void tcc_set_options(TCCState *s, const char *str);
 int tcc_add_include_path(TCCState *s, const char *pathname);
 void tcc_define_symbol(TCCState *s, const char *sym, const char *value);
-void tcc_undefine_symbol(TCCState *s, const char *sym);
+// LJW BOOKMARK
 int tcc_add_file(TCCState *s, const char *filename);
 int tcc_compile_string(TCCState *s, const char *buf);
 int tcc_set_output_type(TCCState *s, int output_type);
@@ -11915,6 +11913,7 @@ static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap) {
 
 void tcc_set_error_func(TCCState *s, void *error_opaque,
                         void (*error_func)(void *opaque, const char *msg)) {
+// LJW DONE
     s->error_opaque = error_opaque;
     s->error_func = error_func;
 }
@@ -12011,6 +12010,7 @@ int tcc_compile_string(TCCState *s, const char *str) {
 }
 
 void tcc_define_symbol(TCCState *s1, const char *sym, const char *value) {
+// LJW DONE
     int len1, len2;
     if (!value)
         value = "1";
@@ -12025,16 +12025,6 @@ void tcc_define_symbol(TCCState *s1, const char *sym, const char *value) {
     tcc_close();
 }
 
-void tcc_undefine_symbol(TCCState *s1, const char *sym) {
-    TokenSym *ts;
-    Sym *s;
-    ts = tok_alloc(sym, strlen(sym));
-    s = define_find(ts->tok);
-
-    if (s)
-        define_undef(s);
-}
-
 static void tcc_cleanup(void) {
     if (((void*)0) == tcc_state)
         return;
@@ -12047,6 +12037,7 @@ static void tcc_cleanup(void) {
 }
 
 TCCState *tcc_new(void) {
+// LJW DONE
     TCCState *s;
     tcc_cleanup();
     s = tcc_mallocz(sizeof(TCCState));
@@ -12092,6 +12083,7 @@ TCCState *tcc_new(void) {
 }
 
 void tcc_delete(TCCState *s1) {
+// LJW DONE
     tcc_cleanup();
     tccelf_delete(s1);
     dynarray_reset(&s1->cached_includes, &s1->nb_cached_includes);
@@ -12114,6 +12106,7 @@ int tcc_set_output_type(TCCState *s, int output_type) {
 }
 
 int tcc_add_include_path(TCCState *s, const char *pathname) {
+// LJW DONE
     tcc_split_path(s, &s->include_paths, &s->nb_include_paths, pathname);
     return 0;
 }
@@ -12336,14 +12329,6 @@ unsupported_option:
     if (optind != noaction)
         return 0;
     return 1;
-}
-
-void tcc_set_options(TCCState *s, const char *r) {
-    char **argv = ((void*)0);
-    int argc = 0;
-    args_parser_make_argv(r, &argc, &argv);
-    tcc_parse_args(s, &argc, &argv, 0);
-    dynarray_reset(&argv, &argc);
 }
 
 static unsigned long le2belong(unsigned long ul) {
