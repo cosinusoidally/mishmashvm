@@ -8,7 +8,6 @@ typedef int ssize_t;
 typedef int wchar_t;
 typedef int ptrdiff_t;
 typedef int intptr_t;
-typedef unsigned int uintptr_t;
 typedef signed char int8_t;
 typedef signed short int int16_t;
 typedef signed int int32_t;
@@ -89,28 +88,20 @@ extern int sscanf (const char * __s,
 extern int fputc (int __c, FILE *__stream);
 extern int fputs (const char * __s, FILE * __stream);
 extern int puts (const char *__s);
-extern size_t fread (void * __ptr, size_t __size,
-		     size_t __n, FILE * __stream);
 extern size_t fwrite (const void * __ptr, size_t __size,
 		      size_t __n, FILE * __s);
-extern int fseek (FILE *__stream, long int __off, int __whence);
-extern long int ftell (FILE *__stream);
 extern void *memcpy (void * __dest, const void * __src,
 		     size_t __n);
 extern void *memmove (void *__dest, const void *__src, size_t __n);
 extern void *memset (void *__s, int __c, size_t __n);
 extern int memcmp (const void *__s1, const void *__s2, size_t __n);
 extern char *strcpy (char * __dest, const char * __src);
-extern char *strcat (char * __dest, const char * __src);
 extern int strcmp (const char *__s1, const char *__s2);
-extern int strncmp (const char *__s1, const char *__s2, size_t __n);
 extern char *strchr (const char *__s, int __c);
 extern char *strrchr (const char *__s, int __c);
-extern char *strstr (const char *__haystack, const char *__needle);
 extern size_t strlen (const char *__s);
 extern int *__errno_location (void);
 extern int open (const char *__file, int __oflag, ...) ;
-extern char *getcwd (char *__buf, size_t __size)  ;
 extern int unlink (const char *__name)  ;
 extern float strtof (const char *__nptr, char **__endptr);
 extern long double strtold (const char *__nptr, char **__endptr);
@@ -118,7 +109,6 @@ typedef __uint8_t uint8_t;
 typedef __uint16_t uint16_t;
 typedef __uint32_t uint32_t;
 typedef __uint64_t uint64_t;
-typedef unsigned int		uintptr_t;
 
 // START TCC code
 
@@ -4064,15 +4054,11 @@ static int tcc_preprocess(TCCState *s1)
     }
     return 0;
 }
-# 41 "tcc_src/libtcc.c" 2
-# 1 "tcc_src/tccgen.c" 1
-# 31 "tcc_src/tccgen.c"
-static int rsym, anon_sym, ind, loc;
 
+static int rsym, anon_sym, ind, loc;
 static Sym *sym_free_first;
 static void **sym_pools;
 static int nb_sym_pools;
-
 static Sym *global_stack;
 static Sym *local_stack;
 static Sym *define_stack;
@@ -4081,26 +4067,19 @@ static Sym *local_label_stack;
 static int local_scope;
 static int in_sizeof;
 static int section_sym;
-
 static int vlas_in_scope;
 static int vla_sp_root_loc;
 static int vla_sp_loc;
-
 static SValue __vstack[1+256], *vtop, *pvtop;
-
 static int const_wanted;
 static int nocode_wanted;
-
-
 static int global_expr;
 static CType func_vt;
 static int func_var;
 static int func_vc;
 static int last_line_num, last_ind, func_ind;
 static const char *funcname;
-
 static CType char_pointer_type, func_old_type, int_type, size_type, ptrdiff_type;
-
 static struct switch_t {
     struct case_t {
         int64_t v1, v2;
@@ -4108,9 +4087,6 @@ static struct switch_t {
     } **p; int n;
     int def_sym;
 } *cur_switch;
-
-
-
 static void gen_cast(CType *type);
 static void gen_cast_s(int t);
 static inline CType *pointed_type(CType *type);
@@ -4134,34 +4110,29 @@ static void gen_inline_functions(TCCState *s);
 static void skip_or_save_block(TokenString **str);
 static void gv_dup(void);
 
-static inline int is_float(int t)
-{
+static inline int is_float(int t) {
     int bt;
     bt = t & 0x000f;
     return bt == 10 || bt == 9 || bt == 8 || bt == 14;
 }
 
-static int ieee_finite(double d)
-{
+static int ieee_finite(double d) {
     int p[4];
     memcpy(p, &d, sizeof(double));
     return ((unsigned)((p[1] | 0x800fffff) + 1)) >> 31;
 }
 
-static void test_lvalue(void)
-{
+static void test_lvalue(void) {
     if (!(vtop->r & 0x0100))
         expect("lvalue");
 }
 
-static void check_vstack(void)
-{
+static void check_vstack(void) {
     if (pvtop != vtop)
         tcc_error("internal compiler error: vstack leak (%d)", vtop - pvtop);
 }
 
-static int tccgen_compile(TCCState *s1)
-{
+static int tccgen_compile(TCCState *s1) {
     cur_text_section = ((void*)0);
     funcname = "";
     anon_sym = SYM_FIRST_ANOM;
@@ -4186,27 +4157,21 @@ static int tccgen_compile(TCCState *s1)
 }
 
 
-static Elf32_Sym *elfsym(Sym *s)
-{
+static Elf32_Sym *elfsym(Sym *s) {
   if (!s || !s->c)
     return ((void*)0);
   return &((Elf32_Sym *)symtab_section->data)[s->c];
 }
 
-
-static void update_storage(Sym *sym)
-{
+static void update_storage(Sym *sym) {
     Elf32_Sym *esym;
     int sym_bind, old_sym_bind;
-
     esym = elfsym(sym);
     if (!esym)
         return;
-
     if (sym->a.visibility)
         esym->st_other = (esym->st_other & ~((-1) & 0x03))
             | sym->a.visibility;
-
     if (sym->type.t & 0x00002000)
         sym_bind = 0;
     else if (sym->a.weak)
@@ -4217,25 +4182,16 @@ static void update_storage(Sym *sym)
     if (sym_bind != old_sym_bind) {
         esym->st_info = (((sym_bind) << 4) + ((((esym->st_info) & 0xf)) & 0xf));
     }
-# 332 "tcc_src/tccgen.c"
 }
-
-
-
-
 
 static void put_extern_sym2(Sym *sym, int sh_num,
                             Elf32_Addr value, unsigned long size,
-                            int can_add_underscore)
-{
+                            int can_add_underscore) {
     int sym_type, sym_bind, info, other, t;
     Elf32_Sym *esym;
     const char *name;
     char buf1[256];
-
     char buf[32];
-
-
     if (!sym->c) {
         name = get_tok_str(sym->v, ((void*)0));
         t = sym->type.t;
@@ -4251,7 +4207,6 @@ static void put_extern_sym2(Sym *sym, int sh_num,
         else
             sym_bind = 1;
         other = 0;
-# 403 "tcc_src/tccgen.c"
         if (tcc_state->leading_underscore && can_add_underscore) {
             buf1[0] = '_';
             pstrcpy(buf1 + 1, sizeof(buf1) - 1, name);
@@ -4271,48 +4226,36 @@ static void put_extern_sym2(Sym *sym, int sh_num,
 }
 
 static void put_extern_sym(Sym *sym, Section *section,
-                           Elf32_Addr value, unsigned long size)
-{
+                           Elf32_Addr value, unsigned long size) {
     int sh_num = section ? section->sh_num : 0;
     put_extern_sym2(sym, sh_num, value, size, 1);
 }
 
 
 static void greloca(Section *s, Sym *sym, unsigned long offset, int type,
-                     Elf32_Addr addend)
-{
+                     Elf32_Addr addend) {
     int c = 0;
-
     if (nocode_wanted && s == cur_text_section)
         return;
-
     if (sym) {
         if (0 == sym->c)
             put_extern_sym(sym, ((void*)0), 0, 0);
         c = sym->c;
     }
-
-
     put_elf_reloca(symtab_section, s, offset, type, c, addend);
 }
 
 
-static void greloc(Section *s, Sym *sym, unsigned long offset, int type)
-{
+static void greloc(Section *s, Sym *sym, unsigned long offset, int type) {
     greloca(s, sym, offset, type, 0);
 }
-
-
-
 
 static Sym *__sym_malloc(void)
 {
     Sym *sym_pool, *sym, *last_sym;
     int i;
-
     sym_pool = tcc_malloc((8192 / sizeof(Sym)) * sizeof(Sym));
     dynarray_add(&sym_pools, &nb_sym_pools, sym_pool);
-
     last_sym = sym_free_first;
     sym = sym_pool;
     for(i = 0; i < (8192 / sizeof(Sym)); i++) {
@@ -4324,51 +4267,33 @@ static Sym *__sym_malloc(void)
     return last_sym;
 }
 
-static inline Sym *sym_malloc(void)
-{
+static inline Sym *sym_malloc(void) {
     Sym *sym;
-
     sym = sym_free_first;
     if (!sym)
         sym = __sym_malloc();
     sym_free_first = sym->next;
     return sym;
-
-
-
-
 }
 
-static inline void sym_free(Sym *sym)
-{
-
+static inline void sym_free(Sym *sym) {
     sym->next = sym_free_first;
     sym_free_first = sym;
-
-
-
 }
 
-
-static Sym *sym_push2(Sym **ps, int v, int t, int c)
-{
+static Sym *sym_push2(Sym **ps, int v, int t, int c) {
     Sym *s;
-
     s = sym_malloc();
     memset(s, 0, sizeof *s);
     s->v = v;
     s->type.t = t;
     s->c = c;
-
     s->prev = *ps;
     *ps = s;
     return s;
 }
 
-
-
-static Sym *sym_find2(Sym *s, int v)
-{
+static Sym *sym_find2(Sym *s, int v) {
     while (s) {
         if (s->v == v)
             return s;
@@ -4380,29 +4305,23 @@ static Sym *sym_find2(Sym *s, int v)
 }
 
 
-static inline Sym *struct_find(int v)
-{
+static inline Sym *struct_find(int v) {
     v -= 256;
     if ((unsigned)v >= (unsigned)(tok_ident - 256))
         return ((void*)0);
     return table_ident[v]->sym_struct;
 }
 
-
-static inline Sym *sym_find(int v)
-{
+static inline Sym *sym_find(int v) {
     v -= 256;
     if ((unsigned)v >= (unsigned)(tok_ident - 256))
         return ((void*)0);
     return table_ident[v]->sym_identifier;
 }
 
-
-static Sym *sym_push(int v, CType *type, int r, int c)
-{
+static Sym *sym_push(int v, CType *type, int r, int c) {
     Sym *s, **ps;
     TokenSym *ts;
-
     if (local_stack)
         ps = &local_stack;
     else
@@ -4410,10 +4329,7 @@ static Sym *sym_push(int v, CType *type, int r, int c)
     s = sym_push2(ps, v, type->t, c);
     s->type.ref = type->ref;
     s->r = r;
-
-
     if (!(v & 0x20000000) && (v & ~0x40000000) < 0x10000000) {
-
         ts = table_ident[(v & ~0x40000000) - 256];
         if (v & 0x40000000)
             ps = &ts->sym_struct;
@@ -4429,16 +4345,11 @@ static Sym *sym_push(int v, CType *type, int r, int c)
     return s;
 }
 
-
-static Sym *global_identifier_push(int v, int t, int c)
-{
+static Sym *global_identifier_push(int v, int t, int c) {
     Sym *s, **ps;
     s = sym_push2(&global_stack, v, t, c);
-
     if (v < 0x10000000) {
         ps = &table_ident[v - 256]->sym_identifier;
-
-
         while (*ps != ((void*)0) && (*ps)->sym_scope)
             ps = &(*ps)->prev_tok;
         s->prev_tok = *ps;
@@ -4447,20 +4358,14 @@ static Sym *global_identifier_push(int v, int t, int c)
     return s;
 }
 
-
-
-static void sym_pop(Sym **ptop, Sym *b, int keep)
-{
+static void sym_pop(Sym **ptop, Sym *b, int keep) {
     Sym *s, *ss, **ps;
     TokenSym *ts;
     int v;
-
     s = *ptop;
     while(s != b) {
         ss = s->prev;
         v = s->v;
-
-
         if (!(v & 0x20000000) && (v & ~0x40000000) < 0x10000000) {
             ts = table_ident[(v & ~0x40000000) - 256];
             if (v & 0x40000000)
@@ -4477,21 +4382,15 @@ static void sym_pop(Sym **ptop, Sym *b, int keep)
 	*ptop = b;
 }
 
-
-
-static void vsetc(CType *type, int r, CValue *vc)
-{
+static void vsetc(CType *type, int r, CValue *vc) {
     int v;
-
     if (vtop >= (__vstack + 1) + (256 - 1))
         tcc_error("memory full (vstack)");
-# 649 "tcc_src/tccgen.c"
     if (vtop >= (__vstack + 1) && !nocode_wanted) {
         v = vtop->r & 0x003f;
         if (v == 0x0033 || (v & ~1) == 0x0034)
             gv(0x0001);
     }
-
     vtop++;
     vtop->type = *type;
     vtop->r = r;
@@ -4500,10 +4399,8 @@ static void vsetc(CType *type, int r, CValue *vc)
     vtop->sym = ((void*)0);
 }
 
-static void vswap(void)
-{
+static void vswap(void) {
     SValue tmp;
-
     if (vtop >= (__vstack + 1) && !nocode_wanted) {
         int v = vtop->r & 0x003f;
         if (v == 0x0033 || (v & ~1) == 0x0034)
@@ -4514,17 +4411,12 @@ static void vswap(void)
     vtop[-1] = tmp;
 }
 
-
-static void vpop(void)
-{
+static void vpop(void) {
     int v;
     v = vtop->r & 0x003f;
-
-
     if (v == TREG_ST0) {
         o(0xd8dd);
     } else
-
     if (v == 0x0034 || v == 0x0035) {
 
         gsym(vtop->c.i);
@@ -4532,20 +4424,15 @@ static void vpop(void)
     vtop--;
 }
 
-
-static void vpush(CType *type)
-{
+static void vpush(CType *type) {
     vset(type, 0x0030, 0);
 }
 
-
-static void vpushi(int v)
-{
+static void vpushi(int v) {
     CValue cval;
     cval.i = v;
     vsetc(&int_type, 0x0030, &cval);
 }
-
 
 static void vpushs(Elf32_Addr v)
 {
