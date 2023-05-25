@@ -9202,25 +9202,13 @@ static void block(int *bsym, int *csym, int is_expr)
                 block(bsym, csym, is_expr);
             }
         }
-
         label_pop(&local_label_stack, llabel, is_expr);
-
         --local_scope;
-
-
-
-
-
-
-
 	sym_pop(&local_stack, s, is_expr);
-
-
         if (vlas_in_scope > saved_vlas_in_scope) {
             vla_sp_loc = saved_vlas_in_scope ? block_vla_sp_loc : vla_sp_root_loc;
         }
         vlas_in_scope = saved_vlas_in_scope;
-
         next();
     } else if (tok == TOK_RETURN) {
         next();
@@ -9233,12 +9221,10 @@ static void block(int *bsym, int *csym, int is_expr)
                 gfunc_return(&func_vt);
         }
         skip(';');
-
         if (tok != '}' || local_scope != 1)
             rsym = gjmp(rsym);
 	nocode_wanted |= 0x20000000;
     } else if (tok == TOK_BREAK) {
-
         if (!bsym)
             tcc_error("cannot break");
         *bsym = gjmp(*bsym);
@@ -9453,13 +9439,7 @@ static void block(int *bsym, int *csym, int is_expr)
     }
 }
 
-
-
-
-
-
-static void skip_or_save_block(TokenString **str)
-{
+static void skip_or_save_block(TokenString **str) {
     int braces = tok == '{';
     int level = 0;
     if (str)
@@ -9849,25 +9829,15 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
     Sym *s, *f;
     Sym indexsym;
     CType *t1;
-
-
-
     have_elem = tok == '}' || tok == ',';
     if (!have_elem && tok != '{' &&
-
-
-
 	tok != 0xba && tok != 0xb9 &&
 	!size_only) {
 	parse_init_elem(!sec ? 2 : 1);
 	have_elem = 1;
     }
-
     if (have_elem &&
 	!(type->t & 0x0040) &&
-
-
-
 	is_compatible_unqualified_types(type, &vtop->type)) {
         init_putv(type, sec, c);
     } else if (type->t & 0x0040) {
@@ -9875,7 +9845,6 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
         n = s->c;
         t1 = pointed_type(type);
         size1 = type_size(t1, &align1);
-
         no_oblock = 1;
         if ((first && tok != 0xba && tok != 0xb9) ||
             tok == '{') {
@@ -9885,21 +9854,12 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
             skip('{');
             no_oblock = 0;
         }
-
-
-
         if ((tok == 0xba &&
-
-
-
              (t1->t & 0x000f) == 3
-
             ) || (tok == 0xb9 && (t1->t & 0x000f) == 1)) {
 	    len = 0;
             while (tok == 0xb9 || tok == 0xba) {
                 int cstr_len, ch;
-
-
                 if (tok == 0xb9)
                     cstr_len = tokc.str.size;
                 else
@@ -9911,9 +9871,6 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
                 if (!size_only) {
                     if (cstr_len > nb)
                         tcc_warning("initializer-string for array is too long");
-
-
-
                     if (sec && tok == 0xb9 && size1 == 1) {
                         if (!(nocode_wanted > 0))
                             memcpy(sec->data + c + len, tokc.str.data, nb);
@@ -9931,8 +9888,6 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
                 len += nb;
                 next();
             }
-
-
             if (n < 0 || len < n) {
                 if (!size_only) {
 		    vpushi(0);
@@ -9952,9 +9907,6 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
 		have_elem = 0;
 		if (type->t & 0x0040) {
 		    ++indexsym.c;
-
-
-
 		    if (no_oblock && len >= n*size1)
 		        break;
 		} else {
@@ -9965,18 +9917,15 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
 		    if (no_oblock && f == ((void*)0))
 		        break;
 		}
-
 		if (tok == '}')
 		    break;
 		skip(',');
 	    }
         }
-
 	if (!size_only && len < n*size1)
 	    init_putz(sec, c + len, n*size1 - len);
         if (!no_oblock)
             skip('}');
-
         if (n < 0)
             s->c = size1 == 1 ? len : ((len + size1 - 1)/size1);
     } else if ((type->t & 0x000f) == 7) {
