@@ -113,8 +113,6 @@ enum {
     TREG_ESP = 4
 };
 
-void *alloca(size_t size);
-extern int atoi (const char *__nptr);
 extern double strtod (const char * __nptr,
 		      char ** __endptr);
 extern float strtof (const char * __nptr,
@@ -124,20 +122,14 @@ extern long double strtold (const char * __nptr,
 extern unsigned long int strtoul (const char * __nptr,
 				  char ** __endptr, int __base);
 extern void *malloc (size_t __size);
-extern void *calloc (size_t __nmemb, size_t __size);
 extern void *realloc (void *__ptr, size_t __size);
 extern void free (void *__ptr);
-extern void *alloca (size_t __size);
 extern void exit (int __status);
-extern char *getenv (const char *__name);
-extern void *bsearch (const void *__key, const void *__base,
-		      size_t __nmemb, size_t __size, __compar_fn_t __compar);
 extern void qsort (void *__base, size_t __nmemb, size_t __size,
 		   __compar_fn_t __compar);
 extern struct _IO_FILE *stdin;
 extern struct _IO_FILE *stdout;
 extern struct _IO_FILE *stderr;
-extern int remove (const char *__filename);
 extern int fclose (FILE *__stream);
 extern int fflush (FILE *__stream);
 extern FILE *fopen (const char * __filename,
@@ -147,8 +139,6 @@ extern int fprintf (FILE * __stream,
 extern int printf (const char * __format, ...);
 extern int sprintf (char * __s,
 		    const char * __format, ...);
-extern int vfprintf (FILE * __s, const char * __format,
-		     __gnuc_va_list __arg);
 extern int snprintf (char * __s, size_t __maxlen,
 		     const char * __format, ...);
 extern int vsnprintf (char * __s, size_t __maxlen,
