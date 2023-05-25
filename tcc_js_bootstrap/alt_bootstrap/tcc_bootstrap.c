@@ -2079,14 +2079,14 @@ static int expr_preprocess(void) {
     TokenString *str;
     str = tok_str_alloc();
     pp_expr = 1;
-    while (tok != 10 && tok != (-1)) {
+    while (tok != TOK_LINEFEED && tok != TOK_EOF) {
         next();
         if (tok == TOK_DEFINED) {
             next_nomacro();
             t = tok;
             if (t == '(')
                 next_nomacro();
-            if (tok < 256)
+            if (tok < TOK_IDENT)
                 expect("identifier");
             c = define_find(tok) != 0;
             if (t == '(') {
@@ -2094,11 +2094,10 @@ static int expr_preprocess(void) {
                 if (tok != ')')
                     expect("')'");
             }
-            tok = 0xb5;
+            tok = TOK_CINT;
             tokc.i = c;
-        } else if (tok >= 256) {
-
-            tok = 0xb5;
+        } else if (tok >= TOK_IDENT) {
+            tok = TOK_CINT;
             tokc.i = 0;
         }
         tok_str_add_tok(str);
