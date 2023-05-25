@@ -732,6 +732,10 @@ enum MACROS {
     MACRO_FUNC = 1,
 };
 
+enum AFFS {
+    AFF_PRINT_ERROR = 0x10,
+};
+
 static int gnu_ext;
 
 static int tcc_ext;
@@ -12122,8 +12126,9 @@ static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags) 
 }
 
 int tcc_add_file(TCCState *s, const char *filename) {
+// LJW DONE
     int filetype = s->filetype;
-    int flags = 0x10;
+    int flags = AFF_PRINT_ERROR;
     if (filetype == 0) {
         s->filetype = 1;
     }
