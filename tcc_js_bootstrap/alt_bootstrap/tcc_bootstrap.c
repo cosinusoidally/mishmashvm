@@ -7369,8 +7369,6 @@ static int parse_btype(CType *type, AttributeDef *ad) {
         case TOK_UNION:
             struct_decl(&type1, VT_UNION);
             goto basic_type2;
-
-
         case TOK_CONST1:
         case TOK_CONST2:
         case TOK_CONST3:
@@ -7662,6 +7660,7 @@ static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td)
         case TOK_VOLATILE1:
         case TOK_VOLATILE2:
         case TOK_VOLATILE3:
+
             qualifiers |= 0x0200;
             goto redo;
         case TOK_RESTRICT1:
