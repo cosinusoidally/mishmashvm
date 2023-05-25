@@ -187,13 +187,11 @@ void tcc_set_error_func(TCCState *s, void *error_opaque,
 void (*error_func)(void *opaque, const char *msg));
 void tcc_set_options(TCCState *s, const char *str);
 int tcc_add_include_path(TCCState *s, const char *pathname);
-int tcc_add_sysinclude_path(TCCState *s, const char *pathname);
 void tcc_define_symbol(TCCState *s, const char *sym, const char *value);
 void tcc_undefine_symbol(TCCState *s, const char *sym);
 int tcc_add_file(TCCState *s, const char *filename);
 int tcc_compile_string(TCCState *s, const char *buf);
 int tcc_set_output_type(TCCState *s, int output_type);
-int tcc_add_library_path(TCCState *s, const char *pathname);
 int tcc_output_file(TCCState *s, const char *filename);
 
 typedef struct TokenSym {
@@ -356,8 +354,6 @@ struct sym_attr {
 };
 
 struct TCCState {
-    int nostdinc;
-    int nostdlib;
     int alacarte_link;
     char *tcc_lib_path;
     int output_type;
@@ -12149,11 +12145,6 @@ int tcc_add_include_path(TCCState *s, const char *pathname) {
     return 0;
 }
 
-int tcc_add_sysinclude_path(TCCState *s, const char *pathname) {
-    tcc_split_path(s, &s->sysinclude_paths, &s->nb_sysinclude_paths, pathname);
-    return 0;
-}
-
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags) {
     int ret;
     ret = tcc_open(s1, filename);
@@ -12171,11 +12162,6 @@ int tcc_add_file(TCCState *s, const char *filename) {
         s->filetype = 1;
     }
     return tcc_add_file_internal(s, filename, flags);
-}
-
-int tcc_add_library_path(TCCState *s, const char *pathname) {
-    tcc_split_path(s, &s->library_paths, &s->nb_library_paths, pathname);
-    return 0;
 }
 
 void tcc_set_lib_path(TCCState *s, const char *path) {
@@ -12251,7 +12237,6 @@ typedef struct TCCOption {
 enum {
     TCC_OPTION_I,
     TCC_OPTION_D,
-    TCC_OPTION_L,
     TCC_OPTION_l,
     TCC_OPTION_c,
     TCC_OPTION_o,
@@ -12262,7 +12247,6 @@ enum {
 static const TCCOption tcc_options[] = {
     { "I", TCC_OPTION_I, 0x0001 },
     { "D", TCC_OPTION_D, 0x0001 },
-    { "L", TCC_OPTION_L, 0x0001 },
     { "l", TCC_OPTION_l, 0x0001 | 0x0002 },
     { "c", TCC_OPTION_c, 0 },
     { "o", TCC_OPTION_o, 0x0001 },
@@ -12388,9 +12372,6 @@ reparse:
         case TCC_OPTION_D:
             parse_option_D(s, optarg);
             break;
-        case TCC_OPTION_L:
-            tcc_add_library_path(s, optarg);
-            break;
         case TCC_OPTION_l:
             args_parser_add_file(s, optarg, 4);
             s->nb_libraries++;
@@ -12410,10 +12391,8 @@ reparse:
             s->outfile = tcc_strdup(optarg);
             break;
         case TCC_OPTION_nostdinc:
-            s->nostdinc = 1;
             break;
         case TCC_OPTION_nostdlib:
-            s->nostdlib = 1;
             break;
         default:
 unsupported_option:

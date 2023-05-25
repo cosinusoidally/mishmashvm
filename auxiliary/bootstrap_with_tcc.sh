@@ -86,7 +86,7 @@ mv out.o ../libc_portable_proto/stubs.o
 
 echo "build nodejs addon"
 ./tcc_linux.exe -v -nostdlib -nostdinc -I ../includes/usr/include/:../includes/usr/include/i386-linux-gnu/:../includes/tmp/tcc/lib/tcc/include/:../tests/nodejs/:../tests/nodejs/include/node/ -c ../tests/nodejs/bootstrap.c -o ../tests/nodejs/lib/addon.o
-./tcc_linux.exe -nostdlib  ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o -shared ../tests/nodejs/lib/addon.o -o ../tests/nodejs/lib/addon_linux.node
+./tcc_linux.exe -nostdlib -nostdinc ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o -shared ../tests/nodejs/lib/addon.o -o ../tests/nodejs/lib/addon_linux.node
 
 echo "running second stage boostrap"
 cd ../libc_portable_proto
