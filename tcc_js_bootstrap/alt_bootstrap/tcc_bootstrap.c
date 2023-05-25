@@ -1001,9 +1001,6 @@ static void gen_cvt_ftof(int t);
 static void ggoto(void);
 static void o(unsigned int c);
 static void gen_cvt_itof(int t);
-static void gen_vla_sp_save(int addr);
-static void gen_vla_sp_restore(int addr);
-static void gen_vla_alloc(CType *type, int align);
 static inline uint16_t read16le(unsigned char *p) {
     return p[0] | (uint16_t)p[1] << 8;
 }
@@ -1059,6 +1056,7 @@ static int pp_once;
 static int pp_expr;
 static int pp_counter;
 static void tok_print(const char *msg, const int *str);
+static void next_nomacro_spc(void);
 static struct TinyAlloc *toksym_alloc;
 static struct TinyAlloc *tokstr_alloc;
 static struct TinyAlloc *cstr_alloc;
@@ -1111,9 +1109,7 @@ static const char tcc_keywords[] =
 "code16" "\0" "." "code32" "\0" "." "short" "\0" "." "long" "\0" "." "int" "\0"
 "." "section" "\0";
 
-
-static const unsigned char tok_two_chars[] =
- {
+static const unsigned char tok_two_chars[] = {
     '<','=', 0x9e,
     '>','=', 0x9d,
     '!','=', 0x95,
@@ -1137,8 +1133,6 @@ static const unsigned char tok_two_chars[] =
     '#','#', 0xca,
     0
 };
-
-static void next_nomacro_spc(void);
 
 static void skip(int c) {
     if (tok != c)
@@ -1553,6 +1547,11 @@ static void minp(void) {
         handle_stray();
 }
 
+int PEEKC_EOB(int c, unsigned int p0) {
+  // FIXME implement
+}
+
+
 static uint8_t *parse_line_comment(uint8_t *p) {
     int c;
     p++;
@@ -1567,6 +1566,7 @@ static uint8_t *parse_line_comment(uint8_t *p) {
             p = file->buf_ptr;
             if (c == '\\') {
                 { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+//                c=PEEKC_EOB(c, &p);
                 if (c == '\n') {
                     file->line_num++;
                     { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
