@@ -16,16 +16,6 @@ typedef unsigned char uint8_t;
 typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
 typedef unsigned long long int uint64_t;
-void *alloca(size_t size);
-extern int atoi (const char *__nptr);
-extern double strtod (const char * __nptr,
-		      char ** __endptr);
-extern float strtof (const char * __nptr,
-		     char ** __endptr);
-extern long double strtold (const char * __nptr,
-			    char ** __endptr);
-extern unsigned long int strtoul (const char * __nptr,
-				  char ** __endptr, int __base);
 typedef unsigned char __u_char;
 typedef unsigned short int __u_short;
 typedef unsigned int __u_int;
@@ -46,89 +36,16 @@ typedef __int8_t int8_t;
 typedef __int16_t int16_t;
 typedef __int32_t int32_t;
 typedef __int64_t int64_t;
-extern void *malloc (size_t __size);
-extern void *calloc (size_t __nmemb, size_t __size);
-extern void *realloc (void *__ptr, size_t __size);
-extern void free (void *__ptr);
-extern void *alloca (size_t __size);
-
-extern void exit (int __status);
-extern char *getenv (const char *__name);
 typedef int (*__compar_fn_t) (const void *, const void *);
 typedef __compar_fn_t comparison_fn_t;
 typedef int (*__compar_d_fn_t) (const void *, const void *, void *);
-extern void *bsearch (const void *__key, const void *__base,
-		      size_t __nmemb, size_t __size, __compar_fn_t __compar);
-extern void qsort (void *__base, size_t __nmemb, size_t __size,
-		   __compar_fn_t __compar);
 typedef struct _IO_FILE FILE;
 typedef char *va_list;
 typedef va_list __gnuc_va_list;
-extern struct _IO_FILE *stdin;
-extern struct _IO_FILE *stdout;
-extern struct _IO_FILE *stderr;
-extern int remove (const char *__filename);
-extern int fclose (FILE *__stream);
-extern int fflush (FILE *__stream);
-extern FILE *fopen (const char * __filename,
-		    const char * __modes);
-extern int fprintf (FILE * __stream,
-		    const char * __format, ...);
-extern int printf (const char * __format, ...);
-extern int sprintf (char * __s,
-		    const char * __format, ...);
-extern int vfprintf (FILE * __s, const char * __format,
-		     __gnuc_va_list __arg);
-extern int snprintf (char * __s, size_t __maxlen,
-		     const char * __format, ...);
-extern int vsnprintf (char * __s, size_t __maxlen,
-		      const char * __format, __gnuc_va_list __arg);
-extern int sscanf (const char * __s,
-		   const char * __format, ...);
-extern int fputc (int __c, FILE *__stream);
-extern int fputs (const char * __s, FILE * __stream);
-extern int puts (const char *__s);
-extern size_t fwrite (const void * __ptr, size_t __size,
-		      size_t __n, FILE * __s);
-extern void *memcpy (void * __dest, const void * __src,
-		     size_t __n);
-extern void *memmove (void *__dest, const void *__src, size_t __n);
-extern void *memset (void *__s, int __c, size_t __n);
-extern int memcmp (const void *__s1, const void *__s2, size_t __n);
-extern char *strcpy (char * __dest, const char * __src);
-extern int strcmp (const char *__s1, const char *__s2);
-extern char *strchr (const char *__s, int __c);
-extern char *strrchr (const char *__s, int __c);
-extern size_t strlen (const char *__s);
-extern int *__errno_location (void);
-extern int open (const char *__file, int __oflag, ...) ;
-extern int unlink (const char *__name)  ;
-extern float strtof (const char *__nptr, char **__endptr);
-extern long double strtold (const char *__nptr, char **__endptr);
 typedef __uint8_t uint8_t;
 typedef __uint16_t uint16_t;
 typedef __uint32_t uint32_t;
 typedef __uint64_t uint64_t;
-
-// START TCC code
-
-struct TCCState;
-typedef struct TCCState TCCState;
-TCCState *tcc_new(void);
-void tcc_delete(TCCState *s);
-void tcc_set_lib_path(TCCState *s, const char *path);
-void tcc_set_error_func(TCCState *s, void *error_opaque,
-void (*error_func)(void *opaque, const char *msg));
-void tcc_set_options(TCCState *s, const char *str);
-int tcc_add_include_path(TCCState *s, const char *pathname);
-int tcc_add_sysinclude_path(TCCState *s, const char *pathname);
-void tcc_define_symbol(TCCState *s, const char *sym, const char *value);
-void tcc_undefine_symbol(TCCState *s, const char *sym);
-int tcc_add_file(TCCState *s, const char *filename);
-int tcc_compile_string(TCCState *s, const char *buf);
-int tcc_set_output_type(TCCState *s, int output_type);
-int tcc_add_library_path(TCCState *s, const char *pathname);
-int tcc_output_file(TCCState *s, const char *filename);
 
 // ELF stuff
 
@@ -195,6 +112,90 @@ enum {
     TREG_ST0,
     TREG_ESP = 4
 };
+
+void *alloca(size_t size);
+extern int atoi (const char *__nptr);
+extern double strtod (const char * __nptr,
+		      char ** __endptr);
+extern float strtof (const char * __nptr,
+		     char ** __endptr);
+extern long double strtold (const char * __nptr,
+			    char ** __endptr);
+extern unsigned long int strtoul (const char * __nptr,
+				  char ** __endptr, int __base);
+extern void *malloc (size_t __size);
+extern void *calloc (size_t __nmemb, size_t __size);
+extern void *realloc (void *__ptr, size_t __size);
+extern void free (void *__ptr);
+extern void *alloca (size_t __size);
+extern void exit (int __status);
+extern char *getenv (const char *__name);
+extern void *bsearch (const void *__key, const void *__base,
+		      size_t __nmemb, size_t __size, __compar_fn_t __compar);
+extern void qsort (void *__base, size_t __nmemb, size_t __size,
+		   __compar_fn_t __compar);
+extern struct _IO_FILE *stdin;
+extern struct _IO_FILE *stdout;
+extern struct _IO_FILE *stderr;
+extern int remove (const char *__filename);
+extern int fclose (FILE *__stream);
+extern int fflush (FILE *__stream);
+extern FILE *fopen (const char * __filename,
+		    const char * __modes);
+extern int fprintf (FILE * __stream,
+		    const char * __format, ...);
+extern int printf (const char * __format, ...);
+extern int sprintf (char * __s,
+		    const char * __format, ...);
+extern int vfprintf (FILE * __s, const char * __format,
+		     __gnuc_va_list __arg);
+extern int snprintf (char * __s, size_t __maxlen,
+		     const char * __format, ...);
+extern int vsnprintf (char * __s, size_t __maxlen,
+		      const char * __format, __gnuc_va_list __arg);
+extern int sscanf (const char * __s,
+		   const char * __format, ...);
+extern int fputc (int __c, FILE *__stream);
+extern int fputs (const char * __s, FILE * __stream);
+extern int puts (const char *__s);
+extern size_t fwrite (const void * __ptr, size_t __size,
+		      size_t __n, FILE * __s);
+extern void *memcpy (void * __dest, const void * __src,
+		     size_t __n);
+extern void *memmove (void *__dest, const void *__src, size_t __n);
+extern void *memset (void *__s, int __c, size_t __n);
+extern int memcmp (const void *__s1, const void *__s2, size_t __n);
+extern char *strcpy (char * __dest, const char * __src);
+extern int strcmp (const char *__s1, const char *__s2);
+extern char *strchr (const char *__s, int __c);
+extern char *strrchr (const char *__s, int __c);
+extern size_t strlen (const char *__s);
+extern int *__errno_location (void);
+extern int open (const char *__file, int __oflag, ...) ;
+extern int unlink (const char *__name)  ;
+extern float strtof (const char *__nptr, char **__endptr);
+extern long double strtold (const char *__nptr, char **__endptr);
+
+// START TCC code
+
+struct TCCState;
+typedef struct TCCState TCCState;
+TCCState *tcc_new(void);
+void tcc_delete(TCCState *s);
+void tcc_set_lib_path(TCCState *s, const char *path);
+void tcc_set_error_func(TCCState *s, void *error_opaque,
+void (*error_func)(void *opaque, const char *msg));
+void tcc_set_options(TCCState *s, const char *str);
+int tcc_add_include_path(TCCState *s, const char *pathname);
+int tcc_add_sysinclude_path(TCCState *s, const char *pathname);
+void tcc_define_symbol(TCCState *s, const char *sym, const char *value);
+void tcc_undefine_symbol(TCCState *s, const char *sym);
+int tcc_add_file(TCCState *s, const char *filename);
+int tcc_compile_string(TCCState *s, const char *buf);
+int tcc_set_output_type(TCCState *s, int output_type);
+int tcc_add_library_path(TCCState *s, const char *pathname);
+int tcc_output_file(TCCState *s, const char *filename);
+
 typedef struct TokenSym {
     struct TokenSym *hash_next;
     struct Sym *sym_define;
