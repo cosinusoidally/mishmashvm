@@ -143,8 +143,6 @@ extern int snprintf (char * __s, size_t __maxlen,
 		     const char * __format, ...);
 extern int vsnprintf (char * __s, size_t __maxlen,
 		      const char * __format, __gnuc_va_list __arg);
-extern int sscanf (const char * __s,
-		   const char * __format, ...);
 extern int fputc (int __c, FILE *__stream);
 extern int fputs (const char * __s, FILE * __stream);
 extern int puts (const char *__s);
@@ -12067,12 +12065,9 @@ TCCState *tcc_new(void) {
     define_push(TOK___DATE__, 0, ((void*)0), ((void*)0));
     define_push(TOK___TIME__, 0, ((void*)0), ((void*)0));
     define_push(TOK___COUNTER__, 0, ((void*)0), ((void*)0));
-    {
-        char buffer[32]; int a,b,c;
-        sscanf("0.9.27", "%d.%d.%d", &a, &b, &c);
-        sprintf(buffer, "%d", a*10000 + b*100 + c);
-        tcc_define_symbol(s, "__TINYC__", buffer);
-    }
+    char buffer[32];
+    sprintf(buffer, "0.9.27");
+    tcc_define_symbol(s, "__TINYC__", buffer);
     tcc_define_symbol(s, "__STDC__", ((void*)0));
     tcc_define_symbol(s, "__STDC_VERSION__", "199901L");
     tcc_define_symbol(s, "__STDC_HOSTED__", ((void*)0));
