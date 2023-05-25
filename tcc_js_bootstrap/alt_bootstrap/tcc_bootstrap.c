@@ -12253,19 +12253,7 @@ static const TCCOption tcc_options[] = {
     { ((void*)0), 0, 0 },
 };
 
-static const FlagDef options_W[] = {
-    { 0, 0, "all" },
-    { ((size_t)&((TCCState *)0)->warn_unsupported), 0, "unsupported" },
-    { ((size_t)&((TCCState *)0)->warn_write_strings), 0, "write-strings" },
-    { ((size_t)&((TCCState *)0)->warn_error), 0, "error" },
-    { ((size_t)&((TCCState *)0)->warn_gcc_compat), 0, "gcc-compat" },
-    { ((size_t)&((TCCState *)0)->warn_implicit_function_declaration), 0x0001,
-      "implicit-function-declaration" },
-    { 0, 0, ((void*)0) }
-};
-
-static void parse_option_D(TCCState *s1, const char *optarg)
-{
+static void parse_option_D(TCCState *s1, const char *optarg) {
     char *sym = tcc_strdup(optarg);
     char *value = strchr(sym, '=');
     if (value)
@@ -12274,8 +12262,7 @@ static void parse_option_D(TCCState *s1, const char *optarg)
     tcc_free(sym);
 }
 
-static void args_parser_add_file(TCCState *s, const char* filename, int filetype)
-{
+static void args_parser_add_file(TCCState *s, const char* filename, int filetype) {
     struct filespec *f = tcc_malloc(sizeof *f + strlen(filename));
     f->type = filetype;
     f->alacarte = s->alacarte_link;
@@ -12283,8 +12270,7 @@ static void args_parser_add_file(TCCState *s, const char* filename, int filetype
     dynarray_add(&s->files, &s->nb_files, f);
 }
 
-static int args_parser_make_argv(const char *r, int *argc, char ***argv)
-{
+static int args_parser_make_argv(const char *r, int *argc, char ***argv) {
     int ret = 0, q, c;
     CString str;
     for(;;) {
@@ -12315,8 +12301,7 @@ static int args_parser_make_argv(const char *r, int *argc, char ***argv)
 }
 
 static void args_parser_listfile(TCCState *s,
-    const char *filename, int optind, int *pargc, char ***pargv)
-{
+    const char *filename, int optind, int *pargc, char ***pargv) {
     int fd, i;
     size_t len;
     char *p;
@@ -12338,8 +12323,7 @@ static void args_parser_listfile(TCCState *s,
     *pargc = s->argc = argc, *pargv = s->argv = argv;
 }
 
- int tcc_parse_args(TCCState *s, int *pargc, char ***pargv, int optind)
-{
+ int tcc_parse_args(TCCState *s, int *pargc, char ***pargv, int optind) {
     const TCCOption *popt;
     const char *optarg, *r;
     int last_o = -1;
