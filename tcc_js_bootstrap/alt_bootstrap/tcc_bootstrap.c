@@ -1428,7 +1428,7 @@ static const char *get_tok_str(int v, CValue *cv) {
             *p++ = v;
             *p = '\0';
         } else if (v < tok_ident) {
-            return table_ident[v - 256]->str;
+            return table_ident[v - TOK_IDENT]->str;
         } else if (v >= SYM_FIRST_ANOM) {
 
             sprintf(p, "L.%u", v - SYM_FIRST_ANOM);
@@ -10086,7 +10086,7 @@ static void gen_inline_functions(TCCState *s) {
                 fn->sym = ((void*)0);
                 if (file)
                     pstrcpy(file->filename, sizeof file->filename, fn->filename);
-                sym->type.t &= ~0x00008000;
+                sym->type.t &= ~VT_INLINE;
                 begin_macro(fn->func_str, 1);
                 next();
                 cur_text_section = text_section;
