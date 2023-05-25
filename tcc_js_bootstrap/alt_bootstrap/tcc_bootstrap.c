@@ -4534,9 +4534,7 @@ static void vpush_ref(CType *type, Section *sec, unsigned long offset, unsigned 
     vpushsym(type, get_sym_ref(type, sec, offset, size));
 }
 
-
-static Sym *external_global_sym(int v, CType *type, int r)
-{
+static Sym *external_global_sym(int v, CType *type, int r) {
     Sym *s;
 
     s = sym_find(v);
@@ -11239,13 +11237,6 @@ static void gadd_sp(int val) {
     } else {
         oad(0xc481, val);
     }
-}
-
-static void gen_static_call(int v) {
-    Sym *sym;
-    sym = external_global_sym(v, &func_old_type, 0);
-    oad(0xe8, -4);
-    greloc(cur_text_section, sym, ind-4, 2);
 }
 
 static void gcall_or_jmp(int is_jmp) {
