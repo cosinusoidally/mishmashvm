@@ -4434,8 +4434,7 @@ static void vpushi(int v) {
     vsetc(&int_type, 0x0030, &cval);
 }
 
-static void vpushs(Elf32_Addr v)
-{
+static void vpushs(Elf32_Addr v) {
   CValue cval;
   cval.i = v;
   vsetc(&size_type, 0x0030, &cval);
@@ -4602,36 +4601,13 @@ static void patch_type(Sym *sym, CType *type)
     }
 }
 
-
-
-static void patch_storage(Sym *sym, AttributeDef *ad, CType *type)
-{
-    if (type)
+static void patch_storage(Sym *sym, AttributeDef *ad, CType *type) {
+    if (type) {
         patch_type(sym, type);
-
-
-
-
-
-
-
-    sym->a.weak |= ad->a.weak;
-    if (ad->a.visibility) {
-        int vis = sym->a.visibility;
-        int vis2 = ad->a.visibility;
-        if (vis == 0)
-            vis = vis2;
-        else if (vis2 != 0)
-            vis = (vis < vis2) ? vis : vis2;
-        sym->a.visibility = vis;
     }
-    if (ad->a.aligned)
-        sym->a.aligned = ad->a.aligned;
-    if (ad->asm_label)
-        sym->asm_label = ad->asm_label;
+    sym->a.weak |= ad->a.weak;
     update_storage(sym);
 }
-
 
 static Sym *external_sym(int v, CType *type, int r, AttributeDef *ad)
 {
