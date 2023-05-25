@@ -1942,34 +1942,34 @@ static inline void TOK_GET(int *t, const int **pp, CValue *cv) {
 
     tab = cv->tab;
     switch(*t = *p++) {
-    case 0xce:
-    case 0xb5:
-    case 0xb3:
-    case 0xb4:
-    case 0xc0:
+    case TOK_CLONG:
+    case TOK_CINT:
+    case TOK_CCHAR:
+    case TOK_LCHAR:
+    case TOK_LINENUM:
         cv->i = *p++;
         break;
-    case 0xcf:
-    case 0xb6:
+    case TOK_CULONG:
+    case TOK_CUINT:
         cv->i = (unsigned)*p++;
         break;
-    case 0xbb:
+    case TOK_CFLOAT:
 	tab[0] = *p++;
 	break;
-    case 0xb9:
-    case 0xba:
-    case 0xbe:
-    case 0xbf:
+    case TOK_STR:
+    case TOK_LSTR:
+    case TOK_PPNUM:
+    case TOK_PPSTR:
         cv->str.size = *p++;
         cv->str.data = p;
         p += (cv->str.size + sizeof(int) - 1) / sizeof(int);
         break;
-    case 0xbc:
-    case 0xb7:
-    case 0xb8:
+    case TOK_CDOUBLE:
+    case TOK_CLLONG:
+    case TOK_CULLONG:
         n = 2;
         goto copy;
-    case 0xbd:
+    case TOK_CLDOUBLE:
         n = 3;
     copy:
         do
