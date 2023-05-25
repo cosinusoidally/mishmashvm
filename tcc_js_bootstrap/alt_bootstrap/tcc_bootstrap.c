@@ -1391,25 +1391,24 @@ static const char *get_tok_str(int v, CValue *cv) {
     case TOK_CULONG:
     case TOK_CLLONG:
     case TOK_CULLONG:
-
         sprintf(p, "%llu", (unsigned long long)cv->i);
         break;
-    case 0xb4:
+    case TOK_LCHAR:
         cstr_ccat(&cstr_buf, 'L');
-    case 0xb3:
+    case TOK_CCHAR:
         cstr_ccat(&cstr_buf, '\'');
         add_char(&cstr_buf, cv->i);
         cstr_ccat(&cstr_buf, '\'');
         cstr_ccat(&cstr_buf, '\0');
         break;
-    case 0xbe:
-    case 0xbf:
+    case TOK_PPNUM:
+    case TOK_PPSTR:
         return (char*)cv->str.data;
-    case 0xba:
+    case TOK_LSTR:
         cstr_ccat(&cstr_buf, 'L');
-    case 0xb9:
+    case TOK_STR:
         cstr_ccat(&cstr_buf, '\"');
-        if (v == 0xb9) {
+        if (v == TOK_STR) {
             len = cv->str.size - 1;
             for(i=0;i<len;i++)
                 add_char(&cstr_buf, ((unsigned char *)cv->str.data)[i]);
@@ -1421,34 +1420,35 @@ static const char *get_tok_str(int v, CValue *cv) {
         cstr_ccat(&cstr_buf, '\"');
         cstr_ccat(&cstr_buf, '\0');
         break;
-    case 0xbb:
+
+    case TOK_CFLOAT:
         cstr_cat(&cstr_buf, "<float>", 0);
         break;
-    case 0xbc:
-	cstr_cat(&cstr_buf, "<double>", 0);
-	break;
-    case 0xbd:
-	cstr_cat(&cstr_buf, "<long double>", 0);
-	break;
-    case 0xc0:
-	cstr_cat(&cstr_buf, "<linenumber>", 0);
-	break;
-    case 0x9c:
+    case TOK_CDOUBLE:
+        cstr_cat(&cstr_buf, "<double>", 0);
+        break;
+    case TOK_CLDOUBLE:
+        cstr_cat(&cstr_buf, "<long double>", 0);
+        break;
+    case TOK_LINENUM:
+        cstr_cat(&cstr_buf, "<linenumber>", 0);
+        break;
+    case TOK_LT:
         v = '<';
         goto addv;
-    case 0x9f:
+    case TOK_GT:
         v = '>';
         goto addv;
-    case 0xc8:
+    case TOK_DOTS:
         return strcpy(p, "...");
-    case 0x81:
+    case TOK_A_SHL:
         return strcpy(p, "<<=");
-    case 0x82:
+    case TOK_A_SAR:
         return strcpy(p, ">>=");
-    case (-1):
+    case TOK_EOF:
         return strcpy(p, "<eof>");
     default:
-        if (v < 256) {
+        if (v < TOK_IDENT) {
             const unsigned char *q = tok_two_chars;
             while (*q) {
                 if (q[2] == v) {
@@ -1468,9 +1468,9 @@ static const char *get_tok_str(int v, CValue *cv) {
             *p = '\0';
         } else if (v < tok_ident) {
             return table_ident[v - 256]->str;
-        } else if (v >= 0x10000000) {
+        } else if (v >= SYM_FIRST_ANOM) {
 
-            sprintf(p, "L.%u", v - 0x10000000);
+            sprintf(p, "L.%u", v - SYM_FIRST_ANOM);
         } else {
             return ((void*)0);
         }
