@@ -937,15 +937,6 @@ static void expr_sum(void);
 static void gexpr(void);
 static int expr_const(void);
 static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size);
-
-typedef struct {
-    unsigned int n_strx;
-    unsigned char n_type;
-    unsigned char n_other;
-    unsigned short n_desc;
-    unsigned int n_value;
-} Stab_Sym;
-
 static Section *text_section, *data_section, *bss_section;
 static Section *common_section;
 static Section *cur_text_section;
