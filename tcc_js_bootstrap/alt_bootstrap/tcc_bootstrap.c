@@ -1884,20 +1884,20 @@ static void tok_str_add2(TokenString *s, int t, CValue *cv) {
         str = tok_str_realloc(s, len + 4 + 1);
     str[len++] = t;
     switch(t) {
-    case 0xb5:
-    case 0xb6:
-    case 0xb3:
-    case 0xb4:
-    case 0xbb:
-    case 0xc0:
-    case 0xce:
-    case 0xcf:
+    case TOK_CINT:
+    case TOK_CUINT:
+    case TOK_CCHAR:
+    case TOK_LCHAR:
+    case TOK_CFLOAT:
+    case TOK_LINENUM:
+    case TOK_CLONG:
+    case TOK_CULONG:
         str[len++] = cv->tab[0];
         break;
-    case 0xbe:
-    case 0xbf:
-    case 0xb9:
-    case 0xba:
+    case TOK_PPNUM:
+    case TOK_PPSTR:
+    case TOK_STR:
+    case TOK_LSTR:
         {
             size_t nb_words =
                 1 + (cv->str.size + sizeof(int) - 1) / sizeof(int);
@@ -1908,13 +1908,13 @@ static void tok_str_add2(TokenString *s, int t, CValue *cv) {
             len += nb_words;
         }
         break;
-    case 0xbc:
-    case 0xb7:
-    case 0xb8:
+    case TOK_CDOUBLE:
+    case TOK_CLLONG:
+    case TOK_CULLONG:
         str[len++] = cv->tab[0];
         str[len++] = cv->tab[1];
         break;
-    case 0xbd:
+    case TOK_CLDOUBLE:
         str[len++] = cv->tab[0];
         str[len++] = cv->tab[1];
         str[len++] = cv->tab[2];
