@@ -348,29 +348,6 @@ typedef struct CachedInclude {
 } CachedInclude;
 
 
-typedef struct ExprValue {
-    uint64_t v;
-    Sym *sym;
-    int pcrel;
-} ExprValue;
-
-
-typedef struct ASMOperand {
-    int id;
-    char *constraint;
-    char asm_str[16];
-    SValue *vt;
-    int ref_index;
-    int input_index;
-    int priority;
-    int reg;
-    int is_llong;
-    int is_memory;
-    int is_rw;
-} ASMOperand;
-
-
-
 struct sym_attr {
     unsigned got_offset;
     unsigned plt_offset;
@@ -972,7 +949,6 @@ static void relocate_syms(TCCState *s1, Section *symtab, int do_resolve);
 static void relocate_section(TCCState *s1, Section *s);
 static int tcc_object_type(int fd, Elf32_Ehdr *h);
 static int tcc_load_object_file(TCCState *s1, int fd, unsigned long file_offset);
-static struct sym_attr *get_sym_attr(TCCState *s1, int index, int alloc);
 static void squeeze_multi_relocs(Section *sec, size_t oldrelocoffset);
 static uint8_t *parse_comment(uint8_t *p);
 static void minp(void);
@@ -10331,7 +10307,6 @@ static void tccelf_new(TCCState *s) {
     s->dynsymtab_section = new_symtab(s, ".dynsymtab", 2, 0x80000000|0x40000000,
                                       ".dynstrtab",
                                       ".dynhashtab", 0x80000000);
-    get_sym_attr(s, 0, 1);
 }
 
 static void free_section(Section *s) {
@@ -10711,24 +10686,6 @@ static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset) {
 	*dest = *r;
     }
     sr->data_offset = (unsigned char*)dest - sr->data + sizeof(*r);
-}
-
-static struct sym_attr *get_sym_attr(TCCState *s1, int index, int alloc) {
-    int n;
-    struct sym_attr *tab;
-    if (index >= s1->nb_sym_attrs) {
-        if (!alloc)
-            return s1->sym_attrs;
-        n = 1;
-        while (index >= n)
-            n *= 2;
-        tab = tcc_realloc(s1->sym_attrs, n * sizeof(*s1->sym_attrs));
-        s1->sym_attrs = tab;
-        memset(s1->sym_attrs + s1->nb_sym_attrs, 0,
-               (n - s1->nb_sym_attrs) * sizeof(*s1->sym_attrs));
-        s1->nb_sym_attrs = n;
-    }
-    return &s1->sym_attrs[index];
 }
 
 static void sort_syms(TCCState *s1, Section *s) {
