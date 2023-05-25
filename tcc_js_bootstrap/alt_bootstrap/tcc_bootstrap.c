@@ -168,9 +168,9 @@ extern long double strtold (const char *__nptr, char **__endptr);
 
 struct TCCState;
 typedef struct TCCState TCCState;
+// LJW BOOKMARK
 TCCState *tcc_new(void);
 void tcc_delete(TCCState *s);
-void tcc_set_lib_path(TCCState *s, const char *path);
 void tcc_set_error_func(TCCState *s, void *error_opaque,
 void (*error_func)(void *opaque, const char *msg));
 void tcc_set_options(TCCState *s, const char *str);
@@ -343,7 +343,6 @@ struct sym_attr {
 
 struct TCCState {
     int alacarte_link;
-    char *tcc_lib_path;
     int output_type;
     int output_format;
     int char_is_unsigned;
@@ -10088,8 +10087,6 @@ static void free_inline_functions(TCCState *s)
     dynarray_reset(&s->inline_fns, &s->nb_inline_fns);
 }
 
-// LJW BOOKMARK UP 2
-
 static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
     int v, has_init, r;
     CType type, btype;
@@ -11852,13 +11849,7 @@ static void tcc_split_path(TCCState *s, void *p_ary, int *p_nb_ary, const char *
         CString str;
         cstr_new(&str);
         for (p = in; c = *p, c != '\0' && c != ":"[0]; ++p) {
-            if (c == '{' && p[1] && p[2] == '}') {
-                c = p[1], p += 2;
-                if (c == 'B')
-                    cstr_cat(&str, s->tcc_lib_path, -1);
-            } else {
-                cstr_ccat(&str, c);
-            }
+            cstr_ccat(&str, c);
         }
         if (str.size) {
             cstr_ccat(&str, '\0');
@@ -12057,7 +12048,6 @@ TCCState *tcc_new(void) {
     s->alacarte_link = 1;
     s->warn_implicit_function_declaration = 1;
     s->seg_size = 32;
-    tcc_set_lib_path(s, "/tmp/tcc/lib/tcc");
     tccelf_new(s);
     tccpp_new(s);
     define_push(TOK___LINE__, 0, ((void*)0), ((void*)0));
@@ -12098,7 +12088,6 @@ void tcc_delete(TCCState *s1) {
     dynarray_reset(&s1->cached_includes, &s1->nb_cached_includes);
     dynarray_reset(&s1->include_paths, &s1->nb_include_paths);
     dynarray_reset(&s1->cmd_include_files, &s1->nb_cmd_include_files);
-    tcc_free(s1->tcc_lib_path);
     tcc_free(s1->outfile);
     dynarray_reset(&s1->files, &s1->nb_files);
     dynarray_reset(&s1->target_deps, &s1->nb_target_deps);
@@ -12137,11 +12126,6 @@ int tcc_add_file(TCCState *s, const char *filename) {
         s->filetype = 1;
     }
     return tcc_add_file_internal(s, filename, flags);
-}
-
-void tcc_set_lib_path(TCCState *s, const char *path) {
-    tcc_free(s->tcc_lib_path);
-    s->tcc_lib_path = tcc_strdup(path);
 }
 
 typedef struct FlagDef {
