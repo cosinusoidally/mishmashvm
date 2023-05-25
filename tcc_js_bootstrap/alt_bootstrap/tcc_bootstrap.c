@@ -373,12 +373,6 @@ struct TCCState {
     int seg_size;
     char **include_paths;
     int nb_include_paths;
-    char **sysinclude_paths;
-    int nb_sysinclude_paths;
-    char **library_paths;
-    int nb_library_paths;
-    char **crt_paths;
-    int nb_crt_paths;
     char **cmd_include_files;
     int nb_cmd_include_files;
     void *error_opaque;
@@ -2298,7 +2292,7 @@ static void preprocess(int is_bof) {
             tcc_error("#include recursion too deep");
         *s1->include_stack_ptr = file;
         i = tok == TOK_INCLUDE_NEXT ? file->include_next_index : 0;
-        n = 2 + s1->nb_include_paths + s1->nb_sysinclude_paths;
+        n = 2 + s1->nb_include_paths;
         for (; i < n; ++i) {
             char buf1[sizeof file->filename];
             CachedInclude *e;
@@ -2315,7 +2309,7 @@ static void preprocess(int is_bof) {
                 pstrncpy(buf1, path, tcc_basename(path) - path);
             } else {
                 int j = i - 2, k = j - s1->nb_include_paths;
-                path = k < 0 ? s1->include_paths[j] : s1->sysinclude_paths[k];
+                path = s1->include_paths[j];
                 pstrcpy(buf1, sizeof(buf1), path);
                 pstrcat(buf1, sizeof(buf1), "/");
             }
@@ -12117,11 +12111,8 @@ TCCState *tcc_new(void) {
 void tcc_delete(TCCState *s1) {
     tcc_cleanup();
     tccelf_delete(s1);
-    dynarray_reset(&s1->library_paths, &s1->nb_library_paths);
-    dynarray_reset(&s1->crt_paths, &s1->nb_crt_paths);
     dynarray_reset(&s1->cached_includes, &s1->nb_cached_includes);
     dynarray_reset(&s1->include_paths, &s1->nb_include_paths);
-    dynarray_reset(&s1->sysinclude_paths, &s1->nb_sysinclude_paths);
     dynarray_reset(&s1->cmd_include_files, &s1->nb_cmd_include_files);
     tcc_free(s1->tcc_lib_path);
     tcc_free(s1->outfile);
