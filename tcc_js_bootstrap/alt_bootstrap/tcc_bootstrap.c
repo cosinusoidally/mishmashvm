@@ -205,7 +205,6 @@ enum {
     TREG_ST0,
     TREG_ESP = 4
 };
-
 typedef struct TokenSym {
     struct TokenSym *hash_next;
     struct Sym *sym_define;
@@ -216,20 +215,16 @@ typedef struct TokenSym {
     int len;
     char str[1];
 } TokenSym;
-
 typedef int nwchar_t;
-
 typedef struct CString {
     int size;
     void *data;
     int size_allocated;
 } CString;
-
 typedef struct CType {
     int t;
     struct Sym *ref;
 } CType;
-
 typedef union CValue {
     long double ld;
     double d;
@@ -241,19 +236,13 @@ typedef union CValue {
     } str;
     int tab[12/4];
 } CValue;
-
-
 typedef struct SValue {
     CType type;
     unsigned short r;
     unsigned short r2;
-
     CValue c;
     struct Sym *sym;
-
 } SValue;
-
-
 struct SymAttr {
     unsigned short
     aligned     : 5,
@@ -264,16 +253,12 @@ struct SymAttr {
     dllimport   : 1,
     unused      : 5;
 };
-
-
 struct FuncAttr {
     unsigned
     func_call   : 3,
     func_type   : 2,
     func_args   : 8;
 };
-
-
 typedef struct AttributeDef {
     struct SymAttr a;
     struct FuncAttr f;
@@ -282,8 +267,6 @@ typedef struct AttributeDef {
     int asm_label;
     char attr_mode;
 } AttributeDef;
-
-
 typedef struct Sym {
     int v;
     unsigned short r;
@@ -309,8 +292,6 @@ typedef struct Sym {
     struct Sym *prev;
     struct Sym *prev_tok;
 } Sym;
-
-
 typedef struct Section {
     unsigned long data_offset;
     unsigned char *data;
@@ -332,13 +313,6 @@ typedef struct Section {
     struct Section *prev;
     char name[1];
 } Section;
-
-typedef struct DLLReference {
-    int level;
-    void *handle;
-    char name[1];
-} DLLReference;
-
 typedef struct BufferedFile {
     uint8_t *buf_ptr;
     uint8_t *buf_end;
@@ -4626,11 +4600,7 @@ static void vdup(void)
     vpushv(vtop);
 }
 
-
-
-
-static void vrotb(int n)
-{
+static void vrotb(int n) {
     int i;
     SValue tmp;
 
@@ -4640,38 +4610,25 @@ static void vrotb(int n)
     vtop[0] = tmp;
 }
 
-
-
-
-static void vrote(SValue *e, int n)
-{
+static void vrote(SValue *e, int n) {
     int i;
     SValue tmp;
-
     tmp = *e;
     for(i = 0;i < n - 1; i++)
         e[-i] = e[-i - 1];
     e[-n + 1] = tmp;
 }
 
-
-
-
-static void vrott(int n)
-{
+static void vrott(int n) {
     vrote(vtop, n);
 }
 
-
-static inline void vpushsym(CType *type, Sym *sym)
-{
+static inline void vpushsym(CType *type, Sym *sym) {
     CValue cval;
     cval.i = 0;
     vsetc(type, 0x0030 | 0x0200, &cval);
     vtop->sym = sym;
 }
-
-
 static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size)
 {
     int v;
