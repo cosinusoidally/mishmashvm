@@ -618,6 +618,14 @@ enum tcc_token {
      ,TOK___fixunsdfdi
 };
 
+int TOK_HASH_INIT = 1;
+int TOK_HASH_SIZE = 16384;
+unsigned int TOK_HASH_FUNC(unsigned int h,unsigned int c) {
+    return ((h) + ((h) << 5) + ((h) >> 27) + (c));
+}
+
+int CACHED_INCLUDES_HASH_SIZE = 32;
+
 enum VTS {
     VT_CMP = 0x0033,
     VT_CONST = 0x0030,
@@ -1291,10 +1299,10 @@ static TokenSym *tok_alloc(const char *str, int len) {
     TokenSym *ts, **pts;
     int i;
     unsigned int h;
-    h = 1;
+    h = TOK_HASH_INIT;
     for(i=0;i<len;i++)
-        h = ((h) + ((h) << 5) + ((h) >> 27) + (((unsigned char *)str)[i]));
-    h &= (16384 - 1);
+        h = TOK_HASH_FUNC(h, ((unsigned char *)str)[i]);
+    h &= (TOK_HASH_SIZE - 1);
     pts = &hash_ident[h];
     for(;;) {
         ts = *pts;
@@ -2160,13 +2168,13 @@ static CachedInclude *search_cached_include(TCCState *s1, const char *filename, 
     unsigned int h;
     CachedInclude *e;
     int i;
-    h = 1;
+    h = TOK_HASH_INIT;
     s = (unsigned char *) filename;
     while (*s) {
-        h = ((h) + ((h) << 5) + ((h) >> 27) + (*s));
+        h = TOK_HASH_FUNC(h, *s);
         s++;
     }
-    h &= (32 - 1);
+    h &= (CACHED_INCLUDES_HASH_SIZE - 1);
     i = s1->cached_includes_hash[h];
     for(;;) {
         if (i == 0)
