@@ -9899,7 +9899,6 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
         } else {
 	    indexsym.c = 0;
 	    f = &indexsym;
-
           do_init_list:
 	    len = 0;
 	    while (tok != '}' || have_elem) {
@@ -9944,19 +9943,9 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
         decl_initializer(type, sec, c, first, size_only);
         skip('}');
     } else if (size_only) {
-
-
-
-
-
-
-
         skip_or_save_block(((void*)0));
     } else {
 	if (!have_elem) {
-
-
-
 	    if (tok != 0xb9 && tok != 0xba)
 	      expect("string constant");
 	    parse_init_elem(!sec ? 2 : 1);
@@ -9964,24 +9953,18 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
         init_putv(type, sec, c);
     }
 }
-# 6818 "tcc_src/tccgen.c"
+
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
-                                   int has_init, int v, int scope)
-{
+                                   int has_init, int v, int scope) {
     int size, align, addr;
     TokenString *init_str = ((void*)0);
-
     Section *sec;
     Sym *flexible_array;
     Sym *sym = ((void*)0);
     int saved_nocode_wanted = nocode_wanted;
-
     int bcheck = 0;
-
-
     if (type->t & 0x00002000)
         nocode_wanted |= (nocode_wanted > 0) ? 0x40000000 : 0x80000000;
-
     flexible_array = ((void*)0);
     if ((type->t & 0x000f) == 7) {
         Sym *field = type->ref->next;
@@ -9992,21 +9975,12 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
                 flexible_array = field;
         }
     }
-
     size = type_size(type, &align);
-
-
-
-
-
-
     if (size < 0 || (flexible_array && has_init)) {
         if (!has_init)
             tcc_error("unknown type size");
-
         if (has_init == 2) {
 	    init_str = tok_str_alloc();
-
             while (tok == 0xb9 || tok == 0xba) {
                 tok_str_add_tok(init_str);
                 next();
@@ -10017,27 +9991,19 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
 	    skip_or_save_block(&init_str);
         }
         unget_tok(0);
-
-
         begin_macro(init_str, 1);
         next();
         decl_initializer(type, ((void*)0), 0, 1, 1);
-
         macro_ptr = init_str->str;
         next();
-
-
         size = type_size(type, &align);
         if (size < 0)
             tcc_error("unknown type size");
     }
-
-
     if (flexible_array &&
 	flexible_array->type.ref->c > 0)
         size += flexible_array->type.ref->c
 	        * pointed_size(&flexible_array->type);
-
     if (ad->a.aligned) {
 	int speca = 1 << (ad->a.aligned - 1);
         if (speca > align)
@@ -10045,7 +10011,6 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
     } else if (ad->a.packed) {
         align = 1;
     }
-
     if ((nocode_wanted > 0))
         size = 0, align = 1;
 
