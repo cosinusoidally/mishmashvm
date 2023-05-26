@@ -844,8 +844,8 @@ static void preprocess_start(TCCState *s1, int is_asm);
 static void preprocess_end(TCCState *s1);
 static void tccpp_new(TCCState *s);
 static void tccpp_delete(TCCState *s);
-// LJW BOOKMARK
 static int tcc_preprocess(TCCState *s1);
+// LJW BOOKMARK
 static void skip(int c);
 static  void expect(const char *msg);
 
@@ -4076,45 +4076,31 @@ static int pp_check_he0xE(int t, const char *p)
     return t;
 }
 
-
-static int tcc_preprocess(TCCState *s1)
-{
+static int tcc_preprocess(TCCState *s1) {
+// LJW DONE
     BufferedFile **iptr;
     int token_seen, spcs, level;
     const char *p;
     char white[400];
-
-    parse_flags = 0x0001
-                | (parse_flags & 0x0008)
-                | 0x0004
-                | 0x0010
-                | 0x0020
+    parse_flags = PARSE_FLAG_PREPROCESS
+                | (parse_flags & PARSE_FLAG_ASM_FILE)
+                | PARSE_FLAG_LINEFEED
+                | PARSE_FLAG_SPACES
+                | PARSE_FLAG_ACCEPT_STRAYS
                 ;
-
-
-
     if (s1->Pflag == LINE_MACRO_OUTPUT_FORMAT_P10)
-        parse_flags |= 0x0002, s1->Pflag = 1;
-
-
-
-
-
-
-
+        parse_flags |= PARSE_FLAG_TOK_NUM, s1->Pflag = 1;
     if (s1->dflag & 1) {
         pp_debug_builtins(s1);
         s1->dflag &= ~1;
     }
-
-    token_seen = 10, spcs = 0;
+    token_seen = TOK_LINEFEED, spcs = 0;
     pp_line(s1, file, 0);
     for (;;) {
         iptr = s1->include_stack_ptr;
         next();
-        if (tok == (-1))
+        if (tok == TOK_EOF)
             break;
-
         level = s1->include_stack_ptr - iptr;
         if (level) {
             if (level > 0)
@@ -4131,17 +4117,16 @@ static int tcc_preprocess(TCCState *s1)
             if (spcs < sizeof white - 1)
                 white[spcs++] = tok;
             continue;
-        } else if (tok == 10) {
+        } else if (tok == TOK_LINEFEED) {
             spcs = 0;
-            if (token_seen == 10)
+            if (token_seen == TOK_LINEFEED)
                 continue;
             ++file->line_ref;
-        } else if (token_seen == 10) {
+        } else if (token_seen == TOK_LINEFEED) {
             pp_line(s1, file, 0);
         } else if (spcs == 0 && pp_need_space(token_seen, tok)) {
             white[spcs++] = ' ';
         }
-
         white[spcs] = 0, fputs(white, s1->ppfp), spcs = 0;
         fputs(p = get_tok_str(tok, &tokc), s1->ppfp);
         token_seen = pp_check_he0xE(tok, p);
