@@ -833,19 +833,19 @@ static int tcc_preprocess(TCCState *s1);
 static void skip(int c);
 static  void expect(const char *msg);
 
-static inline int is_space(int ch) {
+static int is_space(int ch) {
     return ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r';
 }
-static inline int isid(int c) {
+static int isid(int c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
-static inline int isnum(int c) {
+static int isnum(int c) {
     return c >= '0' && c <= '9';
 }
-static inline int isoct(int c) {
+static int isoct(int c) {
     return c >= '0' && c <= '7';
 }
-static inline int toup(int c) {
+static int toup(int c) {
     return (c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c;
 }
 
@@ -2147,10 +2147,10 @@ static void parse_define(void) {
     int v, t, varg, is_vaargs, spc;
     int saved_parse_flags = parse_flags;
     v = tok;
-    if (v < 256 || v == TOK_DEFINED)
+    if (v < TOK_IDENT || v == TOK_DEFINED)
         tcc_error("invalid macro name '%s'", get_tok_str(tok, &tokc));
     first = ((void*)0);
-    t = 0;
+    t = MACRO_OBJ;
     parse_flags = ((parse_flags & ~0x0008) | 0x0010);
     next_nomacro_spc();
     if (tok == '(') {
@@ -2161,17 +2161,17 @@ static void parse_define(void) {
             varg = tok;
             next_nomacro();
             is_vaargs = 0;
-            if (varg == 0xc8) {
+            if (varg == TOK_DOTS) {
                 varg = TOK___VA_ARGS__;
                 is_vaargs = 1;
             } else if (tok == 0xc8 && gnu_ext) {
                 is_vaargs = 1;
                 next_nomacro();
             }
-            if (varg < 256)
+            if (varg < TOK_IDENT)
         bad_list:
                 tcc_error("bad macro parameter list");
-            s = sym_push2(&define_stack, varg | 0x20000000, is_vaargs, 0);
+            s = sym_push2(&define_stack, varg | SYM_FIELD, is_vaargs, 0);
             *ps = s;
             ps = &s->next;
             if (tok == ')')
@@ -2187,14 +2187,14 @@ static void parse_define(void) {
     tokstr_buf.len = 0;
     spc = 2;
     parse_flags |= 0x0020 | 0x0010 | 0x0004;
-    while (tok != 10 && tok != (-1)) {
-        if (0xca == tok) {
+    while (tok != TOK_LINEFEED && tok != TOK_EOF) {
+        if (TOK_TWOSHARPS == tok) {
             if (2 == spc)
                 goto bad_twosharp;
             if (1 == spc)
                 --tokstr_buf.len;
             spc = 3;
-	    tok = 0xcd;
+            tok = TOK_PPJOIN;
         } else if ('#' == tok) {
             spc = 4;
         } else if (check_space(tok, &spc)) {
