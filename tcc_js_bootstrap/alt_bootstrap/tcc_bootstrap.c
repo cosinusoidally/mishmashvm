@@ -843,8 +843,8 @@ static void unget_tok(int last_tok);
 static void preprocess_start(TCCState *s1, int is_asm);
 static void preprocess_end(TCCState *s1);
 static void tccpp_new(TCCState *s);
-// LJW BOOKMARK
 static void tccpp_delete(TCCState *s);
+// LJW BOOKMARK
 static int tcc_preprocess(TCCState *s1);
 static void skip(int c);
 static  void expect(const char *msg);
@@ -3933,27 +3933,19 @@ static void tccpp_new(TCCState *s) {
     }
 }
 
-static void tccpp_delete(TCCState *s)
-{
+static void tccpp_delete(TCCState *s) {
+// LJW DONE
     int i, n;
-
-
     free_defines(((void*)0));
-
-
-    n = tok_ident - 256;
+    n = tok_ident - TOK_IDENT;
     for(i = 0; i < n; i++)
         tal_free_impl(toksym_alloc, table_ident[i]);
     tcc_free(table_ident);
     table_ident = ((void*)0);
-
-
     cstr_free(&tokcstr);
     cstr_free(&cstr_buf);
     cstr_free(&macro_equal_buf);
     tok_str_free_str(tokstr_buf.str);
-
-
     tal_delete(toksym_alloc);
     toksym_alloc = ((void*)0);
     tal_delete(tokstr_alloc);
