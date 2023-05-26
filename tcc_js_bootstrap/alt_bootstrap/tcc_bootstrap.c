@@ -1528,8 +1528,16 @@ static void minp(void) {
         handle_stray();
 }
 
-int PEEKC_EOB(int c, unsigned int p0) {
-  // FIXME implement
+int PEEKC_EOB(int c, uint8_t *p) {
+// FIXME should mutate c and p from caller instead
+//  p++;
+  c = *p;
+  if (c == '\\') {
+    file->buf_ptr = p;
+    c = handle_eob();
+    p = file->buf_ptr;
+  };
+  return c;
 }
 
 
@@ -1546,8 +1554,9 @@ static uint8_t *parse_line_comment(uint8_t *p) {
             c = handle_eob();
             p = file->buf_ptr;
             if (c == '\\') {
-                { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
-//                c=PEEKC_EOB(c, &p);
+//                { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+                p++;
+                c=PEEKC_EOB(c, p);
                 if (c == '\n') {
                     file->line_num++;
                     { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
