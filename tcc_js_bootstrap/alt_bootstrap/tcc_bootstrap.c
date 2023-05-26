@@ -729,12 +729,16 @@ const int CH_EOF = -1;
 const int O_RDONLY=0;
 const int O_BINARY=0;
 
-const int INCLUDE_STACK_SIZE = 32;
-const int IFDEF_STACK_SIZE = 64;
-
 const int IS_SPC = 1;
 const int  IS_ID = 2;
 const int IS_NUM = 4;
+
+const int INCLUDE_STACK_SIZE = 32;
+const int IFDEF_STACK_SIZE =  64;
+const int VSTACK_SIZE      =  256;
+const int STRING_MAX_SIZE  =  1024;
+const int TOKSTR_MAX_SIZE  =  256;
+const int PACK_STACK_SIZE  =  8;
 
 enum LABELS {
     LABEL_DEFINED = 0,
@@ -837,9 +841,9 @@ static void next_nomacro(void);
 static void next(void);
 static void unget_tok(int last_tok);
 static void preprocess_start(TCCState *s1, int is_asm);
-// LJW BOOKMARK
 static void preprocess_end(TCCState *s1);
 static void tccpp_new(TCCState *s);
+// LJW BOOKMARK
 static void tccpp_delete(TCCState *s);
 static int tcc_preprocess(TCCState *s1);
 static void skip(int c);
@@ -3886,45 +3890,36 @@ static void preprocess_start(TCCState *s1, int is_asm) {
 }
 
 
-static void preprocess_end(TCCState *s1)
-{
+static void preprocess_end(TCCState *s1) {
+// LJW DONE
     while (macro_stack)
         end_macro();
     macro_ptr = ((void*)0);
 }
 
-static void tccpp_new(TCCState *s)
-{
+static void tccpp_new(TCCState *s) {
+// LJW DONE
     int i, c;
     const char *p, *r;
-
-
     s->include_stack_ptr = s->include_stack;
     s->ppfp = stdout;
-
-
     for(i = (-1); i<128; i++)
         set_idnum(i,
             is_space(i) ? 1
             : isid(i) ? 2
             : isnum(i) ? 4
             : 0);
-
     for(i = 128; i<256; i++)
         set_idnum(i, 2);
-
-
     tal_new(&toksym_alloc, 256, (768 * 1024));
     tal_new(&tokstr_alloc, 128, (768 * 1024));
     tal_new(&cstr_alloc, 1024, (256 * 1024));
-
-    memset(hash_ident, 0, 16384 * sizeof(TokenSym *));
+    memset(hash_ident, 0, TOK_HASH_SIZE * sizeof(TokenSym *));
     cstr_new(&cstr_buf);
-    cstr_realloc(&cstr_buf, 1024);
+    cstr_realloc(&cstr_buf, STRING_MAX_SIZE);
     tok_str_new(&tokstr_buf);
-    tok_str_realloc(&tokstr_buf, 256);
-
-    tok_ident = 256;
+    tok_str_realloc(&tokstr_buf, TOKSTR_MAX_SIZE);
+    tok_ident = TOK_IDENT;
     p = tcc_keywords;
     while (*p) {
         r = p;
