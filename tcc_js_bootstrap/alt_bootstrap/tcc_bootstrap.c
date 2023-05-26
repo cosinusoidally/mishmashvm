@@ -732,6 +732,8 @@ const int O_BINARY=0;
 const int INCLUDE_STACK_SIZE = 32;
 const int IFDEF_STACK_SIZE = 64;
 
+const int IS_SPC = 1;
+
 
 
 enum LABELS {
@@ -831,8 +833,8 @@ static Sym *label_push(Sym **ptop, int v, int flags);
 static void label_pop(Sym **ptop, Sym *slast, int keep);
 static void parse_define(void);
 static void preprocess(int is_bof);
-// LJW BOOKMARK
 static void next_nomacro(void);
+// LJW BOOKMARK
 static void next(void);
 static inline void unget_tok(int last_tok);
 static void preprocess_start(TCCState *s1, int is_asm);
@@ -3380,9 +3382,10 @@ static void next_nomacro_spc(void) {
 }
 
 static void next_nomacro(void) {
+// LJW DONE
     do {
         next_nomacro_spc();
-    } while (tok < 256 && (isidnum_table[tok - (-1)] & 1));
+    } while (tok < 256 && (isidnum_table[tok - CH_EOF] & IS_SPC));
 }
 
 static void macro_subst(
