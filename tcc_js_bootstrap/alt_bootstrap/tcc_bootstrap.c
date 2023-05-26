@@ -781,8 +781,8 @@ static Sym *global_identifier_push(int v, int t, int c);
 static void tcc_open_bf(TCCState *s1, const char *filename, int initlen);
 static int tcc_open(TCCState *s1, const char *filename);
 static void tcc_close(void);
-// LJW BOOKMARK
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags);
+// LJW BOOKMARK
 int tcc_parse_args(TCCState *s, int *argc, char ***argv, int optind);
 static struct BufferedFile *file;
 static int ch, tok;
@@ -12128,6 +12128,7 @@ int tcc_add_include_path(TCCState *s, const char *pathname) {
 }
 
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags) {
+// LJW DONE
     int ret;
     ret = tcc_open(s1, filename);
     dynarray_add(&s1->target_deps, &s1->nb_target_deps,
@@ -12178,10 +12179,14 @@ enum {
     TCC_OPTION_nostdlib,
 };
 
+enum {
+    TCC_OPTION_HAS_ARG = 0x0001,
+    TCC_OPTION_NOSEP = 0x0002,
+};
+
 static const TCCOption tcc_options[] = {
     { "I", TCC_OPTION_I, 0x0001 },
     { "D", TCC_OPTION_D, 0x0001 },
-    { "l", TCC_OPTION_l, 0x0001 | 0x0002 },
     { "c", TCC_OPTION_c, 0 },
     { "o", TCC_OPTION_o, 0x0001 },
     { "nostdinc", TCC_OPTION_nostdinc, 0 },
@@ -12260,7 +12265,7 @@ static void args_parser_listfile(TCCState *s,
     *pargc = s->argc = argc, *pargv = s->argv = argv;
 }
 
- int tcc_parse_args(TCCState *s, int *pargc, char ***pargv, int optind) {
+int tcc_parse_args(TCCState *s, int *pargc, char ***pargv, int optind) {
     const TCCOption *popt;
     const char *optarg, *r;
     int last_o = -1;
@@ -12287,15 +12292,14 @@ reparse:
             if (!strstart(p1, &r1))
                 continue;
             optarg = r1;
-            if (popt->flags & 0x0001) {
-                if (*r1 == '\0' && !(popt->flags & 0x0002)) {
+            if (popt->flags & TCC_OPTION_HAS_ARG) {
+                if (*r1 == '\0' && !(popt->flags & TCC_OPTION_NOSEP)) {
                     if (optind >= argc)
                 arg_err:
                         tcc_error("argument to '%s' is missing", r);
                     optarg = argv[optind++];
                 }
-            } else if (*r1 != '\0')
-                continue;
+            }
             break;
         }
         switch(popt->index) {
@@ -12304,10 +12308,6 @@ reparse:
             break;
         case TCC_OPTION_D:
             parse_option_D(s, optarg);
-            break;
-        case TCC_OPTION_l:
-            args_parser_add_file(s, optarg, 4);
-            s->nb_libraries++;
             break;
         case TCC_OPTION_c:
             s->output_type = TCC_OUTPUT_OBJ;
