@@ -780,9 +780,8 @@ static Sym *sym_find(int v);
 static Sym *global_identifier_push(int v, int t, int c);
 static void tcc_open_bf(TCCState *s1, const char *filename, int initlen);
 static int tcc_open(TCCState *s1, const char *filename);
-// LJW BOOKMARK
 static void tcc_close(void);
-
+// LJW BOOKMARK
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags);
 int tcc_parse_args(TCCState *s, int *argc, char ***argv, int optind);
 static struct BufferedFile *file;
@@ -11976,6 +11975,7 @@ static void tcc_open_bf(TCCState *s1, const char *filename, int initlen) {
 }
 
 static void tcc_close(void) {
+// LJW DONE
     BufferedFile *bf = file;
     if (bf->fd > 0) {
         close(bf->fd);
