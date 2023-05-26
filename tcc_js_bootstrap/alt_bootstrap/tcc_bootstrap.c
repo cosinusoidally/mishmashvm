@@ -914,11 +914,11 @@ static Sym *external_global_sym(int v, CType *type, int r);
 static void vset(CType *type, int r, int v);
 static void vswap(void);
 static void vpush_global_sym(CType *type, int v);
-// LJW BOOKMARK
 static void vrote(SValue *e, int n);
 static void vrott(int n);
 static void vrotb(int n);
 static void vpushv(SValue *v);
+// LJW BOOKMARK
 static void save_reg(int r);
 static void save_reg_upstack(int r, int n);
 static int get_reg(int rc);
@@ -4583,9 +4583,9 @@ static void vseti(int r, int v)
     vset(&type, r, v);
 }
 
-static void vpushv(SValue *v)
-{
-    if (vtop >= (__vstack + 1) + (256 - 1))
+static void vpushv(SValue *v) {
+// LJW DONE
+    if (vtop >= (__vstack + 1) + (VSTACK_SIZE - 1))
         tcc_error("memory full (vstack)");
     vtop++;
     *vtop = *v;
@@ -4597,6 +4597,7 @@ static void vdup(void)
 }
 
 static void vrotb(int n) {
+// LJW DONE
     int i;
     SValue tmp;
 
@@ -4607,6 +4608,7 @@ static void vrotb(int n) {
 }
 
 static void vrote(SValue *e, int n) {
+// LJW DONE
     int i;
     SValue tmp;
     tmp = *e;
@@ -4616,6 +4618,7 @@ static void vrote(SValue *e, int n) {
 }
 
 static void vrott(int n) {
+// LJW DONE
     vrote(vtop, n);
 }
 
