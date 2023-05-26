@@ -605,6 +605,8 @@ enum VTS {
     VT_LVAL = 0x0100,
     VT_QFLOAT = 14,
     VT_JMP = 0x0034,
+    VT_BOUNDED = 0x8000,
+    VT_LLOCAL = 0x00f1,
 };
 
 enum TOKS {
@@ -918,8 +920,8 @@ static void vrote(SValue *e, int n);
 static void vrott(int n);
 static void vrotb(int n);
 static void vpushv(SValue *v);
-// LJW BOOKMARK
 static void save_reg(int r);
+// LJW BOOKMARK
 static void save_reg_upstack(int r, int n);
 static int get_reg(int rc);
 static void save_regs(int n);
@@ -4751,53 +4753,54 @@ static void save_regs(int n)
 }
 
 
-static void save_reg(int r)
-{
+static void save_reg(int r) {
+// LJW DONE
     save_reg_upstack(r, 0);
 }
 
 
 
-static void save_reg_upstack(int r, int n)
-{
+static void save_reg_upstack(int r, int n) {
+// LJW DONE
     int l, saved, size, align;
     SValue *p, *p1, sv;
     CType *type;
-    if ((r &= 0x003f) >= 0x0030)
+    if ((r &= VT_VALMASK) >= VT_CONST)
         return;
     if (nocode_wanted)
         return;
     saved = 0;
     l = 0;
     for(p = (__vstack + 1), p1 = vtop - n; p <= p1; p++) {
-        if ((p->r & 0x003f) == r ||
-            ((p->type.t & 0x000f) == 4 && (p->r2 & 0x003f) == r)) {
+        if ((p->r & VT_VALMASK) == r ||
+            ((p->type.t & VT_BTYPE) == VT_LLONG && (p->r2 & VT_VALMASK) == r)) {
             if (!saved) {
-                r = p->r & 0x003f;
+                r = p->r & VT_VALMASK;
                 type = &p->type;
-                if ((p->r & 0x0100) ||
-                    (!is_float(type->t) && (type->t & 0x000f) != 4))
+                if ((p->r & VT_LVAL) ||
+                    (!is_float(type->t) && (type->t & VT_BTYPE) != VT_LLONG))
                     type = &int_type;
                 size = type_size(type, &align);
                 loc = (loc - size) & -align;
                 sv.type.t = type->t;
-                sv.r = 0x0032 | 0x0100;
+                sv.r = VT_LOCAL | VT_LVAL;
                 sv.c.i = loc;
                 store(r, &sv);
                 if (r == TREG_ST0) {
                     o(0xd8dd);
                 }
-                if ((type->t & 0x000f) == 4) {
+                if ((type->t & VT_BTYPE) == VT_LLONG) {
                     sv.c.i += 4;
                     store(p->r2, &sv);
                 }
                 l = loc;
                 saved = 1;
             }
-            if (p->r & 0x0100) {
-                p->r = (p->r & ~(0x003f | 0x8000)) | 0x0031;
+            if (p->r & VT_LVAL) {
+                p->r = (p->r & ~(VT_VALMASK | VT_BOUNDED)) | VT_LLOCAL;
+
             } else {
-                p->r = lvalue_type(p->type.t) | 0x0032;
+                p->r = lvalue_type(p->type.t) | VT_LOCAL;
             }
             p->r2 = 0x0030;
             p->c.i = l;
