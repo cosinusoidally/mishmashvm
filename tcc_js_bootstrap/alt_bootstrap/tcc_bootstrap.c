@@ -738,6 +738,17 @@ const int O_BINARY=0;
 static int gnu_ext;
 static int tcc_ext;
 static struct TCCState *tcc_state;
+static struct BufferedFile *file;
+static int ch, tok;
+static CValue tokc;
+static const int *macro_ptr;
+static int parse_flags;
+static int tok_flags;
+static CString tokcstr;
+static int total_lines;
+static int total_bytes;
+static int tok_ident;
+static TokenSym **table_ident;
 
 TCCState *tcc_new(void);
 void tcc_delete(TCCState *s);
@@ -782,20 +793,8 @@ static void tcc_open_bf(TCCState *s1, const char *filename, int initlen);
 static int tcc_open(TCCState *s1, const char *filename);
 static void tcc_close(void);
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags);
-// LJW BOOKMARK
 int tcc_parse_args(TCCState *s, int *argc, char ***argv, int optind);
-static struct BufferedFile *file;
-static int ch, tok;
-static CValue tokc;
-static const int *macro_ptr;
-static int parse_flags;
-static int tok_flags;
-static CString tokcstr;
-
-static int total_lines;
-static int total_bytes;
-static int tok_ident;
-static TokenSym **table_ident;
+// LJW BOOKMARK
 static TokenSym *tok_alloc(const char *str, int len);
 static const char *get_tok_str(int v, CValue *cv);
 static void begin_macro(TokenString *str, int alloc);
@@ -12266,6 +12265,7 @@ static void args_parser_listfile(TCCState *s,
 }
 
 int tcc_parse_args(TCCState *s, int *pargc, char ***pargv, int optind) {
+// LJW DONE
     const TCCOption *popt;
     const char *optarg, *r;
     int last_o = -1;
