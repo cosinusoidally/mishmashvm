@@ -5871,10 +5871,10 @@ redo:
             t |= VT_UNSIGNED;
         goto std_op;
     } else {
-        t = 3 | (0x0800 & (t1 | t2));
-        if ((t1 & (0x000f | 0x0010 | 0x0080)) == (3 | 0x0010) ||
-            (t2 & (0x000f | 0x0010 | 0x0080)) == (3 | 0x0010))
-            t |= 0x0010;
+        t = VT_INT | (VT_LONG & (t1 | t2));
+        if ((t1 & (VT_BTYPE | VT_UNSIGNED | VT_BITFIELD)) == (VT_INT | VT_UNSIGNED) ||
+            (t2 & (VT_BTYPE | VT_UNSIGNED | VT_BITFIELD)) == (VT_INT | VT_UNSIGNED))
+            t |= VT_UNSIGNED;
     std_op:
         if (t & 0x0010) {
             if (op == 0x02)
