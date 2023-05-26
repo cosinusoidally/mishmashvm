@@ -1529,7 +1529,7 @@ static void minp(void) {
 }
 
 int PEEKC_EOB(uint8_t *p) {
-// FIXME should mutate p from caller instead
+// FIXME this function should mutate p from caller instead
 //  p++;
   int c;
   c = *p;
@@ -1542,6 +1542,7 @@ int PEEKC_EOB(uint8_t *p) {
 }
 
 int PEEKC(int *c,uint8_t **pp) {
+// FIXME this function should mutate pp from caller instead
 //    int c;
     uint8_t *p;
     p=*pp;
@@ -1554,6 +1555,23 @@ int PEEKC(int *c,uint8_t **pp) {
     return p;
 }
 
+int PARSE2(int *c,uint8_t **pp, int tok1, char c2, int tok2) {
+    uint8_t *p;
+    p=*pp;
+    p++;
+    *c = *p;
+    if (*c == '\\') {
+        *c = handle_stray1(p);
+        p = file->buf_ptr;
+    }
+    if (*c == c2) {
+        p++;
+        tok = tok2;
+    } else {
+        tok = tok1;
+    }
+    return p;
+}
 
 static uint8_t *parse_line_comment(uint8_t *p) {
     int c;
@@ -3276,7 +3294,10 @@ maybe_newline:
             tok = '-';
         }
         break;
-    case '!': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0x95; } else { tok = '!'; } break;
+    case '!':
+{ p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0x95; } else { tok = '!'; } break;
+//    p=PARSE2(&c,&p,'!', '!', '=', TOK_NE); break;
+
     case '=': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0x94; } else { tok = '='; } break;
     case '*': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0xaa; } else { tok = '*'; } break;
     case '%': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0xa5; } else { tok = '%'; } break;
