@@ -1682,12 +1682,12 @@ static uint8_t *parse_pp_string(uint8_t *p,
             unterminated_string:
                 tcc_error("missing terminating %c character", sep);
             } else if (c == '\\') {
-                { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+                p++;c=PEEKC_EOB(c, p);
                 if (c == '\n') {
                     file->line_num++;
                     p++;
                 } else if (c == '\r') {
-                    { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+                    p++;c=PEEKC_EOB(c, p);
                     if (c != '\n')
                         expect("'\n' after '\r'");
                     file->line_num++;
@@ -1706,7 +1706,7 @@ static uint8_t *parse_pp_string(uint8_t *p,
             file->line_num++;
             goto add_char;
         } else if (c == '\r') {
-            { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+            p++;c=PEEKC_EOB(c, p);
             if (c != '\n') {
                 if (str)
                     cstr_ccat(str, '\r');
