@@ -1528,9 +1528,10 @@ static void minp(void) {
         handle_stray();
 }
 
-int PEEKC_EOB(int c, uint8_t *p) {
-// FIXME should mutate c and p from caller instead
+int PEEKC_EOB(uint8_t *p) {
+// FIXME should mutate p from caller instead
 //  p++;
+  int c;
   c = *p;
   if (c == '\\') {
     file->buf_ptr = p;
@@ -1538,6 +1539,19 @@ int PEEKC_EOB(int c, uint8_t *p) {
     p = file->buf_ptr;
   };
   return c;
+}
+
+int PEEKC(uint8_t **pp) {
+    int c;
+    uint8_t *p;
+    *p=pp;
+    p++;
+    c = *p;
+    if (c == '\\') {
+        c = handle_stray1(p);
+        p = file->buf_ptr;
+    }
+    return c;
 }
 
 
@@ -1554,15 +1568,15 @@ static uint8_t *parse_line_comment(uint8_t *p) {
             c = handle_eob();
             p = file->buf_ptr;
             if (c == '\\') {
-                p++;c=PEEKC_EOB(c, p);
+                p++;c=PEEKC_EOB(p);
                 if (c == '\n') {
                     file->line_num++;
-                    p++;c=PEEKC_EOB(c, p);
+                    p++;c=PEEKC_EOB(p);
                 } else if (c == '\r') {
-                    p++;c=PEEKC_EOB(c, p);
+                    p++;c=PEEKC_EOB(p);
                     if (c == '\n') {
                         file->line_num++;
-                        p++;c=PEEKC_EOB(c, p);
+                        p++;c=PEEKC_EOB(p);
                     }
                 }
             } else {
@@ -1608,15 +1622,15 @@ static uint8_t *parse_comment(uint8_t *p) {
                         tcc_error("unexpected end of file in comment");
                     if (c == '\\') {
                         while (c == '\\') {
-                            p++;c=PEEKC_EOB(c, p);
+                            p++;c=PEEKC_EOB(p);
                             if (c == '\n') {
                                 file->line_num++;
-                                p++;c=PEEKC_EOB(c, p);
+                                p++;c=PEEKC_EOB(p);
                             } else if (c == '\r') {
-                                p++;c=PEEKC_EOB(c, p);
+                                p++;c=PEEKC_EOB(p);
                                 if (c == '\n') {
                                     file->line_num++;
-                                    p++;c=PEEKC_EOB(c, p);
+                                    p++;c=PEEKC_EOB(p);
                                 }
                             } else {
                                 goto after_star;
@@ -1682,12 +1696,12 @@ static uint8_t *parse_pp_string(uint8_t *p,
             unterminated_string:
                 tcc_error("missing terminating %c character", sep);
             } else if (c == '\\') {
-                p++;c=PEEKC_EOB(c, p);
+                p++;c=PEEKC_EOB(p);
                 if (c == '\n') {
                     file->line_num++;
                     p++;
                 } else if (c == '\r') {
-                    p++;c=PEEKC_EOB(c, p);
+                    p++;c=PEEKC_EOB(p);
                     if (c != '\n')
                         expect("'\n' after '\r'");
                     file->line_num++;
@@ -1706,7 +1720,7 @@ static uint8_t *parse_pp_string(uint8_t *p,
             file->line_num++;
             goto add_char;
         } else if (c == '\r') {
-            p++;c=PEEKC_EOB(c, p);
+            p++;c=PEEKC_EOB(p);
             if (c != '\n') {
                 if (str)
                     cstr_ccat(str, '\r');
@@ -3023,6 +3037,7 @@ maybe_newline:
         goto keep_tok_flags;
     case '#':
         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+// c=PEEKC(&p);
         if ((tok_flags & 0x0001) &&
             (parse_flags & 0x0001)) {
             file->buf_ptr = p;
