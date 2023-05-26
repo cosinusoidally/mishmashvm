@@ -606,7 +606,14 @@ enum VTS {
     VT_QFLOAT = 14,
     VT_JMP = 0x0034,
     VT_BOUNDED = 0x8000,
-    VT_LLOCAL = 0x00f1,
+    VT_LLOCAL = 0x0031,
+};
+
+enum VTS_LVALS {
+    VT_LVAL_BYTE = 0x1000,
+    VT_LVAL_SHORT = 0x2000,
+    VT_LVAL_UNSIGNED = 0x4000,
+    VT_LVAL_TYPE = (VT_LVAL_BYTE | VT_LVAL_SHORT | VT_LVAL_UNSIGNED),
 };
 
 enum TOKS {
@@ -925,9 +932,9 @@ static void vpushv(SValue *v);
 static void save_reg(int r);
 static void save_reg_upstack(int r, int n);
 static int get_reg(int rc);
-// LJW BOOKMARK
 static void save_regs(int n);
 static void gaddrof(void);
+// LJW BOOKMARK
 static int gv(int rc);
 static void gv2(int rc1, int rc2);
 static void vpop(void);
@@ -4747,8 +4754,8 @@ static void vpush_global_sym(CType *type, int v) {
 }
 
 
-static void save_regs(int n)
-{
+static void save_regs(int n) {
+// LJW DONE
     SValue *p, *p1;
     for(p = (__vstack + 1), p1 = vtop - n; p <= p1; p++)
         save_reg(p->r);
@@ -4858,14 +4865,11 @@ static void move_reg(int r, int s, int t)
 }
 
 
-static void gaddrof(void)
-{
-    vtop->r &= ~0x0100;
-
-    if ((vtop->r & 0x003f) == 0x0031)
-        vtop->r = (vtop->r & ~(0x003f | (0x1000 | 0x2000 | 0x4000))) | 0x0032 | 0x0100;
-
-
+static void gaddrof(void) {
+// LJW DONE
+    vtop->r &= ~VT_LVAL;
+    if ((vtop->r & VT_VALMASK) == VT_LLOCAL)
+        vtop->r = (vtop->r & ~(VT_VALMASK | VT_LVAL_TYPE)) | VT_LOCAL | VT_LVAL;
 }
 
 static void incr_bf_adr(int o)
