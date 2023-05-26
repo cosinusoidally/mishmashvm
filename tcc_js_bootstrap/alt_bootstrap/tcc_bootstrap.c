@@ -947,8 +947,8 @@ unsigned int BIT_SIZE(unsigned int t) {
 static int gv(int rc);
 static void gv2(int rc1, int rc2);
 static void vpop(void);
-// LJW BOOKMARK
 static void gen_op(int op);
+// LJW BOOKMARK
 static int type_size(CType *type, int *a);
 static void mk_pointer(CType *type);
 static void vstore(void);
@@ -5774,7 +5774,7 @@ static void check_comparison_pointer_types(SValue *p1, SValue *p2, int op)
 }
 
 static void gen_op(int op) {
-
+// LJW DONE
     int u, t1, t2, bt1, bt2, t;
     CType type1;
 redo:
@@ -5876,42 +5876,42 @@ redo:
             (t2 & (VT_BTYPE | VT_UNSIGNED | VT_BITFIELD)) == (VT_INT | VT_UNSIGNED))
             t |= VT_UNSIGNED;
     std_op:
-        if (t & 0x0010) {
-            if (op == 0x02)
-                op = 0xc9;
+        if (t & VT_UNSIGNED) {
+            if (op == TOK_SAR)
+                op = TOK_SHR;
             else if (op == '/')
-                op = 0xb0;
+                op = TOK_UDIV;
             else if (op == '%')
-                op = 0xb1;
-            else if (op == 0x9c)
-                op = 0x92;
-            else if (op == 0x9f)
-                op = 0x97;
-            else if (op == 0x9e)
-                op = 0x96;
-            else if (op == 0x9d)
-                op = 0x93;
+                op = TOK_UMOD;
+            else if (op == TOK_LT)
+                op = TOK_ULT;
+            else if (op == TOK_GT)
+                op = TOK_UGT;
+            else if (op == TOK_LE)
+                op = TOK_ULE;
+            else if (op == TOK_GE)
+                op = TOK_UGE;
         }
         vswap();
         type1.t = t;
         type1.ref = ((void*)0);
         gen_cast(&type1);
         vswap();
-        if (op == 0xc9 || op == 0x02 || op == 0x01)
-            type1.t = 3;
+        if (op == TOK_SHR || op == TOK_SAR || op == TOK_SHL)
+            type1.t = VT_INT;
         gen_cast(&type1);
         if (is_float(t))
             gen_opif(op);
         else
             gen_opic(op);
-        if (op >= 0x92 && op <= 0x9f) {
-            vtop->type.t = 3;
+        if (op >= TOK_ULT && op <= TOK_GT) {
+            vtop->type.t = VT_INT;
         } else {
             vtop->type.t = t;
         }
     }
-    if (vtop->r & 0x0100)
-        gv(is_float(vtop->type.t & 0x000f) ? 0x0002 : 0x0001);
+    if (vtop->r & VT_LVAL)
+        gv(is_float(vtop->type.t & VT_BTYPE) ? RC_FLOAT : RC_INT);
 }
 
 static void gen_cvt_itof1(int t)
