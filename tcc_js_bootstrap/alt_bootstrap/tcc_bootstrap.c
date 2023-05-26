@@ -1541,7 +1541,7 @@ int PEEKC_EOB(uint8_t *p) {
   return c;
 }
 
-int PEEKC(int *c,uint8_t **pp) {
+uint8_t* PEEKC(int *c,uint8_t **pp) {
 // FIXME this function should mutate pp from caller instead
 //    int c;
     uint8_t *p;
