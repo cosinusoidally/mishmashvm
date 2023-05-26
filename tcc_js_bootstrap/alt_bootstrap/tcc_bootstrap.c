@@ -564,6 +564,8 @@ enum tcc_token {
 
 const int TOK_HASH_INIT = 1;
 const int TOK_HASH_SIZE = 16384;
+const int TOK_ALLOC_INCR = 512;
+
 unsigned int TOK_HASH_FUNC(unsigned int h,unsigned int c) {
     return ((h) + ((h) << 5) + ((h) >> 27) + (c));
 }
@@ -1178,6 +1180,8 @@ typedef struct tal_header_t {
 } tal_header_t;
 
 static TinyAlloc *tal_new(TinyAlloc **pal, unsigned limit, unsigned size) {
+// LJW DONE
+// TODO possibly remove
     TinyAlloc *al = tcc_mallocz(sizeof(TinyAlloc));
     al->p = al->buffer = tcc_malloc(size);
     al->limit = limit;
@@ -1187,6 +1191,8 @@ static TinyAlloc *tal_new(TinyAlloc **pal, unsigned limit, unsigned size) {
 }
 
 static void tal_delete(TinyAlloc *al) {
+// LJW DONE
+// TODO possibly remove
     TinyAlloc *next;
 tail_call:
     if (!al)
@@ -1199,6 +1205,8 @@ tail_call:
 }
 
 static void tal_free_impl(TinyAlloc *al, void *p ) {
+// LJW DONE
+// TODO possibly remove
     if (!p)
         return;
 tail_call:
@@ -1215,6 +1223,8 @@ tail_call:
 }
 
 static void *tal_realloc_impl(TinyAlloc **pal, void *p, unsigned size ) {
+// LJW DONE
+// TODO possibly remove
     tal_header_t *header;
     void *ret;
     int is_own;
@@ -1328,6 +1338,7 @@ static void cstr_reset(CString *cstr) {
 }
 
 static void add_char(CString *cstr, int c) {
+// LJW DONE
     if (c == '\'' || c == '\"' || c == '\\') {
         cstr_ccat(cstr, '\\');
     }
@@ -1346,13 +1357,14 @@ static void add_char(CString *cstr, int c) {
 }
 
 static TokenSym *tok_alloc_new(TokenSym **pts, const char *str, int len) {
+// LJW DONE
     TokenSym *ts, **ptable;
     int i;
-    if (tok_ident >= 0x10000000)
+    if (tok_ident >= SYM_FIRST_ANOM)
         tcc_error("memory full (symbols)");
-    i = tok_ident - 256;
-    if ((i % 512) == 0) {
-        ptable = tcc_realloc(table_ident, (i + 512) * sizeof(TokenSym *));
+    i = tok_ident - TOK_IDENT;
+    if ((i % TOK_ALLOC_INCR) == 0) {
+        ptable = tcc_realloc(table_ident, (i + TOK_ALLOC_INCR) * sizeof(TokenSym *));
         table_ident = ptable;
     }
     ts = tal_realloc_impl(&toksym_alloc, 0, sizeof(TokenSym) + len);
