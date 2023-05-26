@@ -178,10 +178,10 @@ void tcc_set_error_func(TCCState *s, void *error_opaque,
 void (*error_func)(void *opaque, const char *msg));
 int tcc_add_include_path(TCCState *s, const char *pathname);
 void tcc_define_symbol(TCCState *s, const char *sym, const char *value);
-// LJW BOOKMARK
 int tcc_add_file(TCCState *s, const char *filename);
 int tcc_compile_string(TCCState *s, const char *buf);
 int tcc_set_output_type(TCCState *s, int output_type);
+// LJW BOOKMARK
 int tcc_output_file(TCCState *s, const char *filename);
 
 typedef struct TokenSym {
@@ -347,7 +347,6 @@ struct TCCState {
     int alacarte_link;
     int output_type;
     int output_format;
-    int char_is_unsigned;
     int leading_underscore;
     int dollars_in_identifiers;
     int warn_write_strings;
@@ -734,6 +733,11 @@ enum MACROS {
 
 enum AFFS {
     AFF_PRINT_ERROR = 0x10,
+};
+
+enum TCC_OUTPUTS {
+    TCC_OUTPUT_OBJ = 4,
+    TCC_OUTPUT_FORMAT_ELF = 0,
 };
 
 static int gnu_ext;
@@ -7437,10 +7441,6 @@ static int parse_btype(CType *type, AttributeDef *ad) {
         type_found = 1;
     }
 the_end:
-    if (tcc_state->char_is_unsigned) {
-        if ((t & (VT_DEFSIGN|VT_BTYPE)) == VT_BYTE)
-            t |= VT_UNSIGNED;
-    }
     bt = t & (VT_BTYPE|VT_LONG);
     if (bt == VT_LONG)
         t |= LONG_SIZE == 8 ? VT_LLONG : VT_INT;
@@ -7876,8 +7876,6 @@ static void unary(void)
     case 0xb9:
 
         t = 1;
-        if (tcc_state->char_is_unsigned)
-            t = 1 | 0x0010;
     str_init:
         if (tcc_state->warn_write_strings)
             t |= 0x0100;
@@ -12004,6 +12002,7 @@ static int tcc_compile(TCCState *s1) {
 }
 
 int tcc_compile_string(TCCState *s, const char *str) {
+// LJW DONE
     int len, ret;
     len = strlen(str);
     tcc_open_bf(s, "<string>", len);
@@ -12101,11 +12100,9 @@ void tcc_delete(TCCState *s1) {
 }
 
 int tcc_set_output_type(TCCState *s, int output_type) {
+// LJW DONE
     s->output_type = output_type;
-    if (output_type == 4)
-        s->output_format = 0;
-    if (s->char_is_unsigned)
-        tcc_define_symbol(s, "__CHAR_UNSIGNED__", ((void*)0));
+    s->output_format = TCC_OUTPUT_FORMAT_ELF;
     return 0;
 }
 
@@ -12252,7 +12249,6 @@ static void args_parser_listfile(TCCState *s,
     const TCCOption *popt;
     const char *optarg, *r;
     int last_o = -1;
-    int x;
     CString linker_arg;
     int tool = 0, arg_start = 0, noaction = optind;
     char **argv = *pargv;
@@ -12299,11 +12295,7 @@ reparse:
             s->nb_libraries++;
             break;
         case TCC_OPTION_c:
-            x = 4;
-        set_output_type:
-            if (s->output_type)
-                tcc_warning("-%s: overriding compiler action already specified", popt->name);
-            s->output_type = x;
+            s->output_type = TCC_OUTPUT_OBJ;
             break;
         case TCC_OPTION_o:
             if (s->outfile) {
