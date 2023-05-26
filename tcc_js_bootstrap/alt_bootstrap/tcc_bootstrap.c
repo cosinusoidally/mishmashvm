@@ -1026,7 +1026,6 @@ static void ggoto(void);
 static void o(unsigned int c);
 static void gen_cvt_itof(int t);
 static uint16_t read16le(unsigned char *p) {
-// LJW DONE
     return (p[0] | (uint16_t)p[1] << 8);
 }
 static void write16le(unsigned char *p, uint16_t x) {
@@ -1046,8 +1045,6 @@ static void gen_le16(int c);
 static void gen_le32(int c);
 static void gen_addr32(int r, Sym *sym, int c);
 static void gen_addrpc32(int r, Sym *sym, int c);
-
-
 static int gnu_ext = 1;
 static int tcc_ext = 1;
 static struct TCCState *tcc_state;
