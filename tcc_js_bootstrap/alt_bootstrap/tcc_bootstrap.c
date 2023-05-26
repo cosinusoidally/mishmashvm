@@ -937,8 +937,14 @@ static void save_reg_upstack(int r, int n);
 static int get_reg(int rc);
 static void save_regs(int n);
 static void gaddrof(void);
-// LJW BOOKMARK
+unsigned int BIT_POS(unsigned int t) {
+    return (((t) >> VT_STRUCT_SHIFT) & 0x3f);
+}
+unsigned int BIT_SIZE(unsigned int t) {
+    return (((t) >> (VT_STRUCT_SHIFT + 6)) & 0x3f);
+}
 static int gv(int rc);
+// LJW BOOKMARK
 static void gv2(int rc1, int rc2);
 static void vpop(void);
 static void gen_op(int op);
@@ -4970,25 +4976,22 @@ static int adjust_bf(SValue *sv, int bit_pos, int bit_size)
 }
 
 static int gv(int rc) {
-
+// LJW DONE
     int r, bit_pos, bit_size, size, align, rc2;
     if (vtop->type.t & VT_BITFIELD) {
         CType type;
-        bit_pos = (((vtop->type.t) >> 20) & 0x3f);
-        bit_size = (((vtop->type.t) >> (20 + 6)) & 0x3f);
+        bit_pos = BIT_POS(vtop->type.t);
+        bit_size = BIT_SIZE(vtop->type.t);
         vtop->type.t &= ~(((1 << (6+6)) - 1) << 20 | 0x0080);
         type.ref = ((void*)0);
         type.t = vtop->type.t & VT_UNSIGNED;
         if ((vtop->type.t & VT_BTYPE) == VT_BOOL)
             type.t |= VT_UNSIGNED;
-
         r = adjust_bf(vtop, bit_pos, bit_size);
-
         if ((vtop->type.t & VT_BTYPE) == VT_LLONG)
             type.t |= VT_LLONG;
         else
             type.t |= VT_INT;
-
         if (r == VT_STRUCT) {
             load_packed_bf(&type, bit_pos, bit_size);
         } else {
@@ -5017,7 +5020,6 @@ static int gv(int rc) {
         rc2 = (rc & RC_FLOAT) ? RC_FLOAT : RC_INT;
         if (rc == RC_IRET)
             rc2 = RC_LRET;
-
         if (r >= VT_CONST
          || (vtop->r & VT_LVAL)
          || !(reg_classes[r] & rc)
