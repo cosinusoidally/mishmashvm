@@ -945,8 +945,8 @@ unsigned int BIT_SIZE(unsigned int t) {
 }
 static int gv(int rc);
 static void gv2(int rc1, int rc2);
-// LJW BOOKMARK
 static void vpop(void);
+// LJW BOOKMARK
 static void gen_op(int op);
 static int type_size(CType *type, int *a);
 static void mk_pointer(CType *type);
@@ -4540,8 +4540,9 @@ static void vswap(void) {
 }
 
 static void vpop(void) {
+// LJW DONE
     int v;
-    v = vtop->r & 0x003f;
+    v = vtop->r & VT_VALMASK;
     if (v == TREG_ST0) {
         o(0xd8dd);
     } else
