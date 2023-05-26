@@ -5157,7 +5157,6 @@ static void lexpand(void)
     }
     vtop[0].type.t = vtop[-1].type.t = 3 | u;
 }
-# 1539 "tcc_src/tccgen.c"
 static void lbuild(int t)
 {
     gv2(0x0001, 0x0001);
@@ -6154,7 +6153,6 @@ static void gen_cast(CType *type)
                     vtop[-1].r2 = vtop->r;
                     vpop();
                 }
-# 2624 "tcc_src/tccgen.c"
             } else if (dbt == 11) {
 
                 vpushi(0);
@@ -6471,7 +6469,6 @@ static void gen_assign_cast(CType *dt)
     if (sbt == 0 || dbt == 0) {
 	if (sbt == 0 && dbt == 0)
 	    ;
-# 2994 "tcc_src/tccgen.c"
 	else
     	    tcc_error("cannot cast from/to void");
     }
@@ -6876,7 +6873,6 @@ static void struct_layout(CType *type, AttributeDef *ad)
 	}
 	if (align > maxalign)
 	    maxalign = align;
-# 3638 "tcc_src/tccgen.c"
 	if (f->v & 0x10000000 && (f->type.t & 0x000f) == 7) {
 	    Sym *ass;
 
@@ -7581,7 +7577,6 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td)
     }
     return 1;
 }
-# 4401 "tcc_src/tccgen.c"
 static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td)
 {
     CType *post, *ret;
@@ -8065,7 +8060,6 @@ static void unary(void)
             }
         }
         break;
-# 4942 "tcc_src/tccgen.c"
     case 0xa4:
     case 0xa2:
         t = tok;
@@ -8299,7 +8293,6 @@ static void unary(void)
                 if (!ret_nregs) {
 
                     size = type_size(&s->type, &align);
-# 5199 "tcc_src/tccgen.c"
                     loc = (loc - size) & -align;
                     ret.type = s->type;
                     ret.r = 0x0032 | 0x0100;
@@ -9541,7 +9534,6 @@ static void init_putv(CType *type, Section *sec, unsigned long c)
 
 	if ((vtop->r & (0x0200|0x0030)) == (0x0200|0x0030) &&
 	    vtop->sym->v >= 0x10000000 &&
-# 6488 "tcc_src/tccgen.c"
 	    (vtop->type.t & 0x000f) != 5) {
 
 	    Section *ssec;
