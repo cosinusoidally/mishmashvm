@@ -731,6 +731,7 @@ enum TCC_OUTPUTS {
 const int IO_BUF_SIZE = 8192;
 
 const char CH_EOB = '\\';
+const int CH_EOF = -1;
 
 const int O_RDONLY=0;
 const int O_BINARY=0;
@@ -794,7 +795,6 @@ static int tcc_open(TCCState *s1, const char *filename);
 static void tcc_close(void);
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags);
 int tcc_parse_args(TCCState *s, int *argc, char ***argv, int optind);
-// LJW BOOKMARK
 static TokenSym *tok_alloc(const char *str, int len);
 static const char *get_tok_str(int v, CValue *cv);
 static void begin_macro(TokenString *str, int alloc);
@@ -806,6 +806,7 @@ static void tok_str_free(TokenString *s);
 static void tok_str_free_str(int *str);
 static void tok_str_add(TokenString *s, int t);
 static void tok_str_add_tok(TokenString *s);
+// LJW BOOKMARK
 static inline void define_push(int v, int macro_type, int *str, Sym *first_arg);
 static void define_undef(Sym *s);
 static inline Sym *define_find(int v);
@@ -1317,6 +1318,7 @@ static TokenSym *tok_alloc_new(TokenSym **pts, const char *str, int len) {
 }
 
 static TokenSym *tok_alloc(const char *str, int len) {
+// LJW DONE
     TokenSym *ts, **pts;
     int i;
     unsigned int h;
@@ -1337,6 +1339,7 @@ static TokenSym *tok_alloc(const char *str, int len) {
 }
 
 static const char *get_tok_str(int v, CValue *cv) {
+// LJW DONE
     char *p;
     int i, len;
     cstr_reset(&cstr_buf);
@@ -1629,8 +1632,9 @@ static uint8_t *parse_comment(uint8_t *p) {
 }
 
 static int set_idnum(int c, int val) {
-    int prev = isidnum_table[c - (-1)];
-    isidnum_table[c - (-1)] = val;
+// LJW DONE
+    int prev = isidnum_table[c - CH_EOF];
+    isidnum_table[c - CH_EOF] = val;
     return prev;
 }
 
@@ -1796,6 +1800,7 @@ _default:
 }
 
 static inline void tok_str_new(TokenString *s) {
+// LJW DONE
     s->str = ((void*)0);
     s->len = s->lastlen = 0;
     s->allocated_len = 0;
@@ -1803,6 +1808,7 @@ static inline void tok_str_new(TokenString *s) {
 }
 
 static TokenString *tok_str_alloc(void) {
+// LJW DONE
     TokenString *str = tal_realloc_impl(&tokstr_alloc, 0, sizeof *str);
     tok_str_new(str);
     return str;
@@ -1816,10 +1822,12 @@ static int *tok_str_dup(TokenString *s) {
 }
 
 static void tok_str_free_str(int *str) {
+// LJW DONE
     tal_free_impl(tokstr_alloc, str);
 }
 
 static void tok_str_free(TokenString *str) {
+// LJW DONE
     tok_str_free_str(str->str);
     tal_free_impl(tokstr_alloc, str);
 }
@@ -1840,6 +1848,7 @@ static int *tok_str_realloc(TokenString *s, int new_size) {
 }
 
 static void tok_str_add(TokenString *s, int t) {
+// LJW DONE
     int len, *str;
     len = s->len;
     str = s->str;
@@ -1850,6 +1859,7 @@ static void tok_str_add(TokenString *s, int t) {
 }
 
 static void begin_macro(TokenString *str, int alloc) {
+// LJW DONE
     str->alloc = alloc;
     str->prev = macro_stack;
     str->prev_ptr = macro_ptr;
@@ -1859,6 +1869,7 @@ static void begin_macro(TokenString *str, int alloc) {
 }
 
 static void end_macro(void) {
+// LJW DONE
     TokenString *str = macro_stack;
     macro_stack = str->prev;
     macro_ptr = str->prev_ptr;
@@ -1922,12 +1933,12 @@ static void tok_str_add2(TokenString *s, int t, CValue *cv) {
 }
 
 static void tok_str_add_tok(TokenString *s) {
+// LJW DONE
     CValue cval;
-
     if (file->line_num != s->last_line_num) {
         s->last_line_num = file->line_num;
         cval.i = s->last_line_num;
-        tok_str_add2(s, 0xc0, &cval);
+        tok_str_add2(s, TOK_LINENUM, &cval);
     }
     tok_str_add2(s, tok, &tokc);
 }
