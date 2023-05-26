@@ -607,6 +607,7 @@ enum VTS {
     VT_JMP = 0x0034,
     VT_BOUNDED = 0x8000,
     VT_LLOCAL = 0x0031,
+    VT_BITFIELD = 0x0080,
 };
 
 enum VTS_LVALS {
@@ -4969,34 +4970,37 @@ static int adjust_bf(SValue *sv, int bit_pos, int bit_size)
 static int gv(int rc) {
 
     int r, bit_pos, bit_size, size, align, rc2;
-    if (vtop->type.t & 0x0080) {
+    if (vtop->type.t & VT_BITFIELD) {
         CType type;
         bit_pos = (((vtop->type.t) >> 20) & 0x3f);
         bit_size = (((vtop->type.t) >> (20 + 6)) & 0x3f);
         vtop->type.t &= ~(((1 << (6+6)) - 1) << 20 | 0x0080);
         type.ref = ((void*)0);
-        type.t = vtop->type.t & 0x0010;
-        if ((vtop->type.t & 0x000f) == 11)
-            type.t |= 0x0010;
+        type.t = vtop->type.t & VT_UNSIGNED;
+        if ((vtop->type.t & VT_BTYPE) == VT_BOOL)
+            type.t |= VT_UNSIGNED;
+
         r = adjust_bf(vtop, bit_pos, bit_size);
-        if ((vtop->type.t & 0x000f) == 4)
-            type.t |= 4;
+
+        if ((vtop->type.t & VT_BTYPE) == VT_LLONG)
+            type.t |= VT_LLONG;
         else
-            type.t |= 3;
-        if (r == 7) {
+            type.t |= VT_INT;
+
+        if (r == VT_STRUCT) {
             load_packed_bf(&type, bit_pos, bit_size);
         } else {
-            int bits = (type.t & 0x000f) == 4 ? 64 : 32;
+            int bits = (type.t & VT_BTYPE) == VT_LLONG ? 64 : 32;
             gen_cast(&type);
             vpushi(bits - (bit_pos + bit_size));
-            gen_op(0x01);
+            gen_op(TOK_SHL);
             vpushi(bits - bit_size);
-            gen_op(0x02);
+            gen_op(TOK_SAR);
         }
         r = gv(rc);
     } else {
         if (is_float(vtop->type.t) &&
-            (vtop->r & (0x003f | 0x0100)) == 0x0030) {
+            (vtop->r & (VT_VALMASK | VT_LVAL)) == VT_CONST) {
             unsigned long offset;
             size = type_size(&vtop->type, &align);
             if ((nocode_wanted > 0))
@@ -5005,16 +5009,16 @@ static int gv(int rc) {
             vpush_ref(&vtop->type, data_section, offset, size);
 	    vswap();
 	    init_putv(&vtop->type, data_section, offset);
-	    vtop->r |= 0x0100;
+            vtop->r |= VT_LVAL;
         }
-        r = vtop->r & 0x003f;
-        rc2 = (rc & 0x0002) ? 0x0002 : 0x0001;
+        r = vtop->r & VT_VALMASK;
+        rc2 = (rc & RC_FLOAT) ? RC_FLOAT : RC_INT;
         if (rc == 0x0004)
             rc2 = 0x0020;
-        if (r >= 0x0030
-         || (vtop->r & 0x0100)
+        if (r >= VT_CONST
+         || (vtop->r & VT_LVAL)
          || !(reg_classes[r] & rc)
-         || ((vtop->type.t & 0x000f) == 4 && !(reg_classes[vtop->r2] & rc2))
+         || ((vtop->type.t & VT_BTYPE) == VT_LLONG && !(reg_classes[vtop->r2] & rc2))
             )
         {
             r = get_reg(rc);
