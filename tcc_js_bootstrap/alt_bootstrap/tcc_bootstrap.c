@@ -5025,19 +5025,20 @@ static int gv(int rc) {
             )
         {
             r = get_reg(rc);
-            if ((vtop->type.t & 0x000f) == 4) {
-                int addr_type = 3, load_size = 4, load_type = 3;
+            if ((vtop->type.t & VT_BTYPE) == VT_LLONG) {
+                int addr_type = VT_INT, load_size = 4, load_type = VT_INT;
                 unsigned long long ll;
                 int r2, original_type;
                 original_type = vtop->type.t;
-                if ((vtop->r & (0x003f | 0x0100)) == 0x0030) {
+                if ((vtop->r & (VT_VALMASK | VT_LVAL)) == VT_CONST) {
+                    /* load constant */
                     ll = vtop->c.i;
-                    vtop->c.i = ll;
+                    vtop->c.i = ll; /* first word */
                     load(r, vtop);
-                    vtop->r = r;
-                    vpushi(ll >> 32);
+                    vtop->r = r; /* save register value */
+                    vpushi(ll >> 32); /* second word */
                 } else
-                if (vtop->r & 0x0100) {
+                if (vtop->r & VT_LVAL) {
                     save_reg_upstack(vtop->r, 1);
                     vtop->type.t = load_type;
                     load(r, vtop);
@@ -5047,10 +5048,9 @@ static int gv(int rc) {
                     gaddrof();
                     vpushi(load_size);
                     gen_op('+');
-                    vtop->r |= 0x0100;
+                    vtop->r |= VT_LVAL;
                     vtop->type.t = load_type;
                 } else {
-puts("s\n");exit(1);
                     load(r, vtop);
                     vdup();
                     vtop[-1].r = r;
@@ -5061,19 +5061,16 @@ puts("s\n");exit(1);
                 vpop();
                 vtop->r2 = r2;
                 vtop->type.t = original_type;
-            } else if ((vtop->r & 0x0100) && !is_float(vtop->type.t)) {
+            } else if ((vtop->r & VT_LVAL) && !is_float(vtop->type.t)) {
                 int t1, t;
                 t = vtop->type.t;
                 t1 = t;
-                if (vtop->r & 0x1000) {
-                    t = 1;
-                }
-                else if (vtop->r & 0x2000) {
-                    t = 2;
-                }
-                if (vtop->r & 0x4000) {
-                    t |= 0x0010;
-                }
+                if (vtop->r & VT_LVAL_BYTE)
+                    t = VT_BYTE;
+                else if (vtop->r & VT_LVAL_SHORT)
+                    t = VT_SHORT;
+                if (vtop->r & VT_LVAL_UNSIGNED)
+                    t |= VT_UNSIGNED;
                 vtop->type.t = t;
                 load(r, vtop);
                 vtop->type.t = t1;
@@ -5087,13 +5084,8 @@ puts("s\n");exit(1);
 }
 
 
-static void gv2(int rc1, int rc2)
-{
+static void gv2(int rc1, int rc2) {
     int v;
-
-
-
-
     v = vtop[0].r & 0x003f;
     if (v != 0x0033 && (v & ~1) != 0x0034 && rc1 <= rc2) {
         vswap();
