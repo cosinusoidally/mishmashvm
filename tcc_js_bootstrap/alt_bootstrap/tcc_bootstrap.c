@@ -907,9 +907,9 @@ static int is_float(int t);
 static int ieee_finite(double d);
 static void test_lvalue(void);
 static void vpushi(int v);
-// LJW BOOKMARK
 static Elf32_Sym *elfsym(Sym *);
 static void update_storage(Sym *sym);
+// LJW BOOKMARK
 static Sym *external_global_sym(int v, CType *type, int r);
 static void vset(CType *type, int r, int v);
 static void vswap(void);
@@ -4253,12 +4253,14 @@ static int tccgen_compile(TCCState *s1) {
 
 
 static Elf32_Sym *elfsym(Sym *s) {
+// LJW DONE
   if (!s || !s->c)
     return ((void*)0);
   return &((Elf32_Sym *)symtab_section->data)[s->c];
 }
 
 static void update_storage(Sym *sym) {
+// LJW DONE
     Elf32_Sym *esym;
     int sym_bind, old_sym_bind;
     esym = elfsym(sym);
@@ -4267,7 +4269,7 @@ static void update_storage(Sym *sym) {
     if (sym->a.visibility)
         esym->st_other = (esym->st_other & ~((-1) & 0x03))
             | sym->a.visibility;
-    if (sym->type.t & 0x00002000)
+    if (sym->type.t & VT_STATIC)
         sym_bind = 0;
     else if (sym->a.weak)
         sym_bind = 2;
@@ -4639,18 +4641,13 @@ static void vpush_ref(CType *type, Section *sec, unsigned long offset, unsigned 
 }
 
 static Sym *external_global_sym(int v, CType *type, int r) {
+// LJW DONE
     Sym *s;
-
     s = sym_find(v);
     if (!s) {
-
         s = global_identifier_push(v, type->t | 0x00001000, 0);
         s->type.ref = type->ref;
         s->r = r | 0x0030 | 0x0200;
-    } else if ((((s)->type.t & (0x000f | (0 | 0x0010))) == (0 | 0x0010))) {
-        s->type.t = type->t | (s->type.t & 0x00001000);
-        s->type.ref = type->ref;
-        update_storage(s);
     }
     return s;
 }
