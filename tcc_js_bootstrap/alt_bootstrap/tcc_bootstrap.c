@@ -1554,17 +1554,15 @@ static uint8_t *parse_line_comment(uint8_t *p) {
             c = handle_eob();
             p = file->buf_ptr;
             if (c == '\\') {
-//                { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
-                p++;
-                c=PEEKC_EOB(c, p);
+                p++;c=PEEKC_EOB(c, p);
                 if (c == '\n') {
                     file->line_num++;
-                    { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+                    p++;c=PEEKC_EOB(c, p);
                 } else if (c == '\r') {
-                    { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+                    p++;c=PEEKC_EOB(c, p);
                     if (c == '\n') {
                         file->line_num++;
-                        { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+                        p++;c=PEEKC_EOB(c, p);
                     }
                 }
             } else {
