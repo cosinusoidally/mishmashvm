@@ -955,8 +955,8 @@ static void gv2(int rc1, int rc2);
 static void vpop(void);
 static void gen_op(int op);
 static int type_size(CType *type, int *a);
-// LJW BOOKMARK
 static void mk_pointer(CType *type);
+// LJW BOOKMARK
 static void vstore(void);
 static void inc(int post, int c);
 static void parse_mult_str (CString *astr, const char *msg);
@@ -6248,14 +6248,13 @@ static inline CType *pointed_type(CType *type)
 }
 
 
-static void mk_pointer(CType *type)
-{
+static void mk_pointer(CType *type) {
+// LJW DONE
     Sym *s;
-    s = sym_push(0x20000000, type, 0, -1);
-    type->t = 5 | (type->t & (0x00001000 | 0x00002000 | 0x00004000 | 0x00008000));
+    s = sym_push(SYM_FIELD, type, 0, -1);
+    type->t = VT_PTR | (type->t & VT_STORAGE);
     type->ref = s;
 }
-
 
 static int is_compatible_func(CType *type1, CType *type2)
 {
