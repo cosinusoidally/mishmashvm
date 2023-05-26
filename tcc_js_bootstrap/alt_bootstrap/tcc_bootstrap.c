@@ -732,6 +732,9 @@ const int IO_BUF_SIZE = 8192;
 
 const char CH_EOB = '\\';
 
+const int O_RDONLY=0;
+const int O_BINARY=0;
+
 static int gnu_ext;
 static int tcc_ext;
 static struct TCCState *tcc_state;
@@ -775,9 +778,9 @@ static void sym_pop(Sym **ptop, Sym *b, int keep);
 static Sym *struct_find(int v);
 static Sym *sym_find(int v);
 static Sym *global_identifier_push(int v, int t, int c);
-// LJW BOOKMARK
 static void tcc_open_bf(TCCState *s1, const char *filename, int initlen);
 static int tcc_open(TCCState *s1, const char *filename);
+// LJW BOOKMARK
 static void tcc_close(void);
 
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags);
@@ -11985,8 +11988,9 @@ static void tcc_close(void) {
 }
 
 static int tcc_open(TCCState *s1, const char *filename) {
+// LJW DONE
     int fd;
-    fd = open(filename, 00 | 0);
+    fd = open(filename, O_RDONLY | O_BINARY);
     if (fd < 0)
         return -1;
     tcc_open_bf(s1, filename, 0);
