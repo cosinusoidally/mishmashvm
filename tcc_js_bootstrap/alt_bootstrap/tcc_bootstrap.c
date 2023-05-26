@@ -3101,12 +3101,14 @@ maybe_newline:
             cstr_reset(&tokcstr);
             cstr_cat(&tokcstr, (char *) p1, len);
             p--;
-            { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+          //  { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
         parse_ident_slow:
             while (isidnum_table[c - (-1)] & (2|4))
             {
                 cstr_ccat(&tokcstr, c);
-                { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        //        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
             }
             ts = tok_alloc(tokcstr.data, tokcstr.size);
         }
@@ -3117,7 +3119,8 @@ maybe_newline:
         if (t != '\\' && t != '\'' && t != '\"') {
             goto parse_ident_fast;
         } else {
-            { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+         //   { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
             if (c == '\'' || c == '\"') {
                 is_long = 1;
                 goto str_const;
@@ -3132,7 +3135,8 @@ maybe_newline:
     case '4': case '5': case '6': case '7':
     case '8': case '9':
         t = c;
-        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+ //       { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
     parse_num:
         cstr_reset(&tokcstr);
         for(;;) {
@@ -3147,7 +3151,8 @@ maybe_newline:
                           || t == 'p' || t == 'P'))))
                 break;
             t = c;
-            { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+   //         { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
         }
         cstr_ccat(&tokcstr, '\0');
         tokc.str.size = tokcstr.size;
@@ -3155,7 +3160,8 @@ maybe_newline:
         tok = 0xbe;
         break;
     case '.':
-        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+     //   { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
         if (isnum(c)) {
             t = '.';
             goto parse_num;
@@ -3164,7 +3170,8 @@ maybe_newline:
             *--p = c = '.';
             goto parse_ident_fast;
         } else if (c == '.') {
-            { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+       //     { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
             if (c == '.') {
                 p++;
                 tok = 0xc8;
@@ -3192,12 +3199,14 @@ maybe_newline:
         tok = 0xbf;
         break;
     case '<':
-        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+//        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
         if (c == '=') {
             p++;
             tok = 0x9e;
         } else if (c == '<') {
-            { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+  //          { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
             if (c == '=') {
                 p++;
                 tok = 0x81;
@@ -3209,12 +3218,14 @@ maybe_newline:
         }
         break;
     case '>':
-        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+    //    { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
         if (c == '=') {
             p++;
             tok = 0x9d;
         } else if (c == '>') {
-            { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+      //      { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
             if (c == '=') {
                 p++;
                 tok = 0x82;
@@ -3226,7 +3237,8 @@ maybe_newline:
         }
         break;
     case '&':
-        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+  //      { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
         if (c == '&') {
             p++;
             tok = 0xa0;
@@ -3238,7 +3250,8 @@ maybe_newline:
         }
         break;
     case '|':
-        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+    //    { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
         if (c == '|') {
             p++;
             tok = 0xa1;
@@ -3250,7 +3263,8 @@ maybe_newline:
         }
         break;
     case '+':
-        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+    //    { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
         if (c == '+') {
             p++;
             tok = 0xa4;
@@ -3262,7 +3276,8 @@ maybe_newline:
         }
         break;
     case '-':
-        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+  //      { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
         if (c == '-') {
             p++;
             tok = 0xa2;
@@ -3282,7 +3297,8 @@ maybe_newline:
     case '%': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0xa5; } else { tok = '%'; } break;
     case '^': { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0xde; } else { tok = '^'; } break;
     case '/':
-        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+    //    { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
+        p=PEEKC(&c,&p);
         if (c == '*') {
             p = parse_comment(p);
             tok = ' ';
