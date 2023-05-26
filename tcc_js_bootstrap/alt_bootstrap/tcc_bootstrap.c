@@ -770,9 +770,8 @@ static Sym *sym_push(int v, CType *type, int r, int c);
 static void sym_pop(Sym **ptop, Sym *b, int keep);
 static Sym *struct_find(int v);
 static Sym *sym_find(int v);
-// LJW BOOKMARK
 static Sym *global_identifier_push(int v, int t, int c);
-
+// LJW BOOKMARK
 static void tcc_open_bf(TCCState *s1, const char *filename, int initlen);
 static int tcc_open(TCCState *s1, const char *filename);
 static void tcc_close(void);
@@ -4383,11 +4382,12 @@ static Sym *sym_push(int v, CType *type, int r, int c) {
 }
 
 static Sym *global_identifier_push(int v, int t, int c) {
+// LJW DONE
     Sym *s, **ps;
     s = sym_push2(&global_stack, v, t, c);
-    if (v < 0x10000000) {
-        ps = &table_ident[v - 256]->sym_identifier;
-        while (*ps != ((void*)0) && (*ps)->sym_scope)
+    if (v < SYM_FIRST_ANOM) {
+        ps = &table_ident[v - TOK_IDENT]->sym_identifier;
+        while (*ps != NULL && (*ps)->sym_scope)
             ps = &(*ps)->prev_tok;
         s->prev_tok = *ps;
         *ps = s;
