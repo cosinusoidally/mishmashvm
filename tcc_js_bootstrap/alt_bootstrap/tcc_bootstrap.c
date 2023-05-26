@@ -789,6 +789,12 @@ static int func_var;
 static int func_vc;
 static int last_line_num, last_ind, func_ind;
 static const char *funcname;
+static Section *text_section, *data_section, *bss_section;
+static Section *common_section;
+static Section *cur_text_section;
+static Section *last_text_section;
+static Section *bounds_section;
+static Section *lbounds_section;
 
 TCCState *tcc_new(void);
 void tcc_delete(TCCState *s);
@@ -933,12 +939,6 @@ static void expr_sum(void);
 static void gexpr(void);
 static int expr_const(void);
 static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size);
-static Section *text_section, *data_section, *bss_section;
-static Section *common_section;
-static Section *cur_text_section;
-static Section *last_text_section;
-static Section *bounds_section;
-static Section *lbounds_section;
 static void tccelf_bounds_new(TCCState *s);
 static Section *symtab_section;
 static Section *stab_section, *stabstr_section;
@@ -1025,6 +1025,8 @@ static void gen_le16(int c);
 static void gen_le32(int c);
 static void gen_addr32(int r, Sym *sym, int c);
 static void gen_addrpc32(int r, Sym *sym, int c);
+
+
 static int gnu_ext = 1;
 static int tcc_ext = 1;
 static struct TCCState *tcc_state;
