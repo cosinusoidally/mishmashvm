@@ -845,30 +845,36 @@ static void preprocess_end(TCCState *s1);
 static void tccpp_new(TCCState *s);
 static void tccpp_delete(TCCState *s);
 static int tcc_preprocess(TCCState *s1);
-// LJW BOOKMARK
 static void skip(int c);
 static  void expect(const char *msg);
 
+// FIXME something weird is happening, get an error if I put a comment
+// in this function
 static int is_space(int ch) {
     return ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r';
 }
 static int isid(int c) {
+// LJW DONE
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 static int isnum(int c) {
+// LJW DONE
     return c >= '0' && c <= '9';
 }
 static int isoct(int c) {
+// LJW DONE
     return c >= '0' && c <= '7';
 }
 static int toup(int c) {
+// LJW DONE
     return (c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c;
 }
-
 int IS_ENUM(int t){
+// LJW DONE
     return ((t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20));
 }
 
+// LJW BOOKMARK
 static Sym *sym_free_first;
 static void **sym_pools;
 static int nb_sym_pools;
@@ -1124,12 +1130,14 @@ static const unsigned char tok_two_chars[] = {
 };
 
 static void skip(int c) {
+// LJW DONE
     if (tok != c)
         tcc_error("'%c' expected (got \"%s\")", c, get_tok_str(tok, &tokc));
     next();
 }
 
 static void expect(const char *msg) {
+// LJW DONE
     tcc_error("%s expected", msg);
 }
 
