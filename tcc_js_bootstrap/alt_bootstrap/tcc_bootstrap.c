@@ -756,16 +756,16 @@ void tcc_error_noabort(const char *fmt, ...);
 void tcc_error(const char *fmt, ...);
 void tcc_warning(const char *fmt, ...);
 
-// LJW BOOKMARK
 static void dynarray_add(void *ptab, int *nb_ptr, void *data);
 static void dynarray_reset(void *pp, int *n);
-static inline void cstr_ccat(CString *cstr, int ch);
+static void cstr_ccat(CString *cstr, int ch);
 static void cstr_cat(CString *cstr, const char *str, int len);
 static void cstr_wccat(CString *cstr, int ch);
 static void cstr_new(CString *cstr);
 static void cstr_free(CString *cstr);
 static void cstr_reset(CString *cstr);
 
+// LJW BOOKMARK
 static inline void sym_free(Sym *sym);
 static Sym *sym_push2(Sym **ps, int v, int t, int c);
 static Sym *sym_find2(Sym *s, int v);
@@ -1223,6 +1223,7 @@ static void cstr_realloc(CString *cstr, int new_size) {
 }
 
 static inline void cstr_ccat(CString *cstr, int ch) {
+// LJW DONE
     int size;
     size = cstr->size + 1;
     if (size > cstr->size_allocated)
@@ -1232,6 +1233,7 @@ static inline void cstr_ccat(CString *cstr, int ch) {
 }
 
 static void cstr_cat(CString *cstr, const char *str, int len) {
+// LJW DONE
     int size;
     if (len <= 0)
         len = strlen(str) + 1 + len;
@@ -1243,6 +1245,7 @@ static void cstr_cat(CString *cstr, const char *str, int len) {
 }
 
 static void cstr_wccat(CString *cstr, int ch) {
+// LJW DONE
     int size;
     size = cstr->size + sizeof(nwchar_t);
     if (size > cstr->size_allocated)
@@ -1252,16 +1255,19 @@ static void cstr_wccat(CString *cstr, int ch) {
 }
 
 static void cstr_new(CString *cstr) {
+// LJW DONE
     memset(cstr, 0, sizeof(CString));
 }
 
 
 static void cstr_free(CString *cstr) {
+// LJW DONE
     tal_free_impl(cstr_alloc, cstr->data);
     cstr_new(cstr);
 }
 
 static void cstr_reset(CString *cstr) {
+// LJW DONE
     cstr->size = 0;
 }
 
@@ -11823,6 +11829,7 @@ char *tcc_strdup(const char *str) {
 }
 
 static void dynarray_add(void *ptab, int *nb_ptr, void *data) {
+// LJW DONE
     int nb, nb_alloc;
     void **pp;
     nb = *nb_ptr;
@@ -11840,6 +11847,7 @@ static void dynarray_add(void *ptab, int *nb_ptr, void *data) {
 }
 
 static void dynarray_reset(void *pp, int *n) {
+// LJW DONE
     void **p;
     for (p = *(void***)pp; *n; ++p, --*n)
         if (*p)
