@@ -833,7 +833,9 @@ static int total_lines;
 static int total_bytes;
 static int tok_ident;
 static TokenSym **table_ident;
+// note this is TOK_HASH_SIZE
 static TokenSym *hash_ident[16384];
+// note this is STRING_MAX_SIZE+1
 static char token_buf[1024 + 1];
 static CString cstr_buf;
 static CString macro_equal_buf;
