@@ -766,11 +766,11 @@ static void cstr_reset(CString *cstr);
 static void sym_free(Sym *sym);
 static Sym *sym_push2(Sym **ps, int v, int t, int c);
 static Sym *sym_find2(Sym *s, int v);
-// LJW BOOKMARK
 static Sym *sym_push(int v, CType *type, int r, int c);
 static void sym_pop(Sym **ptop, Sym *b, int keep);
-static inline Sym *struct_find(int v);
-static inline Sym *sym_find(int v);
+static Sym *struct_find(int v);
+static Sym *sym_find(int v);
+// LJW BOOKMARK
 static Sym *global_identifier_push(int v, int t, int c);
 
 static void tcc_open_bf(TCCState *s1, const char *filename, int initlen);
@@ -4339,17 +4339,19 @@ static Sym *sym_find2(Sym *s, int v) {
 }
 
 
-static inline Sym *struct_find(int v) {
-    v -= 256;
-    if ((unsigned)v >= (unsigned)(tok_ident - 256))
-        return ((void*)0);
+static Sym *struct_find(int v) {
+// LJW DONE
+    v -= TOK_IDENT;
+    if ((unsigned)v >= (unsigned)(tok_ident - TOK_IDENT))
+        return NULL;
     return table_ident[v]->sym_struct;
 }
 
-static inline Sym *sym_find(int v) {
-    v -= 256;
-    if ((unsigned)v >= (unsigned)(tok_ident - 256))
-        return ((void*)0);
+static Sym *sym_find(int v) {
+// LJW DONE
+    v -= TOK_IDENT;
+    if ((unsigned)v >= (unsigned)(tok_ident - TOK_IDENT))
+        return NULL;
     return table_ident[v]->sym_identifier;
 }
 
@@ -4394,6 +4396,7 @@ static Sym *global_identifier_push(int v, int t, int c) {
 }
 
 static void sym_pop(Sym **ptop, Sym *b, int keep) {
+// LJW DONE
     Sym *s, *ss, **ps;
     TokenSym *ts;
     int v;
@@ -4401,9 +4404,9 @@ static void sym_pop(Sym **ptop, Sym *b, int keep) {
     while(s != b) {
         ss = s->prev;
         v = s->v;
-        if (!(v & 0x20000000) && (v & ~0x40000000) < 0x10000000) {
-            ts = table_ident[(v & ~0x40000000) - 256];
-            if (v & 0x40000000)
+        if (!(v & SYM_FIELD) && (v & ~SYM_STRUCT) < SYM_FIRST_ANOM) {
+            ts = table_ident[(v & ~SYM_STRUCT) - TOK_IDENT];
+            if (v & SYM_STRUCT)
                 ps = &ts->sym_struct;
             else
                 ps = &ts->sym_identifier;
