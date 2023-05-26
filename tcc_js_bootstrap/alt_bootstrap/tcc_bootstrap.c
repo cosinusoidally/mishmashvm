@@ -755,7 +755,6 @@ char *tcc_strdup(const char *str);
 void tcc_error_noabort(const char *fmt, ...);
 void tcc_error(const char *fmt, ...);
 void tcc_warning(const char *fmt, ...);
-
 static void dynarray_add(void *ptab, int *nb_ptr, void *data);
 static void dynarray_reset(void *pp, int *n);
 static void cstr_ccat(CString *cstr, int ch);
@@ -764,11 +763,10 @@ static void cstr_wccat(CString *cstr, int ch);
 static void cstr_new(CString *cstr);
 static void cstr_free(CString *cstr);
 static void cstr_reset(CString *cstr);
-
-// LJW BOOKMARK
-static inline void sym_free(Sym *sym);
+static void sym_free(Sym *sym);
 static Sym *sym_push2(Sym **ps, int v, int t, int c);
 static Sym *sym_find2(Sym *s, int v);
+// LJW BOOKMARK
 static Sym *sym_push(int v, CType *type, int r, int c);
 static void sym_pop(Sym **ptop, Sym *b, int keep);
 static inline Sym *struct_find(int v);
@@ -4309,12 +4307,14 @@ static inline Sym *sym_malloc(void) {
     return sym;
 }
 
-static inline void sym_free(Sym *sym) {
+static void sym_free(Sym *sym) {
+// LJW DONE
     sym->next = sym_free_first;
     sym_free_first = sym;
 }
 
 static Sym *sym_push2(Sym **ps, int v, int t, int c) {
+// LJW DONE
     Sym *s;
     s = sym_malloc();
     memset(s, 0, sizeof *s);
@@ -4327,6 +4327,7 @@ static Sym *sym_push2(Sym **ps, int v, int t, int c) {
 }
 
 static Sym *sym_find2(Sym *s, int v) {
+// LJW DONE
     while (s) {
         if (s->v == v)
             return s;
@@ -4353,6 +4354,7 @@ static inline Sym *sym_find(int v) {
 }
 
 static Sym *sym_push(int v, CType *type, int r, int c) {
+// LJW DONE
     Sym *s, **ps;
     TokenSym *ts;
     if (local_stack)
@@ -4362,9 +4364,9 @@ static Sym *sym_push(int v, CType *type, int r, int c) {
     s = sym_push2(ps, v, type->t, c);
     s->type.ref = type->ref;
     s->r = r;
-    if (!(v & 0x20000000) && (v & ~0x40000000) < 0x10000000) {
-        ts = table_ident[(v & ~0x40000000) - 256];
-        if (v & 0x40000000)
+    if (!(v & SYM_FIELD) && (v & ~SYM_STRUCT) < SYM_FIRST_ANOM) {
+        ts = table_ident[(v & ~SYM_STRUCT) - TOK_IDENT];
+        if (v & SYM_STRUCT)
             ps = &ts->sym_struct;
         else
             ps = &ts->sym_identifier;
@@ -4373,7 +4375,7 @@ static Sym *sym_push(int v, CType *type, int r, int c) {
         s->sym_scope = local_scope;
         if (s->prev_tok && s->prev_tok->sym_scope == s->sym_scope)
             tcc_error("redeclaration of '%s'",
-                get_tok_str(v & ~0x40000000, ((void*)0)));
+                get_tok_str(v & ~SYM_STRUCT, NULL));
     }
     return s;
 }
