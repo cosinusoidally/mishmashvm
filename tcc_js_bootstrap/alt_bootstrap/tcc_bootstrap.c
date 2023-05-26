@@ -729,6 +729,11 @@ const int CH_EOF = -1;
 const int O_RDONLY=0;
 const int O_BINARY=0;
 
+const int INCLUDE_STACK_SIZE = 32;
+const int IFDEF_STACK_SIZE = 64;
+
+
+
 enum LABELS {
     LABEL_DEFINED = 0,
     LABEL_FORWARD = 1,
@@ -825,8 +830,8 @@ static Sym *label_find(int v);
 static Sym *label_push(Sym **ptop, int v, int flags);
 static void label_pop(Sym **ptop, Sym *slast, int keep);
 static void parse_define(void);
-// LJW BOOKMARK
 static void preprocess(int is_bof);
+// LJW BOOKMARK
 static void next_nomacro(void);
 static void next(void);
 static inline void unget_tok(int last_tok);
@@ -2292,16 +2297,17 @@ static CachedInclude *search_cached_include(TCCState *s1, const char *filename, 
 }
 
 static void preprocess(int is_bof) {
+// LJW DONE
     TCCState *s1 = tcc_state;
     int i, c, n, saved_parse_flags;
     char buf[1024], *q;
     Sym *s;
     saved_parse_flags = parse_flags;
-    parse_flags = 0x0001
-        | 0x0002
-        | 0x0040
-        | 0x0004
-        | (parse_flags & 0x0008)
+    parse_flags = PARSE_FLAG_PREPROCESS
+        | PARSE_FLAG_TOK_NUM
+        | PARSE_FLAG_TOK_STR
+        | PARSE_FLAG_LINEFEED
+        | (parse_flags & PARSE_FLAG_ASM_FILE)
         ;
     next_nomacro();
  redo:
@@ -2345,9 +2351,9 @@ static void preprocess(int is_bof) {
             minp();
         } else {
 	    int len;
-	    parse_flags = (0x0001
-			   | 0x0004
-			   | (parse_flags & 0x0008));
+            parse_flags = (PARSE_FLAG_PREPROCESS
+                           | PARSE_FLAG_LINEFEED
+                           | (parse_flags & PARSE_FLAG_ASM_FILE));
             next();
             buf[0] = '\0';
 	    while (tok != 10) {
@@ -2362,7 +2368,7 @@ static void preprocess(int is_bof) {
 	    memmove(buf, buf + 1, len - 2);
 	    buf[len - 2] = '\0';
         }
-        if (s1->include_stack_ptr >= s1->include_stack + 32)
+        if (s1->include_stack_ptr >= s1->include_stack + INCLUDE_STACK_SIZE)
             tcc_error("#include recursion too deep");
         *s1->include_stack_ptr = file;
         i = tok == TOK_INCLUDE_NEXT ? file->include_next_index : 0;
@@ -2398,7 +2404,7 @@ static void preprocess(int is_bof) {
             dynarray_add(&s1->target_deps, &s1->nb_target_deps,
                     tcc_strdup(buf1));
             ++s1->include_stack_ptr;
-            tok_flags |= 0x0002 | 0x0001;
+            tok_flags |= TOK_FLAG_BOF | TOK_FLAG_BOL;
             ch = file->buf_ptr[0];
             goto the_end;
         }
@@ -2415,7 +2421,7 @@ include_done:
         c = 0;
     do_ifdef:
         next_nomacro();
-        if (tok < 256)
+        if (tok < TOK_IDENT)
             tcc_error("invalid argument for '#if%sdef'", c ? "n" : "");
         if (is_bof) {
             if (c) {
@@ -2424,7 +2430,7 @@ include_done:
         }
         c = (define_find(tok) != 0) ^ c;
     do_if:
-        if (s1->ifdef_stack_ptr >= s1->ifdef_stack + 64)
+        if (s1->ifdef_stack_ptr >= s1->ifdef_stack + IFDEF_STACK_SIZE)
             tcc_error("memory full (ifdef)");
         *s1->ifdef_stack_ptr++ = c;
         goto test_skip;
@@ -2465,29 +2471,29 @@ include_done:
             s1->ifdef_stack_ptr == file->ifdef_stack_ptr) {
             file->ifndef_macro_saved = file->ifndef_macro;
             file->ifndef_macro = 0;
-            while (tok != 10)
+            while (tok != TOK_LINEFEED)
                 next_nomacro();
-            tok_flags |= 0x0004;
+            tok_flags |= TOK_FLAG_ENDIF;
             goto the_end;
         }
         break;
-    case 0xbe:
+    case TOK_PPNUM:
         n = strtoul((char*)tokc.str.data, &q, 10);
         goto _line_num;
     case TOK_LINE:
         next();
-        if (tok != 0xb5)
+        if (tok != TOK_CINT)
     _line_err:
             tcc_error("wrong #line format");
         n = tokc.i;
     _line_num:
         next();
-        if (tok != 10) {
-            if (tok == 0xb9) {
+        if (tok != TOK_LINEFEED) {
+            if (tok == TOK_STR) {
                 if (file->true_filename == file->filename)
                     file->true_filename = tcc_strdup(file->filename);
                 pstrcpy(file->filename, sizeof(file->filename), (char *)tokc.str.data);
-            } else if (parse_flags & 0x0008)
+            } else if (parse_flags & PARSE_FLAG_ASM_FILE)
                 break;
             else
                 goto _line_err;
@@ -2503,7 +2509,7 @@ include_done:
         ch = file->buf_ptr[0];
         skip_spaces();
         q = buf;
-        while (ch != '\n' && ch != (-1)) {
+        while (ch != '\n' && ch != CH_EOF) {
             if ((q - buf) < sizeof(buf) - 1)
                 *q++ = ch;
             if (ch == '\\') {
@@ -2521,7 +2527,7 @@ include_done:
     case 10:
         goto the_end;
     default:
-        if (saved_parse_flags & 0x0008)
+        if (saved_parse_flags & PARSE_FLAG_ASM_FILE)
             goto ignore;
         if (tok == '!' && is_bof)
             goto ignore;
@@ -2530,7 +2536,7 @@ include_done:
         file->buf_ptr = parse_line_comment(file->buf_ptr - 1);
         goto the_end;
     }
-    while (tok != 10)
+    while (tok != TOK_LINEFEED)
         next_nomacro();
  the_end:
     parse_flags = saved_parse_flags;
