@@ -728,6 +728,10 @@ enum TCC_OUTPUTS {
     TCC_OUTPUT_FORMAT_ELF = 0,
 };
 
+const int IO_BUF_SIZE = 8192;
+
+const char CH_EOB = '\\';
+
 static int gnu_ext;
 static int tcc_ext;
 static struct TCCState *tcc_state;
@@ -3402,12 +3406,6 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args) 
     tok_str_add(&str, 0);
     return str.str;
 }
-
-static char const ab_month_name[12][4] =
-{
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
 
 static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2) {
     CString cstr;
@@ -11957,12 +11955,13 @@ void tcc_warning(const char *fmt, ...) {
 }
 
 static void tcc_open_bf(TCCState *s1, const char *filename, int initlen) {
+// LJW DONE
     BufferedFile *bf;
-    int buflen = initlen ? initlen : 8192;
+    int buflen = initlen ? initlen : IO_BUF_SIZE;
     bf = tcc_mallocz(sizeof(BufferedFile) + buflen);
     bf->buf_ptr = bf->buffer;
     bf->buf_end = bf->buffer + initlen;
-    bf->buf_end[0] = '\\';
+    bf->buf_end[0] = CH_EOB;
     pstrcpy(bf->filename, sizeof(bf->filename), filename);
     bf->true_filename = bf->filename;
     bf->line_num = 1;
@@ -11970,7 +11969,7 @@ static void tcc_open_bf(TCCState *s1, const char *filename, int initlen) {
     bf->fd = -1;
     bf->prev = file;
     file = bf;
-    tok_flags = 0x0001 | 0x0002;
+    tok_flags = TOK_FLAG_BOL | TOK_FLAG_BOF;
 }
 
 static void tcc_close(void) {
