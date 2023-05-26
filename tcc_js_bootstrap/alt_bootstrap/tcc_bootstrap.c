@@ -172,18 +172,6 @@ extern long double strtold (const char *__nptr, char **__endptr);
 
 struct TCCState;
 typedef struct TCCState TCCState;
-TCCState *tcc_new(void);
-void tcc_delete(TCCState *s);
-void tcc_set_error_func(TCCState *s, void *error_opaque,
-void (*error_func)(void *opaque, const char *msg));
-int tcc_add_include_path(TCCState *s, const char *pathname);
-void tcc_define_symbol(TCCState *s, const char *sym, const char *value);
-int tcc_add_file(TCCState *s, const char *filename);
-int tcc_compile_string(TCCState *s, const char *buf);
-int tcc_set_output_type(TCCState *s, int output_type);
-// LJW BOOKMARK
-int tcc_output_file(TCCState *s, const char *filename);
-
 typedef struct TokenSym {
     struct TokenSym *hash_next;
     struct Sym *sym_define;
@@ -741,17 +729,24 @@ enum TCC_OUTPUTS {
 };
 
 static int gnu_ext;
-
 static int tcc_ext;
-
 static struct TCCState *tcc_state;
+
+TCCState *tcc_new(void);
+void tcc_delete(TCCState *s);
+void tcc_set_error_func(TCCState *s, void *error_opaque,
+void (*error_func)(void *opaque, const char *msg));
+int tcc_add_include_path(TCCState *s, const char *pathname);
+void tcc_define_symbol(TCCState *s, const char *sym, const char *value);
+int tcc_add_file(TCCState *s, const char *filename);
+int tcc_compile_string(TCCState *s, const char *buf);
+int tcc_set_output_type(TCCState *s, int output_type);
+int tcc_output_file(TCCState *s, const char *filename);
 
 static char *pstrcpy(char *buf, int buf_size, const char *s);
 static char *pstrcat(char *buf, int buf_size, const char *s);
 static char *pstrncpy(char *out, const char *in, size_t num);
 char *tcc_basename(const char *name);
-char *tcc_fileextension (const char *name);
-
 void tcc_free(void *ptr);
 void *tcc_malloc(unsigned long size);
 void *tcc_mallocz(unsigned long size);
@@ -761,6 +756,7 @@ void tcc_error_noabort(const char *fmt, ...);
 void tcc_error(const char *fmt, ...);
 void tcc_warning(const char *fmt, ...);
 
+// LJW BOOKMARK
 static void dynarray_add(void *ptab, int *nb_ptr, void *data);
 static void dynarray_reset(void *pp, int *n);
 static inline void cstr_ccat(CString *cstr, int ch);
@@ -11010,6 +11006,7 @@ static int elf_output_file(TCCState *s1, const char *filename)
 }
 
 int tcc_output_file(TCCState *s, const char *filename) {
+// LJW DONE
     int ret;
     ret = elf_output_file(s, filename);
     return ret;
@@ -11779,23 +11776,20 @@ static char *pstrncpy(char *out, const char *in, size_t num) {
 }
 
 char *tcc_basename(const char *name) {
+// LJW DONE
     char *p = strchr(name, 0);
     while (p > name && !(p[-1] == '/'))
         --p;
     return p;
 }
 
-char *tcc_fileextension (const char *name) {
-    char *b = tcc_basename(name);
-    char *e = strrchr(b, '.');
-    return e ? e : strchr(b, 0);
-}
-
 void tcc_free(void *ptr) {
+// LJW DONE
     free(ptr);
 }
 
 void *tcc_malloc(unsigned long size) {
+// LJW DONE
     void *ptr;
     ptr = malloc(size);
     if (!ptr && size)
@@ -11804,6 +11798,7 @@ void *tcc_malloc(unsigned long size) {
 }
 
 void *tcc_mallocz(unsigned long size) {
+// LJW DONE
     void *ptr;
     ptr = tcc_malloc(size);
     memset(ptr, 0, size);
@@ -11811,6 +11806,7 @@ void *tcc_mallocz(unsigned long size) {
 }
 
 void *tcc_realloc(void *ptr, unsigned long size) {
+// LJW DONE
     void *ptr1;
     ptr1 = realloc(ptr, size);
     if (!ptr1 && size)
@@ -11819,6 +11815,7 @@ void *tcc_realloc(void *ptr, unsigned long size) {
 }
 
 char *tcc_strdup(const char *str) {
+// LJW DONE
     char *ptr;
     ptr = tcc_malloc(strlen(str) + 1);
     strcpy(ptr, str);
@@ -11921,6 +11918,7 @@ void tcc_set_error_func(TCCState *s, void *error_opaque,
 }
 
 void tcc_error_noabort(const char *fmt, ...) {
+// LJW DONE
     TCCState *s1 = tcc_state;
     va_list ap;
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
@@ -11936,6 +11934,7 @@ void tcc_error(const char *fmt, ...) {
 }
 
 void tcc_warning(const char *fmt, ...) {
+// LJW DONE
     TCCState *s1 = tcc_state;
     va_list ap;
     if (s1->warn_none)
