@@ -689,13 +689,6 @@ enum FUNCS {
     FUNC_CDECL = 0,
 };
 
-enum PARSE_FLAGS {
-    PARSE_FLAG_PREPROCESS = 0x0001,
-    PARSE_FLAG_TOK_NUM = 0x0002,
-    PARSE_FLAG_TOK_STR = 0x0040,
-
-};
-
 enum MISC {
     LONG_SIZE = 4,
 };
@@ -740,6 +733,16 @@ enum LABELS {
     LABEL_DEFINED = 0,
     LABEL_FORWARD = 1,
     LABEL_DECLARED = 2,
+};
+
+enum PARSE_FLAGS {
+    PARSE_FLAG_PREPROCESS = 0x0001,
+    PARSE_FLAG_TOK_NUM  =   0x0002,
+    PARSE_FLAG_LINEFEED  =  0x0004,
+    PARSE_FLAG_ASM_FILE = 0x0008,
+    PARSE_FLAG_SPACES  =    0x0010,
+    PARSE_FLAG_ACCEPT_STRAYS = 0x0020,
+    PARSE_FLAG_TOK_STR  =   0x0040,
 };
 
 static int gnu_ext;
@@ -821,8 +824,8 @@ static void free_defines(Sym *b);
 static Sym *label_find(int v);
 static Sym *label_push(Sym **ptop, int v, int flags);
 static void label_pop(Sym **ptop, Sym *slast, int keep);
-// LJW BOOKMARK
 static void parse_define(void);
+// LJW BOOKMARK
 static void preprocess(int is_bof);
 static void next_nomacro(void);
 static void next(void);
@@ -2184,6 +2187,7 @@ static int expr_preprocess(void) {
 }
 
 static void parse_define(void) {
+// LJW DONE
     Sym *s, *first, **ps;
     int v, t, varg, is_vaargs, spc;
     int saved_parse_flags = parse_flags;
@@ -2192,7 +2196,7 @@ static void parse_define(void) {
         tcc_error("invalid macro name '%s'", get_tok_str(tok, &tokc));
     first = ((void*)0);
     t = MACRO_OBJ;
-    parse_flags = ((parse_flags & ~0x0008) | 0x0010);
+    parse_flags = ((parse_flags & ~PARSE_FLAG_ASM_FILE) | PARSE_FLAG_SPACES);
     next_nomacro_spc();
     if (tok == '(') {
         int dotid = set_idnum('.', 0);
@@ -2205,7 +2209,7 @@ static void parse_define(void) {
             if (varg == TOK_DOTS) {
                 varg = TOK___VA_ARGS__;
                 is_vaargs = 1;
-            } else if (tok == 0xc8 && gnu_ext) {
+            } else if (tok == TOK_DOTS && gnu_ext) {
                 is_vaargs = 1;
                 next_nomacro();
             }
@@ -2222,12 +2226,12 @@ static void parse_define(void) {
             next_nomacro();
         }
         next_nomacro_spc();
-        t = 1;
+        t = MACRO_FUNC;
         set_idnum('.', dotid);
     }
     tokstr_buf.len = 0;
     spc = 2;
-    parse_flags |= 0x0020 | 0x0010 | 0x0004;
+    parse_flags |= PARSE_FLAG_ACCEPT_STRAYS | PARSE_FLAG_SPACES | PARSE_FLAG_LINEFEED;
     while (tok != TOK_LINEFEED && tok != TOK_EOF) {
         if (TOK_TWOSHARPS == tok) {
             if (2 == spc)
