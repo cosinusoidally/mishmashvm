@@ -733,8 +733,8 @@ const int INCLUDE_STACK_SIZE = 32;
 const int IFDEF_STACK_SIZE = 64;
 
 const int IS_SPC = 1;
-
-
+const int  IS_ID = 2;
+const int IS_NUM = 4;
 
 enum LABELS {
     LABEL_DEFINED = 0,
@@ -835,9 +835,9 @@ static void parse_define(void);
 static void preprocess(int is_bof);
 static void next_nomacro(void);
 static void next(void);
-// LJW BOOKMARK
-static inline void unget_tok(int last_tok);
+static void unget_tok(int last_tok);
 static void preprocess_start(TCCState *s1, int is_asm);
+// LJW BOOKMARK
 static void preprocess_end(TCCState *s1);
 static void tccpp_new(TCCState *s);
 static void tccpp_delete(TCCState *s);
@@ -3837,7 +3837,8 @@ static void next(void) {
     }
 }
 
-static inline void unget_tok(int last_tok) {
+static void unget_tok(int last_tok) {
+// LJW DONE
     TokenString *str = tok_str_alloc();
     tok_str_add2(str, tok, &tokc);
     tok_str_add(str, 0);
@@ -3845,11 +3846,10 @@ static inline void unget_tok(int last_tok) {
     tok = last_tok;
 }
 
-static void preprocess_start(TCCState *s1, int is_asm)
-{
+static void preprocess_start(TCCState *s1, int is_asm) {
+// LJW DONE
     CString cstr;
     int i;
-
     s1->include_stack_ptr = s1->include_stack;
     s1->ifdef_stack_ptr = s1->ifdef_stack;
     file->ifdef_stack_ptr = s1->ifdef_stack_ptr;
@@ -3860,16 +3860,13 @@ static void preprocess_start(TCCState *s1, int is_asm)
     pvtop = vtop = (__vstack + 1) - 1;
     s1->pack_stack[0] = 0;
     s1->pack_stack_ptr = s1->pack_stack;
-
-    set_idnum('$', s1->dollars_in_identifiers ? 2 : 0);
-    set_idnum('.', is_asm ? 2 : 0);
-
+    set_idnum('$', s1->dollars_in_identifiers ? IS_ID : 0);
+    set_idnum('.', is_asm ? IS_ID : 0);
     cstr_new(&cstr);
     cstr_cat(&cstr, "\"", -1);
     cstr_cat(&cstr, file->filename, -1);
     cstr_cat(&cstr, "\"", 0);
     tcc_define_symbol(s1, "__BASE_FILE__", cstr.data);
-
     cstr_reset(&cstr);
     for (i = 0; i < s1->nb_cmd_include_files; i++) {
         cstr_cat(&cstr, "#include \"", -1);
@@ -3878,16 +3875,14 @@ static void preprocess_start(TCCState *s1, int is_asm)
     }
     if (cstr.size) {
         *s1->include_stack_ptr++ = file;
-	tcc_open_bf(s1, "<command line>", cstr.size);
-	memcpy(file->buffer, cstr.data, cstr.size);
+        tcc_open_bf(s1, "<command line>", cstr.size);
+        memcpy(file->buffer, cstr.data, cstr.size);
     }
     cstr_free(&cstr);
-
     if (is_asm)
-        tcc_define_symbol(s1, "__ASSEMBLER__", ((void*)0));
-
-    parse_flags = is_asm ? 0x0008 : 0;
-    tok_flags = 0x0001 | 0x0002;
+        tcc_define_symbol(s1, "__ASSEMBLER__", NULL);
+    parse_flags = is_asm ? PARSE_FLAG_ASM_FILE : 0;
+    tok_flags = TOK_FLAG_BOL | TOK_FLAG_BOF;
 }
 
 
