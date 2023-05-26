@@ -3297,19 +3297,14 @@ maybe_newline:
         }
         break;
     case '!':
-//{ p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0x95; } else { tok = '!'; } break;
     p=PARSE2(&c,&p, '!', '=', TOK_NE); break;
     case '=':
-//{ p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0x94; } else { tok = '='; } break;
     p=PARSE2(&c,&p, '=', '=', TOK_EQ); break;
     case '*':
-// { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0xaa; } else { tok = '*'; } break;
     p=PARSE2(&c,&p, '*', '=', TOK_A_MUL); break;
     case '%':
-// { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0xa5; } else { tok = '%'; } break;
     p=PARSE2(&c,&p, '%', '=', TOK_A_MOD); break;
     case '^':
-// { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }}; if (c == '=') { p++; tok = 0xde; } else { tok = '^'; } break;
     p=PARSE2(&c,&p, '^', '=', TOK_A_XOR); break;
     case '/':
         p=PEEKC(&c,&p);
