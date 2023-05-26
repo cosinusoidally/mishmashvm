@@ -904,10 +904,10 @@ static int tccgen_compile(TCCState *s1);
 static void free_inline_functions(TCCState *s);
 static void check_vstack(void);
 static int is_float(int t);
-// LJW BOOKMARK
 static int ieee_finite(double d);
 static void test_lvalue(void);
 static void vpushi(int v);
+// LJW BOOKMARK
 static Elf32_Sym *elfsym(Sym *);
 static void update_storage(Sym *sym);
 static Sym *external_global_sym(int v, CType *type, int r);
@@ -4208,13 +4208,15 @@ static int is_float(int t) {
 }
 
 static int ieee_finite(double d) {
+// LJW DONE
     int p[4];
     memcpy(p, &d, sizeof(double));
     return ((unsigned)((p[1] | 0x800fffff) + 1)) >> 31;
 }
 
 static void test_lvalue(void) {
-    if (!(vtop->r & 0x0100))
+// LJW DONE
+    if (!(vtop->r & VT_LVAL))
         expect("lvalue");
 }
 
@@ -4530,9 +4532,10 @@ static void vpush(CType *type) {
 }
 
 static void vpushi(int v) {
+// LJW DONE
     CValue cval;
     cval.i = v;
-    vsetc(&int_type, 0x0030, &cval);
+    vsetc(&int_type, VT_CONST, &cval);
 }
 
 static void vpushs(Elf32_Addr v) {
