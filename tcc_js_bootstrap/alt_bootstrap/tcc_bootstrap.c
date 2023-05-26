@@ -770,6 +770,25 @@ static int total_lines;
 static int total_bytes;
 static int tok_ident;
 static TokenSym **table_ident;
+static Sym *sym_free_first;
+static void **sym_pools;
+static int nb_sym_pools;
+static Sym *global_stack;
+static Sym *local_stack;
+static Sym *local_label_stack;
+static Sym *global_label_stack;
+static Sym *define_stack;
+static CType char_pointer_type, func_old_type, int_type, size_type;
+static SValue __vstack[1+  256], *vtop, *pvtop;
+static int rsym, anon_sym, ind, loc;
+static int const_wanted;
+static int nocode_wanted;
+static int global_expr;
+static CType func_vt;
+static int func_var;
+static int func_vc;
+static int last_line_num, last_ind, func_ind;
+static const char *funcname;
 
 TCCState *tcc_new(void);
 void tcc_delete(TCCState *s);
@@ -875,25 +894,6 @@ int IS_ENUM(int t){
 }
 
 // LJW BOOKMARK
-static Sym *sym_free_first;
-static void **sym_pools;
-static int nb_sym_pools;
-static Sym *global_stack;
-static Sym *local_stack;
-static Sym *local_label_stack;
-static Sym *global_label_stack;
-static Sym *define_stack;
-static CType char_pointer_type, func_old_type, int_type, size_type;
-static SValue __vstack[1+  256], *vtop, *pvtop;
-static int rsym, anon_sym, ind, loc;
-static int const_wanted;
-static int nocode_wanted;
-static int global_expr;
-static CType func_vt;
-static int func_var;
-static int func_vc;
-static int last_line_num, last_ind, func_ind;
-static const char *funcname;
 static int tccgen_compile(TCCState *s1);
 static void free_inline_functions(TCCState *s);
 static void check_vstack(void);
