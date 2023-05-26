@@ -603,6 +603,7 @@ enum VTS {
     VT_DEFSIGN = 0x0020,
     VT_VALMASK = 0x003f,
     VT_LVAL = 0x0100,
+    VT_QFLOAT = 14,
 };
 
 enum TOKS {
@@ -899,11 +900,11 @@ int IS_ENUM(int t){
     return ((t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20));
 }
 
-// LJW BOOKMARK
 static int tccgen_compile(TCCState *s1);
 static void free_inline_functions(TCCState *s);
 static void check_vstack(void);
-static inline int is_float(int t);
+static int is_float(int t);
+// LJW BOOKMARK
 static int ieee_finite(double d);
 static void test_lvalue(void);
 static void vpushi(int v);
@@ -4199,10 +4200,11 @@ static void gen_inline_functions(TCCState *s);
 static void skip_or_save_block(TokenString **str);
 static void gv_dup(void);
 
-static inline int is_float(int t) {
+static int is_float(int t) {
+// LJW DONE
     int bt;
-    bt = t & 0x000f;
-    return bt == 10 || bt == 9 || bt == 8 || bt == 14;
+    bt = t & VT_BTYPE;
+    return bt == VT_LDOUBLE || bt == VT_DOUBLE || bt == VT_FLOAT || bt == VT_QFLOAT;
 }
 
 static int ieee_finite(double d) {
@@ -4217,11 +4219,13 @@ static void test_lvalue(void) {
 }
 
 static void check_vstack(void) {
+// LJW DONE
     if (pvtop != vtop)
         tcc_error("internal compiler error: vstack leak (%d)", vtop - pvtop);
 }
 
 static int tccgen_compile(TCCState *s1) {
+// LJW DONE
     cur_text_section = ((void*)0);
     funcname = "";
     anon_sym = SYM_FIRST_ANOM;
@@ -10150,8 +10154,8 @@ static void gen_inline_functions(TCCState *s) {
     file->line_num = ln;
 }
 
-static void free_inline_functions(TCCState *s)
-{
+static void free_inline_functions(TCCState *s) {
+// LJW DONE
     int i;
 
     for (i = 0; i < s->nb_inline_fns; ++i) {
