@@ -12330,12 +12330,6 @@ unsupported_option:
             break;
         }
     }
-    if (last_o > 0)
-        tcc_define_symbol(s, "__OPTIMIZE__", ((void*)0));
-    if (linker_arg.size) {
-        r = linker_arg.data;
-        goto arg_err;
-    }
     *pargc = argc - arg_start;
     *pargv = argv + arg_start;
     if (optind != noaction)
