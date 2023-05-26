@@ -604,6 +604,7 @@ enum VTS {
     VT_VALMASK = 0x003f,
     VT_LVAL = 0x0100,
     VT_QFLOAT = 14,
+    VT_JMP = 0x0034,
 };
 
 enum TOKS {
@@ -909,11 +910,11 @@ static void test_lvalue(void);
 static void vpushi(int v);
 static Elf32_Sym *elfsym(Sym *);
 static void update_storage(Sym *sym);
-// LJW BOOKMARK
 static Sym *external_global_sym(int v, CType *type, int r);
 static void vset(CType *type, int r, int v);
 static void vswap(void);
 static void vpush_global_sym(CType *type, int v);
+// LJW BOOKMARK
 static void vrote(SValue *e, int n);
 static void vrott(int n);
 static void vrotb(int n);
@@ -4505,15 +4506,17 @@ static void vsetc(CType *type, int r, CValue *vc) {
 }
 
 static void vswap(void) {
+// LJW DONE
     SValue tmp;
     if (vtop >= (__vstack + 1) && !nocode_wanted) {
-        int v = vtop->r & 0x003f;
-        if (v == 0x0033 || (v & ~1) == 0x0034)
-            gv(0x0001);
+        int v = vtop->r & VT_VALMASK;
+        if (v == VT_CMP || (v & ~1) == VT_JMP)
+            gv(RC_INT);
     }
     tmp = vtop[0];
     vtop[0] = vtop[-1];
     vtop[-1] = tmp;
+
 }
 
 static void vpop(void) {
@@ -4530,7 +4533,8 @@ static void vpop(void) {
 }
 
 static void vpush(CType *type) {
-    vset(type, 0x0030, 0);
+// LJW DONE
+    vset(type, VT_CONST, 0);
 }
 
 static void vpushi(int v) {
@@ -4730,8 +4734,8 @@ static Sym *external_sym(int v, CType *type, int r, AttributeDef *ad)
 }
 
 
-static void vpush_global_sym(CType *type, int v)
-{
+static void vpush_global_sym(CType *type, int v) {
+// LJW DONE
     vpushsym(type, external_global_sym(v, type, 0));
 }
 
