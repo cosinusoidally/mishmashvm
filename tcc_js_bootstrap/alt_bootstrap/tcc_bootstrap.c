@@ -944,8 +944,8 @@ unsigned int BIT_SIZE(unsigned int t) {
     return (((t) >> (VT_STRUCT_SHIFT + 6)) & 0x3f);
 }
 static int gv(int rc);
-// LJW BOOKMARK
 static void gv2(int rc1, int rc2);
+// LJW BOOKMARK
 static void vpop(void);
 static void gen_op(int op);
 static int type_size(CType *type, int *a);
@@ -5087,15 +5087,15 @@ static int gv(int rc) {
 
 
 static void gv2(int rc1, int rc2) {
+// LJW DONE
     int v;
-    v = vtop[0].r & 0x003f;
-    if (v != 0x0033 && (v & ~1) != 0x0034 && rc1 <= rc2) {
+    v = vtop[0].r & VT_VALMASK;
+    if (v != VT_CMP && (v & ~1) != VT_JMP && rc1 <= rc2) {
         vswap();
         gv(rc1);
         vswap();
         gv(rc2);
-
-        if ((vtop[-1].r & 0x003f) >= 0x0030) {
+        if ((vtop[-1].r & VT_VALMASK) >= VT_CONST) {
             vswap();
             gv(rc1);
             vswap();
@@ -5105,8 +5105,8 @@ static void gv2(int rc1, int rc2) {
         vswap();
         gv(rc1);
         vswap();
-
-        if ((vtop[0].r & 0x003f) >= 0x0030) {
+        /* test if reload is needed for first register */
+        if ((vtop[0].r & VT_VALMASK) >= VT_CONST) {
             gv(rc2);
         }
     }
