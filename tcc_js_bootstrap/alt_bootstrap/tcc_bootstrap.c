@@ -806,12 +806,12 @@ static void tok_str_free(TokenString *s);
 static void tok_str_free_str(int *str);
 static void tok_str_add(TokenString *s, int t);
 static void tok_str_add_tok(TokenString *s);
-// LJW BOOKMARK
 static inline void define_push(int v, int macro_type, int *str, Sym *first_arg);
 static void define_undef(Sym *s);
-static inline Sym *define_find(int v);
+static Sym *define_find(int v);
 static void free_defines(Sym *b);
 static Sym *label_find(int v);
+// LJW BOOKMARK
 static Sym *label_push(Sym **ptop, int v, int flags);
 static void label_pop(Sym **ptop, Sym *slast, int keep);
 static void parse_define(void);
@@ -2006,30 +2006,34 @@ static int macro_is_equal(const int *a, const int *b) {
 }
 
 static inline void define_push(int v, int macro_type, int *str, Sym *first_arg) {
+// LJW DONE
     Sym *s, *o;
     o = define_find(v);
     s = sym_push2(&define_stack, v, macro_type, 0);
     s->d = str;
     s->next = first_arg;
-    table_ident[v - 256]->sym_define = s;
+    table_ident[v - TOK_IDENT]->sym_define = s;
     if (o && !macro_is_equal(o->d, s->d))
 	tcc_warning("%s redefined", get_tok_str(v, ((void*)0)));
 }
 
 static void define_undef(Sym *s) {
+// LJW DONE
     int v = s->v;
-    if (v >= 256 && v < tok_ident)
-        table_ident[v - 256]->sym_define = ((void*)0);
+    if (v >= TOK_IDENT && v < tok_ident)
+        table_ident[v - TOK_IDENT]->sym_define = ((void*)0);
 }
 
-static inline Sym *define_find(int v) {
-    v -= 256;
-    if ((unsigned)v >= (unsigned)(tok_ident - 256))
+static Sym *define_find(int v) {
+// LJW DONE
+    v -= TOK_IDENT;
+    if ((unsigned)v >= (unsigned)(tok_ident - TOK_IDENT))
         return ((void*)0);
     return table_ident[v]->sym_define;
 }
 
 static void free_defines(Sym *b) {
+// LJW DONE
     while (define_stack != b) {
         Sym *top = define_stack;
         define_stack = top->prev;
@@ -2039,8 +2043,8 @@ static void free_defines(Sym *b) {
     }
     while (b) {
         int v = b->v;
-        if (v >= 256 && v < tok_ident) {
-            Sym **d = &table_ident[v - 256]->sym_define;
+        if (v >= TOK_IDENT && v < tok_ident) {
+            Sym **d = &table_ident[v - TOK_IDENT]->sym_define;
             if (!*d)
                 *d = b;
         }
@@ -2049,8 +2053,9 @@ static void free_defines(Sym *b) {
 }
 
 static Sym *label_find(int v) {
-    v -= 256;
-    if ((unsigned)v >= (unsigned)(tok_ident - 256))
+// LJW DONE
+    v -= TOK_IDENT;
+    if ((unsigned)v >= (unsigned)(tok_ident - TOK_IDENT))
         return ((void*)0);
     return table_ident[v]->sym_label;
 }
