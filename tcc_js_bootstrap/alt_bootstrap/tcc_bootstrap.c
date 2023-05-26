@@ -1541,17 +1541,17 @@ int PEEKC_EOB(uint8_t *p) {
   return c;
 }
 
-int PEEKC(uint8_t **pp) {
-    int c;
+int PEEKC(int *c,uint8_t **pp) {
+//    int c;
     uint8_t *p;
-    *p=pp;
+    p=*pp;
     p++;
-    c = *p;
-    if (c == '\\') {
-        c = handle_stray1(p);
+    *c = *p;
+    if (*c == '\\') {
+        *c = handle_stray1(p);
         p = file->buf_ptr;
     }
-    return c;
+    return p;
 }
 
 
@@ -3036,8 +3036,7 @@ maybe_newline:
         tok = 10;
         goto keep_tok_flags;
     case '#':
-        { p++; c = *p; if (c == '\\') { c = handle_stray1(p); p = file->buf_ptr; }};
-// c=PEEKC(&p);
+        p=PEEKC(&c,&p);
         if ((tok_flags & 0x0001) &&
             (parse_flags & 0x0001)) {
             file->buf_ptr = p;
