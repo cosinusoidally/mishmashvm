@@ -717,6 +717,8 @@ enum RCS {
     RC_ECX = 0x0010,
     RC_EDX = 0x0020,
     RC_EBX = 0x0040,
+    RC_IRET = RC_EAX,
+    RC_LRET = RC_EDX,
 };
 
 enum MACROS {
@@ -5013,8 +5015,9 @@ static int gv(int rc) {
         }
         r = vtop->r & VT_VALMASK;
         rc2 = (rc & RC_FLOAT) ? RC_FLOAT : RC_INT;
-        if (rc == 0x0004)
-            rc2 = 0x0020;
+        if (rc == RC_IRET)
+            rc2 = RC_LRET;
+
         if (r >= VT_CONST
          || (vtop->r & VT_LVAL)
          || !(reg_classes[r] & rc)
