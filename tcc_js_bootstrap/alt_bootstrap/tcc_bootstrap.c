@@ -1608,15 +1608,15 @@ static uint8_t *parse_comment(uint8_t *p) {
                         tcc_error("unexpected end of file in comment");
                     if (c == '\\') {
                         while (c == '\\') {
-                            { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+                            p++;c=PEEKC_EOB(c, p);
                             if (c == '\n') {
                                 file->line_num++;
-                                { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+                                p++;c=PEEKC_EOB(c, p);
                             } else if (c == '\r') {
-                                { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+                                p++;c=PEEKC_EOB(c, p);
                                 if (c == '\n') {
                                     file->line_num++;
-                                    { p++; c = *p; if (c == '\\') { file->buf_ptr = p; c = handle_eob(); p = file->buf_ptr; }};
+                                    p++;c=PEEKC_EOB(c, p);
                                 }
                             } else {
                                 goto after_star;
