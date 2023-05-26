@@ -4966,45 +4966,31 @@ static int adjust_bf(SValue *sv, int bit_pos, int bit_size)
     return t;
 }
 
+static int gv(int rc) {
 
-
-
-static int gv(int rc)
-{
     int r, bit_pos, bit_size, size, align, rc2;
-
-
     if (vtop->type.t & 0x0080) {
         CType type;
-
         bit_pos = (((vtop->type.t) >> 20) & 0x3f);
         bit_size = (((vtop->type.t) >> (20 + 6)) & 0x3f);
-
         vtop->type.t &= ~(((1 << (6+6)) - 1) << 20 | 0x0080);
-
         type.ref = ((void*)0);
         type.t = vtop->type.t & 0x0010;
         if ((vtop->type.t & 0x000f) == 11)
             type.t |= 0x0010;
-
         r = adjust_bf(vtop, bit_pos, bit_size);
-
         if ((vtop->type.t & 0x000f) == 4)
             type.t |= 4;
         else
             type.t |= 3;
-
         if (r == 7) {
             load_packed_bf(&type, bit_pos, bit_size);
         } else {
             int bits = (type.t & 0x000f) == 4 ? 64 : 32;
-
             gen_cast(&type);
-
             vpushi(bits - (bit_pos + bit_size));
             gen_op(0x01);
             vpushi(bits - bit_size);
-
             gen_op(0x02);
         }
         r = gv(rc);
@@ -5012,8 +4998,6 @@ static int gv(int rc)
         if (is_float(vtop->type.t) &&
             (vtop->r & (0x003f | 0x0100)) == 0x0030) {
             unsigned long offset;
-
-
             size = type_size(&vtop->type, &align);
             if ((nocode_wanted > 0))
                 size = 0, align = 1;
@@ -5023,57 +5007,35 @@ static int gv(int rc)
 	    init_putv(&vtop->type, data_section, offset);
 	    vtop->r |= 0x0100;
         }
-
         r = vtop->r & 0x003f;
         rc2 = (rc & 0x0002) ? 0x0002 : 0x0001;
-
         if (rc == 0x0004)
             rc2 = 0x0020;
-# 1326 "tcc_src/tccgen.c"
         if (r >= 0x0030
          || (vtop->r & 0x0100)
          || !(reg_classes[r] & rc)
-
-
-
-
          || ((vtop->type.t & 0x000f) == 4 && !(reg_classes[vtop->r2] & rc2))
-
             )
         {
             r = get_reg(rc);
-
-
-
-
             if ((vtop->type.t & 0x000f) == 4) {
                 int addr_type = 3, load_size = 4, load_type = 3;
                 unsigned long long ll;
-
                 int r2, original_type;
                 original_type = vtop->type.t;
-
-
-
                 if ((vtop->r & (0x003f | 0x0100)) == 0x0030) {
-
                     ll = vtop->c.i;
                     vtop->c.i = ll;
                     load(r, vtop);
                     vtop->r = r;
                     vpushi(ll >> 32);
                 } else
-
                 if (vtop->r & 0x0100) {
-# 1369 "tcc_src/tccgen.c"
                     save_reg_upstack(vtop->r, 1);
-
-
                     vtop->type.t = load_type;
                     load(r, vtop);
                     vdup();
                     vtop[-1].r = r;
-
                     vtop->type.t = addr_type;
                     gaddrof();
                     vpushi(load_size);
@@ -5081,48 +5043,38 @@ static int gv(int rc)
                     vtop->r |= 0x0100;
                     vtop->type.t = load_type;
                 } else {
-
+puts("s\n");exit(1);
                     load(r, vtop);
                     vdup();
                     vtop[-1].r = r;
                     vtop->r = vtop[-1].r2;
                 }
-
-
                 r2 = get_reg(rc2);
                 load(r2, vtop);
                 vpop();
-
                 vtop->r2 = r2;
                 vtop->type.t = original_type;
             } else if ((vtop->r & 0x0100) && !is_float(vtop->type.t)) {
                 int t1, t;
-
-
                 t = vtop->type.t;
                 t1 = t;
-
-                if (vtop->r & 0x1000)
+                if (vtop->r & 0x1000) {
                     t = 1;
-                else if (vtop->r & 0x2000)
+                }
+                else if (vtop->r & 0x2000) {
                     t = 2;
-                if (vtop->r & 0x4000)
+                }
+                if (vtop->r & 0x4000) {
                     t |= 0x0010;
+                }
                 vtop->type.t = t;
                 load(r, vtop);
-
                 vtop->type.t = t1;
             } else {
-
                 load(r, vtop);
             }
         }
         vtop->r = r;
-
-
-
-
-
     }
     return r;
 }
