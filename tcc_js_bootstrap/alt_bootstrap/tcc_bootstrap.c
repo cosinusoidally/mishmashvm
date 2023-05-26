@@ -744,6 +744,8 @@ const int STRING_MAX_SIZE  =  1024;
 const int TOKSTR_MAX_SIZE  =  256;
 const int PACK_STACK_SIZE  =  8;
 
+const int NB_REGS = 5;
+
 enum LABELS {
     LABEL_DEFINED = 0,
     LABEL_FORWARD = 1,
@@ -921,9 +923,9 @@ static void vrott(int n);
 static void vrotb(int n);
 static void vpushv(SValue *v);
 static void save_reg(int r);
-// LJW BOOKMARK
 static void save_reg_upstack(int r, int n);
 static int get_reg(int rc);
+// LJW BOOKMARK
 static void save_regs(int n);
 static void gaddrof(void);
 static int gv(int rc);
@@ -4808,42 +4810,34 @@ static void save_reg_upstack(int r, int n) {
     }
 }
 
-static int get_reg(int rc)
-{
+static int get_reg(int rc) {
+
     int r;
     SValue *p;
-
-
-    for(r=0;r<5;r++) {
+    for(r=0;r<NB_REGS;r++) {
         if (reg_classes[r] & rc) {
             if (nocode_wanted)
                 return r;
             for(p=(__vstack + 1);p<=vtop;p++) {
-                if ((p->r & 0x003f) == r ||
-                    (p->r2 & 0x003f) == r)
+                if ((p->r & VT_VALMASK) == r ||
+                    (p->r2 & VT_VALMASK) == r)
                     goto notfound;
             }
             return r;
         }
     notfound: ;
     }
-
-
-
-
     for(p=(__vstack + 1);p<=vtop;p++) {
-
-        r = p->r2 & 0x003f;
-        if (r < 0x0030 && (reg_classes[r] & rc))
+        r = p->r2 & VT_VALMASK;
+        if (r < VT_CONST && (reg_classes[r] & rc))
             goto save_found;
-        r = p->r & 0x003f;
-        if (r < 0x0030 && (reg_classes[r] & rc)) {
+        r = p->r & VT_VALMASK;
+        if (r < VT_CONST && (reg_classes[r] & rc)) {
         save_found:
             save_reg(r);
             return r;
         }
     }
-
     return -1;
 }
 
