@@ -608,6 +608,7 @@ enum VTS {
     VT_BOUNDED = 0x8000,
     VT_LLOCAL = 0x0031,
     VT_BITFIELD = 0x0080,
+    VT_PTR = 5,
 };
 
 enum VTS_LVALS {
@@ -5779,34 +5780,33 @@ static void gen_op(int op) {
 redo:
     t1 = vtop[-1].type.t;
     t2 = vtop[0].type.t;
-    bt1 = t1 & 0x000f;
-    bt2 = t2 & 0x000f;
-    if (bt1 == 7 || bt2 == 7) {
+    bt1 = t1 & VT_BTYPE;
+    bt2 = t2 & VT_BTYPE;
+    if (bt1 == VT_STRUCT || bt2 == VT_STRUCT) {
         tcc_error("operation on a struct");
-    } else if (bt1 == 6 || bt2 == 6) {
-	if (bt2 == 6) {
-	    mk_pointer(&vtop->type);
-	    gaddrof();
-	}
-	if (bt1 == 6) {
-	    vswap();
-	    mk_pointer(&vtop->type);
-	    gaddrof();
-	    vswap();
-	}
-	goto redo;
-    } else if (bt1 == 5 || bt2 == 5) {
-        if (op >= 0x92 && op <= 0xa1) {
+    } else if (bt1 == VT_FUNC || bt2 == VT_FUNC) {
+        if (bt2 == VT_FUNC) {
+            mk_pointer(&vtop->type);
+            gaddrof();
+        }
+        if (bt1 == VT_FUNC) {
+            vswap();
+            mk_pointer(&vtop->type);
+            gaddrof();
+            vswap();
+        }
+        goto redo;
+    } else if (bt1 == VT_PTR || bt2 == VT_PTR) {
+        if (op >= TOK_ULT && op <= TOK_LOR) {
             check_comparison_pointer_types(vtop - 1, vtop, op);
-            t = 3 | 0x0010;
+            t = VT_INT | VT_UNSIGNED;
             goto std_op;
         }
-        if (bt1 == 5 && bt2 == 5) {
+        if (bt1 == VT_PTR && bt2 == VT_PTR) {
             if (op != '-')
                 tcc_error("cannot use pointers here");
             check_comparison_pointer_types(vtop - 1, vtop, op);
-
-            if (vtop[-1].type.t & 0x0400) {
+            if (vtop[-1].type.t & VT_VLA) {
                 vla_runtime_pointed_size(&vtop[-1].type);
             } else {
                 vpushi(pointed_size(&vtop[-1].type));
@@ -5815,19 +5815,19 @@ redo:
             gen_opic(op);
             vtop->type.t = ptrdiff_type.t;
             vswap();
-            gen_op(0xb2);
+            gen_op(TOK_PDIV);
         } else {
             if (op != '-' && op != '+')
                 tcc_error("cannot use pointers here");
-            if (bt2 == 5) {
+            if (bt2 == VT_PTR) {
                 vswap();
                 t = t1, t1 = t2, t2 = t;
             }
-            if ((vtop[0].type.t & 0x000f) == 4)
-                gen_cast_s(3);
+            if ((vtop[0].type.t & VT_BTYPE) == VT_LLONG)
+                gen_cast_s(VT_INT);
             type1 = vtop[-1].type;
-            type1.t &= ~0x0040;
-            if (vtop[-1].type.t & 0x0400)
+            type1.t &= ~VT_ARRAY;
+            if (vtop[-1].type.t & VT_VLA)
                 vla_runtime_pointed_size(&vtop[-1].type);
             else {
                 u = pointed_size(&vtop[-1].type);
@@ -5843,32 +5843,32 @@ redo:
             vtop->type = type1;
         }
     } else if (is_float(bt1) || is_float(bt2)) {
-        if (bt1 == 10 || bt2 == 10) {
-            t = 10;
-        } else if (bt1 == 9 || bt2 == 9) {
-            t = 9;
+        if (bt1 == VT_LDOUBLE || bt2 == VT_LDOUBLE) {
+            t = VT_LDOUBLE;
+        } else if (bt1 == VT_DOUBLE || bt2 == VT_DOUBLE) {
+            t = VT_DOUBLE;
         } else {
-            t = 8;
+            t = VT_FLOAT;
         }
         if (op != '+' && op != '-' && op != '*' && op != '/' &&
             (op < 0x92 || op > 0x9f))
             tcc_error("invalid operands for binary operation");
         goto std_op;
-    } else if (op == 0xc9 || op == 0x02 || op == 0x01) {
-        t = bt1 == 4 ? 4 : 3;
-        if ((t1 & (0x000f | 0x0010 | 0x0080)) == (t | 0x0010))
-          t |= 0x0010;
-        t |= (0x0800 & t1);
+    } else if (op == TOK_SHR || op == TOK_SAR || op == TOK_SHL) {
+        t = bt1 == VT_LLONG ? VT_LLONG : VT_INT;
+        if ((t1 & (VT_BTYPE | VT_UNSIGNED | VT_BITFIELD)) == (t | VT_UNSIGNED))
+          t |= VT_UNSIGNED;
+        t |= (VT_LONG & t1);
         goto std_op;
-    } else if (bt1 == 4 || bt2 == 4) {
-        t = 4 | 0x0800;
-        if (bt1 == 4)
+    } else if (bt1 == VT_LLONG || bt2 == VT_LLONG) {
+        t = VT_LLONG | VT_LONG;
+        if (bt1 == VT_LLONG)
             t &= t1;
-        if (bt2 == 4)
+        if (bt2 == VT_LLONG)
             t &= t2;
-        if ((t1 & (0x000f | 0x0010 | 0x0080)) == (4 | 0x0010) ||
-            (t2 & (0x000f | 0x0010 | 0x0080)) == (4 | 0x0010))
-            t |= 0x0010;
+        if ((t1 & (VT_BTYPE | VT_UNSIGNED | VT_BITFIELD)) == (VT_LLONG | VT_UNSIGNED) ||
+            (t2 & (VT_BTYPE | VT_UNSIGNED | VT_BITFIELD)) == (VT_LLONG | VT_UNSIGNED))
+            t |= VT_UNSIGNED;
         goto std_op;
     } else {
         t = 3 | (0x0800 & (t1 | t2));
