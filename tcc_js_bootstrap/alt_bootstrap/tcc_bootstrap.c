@@ -834,8 +834,8 @@ static void label_pop(Sym **ptop, Sym *slast, int keep);
 static void parse_define(void);
 static void preprocess(int is_bof);
 static void next_nomacro(void);
-// LJW BOOKMARK
 static void next(void);
+// LJW BOOKMARK
 static inline void unget_tok(int last_tok);
 static void preprocess_start(TCCState *s1, int is_asm);
 static void preprocess_end(TCCState *s1);
@@ -3803,24 +3803,24 @@ no_subst:
 }
 
 static void next(void) {
+// LJW DONE
  redo:
-    if (parse_flags & 0x0010){
+    if (parse_flags & PARSE_FLAG_SPACES)
         next_nomacro_spc();
-    } else {
+    else
         next_nomacro();
-    }
     if (macro_ptr) {
-        if (tok == 0xcc || tok == 0xcb) {
+        if (tok == TOK_NOSUBST || tok == TOK_PLCHLDR) {
             goto redo;
         } else if (tok == 0) {
             end_macro();
             goto redo;
         }
-    } else if (tok >= 256 && (parse_flags & 0x0001)) {
+    } else if (tok >= TOK_IDENT && (parse_flags & PARSE_FLAG_PREPROCESS)) {
         Sym *s;
         s = define_find(tok);
         if (s) {
-            Sym *nested_list = ((void*)0);
+            Sym *nested_list = NULL;
             tokstr_buf.len = 0;
             macro_subst_tok(&tokstr_buf, &nested_list, s);
             tok_str_add(&tokstr_buf, 0);
@@ -3828,11 +3828,11 @@ static void next(void) {
             goto redo;
         }
     }
-    if (tok == 0xbe) {
-        if  (parse_flags & 0x0002)
+    if (tok == TOK_PPNUM) {
+        if  (parse_flags & PARSE_FLAG_TOK_NUM)
             parse_number((char *)tokc.str.data);
-    } else if (tok == 0xbf) {
-        if (parse_flags & 0x0040)
+    } else if (tok == TOK_PPSTR) {
+        if (parse_flags & PARSE_FLAG_TOK_STR)
             parse_string((char *)tokc.str.data, tokc.str.size - 1);
     }
 }
