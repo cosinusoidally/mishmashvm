@@ -736,6 +736,12 @@ const int CH_EOF = -1;
 const int O_RDONLY=0;
 const int O_BINARY=0;
 
+enum LABELS {
+    LABEL_DEFINED = 0,
+    LABEL_FORWARD = 1,
+    LABEL_DECLARED = 2,
+};
+
 static int gnu_ext;
 static int tcc_ext;
 static struct TCCState *tcc_state;
@@ -811,9 +817,9 @@ static void define_undef(Sym *s);
 static Sym *define_find(int v);
 static void free_defines(Sym *b);
 static Sym *label_find(int v);
-// LJW BOOKMARK
 static Sym *label_push(Sym **ptop, int v, int flags);
 static void label_pop(Sym **ptop, Sym *slast, int keep);
+// LJW BOOKMARK
 static void parse_define(void);
 static void preprocess(int is_bof);
 static void next_nomacro(void);
@@ -2061,10 +2067,11 @@ static Sym *label_find(int v) {
 }
 
 static Sym *label_push(Sym **ptop, int v, int flags) {
+// LJW DONE
     Sym *s, **ps;
     s = sym_push2(ptop, v, 0, 0);
     s->r = flags;
-    ps = &table_ident[v - 256]->sym_label;
+    ps = &table_ident[v - TOK_IDENT]->sym_label;
     if (ptop == &global_label_stack) {
         while (*ps != ((void*)0))
             ps = &(*ps)->prev_tok;
@@ -2075,12 +2082,13 @@ static Sym *label_push(Sym **ptop, int v, int flags) {
 }
 
 static void label_pop(Sym **ptop, Sym *slast, int keep) {
+// LJW DONE
     Sym *s, *s1;
     for(s = *ptop; s != slast; s = s1) {
         s1 = s->prev;
-        if (s->r == 2) {
+        if (s->r == LABEL_DECLARED) {
             tcc_warning("label '%s' declared but not used", get_tok_str(s->v, ((void*)0)));
-        } else if (s->r == 1) {
+        } else if (s->r == LABEL_FORWARD) {
                 tcc_error("label '%s' used but not defined",
                       get_tok_str(s->v, ((void*)0)));
         } else {
@@ -2088,7 +2096,7 @@ static void label_pop(Sym **ptop, Sym *slast, int keep) {
                 put_extern_sym(s, cur_text_section, s->jnext, 1);
             }
         }
-        table_ident[s->v - 256]->sym_label = s->prev_tok;
+        table_ident[s->v - TOK_IDENT]->sym_label = s->prev_tok;
         if (!keep)
             sym_free(s);
     }
