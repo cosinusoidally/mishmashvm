@@ -771,6 +771,8 @@ int tcc_output_file(TCCState *s, const char *filename);
 static char *pstrcpy(char *buf, int buf_size, const char *s);
 static char *pstrcat(char *buf, int buf_size, const char *s);
 static char *pstrncpy(char *out, const char *in, size_t num);
+ssize_t read(int fd, void *buf, size_t count);
+double ldexp(double x, int exp);
 char *tcc_basename(const char *name);
 void tcc_free(void *ptr);
 void *tcc_malloc(unsigned long size);
@@ -1555,7 +1557,7 @@ uint8_t* PEEKC(int *c,uint8_t **pp) {
     return p;
 }
 
-int PARSE2(int *c,uint8_t **pp, int tok1, char c2, int tok2) {
+uint8_t* PARSE2(int *c,uint8_t **pp, int tok1, char c2, int tok2) {
     uint8_t *p;
     p=*pp;
     p++;
