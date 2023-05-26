@@ -609,6 +609,7 @@ enum VTS {
     VT_LLOCAL = 0x0031,
     VT_BITFIELD = 0x0080,
     VT_PTR = 5,
+    VT_QLONG = 13,
 };
 
 enum VTS_LVALS {
@@ -756,6 +757,11 @@ const int TOKSTR_MAX_SIZE  =  256;
 const int PACK_STACK_SIZE  =  8;
 
 const int NB_REGS = 5;
+
+const int PTR_SIZE=4;
+
+const int LDOUBLE_ALIGN = 4;
+const int LDOUBLE_SIZE = 12;
 
 enum LABELS {
     LABEL_DEFINED = 0,
@@ -948,8 +954,8 @@ static int gv(int rc);
 static void gv2(int rc1, int rc2);
 static void vpop(void);
 static void gen_op(int op);
-// LJW BOOKMARK
 static int type_size(CType *type, int *a);
+// LJW BOOKMARK
 static void mk_pointer(CType *type);
 static void vstore(void);
 static void inc(int post, int c);
@@ -6192,56 +6198,45 @@ static void gen_cast(CType *type)
 }
 
 
-static int type_size(CType *type, int *a)
-{
+static int type_size(CType *type, int *a) {
+// LJW DONE
     Sym *s;
     int bt;
-
-    bt = type->t & 0x000f;
-    if (bt == 7) {
-
+    bt = type->t & VT_BTYPE;
+    if (bt == VT_STRUCT) {
         s = type->ref;
         *a = s->r;
         return s->c;
-    } else if (bt == 5) {
-        if (type->t & 0x0040) {
+    } else if (bt == VT_PTR) {
+        if (type->t & VT_ARRAY) {
             int ts;
-
             s = type->ref;
             ts = type_size(&s->type, a);
-
             if (ts < 0 && s->c < 0)
                 ts = -ts;
-
             return ts * s->c;
         } else {
-            *a = 4;
-            return 4;
+            *a = PTR_SIZE;
+            return PTR_SIZE;
         }
     } else if (IS_ENUM(type->t) && type->ref->c == -1) {
         return -1;
-    } else if (bt == 10) {
+    } else if (bt == VT_LDOUBLE) {
+        *a = LDOUBLE_ALIGN;
+        return LDOUBLE_SIZE;
+    } else if (bt == VT_DOUBLE || bt == VT_LLONG) {
         *a = 4;
-        return 12;
-    } else if (bt == 9 || bt == 4) {
-
-
-
-
-        *a = 4;
-# 2706 "tcc_src/tccgen.c"
         return 8;
-    } else if (bt == 3 || bt == 8) {
+    } else if (bt == VT_INT || bt == VT_FLOAT) {
         *a = 4;
         return 4;
-    } else if (bt == 2) {
+    } else if (bt == VT_SHORT) {
         *a = 2;
         return 2;
-    } else if (bt == 13 || bt == 14) {
+    } else if (bt == VT_QLONG || bt == VT_QFLOAT) {
         *a = 8;
         return 16;
     } else {
-
         *a = 1;
         return 1;
     }
