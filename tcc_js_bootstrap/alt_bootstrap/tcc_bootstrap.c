@@ -1840,11 +1840,10 @@ static uint8_t *parse_pp_string(uint8_t *p,
     return p;
 }
 
-// LJW BOOKMARK
 static void preprocess_skip(void) {
+// LJW DONE
     int a, start_of_line, c, in_warn_or_error;
     uint8_t *p;
-
     p = file->buf_ptr;
     a = 0;
 redo_start:
@@ -1868,7 +1867,7 @@ redo_start:
         case '\\':
             file->buf_ptr = p;
             c = handle_eob();
-            if (c == (-1)) {
+            if (c == CH_EOF) {
                 expect("#endif");
             } else if (c == '\\') {
                 ch = file->buf_ptr[0];
@@ -1880,7 +1879,7 @@ redo_start:
         case '\'':
             if (in_warn_or_error)
                 goto _default;
-            p = parse_pp_string(p, c, ((void*)0));
+            p = parse_pp_string(p, c, NULL);
             break;
         case '/':
             if (in_warn_or_error)
@@ -1910,13 +1909,9 @@ redo_start:
                     a--;
                 else if( tok == TOK_ERROR || tok == TOK_WARNING)
                     in_warn_or_error = 1;
-                else if (tok == 10)
+                else if (tok == TOK_LINEFEED)
                     goto redo_start;
-                else if (parse_flags & 0x0008)
-                    p = parse_line_comment(p - 1);
-            } else if (parse_flags & 0x0008)
-                p = parse_line_comment(p - 1);
-            break;
+            }            break;
 _default:
         default:
             p++;
@@ -1943,6 +1938,7 @@ static TokenString *tok_str_alloc(void) {
     return str;
 }
 
+// LJW BOOKMARK
 static int *tok_str_dup(TokenString *s) {
     int *str;
     str = tal_realloc_impl(&tokstr_alloc, 0, s->len * sizeof(int));
