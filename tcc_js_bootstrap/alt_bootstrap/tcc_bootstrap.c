@@ -936,7 +936,7 @@ static void tok_str_free(TokenString *s);
 static void tok_str_free_str(int *str);
 static void tok_str_add(TokenString *s, int t);
 static void tok_str_add_tok(TokenString *s);
-static inline void define_push(int v, int macro_type, int *str, Sym *first_arg);
+static void define_push(int v, int macro_type, int *str, Sym *first_arg);
 static void define_undef(Sym *s);
 static Sym *define_find(int v);
 static void free_defines(Sym *b);
@@ -2069,8 +2069,8 @@ static void tok_str_add_tok(TokenString *s) {
     tok_str_add2(s, tok, &tokc);
 }
 
-// LJW BOOKMARK
 static inline void TOK_GET(int *t, const int **pp, CValue *cv) {
+// LJW DONE
     const int *p = *pp;
     int n, *tab;
 
@@ -2117,6 +2117,7 @@ static inline void TOK_GET(int *t, const int **pp, CValue *cv) {
 }
 
 static int macro_is_equal(const int *a, const int *b) {
+// LJW DONE
     CValue cv;
     int t;
     if (!a || !b)
@@ -2132,7 +2133,7 @@ static int macro_is_equal(const int *a, const int *b) {
     return !(*a || *b);
 }
 
-static inline void define_push(int v, int macro_type, int *str, Sym *first_arg) {
+static void define_push(int v, int macro_type, int *str, Sym *first_arg) {
 // LJW DONE
     Sym *s, *o;
     o = define_find(v);
@@ -2225,6 +2226,7 @@ static void label_pop(Sym **ptop, Sym *slast, int keep) {
         *ptop = slast;
 }
 
+// LJW BOOKMARK
 static int expr_preprocess(void) {
     int c, t;
     TokenString *str;
