@@ -1001,9 +1001,9 @@ static void unary(void);
 static void expr_prod(void);
 static void expr_sum(void);
 static void gexpr(void);
-// LJW BOOKMARK
 static int expr_const(void);
 static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size);
+// LJW BOOKMARK
 static void tccelf_bounds_new(TCCState *s);
 static void tccelf_new(TCCState *s);
 static void tccelf_delete(TCCState *s);
@@ -4665,15 +4665,14 @@ static inline void vpushsym(CType *type, Sym *sym) {
     vsetc(type, 0x0030 | 0x0200, &cval);
     vtop->sym = sym;
 }
-static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size)
-{
+static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size) {
+// LJW DONE
     int v;
     Sym *sym;
-
     v = anon_sym++;
-    sym = global_identifier_push(v, type->t | 0x00002000, 0);
+    sym = global_identifier_push(v, type->t | VT_STATIC, 0);
     sym->type.ref = type->ref;
-    sym->r = 0x0030 | 0x0200;
+    sym->r = VT_CONST | VT_SYM;
     put_extern_sym(sym, sec, offset, size);
     return sym;
 }
@@ -8733,10 +8732,8 @@ static inline int64_t expr_const64(void)
     return c;
 }
 
-
-
-static int expr_const(void)
-{
+static int expr_const(void) {
+// LJW DONE
     int c;
     int64_t wc = expr_const64();
     c = wc;
