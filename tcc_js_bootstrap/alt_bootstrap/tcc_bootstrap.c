@@ -2804,11 +2804,13 @@ static void parse_string(const char *s, int len) {
     }
 }
 
-// LJW BOOKMARK
+const int BN_SIZE = 2;
+
 static void bn_lshift(unsigned int *bn, int shift, int or_val) {
+// LJW DONE
     int i;
     unsigned int v;
-    for(i=0;i<2;i++) {
+    for(i=0;i<BN_SIZE;i++) {
         v = bn[i];
         bn[i] = (v << shift) | or_val;
         or_val = v >> (32 - shift);
@@ -2816,15 +2818,19 @@ static void bn_lshift(unsigned int *bn, int shift, int or_val) {
 }
 
 static void bn_zero(unsigned int *bn) {
+// LJW DONE
     int i;
-    for(i=0;i<2;i++) {
+    for(i=0;i<BN_SIZE;i++) {
         bn[i] = 0;
     }
 }
 
+// LJW BOOKMARK
 static void parse_number(const char *p) {
+
     int b, t, shift, frac_bits, s, exp_val, ch;
     char *q;
+// BN_SIZE
     unsigned int bn[2];
     double d;
     q = token_buf;
