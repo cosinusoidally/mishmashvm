@@ -615,6 +615,7 @@ enum VTS {
     VT_MUSTCAST = 0x0400,
     VT_STRUCT_MASK = (((1 << (6+6)) - 1) << VT_STRUCT_SHIFT | VT_BITFIELD),
     VT_SYM = 0x0200,
+    VT_ENUM_VAL = (3 << VT_STRUCT_SHIFT),
 };
 
 enum VTS_LVALS {
@@ -7764,6 +7765,10 @@ static void parse_builtin_params(int nc, const char *args)
         nocode_wanted--;
 }
 
+int IS_ENUM_VAL(t) {
+    return ((t & VT_STRUCT_MASK) == VT_ENUM_VAL);
+}
+
 static void unary(void) {
 
     int n, t, align, size, r, sizeof_caller;
@@ -8048,109 +8053,109 @@ static void unary(void) {
         vswap();
         gen_op('-');
         break;
-// LJW BOOKMARK2
-    case 0xa0:
+   case TOK_LAND:
         if (!gnu_ext)
             goto tok_identifier;
         next();
-        if (tok < TOK_DEFINE)
+        /* allow to take the address of a label */
+        if (tok < TOK_UIDENT)
             expect("label identifier");
         s = label_find(tok);
         if (!s) {
-            s = label_push(&global_label_stack, tok, 1);
+            s = label_push(&global_label_stack, tok, LABEL_FORWARD);
         } else {
-            if (s->r == 2)
-                s->r = 1;
+            if (s->r == LABEL_DECLARED)
+                s->r = LABEL_FORWARD;
         }
         if (!s->type.t) {
-            s->type.t = 0;
+            s->type.t = VT_VOID;
             mk_pointer(&s->type);
-            s->type.t |= 0x00002000;
+            s->type.t |= VT_STATIC;
         }
         vpushsym(&s->type, s);
         next();
         break;
     case TOK_GENERIC:
     {
-	CType controlling_type;
-	int has_default = 0;
-	int has_match = 0;
-	int learn = 0;
-	TokenString *str = ((void*)0);
-	next();
-	skip('(');
-	expr_type(&controlling_type, expr_eq);
-	controlling_type.t &= ~(0x0100 | 0x0200 | 0x0040);
-	for (;;) {
-	    learn = 0;
-	    skip(',');
-	    if (tok == TOK_DEFAULT) {
-		if (has_default)
-		    tcc_error("too many 'default'");
-		has_default = 1;
-		if (!has_match)
-		    learn = 1;
-		next();
-	    } else {
-	        AttributeDef ad_tmp;
-		int itmp;
-	        CType cur_type;
-		parse_btype(&cur_type, &ad_tmp);
-		type_decl(&cur_type, &ad_tmp, &itmp, 1);
-		if (compare_types(&controlling_type, &cur_type, 0)) {
-		    if (has_match) {
-		      tcc_error("type match twice");
-		    }
-		    has_match = 1;
-		    learn = 1;
-		}
-	    }
-	    skip(':');
-	    if (learn) {
-		if (str)
-		    tok_str_free(str);
-		skip_or_save_block(&str);
-	    } else {
-		skip_or_save_block(((void*)0));
-	    }
-	    if (tok == ')')
-		break;
-	}
-	if (!str) {
-	    char buf[60];
-	    type_to_str(buf, sizeof buf, &controlling_type, ((void*)0));
-	    tcc_error("type '%s' does not match any association", buf);
-	}
-	begin_macro(str, 1);
-	next();
-	expr_eq();
-	if (tok != (-1))
-	    expect(",");
-	end_macro();
+        CType controlling_type;
+        int has_default = 0;
+        int has_match = 0;
+        int learn = 0;
+        TokenString *str = NULL;
         next();
-	break;
+        skip('(');
+        expr_type(&controlling_type, expr_eq);
+        controlling_type.t &= ~(VT_CONSTANT | VT_VOLATILE | VT_ARRAY);
+        for (;;) {
+            learn = 0;
+            skip(',');
+            if (tok == TOK_DEFAULT) {
+                if (has_default)
+                    tcc_error("too many 'default'");
+                has_default = 1;
+                if (!has_match)
+                    learn = 1;
+                next();
+            } else {
+                AttributeDef ad_tmp;
+                int itmp;
+                CType cur_type;
+                parse_btype(&cur_type, &ad_tmp);
+                type_decl(&cur_type, &ad_tmp, &itmp, TYPE_ABSTRACT);
+                if (compare_types(&controlling_type, &cur_type, 0)) {
+                    if (has_match) {
+                      tcc_error("type match twice");
+                    }
+                    has_match = 1;
+                    learn = 1;
+                }
+            }
+            skip(':');
+            if (learn) {
+                if (str)
+                    tok_str_free(str);
+                skip_or_save_block(&str);
+            } else {
+                skip_or_save_block(NULL);
+            }
+            if (tok == ')')
+                break;
+        }
+        if (!str) {
+            char buf[60];
+            type_to_str(buf, sizeof buf, &controlling_type, NULL);
+            tcc_error("type '%s' does not match any association", buf);
+        }
+        begin_macro(str, 1);
+        next();
+        expr_eq();
+        if (tok != TOK_EOF)
+            expect(",");
+        end_macro();
+        next();
+        break;
     }
     case TOK___NAN__:
-        vpush64(9, 0x7ff8000000000000ULL);
+        vpush64(VT_DOUBLE, 0x7ff8000000000000ULL);
         next();
         break;
     case TOK___SNAN__:
-        vpush64(9, 0x7ff0000000000001ULL);
+        vpush64(VT_DOUBLE, 0x7ff0000000000001ULL);
         next();
         break;
     case TOK___INF__:
-        vpush64(9, 0x7ff0000000000000ULL);
+        vpush64(VT_DOUBLE, 0x7ff0000000000000ULL);
         next();
         break;
     default:
     tok_identifier:
         t = tok;
         next();
-        if (t < TOK_DEFINE)
+        if (t < TOK_UIDENT)
             expect("identifier");
         s = sym_find(t);
-        if (!s || (((s)->type.t & (0x000f | (0 | 0x0010))) == (0 | 0x0010))) {
-            const char *name = get_tok_str(t, ((void*)0));
+        if (!s) {
+            const char *name = get_tok_str(t, NULL);
             if (tok != '(')
                 tcc_error("'%s' undeclared", name);
             if (tcc_state->warn_implicit_function_declaration
@@ -8159,17 +8164,18 @@ static void unary(void) {
             s = external_global_sym(t, &func_old_type, 0);
         }
         r = s->r;
-        if ((r & 0x003f) < 0x0030)
-            r = (r & ~0x003f) | 0x0032;
+        if ((r & VT_VALMASK) < VT_CONST)
+            r = (r & ~VT_VALMASK) | VT_LOCAL;
         vset(&s->type, r, s->c);
-	vtop->sym = s;
-        if (r & 0x0200) {
+        vtop->sym = s;
+        if (r & VT_SYM) {
             vtop->c.i = 0;
-        } else if (r == 0x0030 && IS_ENUM(s->type.t)) {
+        } else if (r == VT_CONST && IS_ENUM_VAL(s->type.t)) {
             vtop->c.i = s->enum_val;
         }
         break;
     }
+// LJW BOOKMARK2
     while (1) {
         if (tok == 0xa4 || tok == 0xa2) {
             inc(1, tok);
