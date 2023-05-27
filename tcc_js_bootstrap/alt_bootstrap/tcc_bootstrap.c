@@ -48,6 +48,8 @@ typedef __uint32_t uint32_t;
 typedef __uint64_t uint64_t;
 
 // ELF stuff
+// Note we are missing a bunch of elf defines, I can't be bothered
+// converting all th elf defines to enums
 
 typedef uint16_t Elf32_Half;
 typedef uint32_t Elf32_Word;
@@ -1003,9 +1005,8 @@ static void expr_sum(void);
 static void gexpr(void);
 static int expr_const(void);
 static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size);
-// LJW BOOKMARK
-static void tccelf_bounds_new(TCCState *s);
 static void tccelf_new(TCCState *s);
+// LJW BOOKMARK
 static void tccelf_delete(TCCState *s);
 static void tccelf_begin_file(TCCState *s1);
 static void tccelf_end_file(TCCState *s1);
@@ -10176,6 +10177,7 @@ static Section *stab_section, *stabstr_section;
 static int new_undef_sym = 0;
 
 static void tccelf_new(TCCState *s) {
+// LJW DONE
     dynarray_add(&s->sections, &s->nb_sections, ((void*)0));
     text_section = new_section(s, ".text", 1, (1 << 1) | (1 << 2));
     data_section = new_section(s, ".data", 1, (1 << 1) | (1 << 0));
