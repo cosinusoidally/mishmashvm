@@ -1062,8 +1062,8 @@ static int gjmp(int t);
 static void gjmp_addr(int a);
 static int gtst(int inv, int t);
 static void gtst_addr(int inv, int a);
-// LJW BOOKMARK
 static void gen_opi(int op);
+// LJW BOOKMARK
 static void gen_opf(int op);
 static void gen_cvt_ftoi(int t);
 static void gen_cvt_ftof(int t);
@@ -11403,7 +11403,7 @@ static int gtst(int inv, int t) {
 }
 
 static void gen_opi(int op) {
-
+// LJW DONE
     int r, fr, opc, c;
     switch(op) {
     case '+':
@@ -11462,33 +11462,33 @@ static void gen_opi(int op) {
         opc = 1;
         goto gen_op8;
     case '*':
-        gv2(0x0001, 0x0001);
+        gv2(RC_INT, RC_INT);
         r = vtop[-1].r;
         fr = vtop[0].r;
         vtop--;
         o(0xaf0f);
         o(0xc0 + fr + r * 8);
         break;
-    case 0x01:
+    case TOK_SHL:
         opc = 4;
         goto gen_shift;
-    case 0xc9:
+    case TOK_SHR:
         opc = 5;
         goto gen_shift;
-    case 0x02:
+    case TOK_SAR:
         opc = 7;
     gen_shift:
         opc = 0xc0 | (opc << 3);
-        if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
+        if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
             vswap();
-            r = gv(0x0001);
+            r = gv(RC_INT);
             vswap();
             c = vtop->c.i & 0x1f;
             o(0xc1);
             o(opc | r);
             g(c);
         } else {
-            gv2(0x0001, 0x0010);
+            gv2(RC_INT, RC_ECX);
             r = vtop[-1].r;
             o(0xd3);
             o(opc | r);
@@ -11496,31 +11496,31 @@ static void gen_opi(int op) {
         vtop--;
         break;
     case '/':
-    case 0xb0:
-    case 0xb2:
+    case TOK_UDIV:
+    case TOK_PDIV:
     case '%':
-    case 0xb1:
-    case 0xc2:
-        gv2(0x0004, 0x0010);
+    case TOK_UMOD:
+    case TOK_UMULL:
+        gv2(RC_EAX, RC_ECX);
         r = vtop[-1].r;
         fr = vtop[0].r;
         vtop--;
         save_reg(TREG_EDX);
         save_reg_upstack(TREG_EAX, 1);
-        if (op == 0xc2) {
+        if (op == TOK_UMULL) {
             o(0xf7);
             o(0xe0 + fr);
             vtop->r2 = TREG_EDX;
             r = TREG_EAX;
         } else {
-            if (op == 0xb0 || op == 0xb1) {
+            if (op == TOK_UDIV || op == TOK_UMOD) {
                 o(0xf7d231);
                 o(0xf0 + fr);
             } else {
                 o(0xf799);
                 o(0xf8 + fr);
             }
-            if (op == '%' || op == 0xb1)
+            if (op == '%' || op == TOK_UMOD)
                 r = TREG_EDX;
             else
                 r = TREG_EAX;
