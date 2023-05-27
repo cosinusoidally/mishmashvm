@@ -1038,8 +1038,8 @@ static int put_elf_str(Section *s, const char *sym);
 static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int info, int other, int shndx, const char *name);
 static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int info, int other, int shndx, const char *name);
 static int find_elf_sym(Section *s, const char *name);
-// LJW BOOKMARK
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset, int type, int symbol, Elf32_Addr addend);
+// LJW BOOKMARK
 static void resolve_common_syms(TCCState *s1);
 static void relocate_syms(TCCState *s1, Section *symtab, int do_resolve);
 static void relocate_section(TCCState *s1, Section *s);
@@ -10553,6 +10553,7 @@ static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
 
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset,
                             int type, int symbol, Elf32_Addr addend) {
+// LJW DONE
     char buf[256];
     Section *sr;
     Elf32_Rel *rel;
