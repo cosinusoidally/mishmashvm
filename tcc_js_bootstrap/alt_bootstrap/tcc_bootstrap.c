@@ -1064,10 +1064,7 @@ static int gtst(int inv, int t);
 static void gtst_addr(int inv, int a);
 static void gen_opi(int op);
 static void gen_opf(int op);
-// LJW BOOKMARK
-static void gen_cvt_ftoi(int t);
 static void gen_cvt_ftof(int t);
-static void ggoto(void);
 static void o(unsigned int c);
 static void gen_cvt_itof(int t);
 static uint16_t read16le(unsigned char *p) {
@@ -1085,6 +1082,7 @@ static void write32le(unsigned char *p, uint32_t x) {
 // LJW DONE
     write16le(p, x);  write16le(p + 2, x >> 16);
 }
+// LJW BOOKMARK
 static void g(int c);
 static void gen_le16(int c);
 static void gen_le32(int c);
@@ -5997,7 +5995,7 @@ static void gen_cvt_ftoi1(int t)
         vtop->r = TREG_EAX;
         vtop->r2 = TREG_EDX;
     } else {
-//        gen_cvt_ftoi(t);
+        ;
     }
 
 }
@@ -9181,7 +9179,6 @@ static void block(int *bsym, int *csym, int is_expr)
             gexpr();
             if ((vtop->type.t & 0x000f) != 5)
                 expect("pointer");
-//            ggoto();
         } else if (tok >= TOK_DEFINE) {
             s = label_find(tok);
 
@@ -10974,8 +10971,8 @@ static void g(int c)
     ind = ind1;
 }
 
-static void o(unsigned int c)
-{
+static void o(unsigned int c) {
+// LJW DONE
     while (c) {
         g(c);
         c = c >> 8;
@@ -11635,30 +11632,24 @@ static void gen_opf(int op) {
     }
 }
 
-
-
-static void gen_cvt_itof(int t)
-{
+static void gen_cvt_itof(int t) {
+// LJW DONE
     save_reg(TREG_ST0);
-    gv(0x0001);
-    if ((vtop->type.t & 0x000f) == 4) {
-
-
+    gv(RC_INT);
+    if ((vtop->type.t & VT_BTYPE) == VT_LLONG) {
         o(0x50 + vtop->r2);
-        o(0x50 + (vtop->r & 0x003f));
+        o(0x50 + (vtop->r & VT_VALMASK));
         o(0x242cdf);
         o(0x08c483);
-    } else if ((vtop->type.t & (0x000f | 0x0010)) ==
-               (3 | 0x0010)) {
-
+    } else if ((vtop->type.t & (VT_BTYPE | VT_UNSIGNED)) ==
+               (VT_INT | VT_UNSIGNED)) {
         o(0x6a);
         g(0x00);
-        o(0x50 + (vtop->r & 0x003f));
+        o(0x50 + (vtop->r & VT_VALMASK));
         o(0x242cdf);
         o(0x08c483);
     } else {
-
-        o(0x50 + (vtop->r & 0x003f));
+        o(0x50 + (vtop->r & VT_VALMASK));
         o(0x2404db);
         o(0x04c483);
     }
@@ -11666,6 +11657,7 @@ static void gen_cvt_itof(int t)
 }
 
 static void gen_cvt_ftof(int t) {
+// LJW DONE
     gv(0x0002);
 }
 
