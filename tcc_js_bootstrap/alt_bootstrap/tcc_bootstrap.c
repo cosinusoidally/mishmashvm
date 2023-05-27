@@ -1085,7 +1085,6 @@ static void write32le(unsigned char *p, uint32_t x) {
 static void g(int c);
 static void gen_le32(int c);
 static void gen_addr32(int r, Sym *sym, int c);
-// LJW BOOKMARK
 static void next_nomacro_spc(void);
 
 static struct TinyAlloc *toksym_alloc;
@@ -1165,6 +1164,7 @@ static const unsigned char tok_two_chars[] = {
     0
 };
 
+// LJW BOOKMARK
 static void skip(int c) {
 // LJW DONE
     if (tok != c)
@@ -3426,12 +3426,13 @@ keep_tok_flags:
 }
 
 static void next_nomacro_spc(void) {
+// LJW DONE
     if (macro_ptr) {
     redo:
         tok = *macro_ptr;
         if (tok) {
             TOK_GET(&tok, &macro_ptr, &tokc);
-            if (tok == 0xc0) {
+            if (tok == TOK_LINENUM) {
                 file->line_num = tokc.i;
                 goto redo;
             }
@@ -3439,7 +3440,6 @@ static void next_nomacro_spc(void) {
     } else {
         next_nomacro1();
     }
-
 }
 
 static void next_nomacro(void) {
