@@ -1061,8 +1061,8 @@ static void gfunc_epilog(void);
 static int gjmp(int t);
 static void gjmp_addr(int a);
 static int gtst(int inv, int t);
-// LJW BOOKMARK
 static void gtst_addr(int inv, int a);
+// LJW BOOKMARK
 static void gen_opi(int op);
 static void gen_opf(int op);
 static void gen_cvt_ftoi(int t);
@@ -11351,27 +11351,28 @@ static void gjmp_addr(int a) {
 }
 
 static void gtst_addr(int inv, int a) {
-    int v = vtop->r & 0x003f;
-    if (v == 0x0033) {
-	inv ^= (vtop--)->c.i;
-	a -= ind + 2;
-	if (a == (char)a) {
-	    g(inv - 32);
-	    g(a);
-	} else {
-	    g(0x0f);
-	    oad(inv - 16, a - 4);
-	}
-    } else if ((v & ~1) == 0x0034) {
-	if ((v & 1) != inv) {
-	    gjmp_addr(a);
-	    gsym(vtop->c.i);
-	} else {
-	    gsym(vtop->c.i);
-	    o(0x05eb);
-	    gjmp_addr(a);
-	}
-	vtop--;
+// LJW DONE
+    int v = vtop->r & VT_VALMASK;
+    if (v == VT_CMP) {
+        inv ^= (vtop--)->c.i;
+        a -= ind + 2;
+        if (a == (char)a) {
+            g(inv - 32);
+            g(a);
+        } else {
+            g(0x0f);
+            oad(inv - 16, a - 4);
+        }
+    } else if ((v & ~1) == VT_JMP) {
+        if ((v & 1) != inv) {
+            gjmp_addr(a);
+            gsym(vtop->c.i);
+        } else {
+            gsym(vtop->c.i);
+            o(0x05eb);
+            gjmp_addr(a);
+        }
+        vtop--;
     }
 }
 
