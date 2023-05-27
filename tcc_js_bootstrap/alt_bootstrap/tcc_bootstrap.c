@@ -991,8 +991,8 @@ static int type_size(CType *type, int *a);
 static void mk_pointer(CType *type);
 static void vstore(void);
 static void inc(int post, int c);
-// LJW BOOKMARK
 static int lvalue_type(int t);
+// LJW BOOKMARK
 static void indir(void);
 static void unary(void);
 static void expr_prod(void);
@@ -7645,25 +7645,25 @@ static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td)
 }
 
 
-static int lvalue_type(int t)
-{
+static int lvalue_type(int t) {
+// LJW DONE
     int bt, r;
-    r = 0x0100;
-    bt = t & 0x000f;
-    if (bt == 1 || bt == 11)
-        r |= 0x1000;
-    else if (bt == 2)
-        r |= 0x2000;
+    r = VT_LVAL;
+    bt = t & VT_BTYPE;
+    if (bt == VT_BYTE || bt == VT_BOOL)
+        r |= VT_LVAL_BYTE;
+    else if (bt == VT_SHORT)
+        r |= VT_LVAL_SHORT;
     else
         return r;
-    if (t & 0x0010)
-        r |= 0x4000;
+    if (t & VT_UNSIGNED)
+        r |= VT_LVAL_UNSIGNED;
     return r;
 }
 
 
-static void indir(void)
-{
+static void indir(void) {
+
     if ((vtop->type.t & 0x000f) != 5) {
         if ((vtop->type.t & 0x000f) == 6)
             return;
