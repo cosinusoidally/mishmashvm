@@ -7985,12 +7985,11 @@ static void unary(void) {
             skip(')');
         }
         break;
-// LJW BOOKMARK2
     case TOK_builtin_constant_p:
-	parse_builtin_params(1, "e");
-	n = (vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
-	vtop--;
-	vpushi(n);
+        parse_builtin_params(1, "e");
+        n = (vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST;
+        vtop--;
+        vpushi(n);
         break;
     case TOK_builtin_frame_address:
     case TOK_builtin_return_address:
@@ -7999,7 +7998,7 @@ static void unary(void) {
             int level;
             next();
             skip('(');
-            if (tok != 0xb5) {
+            if (tok != TOK_CINT) {
                 tcc_error("%s only takes positive integers",
                           tok1 == TOK_builtin_return_address ?
                           "__builtin_return_address" :
@@ -8008,24 +8007,23 @@ static void unary(void) {
             level = (uint32_t)tokc.i;
             next();
             skip(')');
-            type.t = 0;
+            type.t = VT_VOID;
             mk_pointer(&type);
-            vset(&type, 0x0032, 0);
+            vset(&type, VT_LOCAL, 0);
             while (level--) {
                 mk_pointer(&vtop->type);
                 indir();
             }
             if (tok1 == TOK_builtin_return_address) {
-
-                vpushi(4);
+                vpushi(PTR_SIZE);
                 gen_op('+');
                 mk_pointer(&vtop->type);
                 indir();
             }
         }
         break;
-    case 0xa4:
-    case 0xa2:
+    case TOK_INC:
+    case TOK_DEC:
         t = tok;
         next();
         unary();
@@ -8034,20 +8032,23 @@ static void unary(void) {
     case '-':
         next();
         unary();
-        t = vtop->type.t & 0x000f;
-	if (is_float(t)) {
-	    vpush(&vtop->type);
-	    if (t == 8)
-	        vtop->c.f = -1.0 * 0.0;
-	    else if (t == 9)
-	        vtop->c.d = -1.0 * 0.0;
-	    else
-	        vtop->c.ld = -1.0 * 0.0;
-	} else
-	    vpushi(0);
-	vswap();
-	gen_op('-');
+        t = vtop->type.t & VT_BTYPE;
+        if (is_float(t)) {
+            /* In IEEE negate(x) isn't subtract(0,x), but rather
+               subtract(-0, x).  */
+            vpush(&vtop->type);
+            if (t == VT_FLOAT)
+                vtop->c.f = -1.0 * 0.0;
+            else if (t == VT_DOUBLE)
+                vtop->c.d = -1.0 * 0.0;
+            else
+                vtop->c.ld = -1.0 * 0.0;
+        } else
+            vpushi(0);
+        vswap();
+        gen_op('-');
         break;
+// LJW BOOKMARK2
     case 0xa0:
         if (!gnu_ext)
             goto tok_identifier;
