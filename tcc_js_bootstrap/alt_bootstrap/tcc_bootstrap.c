@@ -997,8 +997,8 @@ static void vstore(void);
 static void inc(int post, int c);
 static int lvalue_type(int t);
 static void indir(void);
-// LJW BOOKMARK
 static void unary(void);
+// LJW BOOKMARK
 static void expr_prod(void);
 static void expr_sum(void);
 static void gexpr(void);
@@ -7771,7 +7771,7 @@ int IS_ENUM_VAL(t) {
 }
 
 static void unary(void) {
-
+// LJW DONE
     int n, t, align, size, r, sizeof_caller;
     CType type;
     Sym *s;
@@ -8255,12 +8255,12 @@ static void unary(void) {
                 ret_nregs = 1;
                 ret.type = s->type;
             }
-// LJW BOOKMARK2
             if (ret_nregs) {
+                /* return in register */
                 if (is_float(ret.type.t)) {
                     ret.r = reg_fret(ret.type.t);
                 } else {
-                    if ((ret.type.t & 0x000f) == 4)
+                    if ((ret.type.t & VT_BTYPE) == VT_LLONG)
                         ret.r2 = TREG_EDX;
                     ret.r = TREG_EAX;
                 }
@@ -8286,16 +8286,16 @@ static void unary(void) {
                 vsetc(&ret.type, r, &ret.c);
                 vtop->r2 = ret.r2;
             }
-            if (((s->type.t & 0x000f) == 7) && ret_nregs) {
+            if (((s->type.t & VT_BTYPE) == VT_STRUCT) && ret_nregs) {
                 int addr, offset;
                 size = type_size(&s->type, &align);
-		if (regsize > align)
-		  align = regsize;
+                if (regsize > align)
+                  align = regsize;
                 loc = (loc - size) & -align;
                 addr = loc;
                 offset = 0;
                 for (;;) {
-                    vset(&ret.type, 0x0032 | 0x0100, addr + offset);
+                    vset(&ret.type, VT_LOCAL | VT_LVAL, addr + offset);
                     vswap();
                     vstore();
                     vtop--;
@@ -8303,7 +8303,7 @@ static void unary(void) {
                         break;
                     offset += regsize;
                 }
-                vset(&s->type, 0x0032 | 0x0100, addr);
+                vset(&s->type, VT_LOCAL | VT_LVAL, addr);
             }
         } else {
             break;
