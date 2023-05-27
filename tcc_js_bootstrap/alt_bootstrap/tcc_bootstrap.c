@@ -1006,11 +1006,11 @@ static void gexpr(void);
 static int expr_const(void);
 static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size);
 static void tccelf_new(TCCState *s);
-// LJW BOOKMARK
 static void tccelf_delete(TCCState *s);
 static void tccelf_begin_file(TCCState *s1);
 static void tccelf_end_file(TCCState *s1);
 static Section *new_section(TCCState *s1, const char *name, int sh_type, int sh_flags);
+// LJW BOOKMARK
 static void section_realloc(Section *sec, unsigned long new_size);
 static size_t section_add(Section *sec, Elf32_Addr size, int align);
 static void *section_ptr_add(Section *sec, Elf32_Addr size);
@@ -10198,6 +10198,7 @@ static void free_section(Section *s) {
 }
 
 static void tccelf_delete(TCCState *s1) {
+// LJW DONE
     int i;
     for(i = 1; i < s1->nb_sections; i++)
         free_section(s1->sections[i]);
@@ -10210,6 +10211,7 @@ static void tccelf_delete(TCCState *s1) {
 }
 
 static void tccelf_begin_file(TCCState *s1) {
+// LJW DONE
     Section *s; int i;
     for (i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
@@ -10219,6 +10221,7 @@ static void tccelf_begin_file(TCCState *s1) {
 }
 
 static void tccelf_end_file(TCCState *s1) {
+// LJW DONE
     Section *s = s1->symtab;
     int first_sym, nb_syms, *tr, i;
     first_sym = s->sh_offset / sizeof (Elf32_Sym);
@@ -10242,7 +10245,6 @@ static void tccelf_end_file(TCCState *s1) {
             Elf32_Rel *rel_end = (Elf32_Rel*)(sr->data + sr->data_offset);
             for (; rel < rel_end; ++rel) {
                 int n = ((rel->r_info) >> 8) - first_sym;
-
                 rel->r_info = (((tr[n]) << 8) + ((((rel->r_info) & 0xff)) & 0xff));
             }
         }
@@ -10251,6 +10253,7 @@ static void tccelf_end_file(TCCState *s1) {
 }
 
 static Section *new_section(TCCState *s1, const char *name, int sh_type, int sh_flags) {
+// LJW DONE
     Section *sec;
     sec = tcc_mallocz(sizeof(Section) + strlen(name));
     strcpy(sec->name, name);
@@ -10269,7 +10272,7 @@ static Section *new_section(TCCState *s1, const char *name, int sh_type, int sh_
         sec->sh_addralign = 1;
         break;
     default:
-        sec->sh_addralign =  4;
+        sec->sh_addralign =  PTR_SIZE;
         break;
     }
     if (sh_flags & 0x80000000) {
