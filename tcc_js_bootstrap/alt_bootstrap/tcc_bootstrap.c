@@ -1164,7 +1164,6 @@ static const unsigned char tok_two_chars[] = {
     0
 };
 
-// LJW BOOKMARK
 static void skip(int c) {
 // LJW DONE
     if (tok != c)
@@ -1288,6 +1287,7 @@ tail_call:
 }
 
 static void cstr_realloc(CString *cstr, int new_size) {
+// LJW DONE
     int size;
 
     size = cstr->size_allocated;
@@ -1549,6 +1549,7 @@ static inline void inp(void) {
 }
 
 static int handle_stray_noerror(void) {
+// LJW DONE
     while (ch == '\\') {
         inp();
         if (ch == '\n') {
@@ -1569,11 +1570,13 @@ static int handle_stray_noerror(void) {
 }
 
 static void handle_stray(void) {
+// LJW DONE
     if (handle_stray_noerror())
         tcc_error("stray '\\' in program");
 }
 
 static int handle_stray1(uint8_t *p) {
+// LJW DONE
     int c;
     file->buf_ptr = p;
     if (p >= file->buf_end) {
@@ -1584,7 +1587,7 @@ static int handle_stray1(uint8_t *p) {
     }
     ch = *p;
     if (handle_stray_noerror()) {
-        if (!(parse_flags & 0x0020))
+        if (!(parse_flags & PARSE_FLAG_ACCEPT_STRAYS))
             tcc_error("stray '\\' in program");
         *--file->buf_ptr = '\\';
     }
@@ -1601,6 +1604,7 @@ static void minp(void) {
 }
 
 int PEEKC_EOB(uint8_t *p) {
+// LJW DONE
 // FIXME this function should mutate p from caller instead
 //  p++;
   int c;
@@ -1614,6 +1618,7 @@ int PEEKC_EOB(uint8_t *p) {
 }
 
 uint8_t* PEEKC(int *c,uint8_t **pp) {
+// LJW DONE
 // FIXME this function should mutate pp from caller instead
 //    int c;
     uint8_t *p;
@@ -1628,6 +1633,7 @@ uint8_t* PEEKC(int *c,uint8_t **pp) {
 }
 
 uint8_t* PARSE2(int *c,uint8_t **pp, int tok1, char c2, int tok2) {
+// LJW DONE
     uint8_t *p;
     p=*pp;
     p++;
@@ -1645,7 +1651,9 @@ uint8_t* PARSE2(int *c,uint8_t **pp, int tok1, char c2, int tok2) {
     return p;
 }
 
+// LJW BOOKMARK
 static uint8_t *parse_line_comment(uint8_t *p) {
+
     int c;
     p++;
     for(;;) {
