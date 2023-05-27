@@ -992,7 +992,6 @@ static void mk_pointer(CType *type);
 static void vstore(void);
 static void inc(int post, int c);
 // LJW BOOKMARK
-static void parse_mult_str (CString *astr, const char *msg);
 static int lvalue_type(int t);
 static void indir(void);
 static void unary(void);
@@ -6679,22 +6678,6 @@ static void inc(int post, int c) {
     if (post)
         vpop();
 }
-
-static void parse_mult_str (CString *astr, const char *msg)
-{
-
-    if (tok != 0xb9)
-        expect(msg);
-    cstr_new(astr);
-    while (tok == 0xb9) {
-
-        cstr_cat(astr, tokc.str.data, -1);
-        next();
-    }
-    cstr_ccat(astr, '\0');
-}
-
-
 
 static int exact_log2p1(int i)
 {
