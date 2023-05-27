@@ -714,6 +714,7 @@ enum FUNCS {
     FUNC_STDCALL = 1,
     FUNC_OLD = 2,
     FUNC_ELLIPSIS = 3,
+    FUNC_PROLOG_SIZE = 9,
 };
 
 enum MISC {
@@ -1055,8 +1056,8 @@ static void load(int r, SValue *sv);
 static void store(int r, SValue *v);
 static int gfunc_sret(CType *vt, int variadic, CType *ret, int *align, int *regsize);
 static void gfunc_call(int nb_args);
-// LJW BOOKMARK
 static void gfunc_prolog(CType *func_type);
+// LJW BOOKMARK
 static void gfunc_epilog(void);
 static int gjmp(int t);
 static void gjmp_addr(int a);
@@ -11272,6 +11273,7 @@ static void gfunc_call(int nb_args) {
 }
 
 static void gfunc_prolog(CType *func_type) {
+// LJW DONE
     int addr, align, size, func_call;
     int param_index, param_addr;
     Sym *sym;
@@ -11282,27 +11284,27 @@ static void gfunc_prolog(CType *func_type) {
     loc = 0;
     func_vc = 0;
     param_index = 0;
-    ind += (9 + 0);
+    ind += FUNC_PROLOG_SIZE;
     func_sub_sp_offset = ind;
     func_vt = sym->type;
-    func_var = (sym->f.func_type == 3);
-    if ((func_vt.t & 0x000f) == 7) {
+    func_var = (sym->f.func_type == FUNC_ELLIPSIS);
+    if ((func_vt.t & VT_BTYPE) == VT_STRUCT) {
         func_vc = addr;
         addr += 4;
         param_index++;
     }
-    while ((sym = sym->next) != ((void*)0)) {
+    while ((sym = sym->next) != NULL) {
         type = &sym->type;
         size = type_size(type, &align);
         size = (size + 3) & ~3;
         param_addr = addr;
         addr += size;
-        sym_push(sym->v & ~0x20000000, type,
-                 0x0032 | lvalue_type(type->t), param_addr);
+        sym_push(sym->v & ~SYM_FIELD, type,
+                 VT_LOCAL | lvalue_type(type->t), param_addr);
         param_index++;
     }
     func_ret_sub = 0;
-    if (func_call == 1 || func_call == 5)
+    if (func_call == FUNC_STDCALL)
         func_ret_sub = addr - 8;
     else if (func_vc)
         func_ret_sub = 4;
