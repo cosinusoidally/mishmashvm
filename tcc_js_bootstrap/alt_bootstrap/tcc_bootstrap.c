@@ -789,6 +789,17 @@ enum PARSE_FLAGS {
     PARSE_FLAG_TOK_STR  =   0x0040,
 };
 
+enum STTS {
+    STT_NOTYPE = 0,
+    STT_OBJECT = 1,
+    STT_FUNC = 2,
+};
+
+enum STBS {
+    STB_LOCAL = 0,
+    STB_GLOBAL = 1,
+};
+
 static int gnu_ext;
 static int tcc_ext;
 static struct TCCState *tcc_state;
@@ -4321,25 +4332,26 @@ static void update_storage(Sym *sym) {
 static void put_extern_sym2(Sym *sym, int sh_num,
                             Elf32_Addr value, unsigned long size,
                             int can_add_underscore) {
+// LJW DONE
     int sym_type, sym_bind, info, other, t;
     Elf32_Sym *esym;
     const char *name;
     char buf1[256];
     char buf[32];
     if (!sym->c) {
-        name = get_tok_str(sym->v, ((void*)0));
+        name = get_tok_str(sym->v, NULL);
         t = sym->type.t;
-        if ((t & 0x000f) == 6) {
-            sym_type = 2;
-        } else if ((t & 0x000f) == 0) {
-            sym_type = 0;
+        if ((t & VT_BTYPE) == VT_FUNC) {
+            sym_type = STT_FUNC;
+        } else if ((t & VT_BTYPE) == VT_VOID) {
+            sym_type = STT_NOTYPE;
         } else {
-            sym_type = 1;
+            sym_type = STT_OBJECT;
         }
-        if (t & 0x00002000)
-            sym_bind = 0;
+        if (t & VT_STATIC)
+            sym_bind = STB_LOCAL;
         else
-            sym_bind = 1;
+            sym_bind = STB_GLOBAL;
         other = 0;
         if (tcc_state->leading_underscore && can_add_underscore) {
             buf1[0] = '_';
@@ -4347,7 +4359,7 @@ static void put_extern_sym2(Sym *sym, int sh_num,
             name = buf1;
         }
         if (sym->asm_label)
-            name = get_tok_str(sym->asm_label, ((void*)0));
+            name = get_tok_str(sym->asm_label, NULL);
         info = (((sym_bind) << 4) + ((sym_type) & 0xf));
         sym->c = put_elf_sym(symtab_section, value, size, info, other, sh_num, name);
     } else {
