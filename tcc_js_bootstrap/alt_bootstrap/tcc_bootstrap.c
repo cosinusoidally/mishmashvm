@@ -2825,9 +2825,8 @@ static void bn_zero(unsigned int *bn) {
     }
 }
 
-// LJW BOOKMARK
 static void parse_number(const char *p) {
-
+// LJW DONE
     int b, t, shift, frac_bits, s, exp_val, ch;
     char *q;
 // BN_SIZE
@@ -2863,7 +2862,7 @@ static void parse_number(const char *p) {
             break;
         if (t >= b)
             break;
-        if (q >= token_buf + 1024) {
+        if (q >= token_buf + STRING_MAX_SIZE) {
         num_too_long:
             tcc_error("number too long");
         }
@@ -2938,37 +2937,37 @@ static void parse_number(const char *p) {
             t = toup(ch);
             if (t == 'F') {
                 ch = *p++;
-                tok = 0xbb;
+                tok = TOK_CFLOAT;
                 tokc.f = (float)d;
             } else if (t == 'L') {
                 ch = *p++;
-                tok = 0xbd;
+                tok = TOK_CLDOUBLE;
                 tokc.ld = (long double)d;
             } else {
-                tok = 0xbc;
+                tok = TOK_CDOUBLE;
                 tokc.d = d;
             }
         } else {
             if (ch == '.') {
-                if (q >= token_buf + 1024)
+                if (q >= token_buf + STRING_MAX_SIZE)
                     goto num_too_long;
                 *q++ = ch;
                 ch = *p++;
             float_frac_parse:
                 while (ch >= '0' && ch <= '9') {
-                    if (q >= token_buf + 1024)
+                    if (q >= token_buf + STRING_MAX_SIZE)
                         goto num_too_long;
                     *q++ = ch;
                     ch = *p++;
                 }
             }
             if (ch == 'e' || ch == 'E') {
-                if (q >= token_buf + 1024)
+                if (q >= token_buf + STRING_MAX_SIZE)
                     goto num_too_long;
                 *q++ = ch;
                 ch = *p++;
                 if (ch == '-' || ch == '+') {
-                    if (q >= token_buf + 1024)
+                    if (q >= token_buf + STRING_MAX_SIZE)
                         goto num_too_long;
                     *q++ = ch;
                     ch = *p++;
@@ -2976,7 +2975,7 @@ static void parse_number(const char *p) {
                 if (ch < '0' || ch > '9')
                     expect("exponent digits");
                 while (ch >= '0' && ch <= '9') {
-                    if (q >= token_buf + 1024)
+                    if (q >= token_buf + STRING_MAX_SIZE)
                         goto num_too_long;
                     *q++ = ch;
                     ch = *p++;
@@ -2986,14 +2985,14 @@ static void parse_number(const char *p) {
             t = toup(ch);
             if (t == 'F') {
                 ch = *p++;
-                tok = 0xbb;
+                tok = TOK_CFLOAT;
                 tokc.f = strtof(token_buf, ((void*)0));
             } else if (t == 'L') {
                 ch = *p++;
-                tok = 0xbd;
+                tok = TOK_CLDOUBLE;
                 tokc.ld = strtold(token_buf, ((void*)0));
             } else {
-                tok = 0xbc;
+                tok = TOK_CDOUBLE;
                 tokc.d = strtod(token_buf, ((void*)0));
             }
         }
@@ -3064,11 +3063,11 @@ static void parse_number(const char *p) {
         }
         if (ov)
             tcc_warning("integer constant overflow");
-        tok = 0xb5;
+        tok = TOK_CINT;
 	if (lcount) {
-            tok = 0xce;
+            tok = TOK_CLONG;
             if (lcount == 2)
-                tok = 0xb7;
+                tok = TOK_CLLONG;
 	}
 	if (ucount)
 	    ++tok;
@@ -3078,8 +3077,9 @@ static void parse_number(const char *p) {
         tcc_error("invalid number\n");
 }
 
-static inline void next_nomacro1(void)
-{
+// LJW BOOKMARK
+static void next_nomacro1(void) {
+
     int t, c, is_long, len;
     TokenSym *ts;
     uint8_t *p, *p1;
