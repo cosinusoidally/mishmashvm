@@ -1084,7 +1084,6 @@ static void write32le(unsigned char *p, uint32_t x) {
 }
 static void g(int c);
 // LJW BOOKMARK
-static void gen_le16(int c);
 static void gen_le32(int c);
 static void gen_addr32(int r, Sym *sym, int c);
 static void gen_addrpc32(int r, Sym *sym, int c);
@@ -10977,12 +10976,6 @@ static void o(unsigned int c) {
         g(c);
         c = c >> 8;
     }
-}
-
-static void gen_le16(int v)
-{
-    g(v);
-    g(v >> 8);
 }
 
 static void gen_le32(int c)
