@@ -1938,8 +1938,8 @@ static TokenString *tok_str_alloc(void) {
     return str;
 }
 
-// LJW BOOKMARK
 static int *tok_str_dup(TokenString *s) {
+// LJW DONE
     int *str;
     str = tal_realloc_impl(&tokstr_alloc, 0, s->len * sizeof(int));
     memcpy(str, s->str, s->len * sizeof(int));
@@ -1957,6 +1957,7 @@ static void tok_str_free(TokenString *str) {
     tal_free_impl(tokstr_alloc, str);
 }
 
+// LJW BOOKMARK
 static int *tok_str_realloc(TokenString *s, int new_size) {
     int *str, size;
     size = s->allocated_len;
