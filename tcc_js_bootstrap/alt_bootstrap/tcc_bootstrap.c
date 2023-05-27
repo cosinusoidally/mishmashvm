@@ -5629,7 +5629,6 @@ redo:
                 if (u < 0)
                     tcc_error("unknown array element size");
                 vpushi(u);
-
             }
             gen_op('*');
             {
