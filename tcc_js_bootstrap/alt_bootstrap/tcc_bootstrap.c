@@ -11402,27 +11402,24 @@ static int gtst(int inv, int t) {
     return t;
 }
 
+static void gen_opi(int op) {
 
-static void gen_opi(int op)
-{
     int r, fr, opc, c;
-
     switch(op) {
     case '+':
-    case 0xc3:
+    case TOK_ADDC1:
         opc = 0;
     gen_op8:
-        if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
+        if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
             vswap();
-            r = gv(0x0001);
+            r = gv(RC_INT);
             vswap();
             c = vtop->c.i;
             if (c == (char)c) {
-
-                if (c==1 && opc==0 && op != 0xc3) {
-                    o (0x40 | r);
-                } else if (c==1 && opc==5 && op != 0xc5) {
-                    o (0x48 | r);
+                if (c==1 && opc==0 && op != TOK_ADDC1) {
+                    o (0x40 | r); // inc
+                } else if (c==1 && opc==5 && op != TOK_SUBC1) {
+                    o (0x48 | r); // dec
                 } else {
                     o(0x83);
                     o(0xc0 | (opc << 3) | r);
@@ -11433,26 +11430,26 @@ static void gen_opi(int op)
                 oad(0xc0 | (opc << 3) | r, c);
             }
         } else {
-            gv2(0x0001, 0x0001);
+            gv2(RC_INT, RC_INT);
             r = vtop[-1].r;
             fr = vtop[0].r;
             o((opc << 3) | 0x01);
             o(0xc0 + r + fr * 8);
         }
         vtop--;
-        if (op >= 0x92 && op <= 0x9f) {
-            vtop->r = 0x0033;
+        if (op >= TOK_ULT && op <= TOK_GT) {
+            vtop->r = VT_CMP;
             vtop->c.i = op;
         }
         break;
     case '-':
-    case 0xc5:
+    case TOK_SUBC1:
         opc = 5;
         goto gen_op8;
-    case 0xc4:
+    case TOK_ADDC2:
         opc = 2;
         goto gen_op8;
-    case 0xc6:
+    case TOK_SUBC2:
         opc = 3;
         goto gen_op8;
     case '&':
@@ -11483,7 +11480,6 @@ static void gen_opi(int op)
     gen_shift:
         opc = 0xc0 | (opc << 3);
         if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
-
             vswap();
             r = gv(0x0001);
             vswap();
@@ -11492,7 +11488,6 @@ static void gen_opi(int op)
             o(opc | r);
             g(c);
         } else {
-
             gv2(0x0001, 0x0010);
             r = vtop[-1].r;
             o(0xd3);
