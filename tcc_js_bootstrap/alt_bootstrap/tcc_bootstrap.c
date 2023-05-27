@@ -1032,11 +1032,11 @@ static void section_reserve(Section *sec, unsigned long size);
 static Section *new_symtab(TCCState *s1, const char *symtab_name, int sh_type, int sh_flags, const char *strtab_name, const char *hash_name, int hash_sh_flags);
 static void put_extern_sym2(Sym *sym, int sh_num, Elf32_Addr value, unsigned long size, int can_add_underscore);
 static void put_extern_sym(Sym *sym, Section *section, Elf32_Addr value, unsigned long size);
-// LJW BOOKMARK
 static void greloc(Section *s, Sym *sym, unsigned long offset, int type);
 static void greloca(Section *s, Sym *sym, unsigned long offset, int type, Elf32_Addr addend);
 static int put_elf_str(Section *s, const char *sym);
 static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int info, int other, int shndx, const char *name);
+// LJW BOOKMARK
 static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int info, int other, int shndx, const char *name);
 static int find_elf_sym(Section *s, const char *name);
 static void put_elf_reloc(Section *symtab, Section *s, unsigned long offset, int type, int symbol);
@@ -4385,6 +4385,7 @@ static void put_extern_sym(Sym *sym, Section *section,
 
 static void greloca(Section *s, Sym *sym, unsigned long offset, int type,
                      Elf32_Addr addend) {
+// LJW DONE
     int c = 0;
     if (nocode_wanted && s == cur_text_section)
         return;
@@ -4398,6 +4399,7 @@ static void greloca(Section *s, Sym *sym, unsigned long offset, int type,
 
 
 static void greloc(Section *s, Sym *sym, unsigned long offset, int type) {
+// LJW DONE
     greloca(s, sym, offset, type, 0);
 }
 
@@ -10368,6 +10370,7 @@ static void section_reserve(Section *sec, unsigned long size) {
 }
 
 static int put_elf_str(Section *s, const char *sym) {
+// LJW DONE
     int offset, len;
     char *ptr;
     len = strlen(sym) + 1;
@@ -10421,6 +10424,7 @@ static void rebuild_hash(Section *s, unsigned int nb_buckets) {
 
 static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
     int info, int other, int shndx, const char *name) {
+// LJW DONE
     int name_offset, sym_index;
     int nbuckets, h;
     Elf32_Sym *sym;
@@ -10442,7 +10446,7 @@ static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
         int *ptr, *base;
         ptr = section_ptr_add(hs, sizeof(int));
         base = (int *)hs->data;
-        if ((((unsigned char) (info)) >> 4) != 0) {
+        if ((((unsigned char) (info)) >> 4) != STB_LOCAL) {
             nbuckets = base[0];
             h = elf_hash((unsigned char *)s->link->data + name_offset) % nbuckets;
             *ptr = base[2 + h];
