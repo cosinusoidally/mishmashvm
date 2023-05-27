@@ -618,6 +618,9 @@ enum VTS {
     VT_STRUCT_MASK = (((1 << (6+6)) - 1) << VT_STRUCT_SHIFT | VT_BITFIELD),
     VT_SYM = 0x0200,
     VT_ENUM_VAL = (3 << VT_STRUCT_SHIFT),
+// slight hack, should compute this
+    VT_TYPE = 0xf0f7f,
+    VT_JMPI = 0x0035,
 };
 
 enum VTS_LVALS {
@@ -1046,9 +1049,9 @@ static void minp(void);
 static inline void inp(void);
 static int handle_eob(void);
 static void gsym_addr(int t, int a);
-// LJW BOOKMARK
 static void gsym(int t);
 static void load(int r, SValue *sv);
+// LJW BOOKMARK
 static void store(int r, SValue *v);
 static int gfunc_sret(CType *vt, int variadic, CType *ret, int *align, int *regsize);
 static void gfunc_call(int nb_args);
@@ -11002,8 +11005,8 @@ static void gsym_addr(int t, int a) {
     }
 }
 
-static void gsym(int t)
-{
+static void gsym(int t) {
+// LJW DONE
     gsym_addr(t, ind);
 }
 
@@ -11051,66 +11054,65 @@ static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
     }
 }
 
-
 static void load(int r, SValue *sv) {
+// LJW DONE
     int v, t, ft, fc, fr;
     SValue v1;
     fr = sv->r;
     ft = sv->type.t & ~0x0020;
+    ft = sv->type.t & ~VT_DEFSIGN;
     fc = sv->c.i;
-
-    ft &= ~(0x0200 | 0x0100);
-
-    v = fr & 0x003f;
-    if (fr & 0x0100) {
-        if (v == 0x0031) {
-            v1.type.t = 3;
-            v1.r = 0x0032 | 0x0100;
+    ft &= ~(VT_VOLATILE | VT_CONSTANT);
+    v = fr & VT_VALMASK;
+    if (fr & VT_LVAL) {
+        if (v == VT_LLOCAL) {
+            v1.type.t = VT_INT;
+            v1.r = VT_LOCAL | VT_LVAL;
             v1.c.i = fc;
             fr = r;
-            if (!(reg_classes[fr] & 0x0001))
-                fr = get_reg(0x0001);
+            if (!(reg_classes[fr] & RC_INT))
+                fr = get_reg(RC_INT);
             load(fr, &v1);
         }
-        if ((ft & 0x000f) == 8) {
+        if ((ft & VT_BTYPE) == VT_FLOAT) {
             o(0xd9);
             r = 0;
-        } else if ((ft & 0x000f) == 9) {
+        } else if ((ft & VT_BTYPE) == VT_DOUBLE) {
             o(0xdd);
             r = 0;
-        } else if ((ft & 0x000f) == 10) {
+        } else if ((ft & VT_BTYPE) == VT_LDOUBLE) {
             o(0xdb);
             r = 5;
-        } else if ((ft & (~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)|(((1 << (6+6)) - 1) << 20 | 0x0080)))) == 1 || (ft & (~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)|(((1 << (6+6)) - 1) << 20 | 0x0080)))) == 11) {
+        } else if ((ft & VT_TYPE) == VT_BYTE || (ft & VT_TYPE) == VT_BOOL) {
             o(0xbe0f);
-        } else if ((ft & (~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)|(((1 << (6+6)) - 1) << 20 | 0x0080)))) == (1 | 0x0010)) {
+        } else if ((ft & VT_TYPE) == (VT_BYTE | VT_UNSIGNED)) {
             o(0xb60f);
-        } else if ((ft & (~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)|(((1 << (6+6)) - 1) << 20 | 0x0080)))) == 2) {
+        } else if ((ft & VT_TYPE) == VT_SHORT) {
             o(0xbf0f);
-        } else if ((ft & (~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)|(((1 << (6+6)) - 1) << 20 | 0x0080)))) == (2 | 0x0010)) {
+        } else if ((ft & VT_TYPE) == (VT_SHORT | VT_UNSIGNED)) {
             o(0xb70f);
         } else {
             o(0x8b);
         }
         gen_modrm(r, fr, sv->sym, fc);
     } else {
-        if (v == 0x0030) {
+        if (v == VT_CONST) {
             o(0xb8 + r);
             gen_addr32(fr, sv->sym, fc);
-        } else if (v == 0x0032) {
+        } else if (v == VT_LOCAL) {
             if (fc) {
                 o(0x8d);
-                gen_modrm(r, 0x0032, sv->sym, fc);
+                gen_modrm(r, VT_LOCAL, sv->sym, fc);
             } else {
                 o(0x89);
                 o(0xe8 + r);
             }
-        } else if (v == 0x0033) {
+        } else if (v == VT_CMP) {
             oad(0xb8 + r, 0);
             o(0x0f);
             o(fc);
             o(0xc0 + r);
-        } else if (v == 0x0034 || v == 0x0035) {
+        } else if (v == VT_JMP || v == VT_JMPI) {
             t = v & 1;
             oad(0xb8 + r, t);
             o(0x05eb);
