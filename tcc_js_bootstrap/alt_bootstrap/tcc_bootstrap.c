@@ -1040,8 +1040,8 @@ static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int inf
 static int find_elf_sym(Section *s, const char *name);
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset, int type, int symbol, Elf32_Addr addend);
 static void squeeze_multi_relocs(Section *sec, size_t oldrelocoffset);
-// LJW BOOKMARK
 static uint8_t *parse_comment(uint8_t *p);
+// LJW BOOKMARK
 static void minp(void);
 static inline void inp(void);
 static int handle_eob(void);
@@ -1681,6 +1681,7 @@ static uint8_t *parse_line_comment(uint8_t *p) {
 }
 
 static uint8_t *parse_comment(uint8_t *p) {
+// LJW DONE
     int c;
     p++;
     for(;;) {
@@ -1709,7 +1710,7 @@ static uint8_t *parse_comment(uint8_t *p) {
                     file->buf_ptr = p;
                     c = handle_eob();
                     p = file->buf_ptr;
-                    if (c == (-1))
+                    if (c == CH_EOF)
                         tcc_error("unexpected end of file in comment");
                     if (c == '\\') {
                         while (c == '\\') {
@@ -1737,7 +1738,7 @@ static uint8_t *parse_comment(uint8_t *p) {
             file->buf_ptr = p;
             c = handle_eob();
             p = file->buf_ptr;
-            if (c == (-1)) {
+            if (c == CH_EOF) {
                 tcc_error("unexpected end of file in comment");
             } else if (c == '\\') {
                 p++;
