@@ -1083,11 +1083,9 @@ static void write32le(unsigned char *p, uint32_t x) {
     write16le(p, x);  write16le(p + 2, x >> 16);
 }
 static void g(int c);
-// LJW BOOKMARK
 static void gen_le32(int c);
 static void gen_addr32(int r, Sym *sym, int c);
-static void gen_addrpc32(int r, Sym *sym, int c);
-static void tok_print(const char *msg, const int *str);
+// LJW BOOKMARK
 static void next_nomacro_spc(void);
 
 static struct TinyAlloc *toksym_alloc;
@@ -4013,26 +4011,6 @@ static void tccpp_delete(TCCState *s) {
     cstr_alloc = ((void*)0);
 }
 
-
-
-
-static void tok_print(const char *msg, const int *str)
-{
-    FILE *fp;
-    int t, s = 0;
-    CValue cval;
-
-    fp = tcc_state->ppfp;
-    fprintf(fp, "%s", msg);
-    while (str) {
-	TOK_GET(&t, &str, &cval);
-	if (!t)
-	    break;
-	fprintf(fp, " %s" + s, get_tok_str(t, &cval)), s = 1;
-    }
-    fprintf(fp, "\n");
-}
-
 static void pp_line(TCCState *s1, BufferedFile *f, int level)
 {
     int d = f->line_num - f->line_ref;
@@ -4053,69 +4031,6 @@ static void pp_line(TCCState *s1, BufferedFile *f, int level)
     }
     f->line_ref = f->line_num;
 }
-
-static void define_print(TCCState *s1, int v)
-{
-    FILE *fp;
-    Sym *s;
-
-    s = define_find(v);
-    if (((void*)0) == s || ((void*)0) == s->d)
-        return;
-
-    fp = s1->ppfp;
-    fprintf(fp, "#define %s", get_tok_str(v, ((void*)0)));
-    if (s->type.t == 1) {
-        Sym *a = s->next;
-        fprintf(fp,"(");
-        if (a)
-            for (;;) {
-                fprintf(fp,"%s", get_tok_str(a->v & ~0x20000000, ((void*)0)));
-                if (!(a = a->next))
-                    break;
-                fprintf(fp,",");
-            }
-        fprintf(fp,")");
-    }
-    tok_print("", s->d);
-}
-
-static void pp_debug_defines(TCCState *s1)
-{
-    int v, t;
-    const char *vs;
-    FILE *fp;
-
-    t = pp_debug_tok;
-    if (t == 0)
-        return;
-
-    file->line_num--;
-    pp_line(s1, file, 0);
-    file->line_ref = ++file->line_num;
-
-    fp = s1->ppfp;
-    v = pp_debug_symv;
-    vs = get_tok_str(v, ((void*)0));
-    if (t == TOK_DEFINE) {
-        define_print(s1, v);
-    } else if (t == TOK_UNDEF) {
-        fprintf(fp, "#undef %s\n", vs);
-    } else if (t == TOK_push_macro) {
-        fprintf(fp, "#pragma push_macro(\"%s\")\n", vs);
-    } else if (t == TOK_pop_macro) {
-        fprintf(fp, "#pragma pop_macro(\"%s\")\n", vs);
-    }
-    pp_debug_tok = 0;
-}
-
-static void pp_debug_builtins(TCCState *s1)
-{
-    int v;
-    for (v = 256; v < tok_ident; ++v)
-        define_print(s1, v);
-}
-
 
 static int pp_need_space(int a, int b)
 {
@@ -4149,10 +4064,6 @@ static int tcc_preprocess(TCCState *s1) {
                 ;
     if (s1->Pflag == LINE_MACRO_OUTPUT_FORMAT_P10)
         parse_flags |= PARSE_FLAG_TOK_NUM, s1->Pflag = 1;
-    if (s1->dflag & 1) {
-        pp_debug_builtins(s1);
-        s1->dflag &= ~1;
-    }
     token_seen = TOK_LINEFEED, spcs = 0;
     pp_line(s1, file, 0);
     for (;;) {
@@ -4166,12 +4077,6 @@ static int tcc_preprocess(TCCState *s1) {
                 pp_line(s1, *iptr, 0);
             pp_line(s1, file, level);
         }
-        if (s1->dflag & 7) {
-            pp_debug_defines(s1);
-            if (s1->dflag & 4)
-                continue;
-        }
-
         if (is_space(tok)) {
             if (spcs < sizeof white - 1)
                 white[spcs++] = tok;
@@ -10978,8 +10883,8 @@ static void o(unsigned int c) {
     }
 }
 
-static void gen_le32(int c)
-{
+static void gen_le32(int c) {
+// LJW DONE
     g(c);
     g(c >> 8);
     g(c >> 16);
@@ -11015,15 +10920,10 @@ static int oad(int c, int s)
 }
 
 static void gen_addr32(int r, Sym *sym, int c) {
-    if (r & 0x0200)
+// LJW DONE
+    if (r & VT_SYM)
         greloc(cur_text_section, sym, ind, 1);
     gen_le32(c);
-}
-
-static void gen_addrpc32(int r, Sym *sym, int c) {
-    if (r & 0x0200)
-        greloc(cur_text_section, sym, ind, 2);
-    gen_le32(c - 4);
 }
 
 static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
