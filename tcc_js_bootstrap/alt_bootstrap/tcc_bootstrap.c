@@ -1082,8 +1082,8 @@ static void write32le(unsigned char *p, uint32_t x) {
 // LJW DONE
     write16le(p, x);  write16le(p + 2, x >> 16);
 }
-// LJW BOOKMARK
 static void g(int c);
+// LJW BOOKMARK
 static void gen_le16(int c);
 static void gen_le32(int c);
 static void gen_addr32(int r, Sym *sym, int c);
@@ -10959,8 +10959,8 @@ static unsigned long func_bound_ind;
 
 
 
-static void g(int c)
-{
+static void g(int c) {
+// LJW DONE
     int ind1;
     if (nocode_wanted)
         return;
