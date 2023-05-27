@@ -712,6 +712,7 @@ enum MISC {
 };
 
 enum TYPES {
+    TYPE_ABSTRACT = 1,
     TYPE_DIRECT = 2,
 };
 
@@ -7776,39 +7777,39 @@ static void unary(void) {
     case TOK_EXTENSION:
         next();
         goto tok_next;
-    case 0xb4:
-    case 0xb5:
-    case 0xb3:
-	t = 3;
+    case TOK_LCHAR:
+    case TOK_CINT:
+    case TOK_CCHAR:
+        t = VT_INT;
  push_tokc:
 	type.t = t;
-	vsetc(&type, 0x0030, &tokc);
+        vsetc(&type, VT_CONST, &tokc);
         next();
         break;
-    case 0xb6:
-        t = 3 | 0x0010;
+    case TOK_CUINT:
+        t = VT_INT | VT_UNSIGNED;
         goto push_tokc;
-    case 0xb7:
-        t = 4;
-	goto push_tokc;
-    case 0xb8:
-        t = 4 | 0x0010;
-	goto push_tokc;
-    case 0xbb:
-        t = 8;
-	goto push_tokc;
-    case 0xbc:
-        t = 9;
-	goto push_tokc;
-    case 0xbd:
-        t = 10;
-	goto push_tokc;
-    case 0xce:
-        t = (4 == 8 ? 4 : 3) | 0x0800;
-	goto push_tokc;
-    case 0xcf:
-        t = (4 == 8 ? 4 : 3) | 0x0800 | 0x0010;
-	goto push_tokc;
+    case TOK_CLLONG:
+        t = VT_LLONG;
+        goto push_tokc;
+    case TOK_CULLONG:
+        t = VT_LLONG | VT_UNSIGNED;
+        goto push_tokc;
+    case TOK_CFLOAT:
+        t = VT_FLOAT;
+        goto push_tokc;
+    case TOK_CDOUBLE:
+        t = VT_DOUBLE;
+        goto push_tokc;
+    case TOK_CLDOUBLE:
+        t = VT_LDOUBLE;
+        goto push_tokc;
+    case TOK_CLONG:
+        t = (LONG_SIZE == 8 ? VT_LLONG : VT_INT) | VT_LONG;
+        goto push_tokc;
+    case TOK_CULONG:
+        t = (LONG_SIZE == 8 ? VT_LLONG : VT_INT) | VT_LONG | VT_UNSIGNED;
+        goto push_tokc;
     case TOK___FUNCTION__:
         if (!gnu_ext)
             goto tok_identifier;
@@ -7817,9 +7818,9 @@ static void unary(void) {
             void *ptr;
             int len;
             len = strlen(funcname) + 1;
-            type.t = 1;
+            type.t = VT_BYTE;
             mk_pointer(&type);
-            type.t |= 0x0040;
+            type.t |= VT_ARRAY;
             type.ref->c = len;
             vpush_ref(&type, data_section, data_section->data_offset, len);
             if (!(nocode_wanted > 0)) {
@@ -7829,31 +7830,31 @@ static void unary(void) {
             next();
         }
         break;
-    case 0xba:
-        t = 3;
+    case TOK_LSTR:
+        t = VT_INT;
         goto str_init;
-    case 0xb9:
-        t = 1;
+    case TOK_STR:
+        t = VT_BYTE;
     str_init:
         if (tcc_state->warn_write_strings)
-            t |= 0x0100;
+            t |= VT_CONSTANT;
         type.t = t;
         mk_pointer(&type);
-        type.t |= 0x0040;
+        type.t |= VT_ARRAY;
         memset(&ad, 0, sizeof(AttributeDef));
-        decl_initializer_alloc(&type, &ad, 0x0030, 2, 0, 0);
+        decl_initializer_alloc(&type, &ad, VT_CONST, 2, 0, 0);
         break;
     case '(':
         next();
         if (parse_btype(&type, &ad)) {
-            type_decl(&type, &ad, &n, 1);
+            type_decl(&type, &ad, &n, TYPE_ABSTRACT);
             skip(')');
             if (tok == '{') {
                 if (global_expr)
-                    r = 0x0030;
+                    r = VT_CONST;
                 else
-                    r = 0x0032;
-                if (!(type.t & 0x0040))
+                    r = VT_LOCAL;
+                if (!(type.t & VT_ARRAY))
                     r |= lvalue_type(type.t);
                 memset(&ad, 0, sizeof(AttributeDef));
                 decl_initializer_alloc(&type, &ad, r, 1, 0, 0);
@@ -7866,18 +7867,19 @@ static void unary(void) {
                 gen_cast(&type);
             }
         } else if (tok == '{') {
-	    int saved_nocode_wanted = nocode_wanted;
+            int saved_nocode_wanted = nocode_wanted;
             if (const_wanted)
                 tcc_error("expected constant");
             save_regs(0);
-            block(((void*)0), ((void*)0), 1);
-	    nocode_wanted = saved_nocode_wanted;
+            block(NULL, NULL, 1);
+            nocode_wanted = saved_nocode_wanted;
             skip(')');
         } else {
             gexpr();
             skip(')');
         }
         break;
+// LJW BOOKMARK2
     case '*':
         next();
         unary();
