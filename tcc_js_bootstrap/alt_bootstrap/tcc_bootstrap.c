@@ -3139,29 +3139,28 @@ static void next_nomacro1(void) {
         }
         break;
     case '\n':
-// LJW BOOKMARK2
-        file->line_num++;
-        tok_flags |= 0x0001;
+       file->line_num++;
+        tok_flags |= TOK_FLAG_BOL;
         p++;
 maybe_newline:
-        if (0 == (parse_flags & 0x0004))
+        if (0 == (parse_flags & PARSE_FLAG_LINEFEED))
             goto redo_no_start;
-        tok = 10;
+        tok = TOK_LINEFEED;
         goto keep_tok_flags;
     case '#':
         p=PEEKC(&c,&p);
-        if ((tok_flags & 0x0001) &&
-            (parse_flags & 0x0001)) {
+        if ((tok_flags & TOK_FLAG_BOL) &&
+            (parse_flags & PARSE_FLAG_PREPROCESS)) {
             file->buf_ptr = p;
-            preprocess(tok_flags & 0x0002);
+            preprocess(tok_flags & TOK_FLAG_BOF);
             p = file->buf_ptr;
             goto maybe_newline;
         } else {
             if (c == '#') {
                 p++;
-                tok = 0xca;
+                tok = TOK_TWOSHARPS;
             } else {
-                if (parse_flags & 0x0008) {
+                if (parse_flags & PARSE_FLAG_ASM_FILE) {
                     p = parse_line_comment(p - 1);
                     goto redo_no_start;
                 } else {
@@ -3170,7 +3169,7 @@ maybe_newline:
             }
         }
         break;
-    case '$':
+// LJW BOOKMARK2
         if (!(isidnum_table[c - (-1)] & 2)
          || (parse_flags & 0x0008))
             goto parse_simple;
