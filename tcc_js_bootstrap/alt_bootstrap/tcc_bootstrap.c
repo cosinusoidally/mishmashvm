@@ -1780,10 +1780,9 @@ static int check_space(int t, int *spc) {
     return 0;
 }
 
-// LJW BOOKMARK
 static uint8_t *parse_pp_string(uint8_t *p,
                                 int sep, CString *str) {
-
+// LJW DONE
     int c;
     p++;
     for(;;) {
@@ -1794,7 +1793,7 @@ static uint8_t *parse_pp_string(uint8_t *p,
             file->buf_ptr = p;
             c = handle_eob();
             p = file->buf_ptr;
-            if (c == (-1)) {
+            if (c == CH_EOF) {
             unterminated_string:
                 tcc_error("missing terminating %c character", sep);
             } else if (c == '\\') {
@@ -1808,7 +1807,7 @@ static uint8_t *parse_pp_string(uint8_t *p,
                         expect("'\n' after '\r'");
                     file->line_num++;
                     p++;
-                } else if (c == (-1)) {
+                } else if (c == CH_EOF) {
                     goto unterminated_string;
                 } else {
                     if (str) {
@@ -1841,6 +1840,7 @@ static uint8_t *parse_pp_string(uint8_t *p,
     return p;
 }
 
+// LJW BOOKMARK
 static void preprocess_skip(void) {
     int a, start_of_line, c, in_warn_or_error;
     uint8_t *p;
