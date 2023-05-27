@@ -1041,10 +1041,10 @@ static int find_elf_sym(Section *s, const char *name);
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset, int type, int symbol, Elf32_Addr addend);
 static void squeeze_multi_relocs(Section *sec, size_t oldrelocoffset);
 static uint8_t *parse_comment(uint8_t *p);
-// LJW BOOKMARK
 static void minp(void);
 static inline void inp(void);
 static int handle_eob(void);
+// LJW BOOKMARK
 static int code_reloc (int reloc_type);
 static void relocate_init(Section *sr);
 static void relocate(TCCState *s1, Elf32_Rel *rel, int type, unsigned char *ptr, Elf32_Addr addr, Elf32_Addr val);
@@ -1519,12 +1519,12 @@ static const char *get_tok_str(int v, CValue *cv) {
 }
 
 static int handle_eob(void) {
+// LJW DONE
     BufferedFile *bf = file;
     int len;
-
     if (bf->buf_ptr >= bf->buf_end) {
         if (bf->fd >= 0) {
-            len = 8192;
+            len = IO_BUF_SIZE;
             len = read(bf->fd, bf->buffer, len);
             if (len < 0)
                 len = 0;
@@ -1534,17 +1534,18 @@ static int handle_eob(void) {
         total_bytes += len;
         bf->buf_ptr = bf->buffer;
         bf->buf_end = bf->buffer + len;
-        *bf->buf_end = '\\';
+        *bf->buf_end = CH_EOB;
     }
     if (bf->buf_ptr < bf->buf_end) {
         return bf->buf_ptr[0];
     } else {
         bf->buf_ptr = bf->buf_end;
-        return (-1);
+        return CH_EOF;
     }
 }
 
 static inline void inp(void) {
+// LJW DONE
     ch = *(++(file->buf_ptr));
     if (ch == '\\')
         ch = handle_eob();
@@ -1596,6 +1597,7 @@ static int handle_stray1(uint8_t *p) {
 }
 
 static void minp(void) {
+// LJW DONE
     inp();
     if (ch == '\\')
         handle_stray();
