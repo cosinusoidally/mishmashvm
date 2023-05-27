@@ -4617,8 +4617,7 @@ static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigne
 }
 
 
-static void vpush_ref(CType *type, Section *sec, unsigned long offset, unsigned long size)
-{
+static void vpush_ref(CType *type, Section *sec, unsigned long offset, unsigned long size) {
     vpushsym(type, get_sym_ref(type, sec, offset, size));
 }
 
@@ -4634,43 +4633,32 @@ static Sym *external_global_sym(int v, CType *type, int r) {
     return s;
 }
 
-
-static void patch_type(Sym *sym, CType *type)
-{
+static void patch_type(Sym *sym, CType *type) {
     if (!(type->t & 0x00001000)) {
         if (!(sym->type.t & 0x00001000))
             tcc_error("redefinition of '%s'", get_tok_str(sym->v, ((void*)0)));
         sym->type.t &= ~0x00001000;
     }
-
     if ((((sym)->type.t & (0x000f | (0 | 0x0010))) == (0 | 0x0010))) {
-
         sym->type.t = type->t & (sym->type.t | ~0x00002000);
         sym->type.ref = type->ref;
     }
-
     if (!is_compatible_types(&sym->type, type)) {
         tcc_error("incompatible types for redefinition of '%s'",
                   get_tok_str(sym->v, ((void*)0)));
-
     } else if ((sym->type.t & 0x000f) == 6) {
         int static_proto = sym->type.t & 0x00002000;
-
         if ((type->t & 0x00002000) && !static_proto && !(type->t & 0x00008000))
             tcc_warning("static storage ignored for redefinition of '%s'",
                 get_tok_str(sym->v, ((void*)0)));
-
         if (0 == (type->t & 0x00001000)) {
-
             sym->type.t = (type->t & ~0x00002000) | static_proto;
             if (type->t & 0x00008000)
                 sym->type.t = type->t;
             sym->type.ref = type->ref;
         }
-
     } else {
         if ((sym->type.t & 0x0040) && type->ref->c >= 0) {
-
             if (sym->type.ref->c < 0)
                 sym->type.ref->c = type->ref->c;
             else if (sym->type.ref->c != type->ref->c)
@@ -4690,12 +4678,10 @@ static void patch_storage(Sym *sym, AttributeDef *ad, CType *type) {
     update_storage(sym);
 }
 
-static Sym *external_sym(int v, CType *type, int r, AttributeDef *ad)
-{
+static Sym *external_sym(int v, CType *type, int r, AttributeDef *ad) {
     Sym *s;
     s = sym_find(v);
     if (!s) {
-
         s = sym_push(v, type, r | 0x0030 | 0x0200, 0);
         s->type.t |= 0x00001000;
         s->a = ad->a;
@@ -4711,12 +4697,10 @@ static Sym *external_sym(int v, CType *type, int r, AttributeDef *ad)
     return s;
 }
 
-
 static void vpush_global_sym(CType *type, int v) {
 // LJW DONE
     vpushsym(type, external_global_sym(v, type, 0));
 }
-
 
 static void save_regs(int n) {
 // LJW DONE
@@ -4730,8 +4714,6 @@ static void save_reg(int r) {
 // LJW DONE
     save_reg_upstack(r, 0);
 }
-
-
 
 static void save_reg_upstack(int r, int n) {
 // LJW DONE
