@@ -1057,9 +1057,9 @@ static void store(int r, SValue *v);
 static int gfunc_sret(CType *vt, int variadic, CType *ret, int *align, int *regsize);
 static void gfunc_call(int nb_args);
 static void gfunc_prolog(CType *func_type);
-// LJW BOOKMARK
 static void gfunc_epilog(void);
 static int gjmp(int t);
+// LJW BOOKMARK
 static void gjmp_addr(int a);
 static int gtst(int inv, int t);
 static void gtst_addr(int inv, int a);
@@ -11310,8 +11310,8 @@ static void gfunc_prolog(CType *func_type) {
         func_ret_sub = 4;
 }
 
-static void gfunc_epilog(void)
-{
+static void gfunc_epilog(void) {
+// LJW DONE
     Elf32_Addr v, saved_ind;
     v = (-loc + 3) & -4;
     o(0xc9);
@@ -11323,20 +11323,20 @@ static void gfunc_epilog(void)
         g(func_ret_sub >> 8);
     }
     saved_ind = ind;
-    ind = func_sub_sp_offset - (9 + 0);
+    ind = func_sub_sp_offset - FUNC_PROLOG_SIZE;
     {
         o(0xe58955);
         o(0xec81);
         gen_le32(v);
     }
-    o(0x53 * 0);
+    o(0);
     ind = saved_ind;
 }
 
 static int gjmp(int t) {
+// LJW DONE
     return oad(0xe9,t);
 }
-
 
 static void gjmp_addr(int a) {
     int r;
