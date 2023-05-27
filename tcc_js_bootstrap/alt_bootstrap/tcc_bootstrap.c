@@ -2226,8 +2226,8 @@ static void label_pop(Sym **ptop, Sym *slast, int keep) {
         *ptop = slast;
 }
 
-// LJW BOOKMARK
 static int expr_preprocess(void) {
+// LJW DONE
     int c, t;
     TokenString *str;
     str = tok_str_alloc();
@@ -2339,6 +2339,7 @@ bad_twosharp:
 }
 
 static CachedInclude *search_cached_include(TCCState *s1, const char *filename, int add) {
+// LJW DONE
     const unsigned char *s;
     unsigned int h;
     CachedInclude *e;
@@ -2616,6 +2617,7 @@ include_done:
     parse_flags = saved_parse_flags;
 }
 
+// LJW BOOKMARK
 static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long) {
     int c, n;
     const uint8_t *p;
