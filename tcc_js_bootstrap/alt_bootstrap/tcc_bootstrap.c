@@ -5130,7 +5130,6 @@ static void gen_opl(int op) {
     unsigned short reg_iret = TREG_EAX;
     unsigned short reg_lret = TREG_EDX;
     SValue tmp;
-
     switch(op) {
     case '/':
     case 0xb2:
@@ -5145,12 +5144,7 @@ static void gen_opl(int op) {
     case 0xb1:
         func = TOK___umoddi3;
     gen_mod_func:
-
-
-
-
     gen_func:
-
         vpush_global_sym(&func_old_type, func);
         vrott(3);
         gfunc_call(2);
@@ -5164,13 +5158,11 @@ static void gen_opl(int op) {
     case '*':
     case '+':
     case '-':
-
         t = vtop->type.t;
         vswap();
         lexpand();
         vrotb(3);
         lexpand();
-
         tmp = vtop[0];
         vtop[0] = vtop[-3];
         vtop[-3] = tmp;
@@ -5178,49 +5170,37 @@ static void gen_opl(int op) {
         vtop[-2] = vtop[-3];
         vtop[-3] = tmp;
         vswap();
-
-
         if (op == '*') {
             vpushv(vtop - 1);
             vpushv(vtop - 1);
             gen_op(0xc2);
             lexpand();
-
             for(i=0;i<4;i++)
                 vrotb(6);
-
             tmp = vtop[0];
             vtop[0] = vtop[-2];
             vtop[-2] = tmp;
-
             gen_op('*');
             vrotb(3);
             vrotb(3);
             gen_op('*');
-
             gen_op('+');
             gen_op('+');
         } else if (op == '+' || op == '-') {
-
             if (op == '+')
                 op1 = 0xc3;
             else
                 op1 = 0xc5;
             gen_op(op1);
-
             vrotb(3);
             vrotb(3);
             gen_op(op1 + 1);
         } else {
             gen_op(op);
-
             vrotb(3);
             vrotb(3);
-
             gen_op(op);
-
         }
-
         lbuild(t);
         break;
     case 0x02:
@@ -5231,16 +5211,11 @@ static void gen_opl(int op) {
             vswap();
             lexpand();
             vrotb(3);
-
             c = (int)vtop->c.i;
-
-
-
             vpop();
             if (op != 0x01)
                 vswap();
             if (c >= 32) {
-
                 vpop();
                 if (c > 32) {
                     vpushi(c - 32);
@@ -5257,7 +5232,6 @@ static void gen_opl(int op) {
             } else {
                 vswap();
                 gv_dup();
-
                 vpushi(c);
                 gen_op(op);
                 vswap();
@@ -5279,7 +5253,6 @@ static void gen_opl(int op) {
                 vswap();
             lbuild(t);
         } else {
-
             switch(op) {
             case 0x02:
                 func = TOK___ashrdi3;
@@ -5294,21 +5267,15 @@ static void gen_opl(int op) {
         }
         break;
     default:
-
         t = vtop->type.t;
         vswap();
         lexpand();
         vrotb(3);
         lexpand();
-
         tmp = vtop[-1];
         vtop[-1] = vtop[-2];
         vtop[-2] = tmp;
-
-
         op1 = op;
-
-
         if (op1 == 0x9c)
             op1 = 0x9e;
         else if (op1 == 0x9f)
@@ -5325,13 +5292,11 @@ static void gen_opl(int op) {
         } else {
             a = gvtst(1, 0);
             if (op != 0x94) {
-
                 vpushi(0x95);
                 vtop->r = 0x0033;
                 b = gvtst(0, 0);
             }
         }
-
         op1 = op;
         if (op1 == 0x9c)
             op1 = 0x92;
@@ -5349,22 +5314,16 @@ static void gen_opl(int op) {
     }
 }
 
-
-static uint64_t gen_opic_sdiv(uint64_t a, uint64_t b)
-{
+static uint64_t gen_opic_sdiv(uint64_t a, uint64_t b) {
     uint64_t x = (a >> 63 ? -a : a) / (b >> 63 ? -b : b);
     return (a ^ b) >> 63 ? -x : x;
 }
 
-static int gen_opic_lt(uint64_t a, uint64_t b)
-{
+static int gen_opic_lt(uint64_t a, uint64_t b) {
     return (a ^ (uint64_t)1 << 63) < (b ^ (uint64_t)1 << 63);
 }
 
-
-
-static void gen_opic(int op)
-{
+static void gen_opic(int op) {
     SValue *v1 = vtop - 1;
     SValue *v2 = vtop;
     int t1 = v1->type.t & 0x000f;
@@ -5374,14 +5333,12 @@ static void gen_opic(int op)
     uint64_t l1 = c1 ? v1->c.i : 0;
     uint64_t l2 = c2 ? v2->c.i : 0;
     int shm = (t1 == 4) ? 63 : 31;
-
     if (t1 != 4 && (4 != 8 || t1 != 5))
         l1 = ((uint32_t)l1 |
               (v1->type.t & 0x0010 ? 0 : -(l1 & 0x80000000)));
     if (t2 != 4 && (4 != 8 || t2 != 5))
         l2 = ((uint32_t)l2 |
               (v2->type.t & 0x0010 ? 0 : -(l2 & 0x80000000)));
-
     if (c1 && c2) {
         switch(op) {
         case '+': l1 += l2; break;
@@ -5390,13 +5347,11 @@ static void gen_opic(int op)
         case '^': l1 ^= l2; break;
         case '|': l1 |= l2; break;
         case '*': l1 *= l2; break;
-
         case 0xb2:
         case '/':
         case '%':
         case 0xb0:
         case 0xb1:
-
             if (l2 == 0) {
                 if (const_wanted)
                     tcc_error("division by zero in constant");
@@ -5414,7 +5369,6 @@ static void gen_opic(int op)
         case 0x02:
             l1 = (l1 >> 63) ? ~(~l1 >> (l2 & shm)) : l1 >> (l2 & shm);
             break;
-
         case 0x92: l1 = l1 < l2; break;
         case 0x93: l1 = l1 >= l2; break;
         case 0x94: l1 = l1 == l2; break;
@@ -5425,7 +5379,6 @@ static void gen_opic(int op)
         case 0x9d: l1 = !gen_opic_lt(l1, l2); break;
         case 0x9e: l1 = !gen_opic_lt(l2, l1); break;
         case 0x9f: l1 = gen_opic_lt(l2, l1); break;
-
         case 0xa0: l1 = l1 && l2; break;
         case 0xa1: l1 = l1 || l2; break;
         default:
@@ -5437,7 +5390,6 @@ static void gen_opic(int op)
         v1->c.i = l1;
         vtop--;
     } else {
-
         if (c1 && (op == '+' || op == '&' || op == '^' ||
                    op == '|' || op == '*')) {
             vswap();
@@ -5448,14 +5400,12 @@ static void gen_opic(int op)
             c1 && ((l1 == 0 &&
                     (op == 0x01 || op == 0xc9 || op == 0x02)) ||
                    (l1 == -1 && op == 0x02))) {
-
             vtop--;
         } else if (!const_wanted &&
                    c2 && ((l2 == 0 && (op == '&' || op == '*')) ||
                           (op == '|' &&
                             (l2 == -1 || (l2 == 0xFFFFFFFF && t2 != 4))) ||
                           (l2 == 1 && (op == '%' || op == 0xb1)))) {
-
             if (l2 == 1)
                 vtop->c.i = 0;
             vswap();
@@ -5468,10 +5418,8 @@ static void gen_opic(int op)
                            l2 == 0) ||
                           (op == '&' &&
                             (l2 == -1 || (l2 == 0xFFFFFFFF && t2 != 4))))) {
-
             vtop--;
         } else if (c2 && (op == '*' || op == 0xb2 || op == 0xb0)) {
-
             if (l2 > 0 && (l2 & (l2 - 1)) == 0) {
                 int n = -1;
                 while (l2) {
@@ -5490,19 +5438,15 @@ static void gen_opic(int op)
         } else if (c2 && (op == '+' || op == '-') &&
                    (((vtop[-1].r & (0x003f | 0x0100 | 0x0200)) == (0x0030 | 0x0200))
                     || (vtop[-1].r & (0x003f | 0x0100)) == 0x0032)) {
-
             if (op == '-')
                 l2 = -l2;
 	    l2 += vtop[-1].c.i;
-
-
 	    if ((int)l2 != l2)
 	        goto general_case;
             vtop--;
             vtop->c.i = l2;
         } else {
         general_case:
-
                 if (t1 == 4 || t2 == 4 ||
                     (4 == 8 && (t1 == 5 || t2 == 5)))
                     gen_opl(op);
@@ -5512,9 +5456,7 @@ static void gen_opic(int op)
     }
 }
 
-
-static void gen_opif(int op)
-{
+static void gen_opif(int op) {
     int c1, c2;
     SValue *v1, *v2;
 
