@@ -1012,11 +1012,10 @@ static void tccelf_end_file(TCCState *s1);
 static Section *new_section(TCCState *s1, const char *name, int sh_type, int sh_flags);
 static void section_realloc(Section *sec, unsigned long new_size);
 static size_t section_add(Section *sec, Elf32_Addr size, int align);
-// LJW BOOKMARK
 static void *section_ptr_add(Section *sec, Elf32_Addr size);
 static void section_reserve(Section *sec, unsigned long size);
-static Section *find_section(TCCState *s1, const char *name);
 static Section *new_symtab(TCCState *s1, const char *symtab_name, int sh_type, int sh_flags, const char *strtab_name, const char *hash_name, int hash_sh_flags);
+// LJW BOOKMARK
 static void put_extern_sym2(Sym *sym, int sh_num, Elf32_Addr value, unsigned long size, int can_add_underscore);
 static void put_extern_sym(Sym *sym, Section *section, Elf32_Addr value, unsigned long size);
 static void greloc(Section *s, Sym *sym, unsigned long offset, int type);
@@ -10288,6 +10287,7 @@ static Section *new_symtab(TCCState *s1,
                            const char *symtab_name, int sh_type, int sh_flags,
                            const char *strtab_name,
                            const char *hash_name, int hash_sh_flags) {
+// LJW DONE
     Section *symtab, *strtab, *hash;
     int *ptr, nb_buckets;
     symtab = new_section(s1, symtab_name, sh_type, sh_flags);
@@ -10337,11 +10337,13 @@ static size_t section_add(Section *sec, Elf32_Addr size, int align) {
 }
 
 static void *section_ptr_add(Section *sec, Elf32_Addr size) {
+// LJW DONE
     size_t offset = section_add(sec, size, 1);
     return sec->data + offset;
 }
 
 static void section_reserve(Section *sec, unsigned long size) {
+// LJW DONE
     if (size > sec->data_allocated)
         section_realloc(sec, size);
     if (size > sec->data_offset)
