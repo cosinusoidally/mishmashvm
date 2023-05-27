@@ -1051,8 +1051,8 @@ static int handle_eob(void);
 static void gsym_addr(int t, int a);
 static void gsym(int t);
 static void load(int r, SValue *sv);
-// LJW BOOKMARK
 static void store(int r, SValue *v);
+// LJW BOOKMARK
 static int gfunc_sret(CType *vt, int variadic, CType *ret, int *align, int *regsize);
 static void gfunc_call(int nb_args);
 static void gfunc_prolog(CType *func_type);
@@ -11126,34 +11126,34 @@ static void load(int r, SValue *sv) {
 }
 
 static void store(int r, SValue *v) {
+// LJW DONE
     int fr, bt, ft, fc;
     ft = v->type.t;
     fc = v->c.i;
-    fr = v->r & 0x003f;
-    ft &= ~(0x0200 | 0x0100);
-    bt = ft & 0x000f;
-
-    if (bt == 8) {
+    fr = v->r & VT_VALMASK;
+    ft &= ~(VT_VOLATILE | VT_CONSTANT);
+    bt = ft & VT_BTYPE;
+    if (bt == VT_FLOAT) {
         o(0xd9);
         r = 2;
-    } else if (bt == 9) {
+    } else if (bt == VT_DOUBLE) {
         o(0xdd);
         r = 2;
-    } else if (bt == 10) {
+    } else if (bt == VT_LDOUBLE) {
         o(0xc0d9);
         o(0xdb);
         r = 7;
     } else {
-        if (bt == 2)
+        if (bt == VT_SHORT)
             o(0x66);
-        if (bt == 1 || bt == 11)
+        if (bt == VT_BYTE || bt == VT_BOOL)
             o(0x88);
         else
             o(0x89);
     }
-    if (fr == 0x0030 ||
-        fr == 0x0032 ||
-        (v->r & 0x0100)) {
+    if (fr == VT_CONST ||
+        fr == VT_LOCAL ||
+        (v->r & VT_LVAL)) {
         gen_modrm(r, v->r, v->sym, fc);
     } else if (fr != r) {
         o(0xc0 + fr + r * 8);
