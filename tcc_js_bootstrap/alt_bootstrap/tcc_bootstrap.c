@@ -1651,15 +1651,14 @@ uint8_t* PARSE2(int *c,uint8_t **pp, int tok1, char c2, int tok2) {
     return p;
 }
 
-// LJW BOOKMARK
 static uint8_t *parse_line_comment(uint8_t *p) {
-
+// LJW DONE
     int c;
     p++;
     for(;;) {
         c = *p;
     redo:
-        if (c == '\n' || c == (-1)) {
+        if (c == '\n' || c == CH_EOF) {
             break;
         } else if (c == '\\') {
             file->buf_ptr = p;
@@ -1764,13 +1763,15 @@ static int set_idnum(int c, int val) {
     return prev;
 }
 
-static inline void skip_spaces(void) {
-    while (isidnum_table[ch - (-1)] & 1)
+static void skip_spaces(void) {
+// LJW DONE
+    while (isidnum_table[ch - CH_EOF] & IS_SPC)
         minp();
 }
 
-static inline int check_space(int t, int *spc) {
-    if (t < 256 && (isidnum_table[t - (-1)] & 1)) {
+static int check_space(int t, int *spc) {
+// LJW DONE
+    if (t < 256 && (isidnum_table[t - CH_EOF] & IS_SPC)) {
         if (*spc)
             return 1;
         *spc = 1;
@@ -1779,8 +1780,10 @@ static inline int check_space(int t, int *spc) {
     return 0;
 }
 
+// LJW BOOKMARK
 static uint8_t *parse_pp_string(uint8_t *p,
                                 int sep, CString *str) {
+
     int c;
     p++;
     for(;;) {
