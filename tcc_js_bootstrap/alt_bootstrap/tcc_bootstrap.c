@@ -2008,13 +2008,11 @@ static void end_macro(void) {
     }
 }
 
-// LJW BOOKMARK
 static void tok_str_add2(TokenString *s, int t, CValue *cv) {
+// LJW DONE
     int len, *str;
-
     len = s->lastlen = s->len;
     str = s->str;
-
     if (len + 4 >= s->allocated_len)
         str = tok_str_realloc(s, len + 4 + 1);
     str[len++] = t;
@@ -2071,6 +2069,7 @@ static void tok_str_add_tok(TokenString *s) {
     tok_str_add2(s, tok, &tokc);
 }
 
+// LJW BOOKMARK
 static inline void TOK_GET(int *t, const int **pp, CValue *cv) {
     const int *p = *pp;
     int n, *tab;
