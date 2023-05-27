@@ -872,6 +872,7 @@ static int pp_expr;
 static int pp_counter;
 static Section *symtab_section;
 static Section *stab_section, *stabstr_section;
+static const int reg_classes[5];
 
 TCCState *tcc_new(void);
 void tcc_delete(TCCState *s);
@@ -1044,12 +1045,8 @@ static uint8_t *parse_comment(uint8_t *p);
 static void minp(void);
 static inline void inp(void);
 static int handle_eob(void);
-// LJW BOOKMARK
-static int code_reloc (int reloc_type);
-static void relocate_init(Section *sr);
-static void relocate(TCCState *s1, Elf32_Rel *rel, int type, unsigned char *ptr, Elf32_Addr addr, Elf32_Addr val);
-static const int reg_classes[5];
 static void gsym_addr(int t, int a);
+// LJW BOOKMARK
 static void gsym(int t);
 static void load(int r, SValue *sv);
 static void store(int r, SValue *v);
@@ -10995,8 +10992,8 @@ static void gen_le32(int c)
 }
 
 
-static void gsym_addr(int t, int a)
-{
+static void gsym_addr(int t, int a) {
+// LJW DONE
     while (t) {
         unsigned char *ptr = cur_text_section->data + t;
         uint32_t n = read32le(ptr);
