@@ -1010,9 +1010,9 @@ static void tccelf_delete(TCCState *s);
 static void tccelf_begin_file(TCCState *s1);
 static void tccelf_end_file(TCCState *s1);
 static Section *new_section(TCCState *s1, const char *name, int sh_type, int sh_flags);
-// LJW BOOKMARK
 static void section_realloc(Section *sec, unsigned long new_size);
 static size_t section_add(Section *sec, Elf32_Addr size, int align);
+// LJW BOOKMARK
 static void *section_ptr_add(Section *sec, Elf32_Addr size);
 static void section_reserve(Section *sec, unsigned long size);
 static Section *find_section(TCCState *s1, const char *name);
@@ -10309,6 +10309,7 @@ static Section *new_symtab(TCCState *s1,
 }
 
 static void section_realloc(Section *sec, unsigned long new_size) {
+// LJW DONE
     unsigned long size;
     unsigned char *data;
     size = sec->data_allocated;
@@ -10323,8 +10324,8 @@ static void section_realloc(Section *sec, unsigned long new_size) {
 }
 
 static size_t section_add(Section *sec, Elf32_Addr size, int align) {
+// LJW DONE
     size_t offset, offset1;
-
     offset = (sec->data_offset + align - 1) & -align;
     offset1 = offset + size;
     if (sec->sh_type != 8 && offset1 > sec->data_allocated)
