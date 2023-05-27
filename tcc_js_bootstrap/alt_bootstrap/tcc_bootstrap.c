@@ -990,8 +990,8 @@ static void gen_op(int op);
 static int type_size(CType *type, int *a);
 static void mk_pointer(CType *type);
 static void vstore(void);
-// LJW BOOKMARK
 static void inc(int post, int c);
+// LJW BOOKMARK
 static void parse_mult_str (CString *astr, const char *msg);
 static int lvalue_type(int t);
 static void indir(void);
@@ -6664,8 +6664,8 @@ static void vstore(void) {
     }
 }
 
-static void inc(int post, int c)
-{
+static void inc(int post, int c) {
+// LJW DONE
     test_lvalue();
     vdup();
     if (post) {
@@ -6673,8 +6673,7 @@ static void inc(int post, int c)
         vrotb(3);
         vrotb(3);
     }
-
-    vpushi(c - 0xa3);
+    vpushi(c - TOK_MID);
     gen_op('+');
     vstore();
     if (post)
