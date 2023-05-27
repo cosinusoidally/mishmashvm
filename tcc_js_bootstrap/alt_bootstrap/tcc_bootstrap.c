@@ -7663,18 +7663,17 @@ static int lvalue_type(int t) {
 
 
 static void indir(void) {
-
-    if ((vtop->type.t & 0x000f) != 5) {
-        if ((vtop->type.t & 0x000f) == 6)
+// LJW DONE
+    if ((vtop->type.t & VT_BTYPE) != VT_PTR) {
+        if ((vtop->type.t & VT_BTYPE) == VT_FUNC)
             return;
         expect("pointer");
     }
-    if (vtop->r & 0x0100)
-        gv(0x0001);
+    if (vtop->r & VT_LVAL)
+        gv(RC_INT);
     vtop->type = *pointed_type(&vtop->type);
-
-    if (!(vtop->type.t & 0x0040) && !(vtop->type.t & 0x0400)
-        && (vtop->type.t & 0x000f) != 6) {
+    if (!(vtop->type.t & VT_ARRAY) && !(vtop->type.t & VT_VLA)
+        && (vtop->type.t & VT_BTYPE) != VT_FUNC) {
         vtop->r |= lvalue_type(vtop->type.t);
     }
 }
