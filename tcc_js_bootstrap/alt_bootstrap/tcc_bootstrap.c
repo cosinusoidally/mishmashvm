@@ -1039,13 +1039,8 @@ static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int inf
 static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int info, int other, int shndx, const char *name);
 static int find_elf_sym(Section *s, const char *name);
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset, int type, int symbol, Elf32_Addr addend);
-// LJW BOOKMARK
-static void resolve_common_syms(TCCState *s1);
-static void relocate_syms(TCCState *s1, Section *symtab, int do_resolve);
-static void relocate_section(TCCState *s1, Section *s);
-static int tcc_object_type(int fd, Elf32_Ehdr *h);
-static int tcc_load_object_file(TCCState *s1, int fd, unsigned long file_offset);
 static void squeeze_multi_relocs(Section *sec, size_t oldrelocoffset);
+// LJW BOOKMARK
 static uint8_t *parse_comment(uint8_t *p);
 static void minp(void);
 static inline void inp(void);
@@ -9917,10 +9912,9 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
 	if (sec && sec->reloc)
 	  oldreloc_offset = sec->reloc->data_offset;
         decl_initializer(type, sec, addr, 1, 0);
-	if (sec && sec->reloc)
+	if (sec && sec->reloc) {
 	  squeeze_multi_relocs(sec, oldreloc_offset);
-
-
+        }
         if (flexible_array)
             flexible_array->type.ref->c = -1;
     }
@@ -10575,6 +10569,7 @@ static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset,
 }
 
 static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset) {
+// LJW DONE
     Section *sr = s->reloc;
     Elf32_Rel *r, *dest;
     ssize_t a;
