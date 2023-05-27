@@ -992,8 +992,8 @@ static void mk_pointer(CType *type);
 static void vstore(void);
 static void inc(int post, int c);
 static int lvalue_type(int t);
-// LJW BOOKMARK
 static void indir(void);
+// LJW BOOKMARK
 static void unary(void);
 static void expr_prod(void);
 static void expr_sum(void);
@@ -7762,28 +7762,21 @@ static void parse_builtin_params(int nc, const char *args)
         nocode_wanted--;
 }
 
-static void unary(void)
-{
+static void unary(void) {
+
     int n, t, align, size, r, sizeof_caller;
     CType type;
     Sym *s;
     AttributeDef ad;
-
     sizeof_caller = in_sizeof;
     in_sizeof = 0;
     type.ref = ((void*)0);
-
-
  tok_next:
     switch(tok) {
     case TOK_EXTENSION:
         next();
         goto tok_next;
     case 0xb4:
-
-
-
-
     case 0xb5:
     case 0xb3:
 	t = 3;
@@ -7819,14 +7812,11 @@ static void unary(void)
     case TOK___FUNCTION__:
         if (!gnu_ext)
             goto tok_identifier;
-
     case TOK___FUNC__:
         {
             void *ptr;
             int len;
-
             len = strlen(funcname) + 1;
-
             type.t = 1;
             mk_pointer(&type);
             type.t |= 0x0040;
@@ -7840,14 +7830,9 @@ static void unary(void)
         }
         break;
     case 0xba:
-
-
-
         t = 3;
-
         goto str_init;
     case 0xb9:
-
         t = 1;
     str_init:
         if (tcc_state->warn_write_strings)
@@ -7860,18 +7845,14 @@ static void unary(void)
         break;
     case '(':
         next();
-
         if (parse_btype(&type, &ad)) {
             type_decl(&type, &ad, &n, 1);
             skip(')');
-
             if (tok == '{') {
-
                 if (global_expr)
                     r = 0x0030;
                 else
                     r = 0x0032;
-
                 if (!(type.t & 0x0040))
                     r |= lvalue_type(type.t);
                 memset(&ad, 0, sizeof(AttributeDef));
@@ -7888,13 +7869,7 @@ static void unary(void)
 	    int saved_nocode_wanted = nocode_wanted;
             if (const_wanted)
                 tcc_error("expected constant");
-
             save_regs(0);
-
-
-
-
-
             block(((void*)0), ((void*)0), 1);
 	    nocode_wanted = saved_nocode_wanted;
             skip(')');
@@ -7911,11 +7886,6 @@ static void unary(void)
     case '&':
         next();
         unary();
-
-
-
-
-
         if ((vtop->type.t & 0x000f) != 6 &&
             !(vtop->type.t & 0x0040))
             test_lvalue();
@@ -7946,9 +7916,6 @@ static void unary(void)
         unary();
         if ((vtop->type.t & 0x000f) == 5)
             tcc_error("pointer not accepted for unary plus");
-
-
-
 	if (!is_float(vtop->type.t)) {
 	    vpushi(0);
 	    gen_op('+');
@@ -7977,9 +7944,7 @@ static void unary(void)
         }
         vtop->type.t |= 0x0010;
         break;
-
     case TOK_builtin_expect:
-
 	parse_builtin_params(0, "ee");
 	vpop();
         break;
@@ -8068,8 +8033,6 @@ static void unary(void)
         unary();
         t = vtop->type.t & 0x000f;
 	if (is_float(t)) {
-
-
 	    vpush(&vtop->type);
 	    if (t == 8)
 	        vtop->c.f = -1.0 * 0.0;
@@ -8086,7 +8049,6 @@ static void unary(void)
         if (!gnu_ext)
             goto tok_identifier;
         next();
-
         if (tok < TOK_DEFINE)
             expect("label identifier");
         s = label_find(tok);
@@ -8104,7 +8066,6 @@ static void unary(void)
         vpushsym(&s->type, s);
         next();
         break;
-
     case TOK_GENERIC:
     {
 	CType controlling_type;
@@ -8112,7 +8073,6 @@ static void unary(void)
 	int has_match = 0;
 	int learn = 0;
 	TokenString *str = ((void*)0);
-
 	next();
 	skip('(');
 	expr_type(&controlling_type, expr_eq);
@@ -8166,7 +8126,6 @@ static void unary(void)
         next();
 	break;
     }
-
     case TOK___NAN__:
         vpush64(9, 0x7ff8000000000000ULL);
         next();
@@ -8179,7 +8138,6 @@ static void unary(void)
         vpush64(9, 0x7ff0000000000000ULL);
         next();
         break;
-
     default:
     tok_identifier:
         t = tok;
@@ -8208,21 +8166,17 @@ static void unary(void)
         }
         break;
     }
-
-
     while (1) {
         if (tok == 0xa4 || tok == 0xa2) {
             inc(1, tok);
             next();
         } else if (tok == '.' || tok == 0xc7 || tok == 0xbc) {
             int qualifiers;
-
             if (tok == 0xc7)
                 indir();
             qualifiers = vtop->type.t & (0x0100 | 0x0200);
             test_lvalue();
             gaddrof();
-
             if ((vtop->type.t & 0x000f) != 7)
                 expect("struct or union");
             if (tok == 0xbc)
@@ -8233,21 +8187,15 @@ static void unary(void)
 	    s = find_field(&vtop->type, tok);
             if (!s)
                 tcc_error("field not found: %s",  get_tok_str(tok & ~0x20000000, &tokc));
-
             vtop->type = char_pointer_type;
             vpushi(s->c);
             gen_op('+');
-
             vtop->type = s->type;
             vtop->type.t |= qualifiers;
-
             if (!(vtop->type.t & 0x0040)) {
                 vtop->r |= lvalue_type(vtop->type.t);
-
-
                 if (0 && (vtop->r & 0x003f) != 0x0032)
                     vtop->r |= 0x0800;
-
             }
             next();
         } else if (tok == '[') {
@@ -8260,10 +8208,7 @@ static void unary(void)
             SValue ret;
             Sym *sa;
             int nb_args, ret_nregs, ret_align, regsize, variadic;
-
-
             if ((vtop->type.t & 0x000f) != 6) {
-
                 if ((vtop->type.t & (0x000f | 0x0040)) == 5) {
                     vtop->type = *pointed_type(&vtop->type);
                     if ((vtop->type.t & 0x000f) != 6)
@@ -8275,25 +8220,20 @@ static void unary(void)
             } else {
                 vtop->r &= ~0x0100;
             }
-
             s = vtop->type.ref;
             next();
             sa = s->next;
             nb_args = regsize = 0;
             ret.r2 = 0x0030;
-
             if ((s->type.t & 0x000f) == 7) {
                 variadic = (s->f.func_type == 3);
                 ret_nregs = gfunc_sret(&s->type, variadic, &ret.type,
                                        &ret_align, &regsize);
                 if (!ret_nregs) {
-
                     size = type_size(&s->type, &align);
                     loc = (loc - size) & -align;
                     ret.type = s->type;
                     ret.r = 0x0032 | 0x0100;
-
-
                     vseti(0x0032, loc);
                     ret.c = vtop->c;
                     nb_args++;
@@ -8302,24 +8242,12 @@ static void unary(void)
                 ret_nregs = 1;
                 ret.type = s->type;
             }
-
             if (ret_nregs) {
-
                 if (is_float(ret.type.t)) {
                     ret.r = reg_fret(ret.type.t);
-
-
-
-
                 } else {
-
-
-
-
                     if ((ret.type.t & 0x000f) == 4)
-
                         ret.r2 = TREG_EDX;
-
                     ret.r = TREG_EAX;
                 }
                 ret.c.i = 0;
@@ -8340,20 +8268,13 @@ static void unary(void)
                 tcc_error("too few arguments to function");
             skip(')');
             gfunc_call(nb_args);
-
-
             for (r = ret.r + ret_nregs + !ret_nregs; r-- > ret.r;) {
                 vsetc(&ret.type, r, &ret.c);
                 vtop->r2 = ret.r2;
             }
-
-
             if (((s->type.t & 0x000f) == 7) && ret_nregs) {
                 int addr, offset;
-
                 size = type_size(&s->type, &align);
-
-
 		if (regsize > align)
 		  align = regsize;
                 loc = (loc - size) & -align;
