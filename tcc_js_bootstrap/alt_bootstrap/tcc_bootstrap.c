@@ -998,10 +998,10 @@ static void inc(int post, int c);
 static int lvalue_type(int t);
 static void indir(void);
 static void unary(void);
-// LJW BOOKMARK
 static void expr_prod(void);
 static void expr_sum(void);
 static void gexpr(void);
+// LJW BOOKMARK
 static int expr_const(void);
 static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size);
 static void tccelf_bounds_new(TCCState *s);
@@ -8311,10 +8311,9 @@ static void unary(void) {
     }
 }
 
-static void expr_prod(void)
-{
+static void expr_prod(void) {
+// LJW DONE
     int t;
-
     unary();
     while (tok == '*' || tok == '/' || tok == '%') {
         t = tok;
@@ -8324,10 +8323,9 @@ static void expr_prod(void)
     }
 }
 
-static void expr_sum(void)
-{
+static void expr_sum(void) {
+// LJW DONE
     int t;
-
     expr_prod();
     while (tok == '+' || tok == '-') {
         t = tok;
@@ -8703,8 +8701,8 @@ static void expr_eq(void)
     }
 }
 
-static void gexpr(void)
-{
+static void gexpr(void) {
+// LJW DONE
     while (1) {
         expr_eq();
         if (tok != ',')
@@ -8713,7 +8711,6 @@ static void gexpr(void)
         next();
     }
 }
-
 
 static void expr_const1(void)
 {
