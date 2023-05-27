@@ -612,6 +612,7 @@ enum VTS {
     VT_BITFIELD = 0x0080,
     VT_PTR = 5,
     VT_QLONG = 13,
+    VT_MUSTCAST = 0x0400,
 };
 
 enum VTS_LVALS {
@@ -6557,38 +6558,40 @@ static void gen_assign_cast(CType *dt)
 
 
 static void vstore(void) {
+
     int sbt, dbt, ft, r, t, size, align, bit_size, bit_pos, rc, delayed_cast;
     ft = vtop[-1].type.t;
-    sbt = vtop->type.t & 0x000f;
-    dbt = ft & 0x000f;
-    if ((((sbt == 3 || sbt == 2) && dbt == 1) ||
-         (sbt == 3 && dbt == 2))
-	&& !(vtop->type.t & 0x0080)) {
-        delayed_cast = 0x0400;
+    sbt = vtop->type.t & VT_BTYPE;
+    dbt = ft & VT_BTYPE;
+    if ((((sbt == VT_INT || sbt == VT_SHORT) && dbt == VT_BYTE) ||
+         (sbt == VT_INT && dbt == VT_SHORT))
+        && !(vtop->type.t & VT_BITFIELD)) {
+        delayed_cast = VT_MUSTCAST;
+// VT_TYPE FIXME
         vtop->type.t = ft & (~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)|(((1 << (6+6)) - 1) << 20 | 0x0080)));
-        if (ft & 0x0100)
+        if (ft & VT_CONSTANT)
             tcc_warning("assignment of read-only location");
     } else {
         delayed_cast = 0;
-        if (!(ft & 0x0080))
+        if (!(ft & VT_BITFIELD))
             gen_assign_cast(&vtop[-1].type);
     }
-    if (sbt == 7) {
+    if (sbt == VT_STRUCT) {
             size = type_size(&vtop->type, &align);
             vswap();
-            vtop->type.t = 5;
+            vtop->type.t = VT_PTR;
             gaddrof();
             vpush_global_sym(&func_old_type, TOK_memmove);
             vswap();
             vpushv(vtop - 2);
-            vtop->type.t = 5;
+            vtop->type.t = VT_PTR;
             gaddrof();
             vpushi(size);
             gfunc_call(3);
-    } else if (ft & 0x0080) {
+    } else if (ft & VT_BITFIELD) {
         vdup(), vtop[-1] = vtop[-2];
-        bit_pos = (((ft) >> 20) & 0x3f);
-        bit_size = (((ft) >> (20 + 6)) & 0x3f);
+        bit_pos = BIT_POS(ft);
+        bit_size = BIT_SIZE(ft);
         vtop[-1].type.t = ft & ~(((1 << (6+6)) - 1) << 20 | 0x0080);
         if ((ft & 0x000f) == 11) {
             gen_cast(&vtop[-1].type);
@@ -6654,7 +6657,6 @@ static void vstore(void) {
             } else {
                 store(r, vtop - 1);
             }
-
         vswap();
         vtop--;
         vtop->r |= delayed_cast;
