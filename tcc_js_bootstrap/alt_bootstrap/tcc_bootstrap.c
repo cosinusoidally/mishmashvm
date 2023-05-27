@@ -1059,9 +1059,9 @@ static void gfunc_call(int nb_args);
 static void gfunc_prolog(CType *func_type);
 static void gfunc_epilog(void);
 static int gjmp(int t);
-// LJW BOOKMARK
 static void gjmp_addr(int a);
 static int gtst(int inv, int t);
+// LJW BOOKMARK
 static void gtst_addr(int inv, int a);
 static void gen_opi(int op);
 static void gen_opf(int op);
@@ -11339,6 +11339,7 @@ static int gjmp(int t) {
 }
 
 static void gjmp_addr(int a) {
+// LJW DONE
     int r;
     r = a - ind - 2;
     if (r == (char)r) {
@@ -11375,17 +11376,15 @@ static void gtst_addr(int inv, int a) {
 }
 
 static int gtst(int inv, int t) {
-    int v = vtop->r & 0x003f;
+// LJW DONE
+    int v = vtop->r & VT_VALMASK;
     if (nocode_wanted) {
         ;
-    } else if (v == 0x0033) {
-
+    } else if (v == VT_CMP) {
         g(0x0f);
-        t = oad((vtop->c.i - 16) ^ inv,t);
-    } else if (v == 0x0034 || v == 0x0035) {
-
+        t = oad((vtop->c.i - 16) ^ inv, t);
+    } else if (v == VT_JMP || v == VT_JMPI) {
         if ((v & 1) == inv) {
-
             uint32_t n1, n = vtop->c.i;
             if (n) {
                 while ((n1 = read32le(cur_text_section->data + n)))
