@@ -1063,8 +1063,8 @@ static void gjmp_addr(int a);
 static int gtst(int inv, int t);
 static void gtst_addr(int inv, int a);
 static void gen_opi(int op);
-// LJW BOOKMARK
 static void gen_opf(int op);
+// LJW BOOKMARK
 static void gen_cvt_ftoi(int t);
 static void gen_cvt_ftof(int t);
 static void ggoto(void);
@@ -11534,6 +11534,7 @@ static void gen_opi(int op) {
 }
 
 static void gen_opf(int op) {
+// LJW DONE
     int a, ft, fc, swapped, r;
     if ((vtop[-1].r & (VT_VALMASK | VT_LVAL)) == VT_CONST) {
         vswap();
@@ -11585,8 +11586,7 @@ static void gen_opf(int op) {
         vtop->r = VT_CMP;
         vtop->c.i = op;
     } else {
-// LJW BOOKMARK convert defines into enums
-        if ((vtop->type.t & 0x000f) == 10) {
+        if ((vtop->type.t & VT_BTYPE) == VT_LDOUBLE) {
             load(TREG_ST0, vtop);
             swapped = !swapped;
         }
@@ -11611,21 +11611,21 @@ static void gen_opf(int op) {
         }
         ft = vtop->type.t;
         fc = vtop->c.i;
-        if ((ft & 0x000f) == 10) {
+        if ((ft & VT_BTYPE) == VT_LDOUBLE) {
             o(0xde);
             o(0xc1 + (a << 3));
         } else {
             r = vtop->r;
-            if ((r & 0x003f) == 0x0031) {
+            if ((r & VT_VALMASK) == VT_LLOCAL) {
                 SValue v1;
-                r = get_reg(0x0001);
-                v1.type.t = 3;
-                v1.r = 0x0032 | 0x0100;
+                r = get_reg(RC_INT);
+                v1.type.t = VT_INT;
+                v1.r = VT_LOCAL | VT_LVAL;
                 v1.c.i = fc;
                 load(r, &v1);
                 fc = 0;
             }
-            if ((ft & 0x000f) == 9)
+            if ((ft & VT_BTYPE) == VT_DOUBLE)
                 o(0xdc);
             else
                 o(0xd8);
