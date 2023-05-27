@@ -711,6 +711,7 @@ enum SYMS {
 
 enum FUNCS {
     FUNC_CDECL = 0,
+    FUNC_STDCALL = 1,
     FUNC_OLD = 2,
     FUNC_ELLIPSIS = 3,
 };
@@ -1052,9 +1053,9 @@ static void gsym_addr(int t, int a);
 static void gsym(int t);
 static void load(int r, SValue *sv);
 static void store(int r, SValue *v);
-// LJW BOOKMARK
 static int gfunc_sret(CType *vt, int variadic, CType *ret, int *align, int *regsize);
 static void gfunc_call(int nb_args);
+// LJW BOOKMARK
 static void gfunc_prolog(CType *func_type);
 static void gfunc_epilog(void);
 static int gjmp(int t);
@@ -11208,35 +11209,34 @@ static void gcall_or_jmp(int is_jmp) {
 }
 
 static int gfunc_sret(CType *vt, int variadic, CType *ret, int *ret_align, int *regsize) {
+// LJW DONE
     *ret_align = 1;
     return 0;
 }
 
 static void gfunc_call(int nb_args) {
+// LJW DONE
     int size, align, r, args_size, i, func_call;
     Sym *func_sym;
-
     args_size = 0;
     for(i = 0;i < nb_args; i++) {
-        if ((vtop->type.t & 0x000f) == 7) {
+        if ((vtop->type.t & VT_BTYPE) == VT_STRUCT) {
             size = type_size(&vtop->type, &align);
-
             size = (size + 3) & ~3;
-
             oad(0xec81, size);
-
-            r = get_reg(0x0001);
+            r = get_reg(RC_INT);
             o(0x89);
             o(0xe0 + r);
             vset(&vtop->type, r | 0x0100, 0);
+            vset(&vtop->type, r | VT_LVAL, 0);
             vswap();
             vstore();
             args_size += size;
         } else if (is_float(vtop->type.t)) {
-            gv(0x0002);
-            if ((vtop->type.t & 0x000f) == 8)
+            gv(RC_FLOAT);
+            if ((vtop->type.t & VT_BTYPE) == VT_FLOAT)
                 size = 4;
-            else if ((vtop->type.t & 0x000f) == 9)
+            else if ((vtop->type.t & VT_BTYPE) == VT_DOUBLE)
                 size = 8;
             else
                 size = 12;
@@ -11249,8 +11249,8 @@ static void gfunc_call(int nb_args) {
             g(0x00);
             args_size += size;
         } else {
-            r = gv(0x0001);
-            if ((vtop->type.t & 0x000f) == 4) {
+            r = gv(RC_INT);
+            if ((vtop->type.t & VT_BTYPE) == VT_LLONG) {
                 size = 8;
                 o(0x50 + vtop->r2);
             } else {
@@ -11264,13 +11264,10 @@ static void gfunc_call(int nb_args) {
     save_regs(0);
     func_sym = vtop->type.ref;
     func_call = func_sym->f.func_call;
-    if ((vtop->type.ref->type.t & 0x000f) == 7)
-        args_size -= 4;
-
     gcall_or_jmp(0);
-
-    if (args_size && func_call != 1 && func_call != 5)
+    if (args_size && func_call != FUNC_STDCALL) {
         gadd_sp(args_size);
+    }
     vtop--;
 }
 
