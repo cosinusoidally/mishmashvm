@@ -1036,10 +1036,9 @@ static void greloc(Section *s, Sym *sym, unsigned long offset, int type);
 static void greloca(Section *s, Sym *sym, unsigned long offset, int type, Elf32_Addr addend);
 static int put_elf_str(Section *s, const char *sym);
 static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int info, int other, int shndx, const char *name);
-// LJW BOOKMARK
 static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size, int info, int other, int shndx, const char *name);
 static int find_elf_sym(Section *s, const char *name);
-static void put_elf_reloc(Section *symtab, Section *s, unsigned long offset, int type, int symbol);
+// LJW BOOKMARK
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset, int type, int symbol, Elf32_Addr addend);
 static void resolve_common_syms(TCCState *s1);
 static void relocate_syms(TCCState *s1, Section *symtab, int do_resolve);
@@ -10465,6 +10464,7 @@ static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
 }
 
 static int find_elf_sym(Section *s, const char *name) {
+// LJW DONE
     Elf32_Sym *sym;
     Section *hs;
     int nbuckets, sym_index, h;
@@ -10487,6 +10487,7 @@ static int find_elf_sym(Section *s, const char *name) {
 
 static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
                        int info, int other, int shndx, const char *name) {
+// LJW DONE
     Elf32_Sym *esym;
     int sym_bind, sym_index, sym_type, esym_bind;
     unsigned char sym_vis, esym_vis, new_vis;
