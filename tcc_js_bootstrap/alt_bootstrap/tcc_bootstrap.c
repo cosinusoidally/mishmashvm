@@ -613,6 +613,7 @@ enum VTS {
     VT_PTR = 5,
     VT_QLONG = 13,
     VT_MUSTCAST = 0x0400,
+    VT_STRUCT_MASK = (((1 << (6+6)) - 1) << VT_STRUCT_SHIFT | VT_BITFIELD),
 };
 
 enum VTS_LVALS {
@@ -988,8 +989,8 @@ static void vpop(void);
 static void gen_op(int op);
 static int type_size(CType *type, int *a);
 static void mk_pointer(CType *type);
-// LJW BOOKMARK
 static void vstore(void);
+// LJW BOOKMARK
 static void inc(int post, int c);
 static void parse_mult_str (CString *astr, const char *msg);
 static int lvalue_type(int t);
@@ -6558,7 +6559,7 @@ static void gen_assign_cast(CType *dt)
 
 
 static void vstore(void) {
-
+// LJW DONE
     int sbt, dbt, ft, r, t, size, align, bit_size, bit_pos, rc, delayed_cast;
     ft = vtop[-1].type.t;
     sbt = vtop->type.t & VT_BTYPE;
@@ -6592,30 +6593,30 @@ static void vstore(void) {
         vdup(), vtop[-1] = vtop[-2];
         bit_pos = BIT_POS(ft);
         bit_size = BIT_SIZE(ft);
-        vtop[-1].type.t = ft & ~(((1 << (6+6)) - 1) << 20 | 0x0080);
-        if ((ft & 0x000f) == 11) {
+        vtop[-1].type.t = ft & ~VT_STRUCT_MASK;
+        if ((ft & VT_BTYPE) == VT_BOOL) {
             gen_cast(&vtop[-1].type);
-            vtop[-1].type.t = (vtop[-1].type.t & ~0x000f) | (1 | 0x0010);
+            vtop[-1].type.t = (vtop[-1].type.t & ~VT_BTYPE) | (VT_BYTE | VT_UNSIGNED);
         }
         r = adjust_bf(vtop - 1, bit_pos, bit_size);
-        if (r == 7) {
-            gen_cast_s((ft & 0x000f) == 4 ? 4 : 3);
+        if (r == VT_STRUCT) {
+            gen_cast_s((ft & VT_BTYPE) == VT_LLONG ? VT_LLONG : VT_INT);
             store_packed_bf(bit_pos, bit_size);
         } else {
             unsigned long long mask = (1ULL << bit_size) - 1;
-            if ((ft & 0x000f) != 11) {
-                if ((vtop[-1].type.t & 0x000f) == 4)
+            if ((ft & VT_BTYPE) != VT_BOOL) {
+                if ((vtop[-1].type.t & VT_BTYPE) == VT_LLONG)
                     vpushll(mask);
                 else
                     vpushi((unsigned)mask);
                 gen_op('&');
             }
             vpushi(bit_pos);
-            gen_op(0x01);
+            gen_op(TOK_SHL);
             vswap();
             vdup();
             vrott(3);
-            if ((vtop->type.t & 0x000f) == 4)
+            if ((vtop->type.t & VT_BTYPE) == VT_LLONG)
                 vpushll(~(mask << bit_pos));
             else
                 vpushi(~((unsigned)mask << bit_pos));
@@ -6624,25 +6625,25 @@ static void vstore(void) {
             vstore();
             vpop();
         }
-    } else if (dbt == 0) {
+    } else if (dbt == VT_VOID) {
         --vtop;
     } else {
-            rc = 0x0001;
+            rc = RC_INT;
             if (is_float(ft)) {
-                rc = 0x0002;
+                rc = RC_FLOAT;
             }
             r = gv(rc);
-            if ((vtop[-1].r & 0x003f) == 0x0031) {
+            if ((vtop[-1].r & VT_VALMASK) == VT_LLOCAL) {
                 SValue sv;
-                t = get_reg(0x0001);
-                sv.type.t = 3;
-                sv.r = 0x0032 | 0x0100;
+                t = get_reg(RC_INT);
+                sv.type.t = VT_INT;
+                sv.r = VT_LOCAL | VT_LVAL;
                 sv.c.i = vtop[-1].c.i;
                 load(t, &sv);
-                vtop[-1].r = t | 0x0100;
+                vtop[-1].r = t | VT_LVAL;
             }
-            if ((ft & 0x000f) == 4) {
-                int addr_type = 3, load_size = 4, load_type = 3;
+            if ((ft & VT_BTYPE) == VT_LLONG) {
+                int addr_type = VT_INT, load_size = 4, load_type = VT_INT;
                 vtop[-1].type.t = load_type;
                 store(r, vtop - 1);
                 vswap();
@@ -6650,7 +6651,7 @@ static void vstore(void) {
                 gaddrof();
                 vpushi(load_size);
                 gen_op('+');
-                vtop->r |= 0x0100;
+                vtop->r |= VT_LVAL;
                 vswap();
                 vtop[-1].type.t = load_type;
                 store(vtop->r2, vtop - 1);
