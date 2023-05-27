@@ -614,6 +614,7 @@ enum VTS {
     VT_QLONG = 13,
     VT_MUSTCAST = 0x0400,
     VT_STRUCT_MASK = (((1 << (6+6)) - 1) << VT_STRUCT_SHIFT | VT_BITFIELD),
+    VT_SYM = 0x0200,
 };
 
 enum VTS_LVALS {
@@ -7879,7 +7880,6 @@ static void unary(void) {
             skip(')');
         }
         break;
-// LJW BOOKMARK2
     case '*':
         next();
         unary();
@@ -7888,8 +7888,8 @@ static void unary(void) {
     case '&':
         next();
         unary();
-        if ((vtop->type.t & 0x000f) != 6 &&
-            !(vtop->type.t & 0x0040))
+        if ((vtop->type.t & VT_BTYPE) != VT_FUNC &&
+            !(vtop->type.t & VT_ARRAY))
             test_lvalue();
         mk_pointer(&vtop->type);
         gaddrof();
@@ -7897,14 +7897,14 @@ static void unary(void) {
     case '!':
         next();
         unary();
-        if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
-            gen_cast_s(11);
+        if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
+            gen_cast_s(VT_BOOL);
             vtop->c.i = !vtop->c.i;
-        } else if ((vtop->r & 0x003f) == 0x0033)
+        } else if ((vtop->r & VT_VALMASK) == VT_CMP)
             vtop->c.i ^= 1;
         else {
             save_regs(1);
-            vseti(0x0034, gvtst(1, 0));
+            vseti(VT_JMP, gvtst(1, 0));
         }
         break;
     case '~':
@@ -7916,13 +7916,14 @@ static void unary(void) {
     case '+':
         next();
         unary();
-        if ((vtop->type.t & 0x000f) == 5)
+        if ((vtop->type.t & VT_BTYPE) == VT_PTR)
             tcc_error("pointer not accepted for unary plus");
-	if (!is_float(vtop->type.t)) {
-	    vpushi(0);
-	    gen_op('+');
-	}
+        if (!is_float(vtop->type.t)) {
+            vpushi(0);
+            gen_op('+');
+        }
         break;
+// LJW BOOKMARK2
     case TOK_SIZEOF:
     case TOK_ALIGNOF1:
     case TOK_ALIGNOF2:
