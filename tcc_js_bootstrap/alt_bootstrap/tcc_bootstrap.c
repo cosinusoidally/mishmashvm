@@ -7923,7 +7923,6 @@ static void unary(void) {
             gen_op('+');
         }
         break;
-// LJW BOOKMARK2
     case TOK_SIZEOF:
     case TOK_ALIGNOF1:
     case TOK_ALIGNOF2:
@@ -7936,7 +7935,7 @@ static void unary(void) {
         if (s && s->a.aligned)
             align = 1 << (s->a.aligned - 1);
         if (t == TOK_SIZEOF) {
-            if (!(type.t & 0x0400)) {
+            if (!(type.t & VT_VLA)) {
                 if (size < 0)
                     tcc_error("sizeof applied to an incomplete type");
                 vpushs(size);
@@ -7945,47 +7944,48 @@ static void unary(void) {
         } else {
             vpushs(align);
         }
-        vtop->type.t |= 0x0010;
+        vtop->type.t |= VT_UNSIGNED;
         break;
     case TOK_builtin_expect:
-	parse_builtin_params(0, "ee");
-	vpop();
+        parse_builtin_params(0, "ee");
+        vpop();
         break;
     case TOK_builtin_types_compatible_p:
-	parse_builtin_params(0, "tt");
-	vtop[-1].type.t &= ~(0x0100 | 0x0200);
-	vtop[0].type.t &= ~(0x0100 | 0x0200);
-	n = is_compatible_types(&vtop[-1].type, &vtop[0].type);
-	vtop -= 2;
-	vpushi(n);
+        parse_builtin_params(0, "tt");
+        vtop[-1].type.t &= ~(VT_CONSTANT | VT_VOLATILE);
+        vtop[0].type.t &= ~(VT_CONSTANT | VT_VOLATILE);
+        n = is_compatible_types(&vtop[-1].type, &vtop[0].type);
+        vtop -= 2;
+        vpushi(n);
         break;
     case TOK_builtin_choose_expr:
-	{
-	    int64_t c;
-	    next();
-	    skip('(');
-	    c = expr_const64();
-	    skip(',');
-	    if (!c) {
-		nocode_wanted++;
-	    }
-	    expr_eq();
-	    if (!c) {
-		vpop();
-		nocode_wanted--;
-	    }
-	    skip(',');
-	    if (c) {
-		nocode_wanted++;
-	    }
-	    expr_eq();
-	    if (c) {
-		vpop();
-		nocode_wanted--;
-	    }
-	    skip(')');
-	}
+        {
+            int64_t c;
+            next();
+            skip('(');
+            c = expr_const64();
+            skip(',');
+            if (!c) {
+                nocode_wanted++;
+            }
+            expr_eq();
+            if (!c) {
+                vpop();
+                nocode_wanted--;
+            }
+            skip(',');
+            if (c) {
+                nocode_wanted++;
+            }
+            expr_eq();
+            if (c) {
+                vpop();
+                nocode_wanted--;
+            }
+            skip(')');
+        }
         break;
+// LJW BOOKMARK2
     case TOK_builtin_constant_p:
 	parse_builtin_params(1, "e");
 	n = (vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
