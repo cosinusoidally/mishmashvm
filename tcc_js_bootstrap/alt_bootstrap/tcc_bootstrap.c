@@ -705,8 +705,9 @@ enum SYMS {
 };
 
 enum FUNCS {
-    FUNC_OLD = 2,
     FUNC_CDECL = 0,
+    FUNC_OLD = 2,
+    FUNC_ELLIPSIS = 3,
 };
 
 enum MISC {
@@ -8217,38 +8218,36 @@ static void unary(void) {
             gen_op('+');
             indir();
             skip(']');
-// LJW BOOKMARK2
         } else if (tok == '(') {
             SValue ret;
             Sym *sa;
             int nb_args, ret_nregs, ret_align, regsize, variadic;
-            if ((vtop->type.t & 0x000f) != 6) {
-                if ((vtop->type.t & (0x000f | 0x0040)) == 5) {
+            if ((vtop->type.t & VT_BTYPE) != VT_FUNC) {
+                if ((vtop->type.t & (VT_BTYPE | VT_ARRAY)) == VT_PTR) {
                     vtop->type = *pointed_type(&vtop->type);
-                    if ((vtop->type.t & 0x000f) != 6)
+                    if ((vtop->type.t & VT_BTYPE) != VT_FUNC)
                         goto error_func;
                 } else {
                 error_func:
                     expect("function pointer");
                 }
             } else {
-                vtop->r &= ~0x0100;
+                vtop->r &= ~VT_LVAL;
             }
             s = vtop->type.ref;
             next();
             sa = s->next;
             nb_args = regsize = 0;
-            ret.r2 = 0x0030;
-            if ((s->type.t & 0x000f) == 7) {
-                variadic = (s->f.func_type == 3);
+            ret.r2 = VT_CONST;
+            if ((s->type.t & VT_BTYPE) == VT_STRUCT) {
+                variadic = (s->f.func_type == FUNC_ELLIPSIS);
                 ret_nregs = gfunc_sret(&s->type, variadic, &ret.type,
                                        &ret_align, &regsize);
                 if (!ret_nregs) {
-                    size = type_size(&s->type, &align);
                     loc = (loc - size) & -align;
                     ret.type = s->type;
-                    ret.r = 0x0032 | 0x0100;
-                    vseti(0x0032, loc);
+                    ret.r = VT_LOCAL | VT_LVAL;
+                    vseti(VT_LOCAL, loc);
                     ret.c = vtop->c;
                     nb_args++;
                 }
@@ -8256,6 +8255,7 @@ static void unary(void) {
                 ret_nregs = 1;
                 ret.type = s->type;
             }
+// LJW BOOKMARK2
             if (ret_nregs) {
                 if (is_float(ret.type.t)) {
                     ret.r = reg_fret(ret.type.t);
