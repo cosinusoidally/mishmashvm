@@ -800,6 +800,10 @@ enum STBS {
     STB_GLOBAL = 1,
 };
 
+enum SHNS {
+    SHN_UNDEF = 0,
+};
+
 static int gnu_ext;
 static int tcc_ext;
 static struct TCCState *tcc_state;
@@ -1026,9 +1030,9 @@ static size_t section_add(Section *sec, Elf32_Addr size, int align);
 static void *section_ptr_add(Section *sec, Elf32_Addr size);
 static void section_reserve(Section *sec, unsigned long size);
 static Section *new_symtab(TCCState *s1, const char *symtab_name, int sh_type, int sh_flags, const char *strtab_name, const char *hash_name, int hash_sh_flags);
-// LJW BOOKMARK
 static void put_extern_sym2(Sym *sym, int sh_num, Elf32_Addr value, unsigned long size, int can_add_underscore);
 static void put_extern_sym(Sym *sym, Section *section, Elf32_Addr value, unsigned long size);
+// LJW BOOKMARK
 static void greloc(Section *s, Sym *sym, unsigned long offset, int type);
 static void greloca(Section *s, Sym *sym, unsigned long offset, int type, Elf32_Addr addend);
 static int put_elf_str(Section *s, const char *sym);
@@ -4373,7 +4377,8 @@ static void put_extern_sym2(Sym *sym, int sh_num,
 
 static void put_extern_sym(Sym *sym, Section *section,
                            Elf32_Addr value, unsigned long size) {
-    int sh_num = section ? section->sh_num : 0;
+// LJW DONE
+    int sh_num = section ? section->sh_num : SHN_UNDEF;
     put_extern_sym2(sym, sh_num, value, size, 1);
 }
 
