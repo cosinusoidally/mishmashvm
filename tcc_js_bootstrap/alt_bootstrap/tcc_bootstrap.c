@@ -1957,9 +1957,10 @@ static void tok_str_free(TokenString *str) {
     tal_free_impl(tokstr_alloc, str);
 }
 
-// LJW BOOKMARK
 static int *tok_str_realloc(TokenString *s, int new_size) {
-    int *str, size;
+// LJW DONE
+    int *str;
+    int size;
     size = s->allocated_len;
     if (size < 16)
         size = 16;
@@ -2007,6 +2008,7 @@ static void end_macro(void) {
     }
 }
 
+// LJW BOOKMARK
 static void tok_str_add2(TokenString *s, int t, CValue *cv) {
     int len, *str;
 
