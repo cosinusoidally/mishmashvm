@@ -8175,37 +8175,34 @@ static void unary(void) {
         }
         break;
     }
-// LJW BOOKMARK2
     while (1) {
-        if (tok == 0xa4 || tok == 0xa2) {
+        if (tok == TOK_INC || tok == TOK_DEC) {
             inc(1, tok);
             next();
-        } else if (tok == '.' || tok == 0xc7 || tok == 0xbc) {
+        } else if (tok == '.' || tok == TOK_ARROW || tok == TOK_CDOUBLE) {
             int qualifiers;
-            if (tok == 0xc7)
+            if (tok == TOK_ARROW)
                 indir();
-            qualifiers = vtop->type.t & (0x0100 | 0x0200);
+            qualifiers = vtop->type.t & (VT_CONSTANT | VT_VOLATILE);
             test_lvalue();
             gaddrof();
-            if ((vtop->type.t & 0x000f) != 7)
+            if ((vtop->type.t & VT_BTYPE) != VT_STRUCT)
                 expect("struct or union");
-            if (tok == 0xbc)
+            if (tok == TOK_CDOUBLE)
                 expect("field name");
             next();
-            if (tok == 0xb5 || tok == 0xb6)
+            if (tok == TOK_CINT || tok == TOK_CUINT)
                 expect("field name");
-	    s = find_field(&vtop->type, tok);
+            s = find_field(&vtop->type, tok);
             if (!s)
-                tcc_error("field not found: %s",  get_tok_str(tok & ~0x20000000, &tokc));
+                tcc_error("field not found: %s",  get_tok_str(tok & ~SYM_FIELD, &tokc));
             vtop->type = char_pointer_type;
             vpushi(s->c);
             gen_op('+');
             vtop->type = s->type;
             vtop->type.t |= qualifiers;
-            if (!(vtop->type.t & 0x0040)) {
+            if (!(vtop->type.t & VT_ARRAY)) {
                 vtop->r |= lvalue_type(vtop->type.t);
-                if (0 && (vtop->r & 0x003f) != 0x0032)
-                    vtop->r |= 0x0800;
             }
             next();
         } else if (tok == '[') {
@@ -8214,6 +8211,13 @@ static void unary(void) {
             gen_op('+');
             indir();
             skip(']');
+        } else if (tok == '[') {
+            next();
+            gexpr();
+            gen_op('+');
+            indir();
+            skip(']');
+// LJW BOOKMARK2
         } else if (tok == '(') {
             SValue ret;
             Sym *sa;
