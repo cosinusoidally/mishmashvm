@@ -4794,12 +4794,8 @@ static int get_reg(int rc) {
     return -1;
 }
 
-
-
-static void move_reg(int r, int s, int t)
-{
+static void move_reg(int r, int s, int t) {
     SValue sv;
-
     if (r != s) {
         save_reg(r);
         sv.type.t = t;
@@ -4810,7 +4806,6 @@ static void move_reg(int r, int s, int t)
     }
 }
 
-
 static void gaddrof(void) {
 // LJW DONE
     vtop->r &= ~VT_LVAL;
@@ -4818,8 +4813,7 @@ static void gaddrof(void) {
         vtop->r = (vtop->r & ~(VT_VALMASK | VT_LVAL_TYPE)) | VT_LOCAL | VT_LVAL;
 }
 
-static void incr_bf_adr(int o)
-{
+static void incr_bf_adr(int o) {
     vtop->type = char_pointer_type;
     gaddrof();
     vpushi(o);
@@ -4830,9 +4824,7 @@ static void incr_bf_adr(int o)
         | (0x1000|0x4000|0x0100);
 }
 
-
-static void load_packed_bf(CType *type, int bit_pos, int bit_size)
-{
+static void load_packed_bf(CType *type, int bit_pos, int bit_size) {
     int n, o, bits;
     save_reg_upstack(vtop->r, 1);
     vpush64(type->t & 0x000f, 0);
@@ -4863,11 +4855,8 @@ static void load_packed_bf(CType *type, int bit_pos, int bit_size)
     }
 }
 
-
-static void store_packed_bf(int bit_pos, int bit_size)
-{
+static void store_packed_bf(int bit_pos, int bit_size) {
     int bits, n, o, m, c;
-
     c = (vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
     vswap();
     save_reg_upstack(vtop->r, 1);
@@ -4899,8 +4888,7 @@ static void store_packed_bf(int bit_pos, int bit_size)
     vpop(), vpop();
 }
 
-static int adjust_bf(SValue *sv, int bit_pos, int bit_size)
-{
+static int adjust_bf(SValue *sv, int bit_pos, int bit_size) {
     int t;
     if (0 == sv->type.ref)
         return 0;
@@ -5022,7 +5010,6 @@ static int gv(int rc) {
     return r;
 }
 
-
 static void gv2(int rc1, int rc2) {
 // LJW DONE
     int v;
@@ -5049,34 +5036,15 @@ static void gv2(int rc1, int rc2) {
     }
 }
 
-
-
-static int rc_fret(int t)
-{
-
-
-
-
-
+static int rc_fret(int t) {
     return 0x0008;
 }
 
-
-
-static int reg_fret(int t)
-{
-
-
-
-
-
+static int reg_fret(int t) {
     return TREG_ST0;
 }
 
-
-
-static void lexpand(void)
-{
+static void lexpand(void) {
     int u, v;
     u = vtop->type.t & (0x0020 | 0x0010);
     v = vtop->r & (0x003f | 0x0100);
@@ -5094,24 +5062,18 @@ static void lexpand(void)
     }
     vtop[0].type.t = vtop[-1].type.t = 3 | u;
 }
-static void lbuild(int t)
-{
+
+static void lbuild(int t) {
     gv2(0x0001, 0x0001);
     vtop[-1].r2 = vtop[0].r;
     vtop[-1].type.t = t;
     vpop();
 }
 
-
-
-
-static void gv_dup(void)
-{
+static void gv_dup(void) {
     int rc, t, r, r1;
     SValue sv;
-
     t = vtop->type.t;
-
     if ((t & 0x000f) == 4) {
         if (t & 0x0080) {
             gv(0x0001);
@@ -5123,26 +5085,17 @@ static void gv_dup(void)
         vrotb(3);
         gv_dup();
         vrotb(4);
-
         lbuild(t);
         vrotb(3);
         vrotb(3);
         vswap();
         lbuild(t);
         vswap();
-    } else
-
-    {
-
+    } else {
         rc = 0x0001;
         sv.type.t = 3;
         if (is_float(t)) {
             rc = 0x0002;
-
-
-
-
-
             sv.type.t = t;
         }
         r = gv(rc);
@@ -5151,24 +5104,18 @@ static void gv_dup(void)
         sv.c.i = 0;
         load(r1, &sv);
         vdup();
-
         if (r != r1)
             vtop->r = r1;
     }
 }
 
-
-
-
-static int gvtst(int inv, int t)
-{
+static int gvtst(int inv, int t) {
     int v = vtop->r & 0x003f;
     if (v != 0x0033 && v != 0x0034 && v != 0x0035) {
         vpushi(0);
         gen_op(0x95);
     }
     if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
-
         if ((vtop->c.i != 0) != inv)
             t = gjmp(t);
         vtop--;
@@ -5177,10 +5124,7 @@ static int gvtst(int inv, int t)
     return gtst(inv, t);
 }
 
-
-
-static void gen_opl(int op)
-{
+static void gen_opl(int op) {
     int t, a, b, op1, c, i;
     int func;
     unsigned short reg_iret = TREG_EAX;
