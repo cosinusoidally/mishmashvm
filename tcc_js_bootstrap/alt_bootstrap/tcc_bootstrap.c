@@ -2617,8 +2617,8 @@ include_done:
     parse_flags = saved_parse_flags;
 }
 
-// LJW BOOKMARK
 static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long) {
+// LJW DONE
     int c, n;
     const uint8_t *p;
     p = buf;
@@ -2760,9 +2760,9 @@ static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long
 }
 
 static void parse_string(const char *s, int len) {
+// LJW DONE
     uint8_t buf[1000], *p = buf;
     int is_long, sep;
-
     if ((is_long = *s == 'L'))
         ++s, --len;
     sep = *s++;
@@ -2779,9 +2779,9 @@ static void parse_string(const char *s, int len) {
         int char_size, i, n, c;
 
         if (!is_long)
-            tok = 0xb3, char_size = 1;
+            tok = TOK_CCHAR, char_size = 1;
         else
-            tok = 0xb4, char_size = sizeof(nwchar_t);
+            tok = TOK_LCHAR, char_size = sizeof(nwchar_t);
         n = tokcstr.size / char_size - 1;
         if (n < 1)
             tcc_error("empty character constant");
@@ -2798,12 +2798,13 @@ static void parse_string(const char *s, int len) {
         tokc.str.size = tokcstr.size;
         tokc.str.data = tokcstr.data;
         if (!is_long)
-            tok = 0xb9;
+            tok = TOK_STR;
         else
-            tok = 0xba;
+            tok = TOK_LSTR;
     }
 }
 
+// LJW BOOKMARK
 static void bn_lshift(unsigned int *bn, int shift, int or_val) {
     int i;
     unsigned int v;
