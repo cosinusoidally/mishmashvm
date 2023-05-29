@@ -3703,9 +3703,8 @@ static int next_argstream(Sym **nested_list, TokenString *ws_str) {
     }
 }
 
-// LJW BOOKMARK
 static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
-
+// LJW DONE
     Sym *args, *sa, *sa1;
     int parlevel, t, t1, spc;
     TokenString str;
@@ -3835,6 +3834,7 @@ static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
 }
 
 static void macro_subst( TokenString *tok_str, Sym **nested_list, const int *macro_str) {
+// LJW DONE
     Sym *s;
     int t, spc, nosubst;
     CValue cval;
@@ -3843,12 +3843,12 @@ static void macro_subst( TokenString *tok_str, Sym **nested_list, const int *mac
         TOK_GET(&t, &macro_str, &cval);
         if (t <= 0)
             break;
-        if (t >= 256 && 0 == nosubst) {
+        if (t >= TOK_IDENT && 0 == nosubst) {
             s = define_find(t);
-            if (s == ((void*)0))
+            if (s == NULL)
                 goto no_subst;
             if (sym_find2(*nested_list, t)) {
-                tok_str_add2(tok_str, 0xcc, ((void*)0));
+                tok_str_add2(tok_str, TOK_NOSUBST, NULL);
                 goto no_subst;
             }
             TokenString str;
@@ -3864,7 +3864,7 @@ static void macro_subst( TokenString *tok_str, Sym **nested_list, const int *mac
             if (tok_str->len)
                 spc = is_space(t = tok_str->str[tok_str->lastlen]);
         } else {
-            if (t == '\\' && !(parse_flags & 0x0020))
+            if (t == '\\' && !(parse_flags & PARSE_FLAG_ACCEPT_STRAYS))
                 tcc_error("stray '\\' in program");
 no_subst:
             if (!check_space(t, &spc))
@@ -3875,7 +3875,7 @@ no_subst:
                     continue;
                 nosubst = 0;
             }
-            if (t == 0xcc)
+            if (t == TOK_NOSUBST)
                 nosubst = 1;
         }
         if (t == TOK_DEFINED && pp_expr)
@@ -3883,6 +3883,7 @@ no_subst:
     }
 }
 
+// LJW BOOKMARK
 static void next(void) {
 // LJW DONE
  redo:
