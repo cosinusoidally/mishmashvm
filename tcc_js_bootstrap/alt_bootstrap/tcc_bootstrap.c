@@ -4623,45 +4623,42 @@ static Sym *external_global_sym(int v, CType *type, int r) {
     return s;
 }
 
-// LJW BOOKMARK
 static void patch_type(Sym *sym, CType *type) {
-    if (!(type->t & 0x00001000)) {
-        if (!(sym->type.t & 0x00001000))
-            tcc_error("redefinition of '%s'", get_tok_str(sym->v, ((void*)0)));
-        sym->type.t &= ~0x00001000;
-    }
-    if ((((sym)->type.t & (0x000f | (0 | 0x0010))) == (0 | 0x0010))) {
-        sym->type.t = type->t & (sym->type.t | ~0x00002000);
-        sym->type.ref = type->ref;
+// LJW DONE
+    if (!(type->t & VT_EXTERN)) {
+        if (!(sym->type.t & VT_EXTERN))
+            tcc_error("redefinition of '%s'", get_tok_str(sym->v, NULL));
+        sym->type.t &= ~VT_EXTERN;
     }
     if (!is_compatible_types(&sym->type, type)) {
         tcc_error("incompatible types for redefinition of '%s'",
-                  get_tok_str(sym->v, ((void*)0)));
-    } else if ((sym->type.t & 0x000f) == 6) {
-        int static_proto = sym->type.t & 0x00002000;
-        if ((type->t & 0x00002000) && !static_proto && !(type->t & 0x00008000))
+                  get_tok_str(sym->v, NULL));
+    } else if ((sym->type.t & VT_BTYPE) == VT_FUNC) {
+        int static_proto = sym->type.t & VT_STATIC;
+        if ((type->t & VT_STATIC) && !static_proto && !(type->t & VT_INLINE))
             tcc_warning("static storage ignored for redefinition of '%s'",
-                get_tok_str(sym->v, ((void*)0)));
-        if (0 == (type->t & 0x00001000)) {
-            sym->type.t = (type->t & ~0x00002000) | static_proto;
-            if (type->t & 0x00008000)
+                get_tok_str(sym->v, NULL));
+        if (0 == (type->t & VT_EXTERN)) {
+            sym->type.t = (type->t & ~VT_STATIC) | static_proto;
+            if (type->t & VT_INLINE)
                 sym->type.t = type->t;
             sym->type.ref = type->ref;
         }
     } else {
-        if ((sym->type.t & 0x0040) && type->ref->c >= 0) {
+        if ((sym->type.t & VT_ARRAY) && type->ref->c >= 0) {
             if (sym->type.ref->c < 0)
                 sym->type.ref->c = type->ref->c;
             else if (sym->type.ref->c != type->ref->c)
-                tcc_error("conflicting type for '%s'", get_tok_str(sym->v, ((void*)0)));
+                tcc_error("conflicting type for '%s'", get_tok_str(sym->v, NULL));
         }
-        if ((type->t ^ sym->type.t) & 0x00002000)
+        if ((type->t ^ sym->type.t) & VT_STATIC)
             tcc_warning("storage mismatch for redefinition of '%s'",
-                get_tok_str(sym->v, ((void*)0)));
+                get_tok_str(sym->v, NULL));
     }
 }
 
 static void patch_storage(Sym *sym, AttributeDef *ad, CType *type) {
+// LJW DONE
     if (type) {
         patch_type(sym, type);
     }
@@ -4669,6 +4666,7 @@ static void patch_storage(Sym *sym, AttributeDef *ad, CType *type) {
     update_storage(sym);
 }
 
+// LJW BOOKMARK
 static Sym *external_sym(int v, CType *type, int r, AttributeDef *ad) {
     Sym *s;
     s = sym_find(v);
