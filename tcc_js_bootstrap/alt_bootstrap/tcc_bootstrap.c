@@ -4128,10 +4128,10 @@ static struct switch_t {
 } *cur_switch;
 static void gen_cast(CType *type);
 static void gen_cast_s(int t);
-// LJW BOOKMARK
 static inline CType *pointed_type(CType *type);
 static int is_compatible_types(CType *type1, CType *type2);
 static int parse_btype(CType *type, AttributeDef *ad);
+// LJW BOOKMARK
 static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td);
 static void parse_expr_type(CType *type);
 static void init_putv(CType *type, Section *sec, unsigned long c);
@@ -5959,8 +5959,8 @@ static int type_size(CType *type, int *a) {
     }
 }
 
-static inline CType *pointed_type(CType *type)
-{
+static inline CType *pointed_type(CType *type) {
+// LJW DONE
     return &type->ref->type;
 }
 
@@ -6043,14 +6043,10 @@ static int compare_types(CType *type1, CType *type2, int unqualified)
 }
 
 
-
-
-static int is_compatible_types(CType *type1, CType *type2)
-{
+static int is_compatible_types(CType *type1, CType *type2) {
+// LJW DONE
     return compare_types(type1,type2,0);
 }
-
-
 
 static int is_compatible_unqualified_types(CType *type1, CType *type2)
 {
@@ -6946,6 +6942,7 @@ static void parse_btype_qualify(CType *type, int qualifiers)
 
 
 static int parse_btype(CType *type, AttributeDef *ad) {
+// LJW DONE
     int t, u, bt, st, type_found, typespec_found, g;
     Sym *s;
     CType type1;
@@ -6954,7 +6951,7 @@ static int parse_btype(CType *type, AttributeDef *ad) {
     typespec_found = 0;
     t = 3;
     bt = st = -1;
-    type->ref = ((void*)0);
+    type->ref = NULL;
     while(1) {
         switch(tok) {
         case TOK_EXTENSION:
@@ -7064,8 +7061,6 @@ static int parse_btype(CType *type, AttributeDef *ad) {
             next();
             typespec_found = 1;
             break;
-
-
         case TOK_EXTERN:
             g = VT_EXTERN;
             goto storage;
@@ -7087,8 +7082,6 @@ static int parse_btype(CType *type, AttributeDef *ad) {
             t |= VT_INLINE;
             next();
             break;
-
-
         case TOK_ATTRIBUTE1:
         case TOK_ATTRIBUTE2:
             parse_attribute(ad);
@@ -7097,7 +7090,6 @@ static int parse_btype(CType *type, AttributeDef *ad) {
                 t = (t & ~(VT_BTYPE|VT_LONG)) | u;
             }
             break;
-
         case TOK_TYPEOF1:
         case TOK_TYPEOF2:
         case TOK_TYPEOF3:
@@ -7120,7 +7112,6 @@ static int parse_btype(CType *type, AttributeDef *ad) {
             if (t)
                 parse_btype_qualify(type, t);
             t = type->t;
-
             sym_to_attr(ad, s);
             next();
             typespec_found = 1;
