@@ -4146,8 +4146,8 @@ static void parse_expr_type(CType *type);
 static void init_putv(CType *type, Section *sec, unsigned long c);
 static void decl_initializer(CType *type, Section *sec, unsigned long c, int first, int size_only);
 static void block(int *bsym, int *csym, int is_expr);
-// LJW BOOKMARK
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r, int has_init, int v, int scope);
+// LJW BOOKMARK
 static void decl(int l);
 static int decl0(int l, int is_for_loop_init, Sym *);
 static void expr_eq(void);
@@ -9334,7 +9334,7 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
 
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
                                    int has_init, int v, int scope) {
-
+// LJW DONE
     int size, align, addr;
     TokenString *init_str = ((void*)0);
     Section *sec;
@@ -9403,7 +9403,7 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
             vset(type, r, addr);
         }
     } else {
-        if (v && scope == 0x0030) {
+        if (v && scope == VT_CONST) {
             sym = sym_find(v);
             if (sym) {
                 patch_storage(sym, ad, type);
@@ -9418,16 +9418,14 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
         }
         if (sec) {
 	    addr = section_add(sec, size, align);
-            if (bcheck)
-                section_add(sec, 1, 1);
         } else {
             addr = align;
 	    sec = common_section;
         }
         if (v) {
             if (!sym) {
-                sym = sym_push(v, type, r | 0x0200, 0);
-                patch_storage(sym, ad, ((void*)0));
+                sym = sym_push(v, type, r | VT_SYM, 0);
+                patch_storage(sym, ad, NULL);
             }
             sym->sym_scope = 0;
 	    put_extern_sym(sym, sec, addr, size);
@@ -9455,8 +9453,6 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
     }
     nocode_wanted = saved_nocode_wanted;
 }
-
-
 
 static void gen_function(Sym *sym)
 {
