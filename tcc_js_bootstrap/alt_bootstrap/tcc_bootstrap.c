@@ -5325,23 +5325,24 @@ static int gen_opic_lt(uint64_t a, uint64_t b) {
     return (a ^ (uint64_t)1 << 63) < (b ^ (uint64_t)1 << 63);
 }
 
-// LJW BOOKMARK
 static void gen_opic(int op) {
+// LJW DONE
     SValue *v1 = vtop - 1;
     SValue *v2 = vtop;
-    int t1 = v1->type.t & 0x000f;
-    int t2 = v2->type.t & 0x000f;
-    int c1 = (v1->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
-    int c2 = (v2->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
+    int t1 = v1->type.t & VT_BTYPE;
+    int t2 = v2->type.t & VT_BTYPE;
+    int c1 = (v1->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST;
+    int c2 = (v2->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST;
     uint64_t l1 = c1 ? v1->c.i : 0;
     uint64_t l2 = c2 ? v2->c.i : 0;
-    int shm = (t1 == 4) ? 63 : 31;
-    if (t1 != 4 && (4 != 8 || t1 != 5))
+    int shm = (t1 == VT_LLONG) ? 63 : 31;
+    if (t1 != VT_LLONG && (PTR_SIZE != 8 || t1 != VT_PTR))
         l1 = ((uint32_t)l1 |
-              (v1->type.t & 0x0010 ? 0 : -(l1 & 0x80000000)));
-    if (t2 != 4 && (4 != 8 || t2 != 5))
+              (v1->type.t & VT_UNSIGNED ? 0 : -(l1 & 0x80000000)));
+    if (t2 != VT_LLONG && (PTR_SIZE != 8 || t2 != VT_PTR))
         l2 = ((uint32_t)l2 |
-              (v2->type.t & 0x0010 ? 0 : -(l2 & 0x80000000)));
+              (v2->type.t & VT_UNSIGNED ? 0 : -(l2 & 0x80000000)));
+
     if (c1 && c2) {
         switch(op) {
         case '+': l1 += l2; break;
@@ -5350,11 +5351,11 @@ static void gen_opic(int op) {
         case '^': l1 ^= l2; break;
         case '|': l1 |= l2; break;
         case '*': l1 *= l2; break;
-        case 0xb2:
+        case TOK_PDIV:
         case '/':
         case '%':
-        case 0xb0:
-        case 0xb1:
+        case TOK_UDIV:
+        case TOK_UMOD:
             if (l2 == 0) {
                 if (const_wanted)
                     tcc_error("division by zero in constant");
@@ -5363,33 +5364,33 @@ static void gen_opic(int op) {
             switch(op) {
             default: l1 = gen_opic_sdiv(l1, l2); break;
             case '%': l1 = l1 - l2 * gen_opic_sdiv(l1, l2); break;
-            case 0xb0: l1 = l1 / l2; break;
-            case 0xb1: l1 = l1 % l2; break;
+            case TOK_UDIV: l1 = l1 / l2; break;
+            case TOK_UMOD: l1 = l1 % l2; break;
             }
             break;
-        case 0x01: l1 <<= (l2 & shm); break;
-        case 0xc9: l1 >>= (l2 & shm); break;
-        case 0x02:
+        case TOK_SHL: l1 <<= (l2 & shm); break;
+        case TOK_SHR: l1 >>= (l2 & shm); break;
+        case TOK_SAR:
             l1 = (l1 >> 63) ? ~(~l1 >> (l2 & shm)) : l1 >> (l2 & shm);
             break;
-        case 0x92: l1 = l1 < l2; break;
-        case 0x93: l1 = l1 >= l2; break;
-        case 0x94: l1 = l1 == l2; break;
-        case 0x95: l1 = l1 != l2; break;
-        case 0x96: l1 = l1 <= l2; break;
-        case 0x97: l1 = l1 > l2; break;
-        case 0x9c: l1 = gen_opic_lt(l1, l2); break;
-        case 0x9d: l1 = !gen_opic_lt(l1, l2); break;
-        case 0x9e: l1 = !gen_opic_lt(l2, l1); break;
-        case 0x9f: l1 = gen_opic_lt(l2, l1); break;
-        case 0xa0: l1 = l1 && l2; break;
-        case 0xa1: l1 = l1 || l2; break;
+        case TOK_ULT: l1 = l1 < l2; break;
+        case TOK_UGE: l1 = l1 >= l2; break;
+        case TOK_EQ: l1 = l1 == l2; break;
+        case TOK_NE: l1 = l1 != l2; break;
+        case TOK_ULE: l1 = l1 <= l2; break;
+        case TOK_UGT: l1 = l1 > l2; break;
+        case TOK_LT: l1 = gen_opic_lt(l1, l2); break;
+        case TOK_GE: l1 = !gen_opic_lt(l1, l2); break;
+        case TOK_LE: l1 = !gen_opic_lt(l2, l1); break;
+        case TOK_GT: l1 = gen_opic_lt(l2, l1); break;
+        case TOK_LAND: l1 = l1 && l2; break;
+        case TOK_LOR: l1 = l1 || l2; break;
         default:
             goto general_case;
         }
-	if (t1 != 4 && (4 != 8 || t1 != 5))
-	    l1 = ((uint32_t)l1 |
-		(v1->type.t & 0x0010 ? 0 : -(l1 & 0x80000000)));
+        if (t1 != VT_LLONG && (PTR_SIZE != 8 || t1 != VT_PTR))
+            l1 = ((uint32_t)l1 |
+                (v1->type.t & VT_UNSIGNED ? 0 : -(l1 & 0x80000000)));
         v1->c.i = l1;
         vtop--;
     } else {
@@ -5401,28 +5402,29 @@ static void gen_opic(int op) {
         }
         if (!const_wanted &&
             c1 && ((l1 == 0 &&
-                    (op == 0x01 || op == 0xc9 || op == 0x02)) ||
-                   (l1 == -1 && op == 0x02))) {
+                    (op == TOK_SHL || op == TOK_SHR || op == TOK_SAR)) ||
+                   (l1 == -1 && op == TOK_SAR))) {
             vtop--;
         } else if (!const_wanted &&
                    c2 && ((l2 == 0 && (op == '&' || op == '*')) ||
                           (op == '|' &&
-                            (l2 == -1 || (l2 == 0xFFFFFFFF && t2 != 4))) ||
-                          (l2 == 1 && (op == '%' || op == 0xb1)))) {
+                            (l2 == -1 || (l2 == 0xFFFFFFFF && t2 != VT_LLONG))) ||
+                          (l2 == 1 && (op == '%' || op == TOK_UMOD)))) {
+            /* treat (x & 0), (x * 0), (x | -1) and (x % 1) as constant */
             if (l2 == 1)
                 vtop->c.i = 0;
             vswap();
             vtop--;
-        } else if (c2 && (((op == '*' || op == '/' || op == 0xb0 ||
-                          op == 0xb2) &&
+        } else if (c2 && (((op == '*' || op == '/' || op == TOK_UDIV ||
+                          op == TOK_PDIV) &&
                            l2 == 1) ||
                           ((op == '+' || op == '-' || op == '|' || op == '^' ||
-                            op == 0x01 || op == 0xc9 || op == 0x02) &&
+                            op == TOK_SHL || op == TOK_SHR || op == TOK_SAR) &&
                            l2 == 0) ||
                           (op == '&' &&
-                            (l2 == -1 || (l2 == 0xFFFFFFFF && t2 != 4))))) {
+                            (l2 == -1 || (l2 == 0xFFFFFFFF && t2 != VT_LLONG))))) {
             vtop--;
-        } else if (c2 && (op == '*' || op == 0xb2 || op == 0xb0)) {
+        } else if (c2 && (op == '*' || op == TOK_PDIV || op == TOK_UDIV)) {
             if (l2 > 0 && (l2 & (l2 - 1)) == 0) {
                 int n = -1;
                 while (l2) {
@@ -5431,27 +5433,27 @@ static void gen_opic(int op) {
                 }
                 vtop->c.i = n;
                 if (op == '*')
-                    op = 0x01;
-                else if (op == 0xb2)
-                    op = 0x02;
+                    op = TOK_SHL;
+                else if (op == TOK_PDIV)
+                    op = TOK_SAR;
                 else
-                    op = 0xc9;
+                    op = TOK_SHR;
             }
             goto general_case;
         } else if (c2 && (op == '+' || op == '-') &&
-                   (((vtop[-1].r & (0x003f | 0x0100 | 0x0200)) == (0x0030 | 0x0200))
-                    || (vtop[-1].r & (0x003f | 0x0100)) == 0x0032)) {
+                   (((vtop[-1].r & (VT_VALMASK | VT_LVAL | VT_SYM)) == (VT_CONST | VT_SYM))
+                    || (vtop[-1].r & (VT_VALMASK | VT_LVAL)) == VT_LOCAL)) {
             if (op == '-')
                 l2 = -l2;
-	    l2 += vtop[-1].c.i;
-	    if ((int)l2 != l2)
-	        goto general_case;
+            l2 += vtop[-1].c.i;
+            if ((int)l2 != l2)
+                goto general_case;
             vtop--;
             vtop->c.i = l2;
         } else {
         general_case:
-                if (t1 == 4 || t2 == 4 ||
-                    (4 == 8 && (t1 == 5 || t2 == 5)))
+                if (t1 == VT_LLONG || t2 == VT_LLONG ||
+                    (PTR_SIZE == 8 && (t1 == VT_PTR || t2 == VT_PTR)))
                     gen_opl(op);
                 else
                     gen_opi(op);
@@ -5459,6 +5461,7 @@ static void gen_opic(int op) {
     }
 }
 
+// LJW BOOKMARK
 static void gen_opif(int op) {
     int c1, c2;
     SValue *v1, *v2;
