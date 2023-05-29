@@ -9113,17 +9113,17 @@ static void init_putv(CType *type, Section *sec, unsigned long c) {
     void *ptr;
     CType dtype;
     dtype = *type;
-    dtype.t &= ~0x0100;
+    dtype.t &= ~VT_CONSTANT;
     if (sec) {
 	int size, align;
         gen_assign_cast(&dtype);
-        bt = type->t & 0x000f;
-        if ((vtop->r & 0x0200)
-            && bt != 5
-            && bt != 6
-            && (bt != (4 == 8 ? 4 : 3)
-                || (type->t & 0x0080))
-            && !((vtop->r & 0x0030) && vtop->sym->v >= 0x10000000)
+        bt = type->t & VT_BTYPE;
+        if ((vtop->r & VT_SYM)
+            && bt != VT_PTR
+            && bt != VT_FUNC
+            && (bt != (PTR_SIZE == 8 ? VT_LLONG : VT_INT)
+                || (type->t & VT_BITFIELD))
+            && !((vtop->r & VT_CONST) && vtop->sym->v >= SYM_FIRST_ANOM)
             )
             tcc_error("initializer element is not computable at load time");
         if ((nocode_wanted > 0)) {
@@ -9133,9 +9133,9 @@ static void init_putv(CType *type, Section *sec, unsigned long c) {
 	size = type_size(type, &align);
 	section_reserve(sec, c + size);
         ptr = sec->data + c;
-	if ((vtop->r & (0x0200|0x0030)) == (0x0200|0x0030) &&
-	    vtop->sym->v >= 0x10000000 &&
-	    (vtop->type.t & 0x000f) != 5) {
+        if ((vtop->r & (VT_SYM|VT_CONST)) == (VT_SYM|VT_CONST) &&
+            vtop->sym->v >= SYM_FIRST_ANOM &&
+            (vtop->type.t & VT_BTYPE) != VT_PTR) {
 	    Section *ssec;
 	    Elf32_Sym *esym;
 	    Elf32_Rel *rel;
