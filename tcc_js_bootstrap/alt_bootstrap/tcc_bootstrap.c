@@ -7886,9 +7886,8 @@ static void expr_cmpeq(void) {
     }
 }
 
-// LJW BOOKMARK
-static void expr_and(void)
-{
+static void expr_and(void) {
+// LJW DONE
     expr_cmpeq();
     while (tok == '&') {
         next();
@@ -7897,8 +7896,8 @@ static void expr_and(void)
     }
 }
 
-static void expr_xor(void)
-{
+static void expr_xor(void) {
+// LJW DONE
     expr_and();
     while (tok == '^') {
         next();
@@ -7907,8 +7906,8 @@ static void expr_xor(void)
     }
 }
 
-static void expr_or(void)
-{
+static void expr_or(void) {
+// LJW DONE
     expr_xor();
     while (tok == '|') {
         next();
@@ -7917,49 +7916,50 @@ static void expr_or(void)
     }
 }
 
-static void expr_land(void)
-{
+static void expr_land(void) {
+// LJW DONE
     expr_or();
-    if (tok == 0xa0) {
-	int t = 0;
-	for(;;) {
-	    if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
-                gen_cast_s(11);
-		if (vtop->c.i) {
-		    vpop();
-		} else {
-		    nocode_wanted++;
-		    while (tok == 0xa0) {
-			next();
-			expr_or();
-			vpop();
-		    }
-		    nocode_wanted--;
-		    if (t)
-		      gsym(t);
-		    gen_cast_s(3);
-		    break;
-		}
-	    } else {
-		if (!t)
-		  save_regs(1);
-		t = gvtst(1, t);
-	    }
-	    if (tok != 0xa0) {
-		if (t)
-		  vseti(0x0035, t);
-		else
-		  vpushi(1);
-		break;
-	    }
-	    next();
-	    expr_or();
-	}
+    if (tok == TOK_LAND) {
+        int t = 0;
+        for(;;) {
+            if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
+                gen_cast_s(VT_BOOL);
+                if (vtop->c.i) {
+                    vpop();
+                } else {
+                    nocode_wanted++;
+                    while (tok == TOK_LAND) {
+                        next();
+                        expr_or();
+                        vpop();
+                    }
+                    nocode_wanted--;
+                    if (t)
+                      gsym(t);
+                    gen_cast_s(VT_INT);
+                    break;
+                }
+            } else {
+                if (!t)
+                  save_regs(1);
+                t = gvtst(1, t);
+            }
+            if (tok != TOK_LAND) {
+                if (t)
+                  vseti(VT_JMPI, t);
+                else
+                  vpushi(1);
+                break;
+            }
+            next();
+            expr_or();
+        }
     }
 }
 
-static void expr_lor(void)
-{
+// LJW BOOKMARK
+static void expr_lor(void) {
+
     expr_land();
     if (tok == 0xa1) {
 	int t = 0;
