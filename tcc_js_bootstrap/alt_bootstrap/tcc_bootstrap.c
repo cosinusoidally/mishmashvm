@@ -4453,7 +4453,6 @@ static void sym_pop(Sym **ptop, Sym *b, int keep) {
 	*ptop = b;
 }
 
-// LJW BOOKMARK
 static void vsetc(CType *type, int r, CValue *vc) {
 // LJW DONE
     int v;
@@ -4512,12 +4511,13 @@ static void vpushi(int v) {
     vsetc(&int_type, VT_CONST, &cval);
 }
 
+// LJW BOOKMARK
 static void vpushs(Elf32_Addr v) {
+// LJW DONE
   CValue cval;
   cval.i = v;
-  vsetc(&size_type, 0x0030, &cval);
+  vsetc(&size_type, VT_CONST, &cval);
 }
-
 
 static void vpush64(int ty, unsigned long long v) {
 // LJW DONE
