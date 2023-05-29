@@ -7258,8 +7258,8 @@ static void parse_type(CType *type) {
     type_decl(type, &ad, &n, TYPE_ABSTRACT);
 }
 
-// LJW BOOKMARK
 static void parse_builtin_params(int nc, const char *args) {
+// LJW DONE
     char c, sep = '(';
     CType t;
     if (nc)
@@ -7280,6 +7280,7 @@ static void parse_builtin_params(int nc, const char *args) {
 }
 
 int IS_ENUM_VAL(t) {
+// LJW DONE
     return ((t & VT_STRUCT_MASK) == VT_ENUM_VAL);
 }
 
@@ -7848,12 +7849,11 @@ static void expr_sum(void) {
     }
 }
 
-static void expr_shift(void)
-{
+static void expr_shift(void) {
+// LJW DONE
     int t;
-
     expr_sum();
-    while (tok == 0x01 || tok == 0x02) {
+    while (tok == TOK_SHL || tok == TOK_SAR) {
         t = tok;
         next();
         expr_sum();
@@ -7861,10 +7861,10 @@ static void expr_shift(void)
     }
 }
 
-static void expr_cmp(void)
-{
-    int t;
+// LJW BOOKMARK
+static void expr_cmp(void) {
 
+    int t;
     expr_shift();
     while ((tok >= 0x96 && tok <= 0x9f) ||
            tok == 0x92 || tok == 0x93) {
