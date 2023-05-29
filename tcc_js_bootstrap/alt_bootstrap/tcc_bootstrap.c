@@ -5124,9 +5124,8 @@ static int gvtst(int inv, int t) {
     return gtst(inv, t);
 }
 
-// LJW BOOKMARK
 static void gen_opl(int op) {
-
+// LJW DONE
     int t, a, b, op1, c, i;
     int func;
     unsigned short reg_iret = TREG_EAX;
@@ -5175,7 +5174,7 @@ static void gen_opl(int op) {
         if (op == '*') {
             vpushv(vtop - 1);
             vpushv(vtop - 1);
-            gen_op(0xc2);
+            gen_op(TOK_UMULL);
             lexpand();
             for(i=0;i<4;i++)
                 vrotb(6);
@@ -5190,9 +5189,9 @@ static void gen_opl(int op) {
             gen_op('+');
         } else if (op == '+' || op == '-') {
             if (op == '+')
-                op1 = 0xc3;
+                op1 = TOK_ADDC1;
             else
-                op1 = 0xc5;
+                op1 = TOK_SUBC1;
             gen_op(op1);
             vrotb(3);
             vrotb(3);
@@ -5205,17 +5204,17 @@ static void gen_opl(int op) {
         }
         lbuild(t);
         break;
-    case 0x02:
-    case 0xc9:
-    case 0x01:
-        if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
+    case TOK_SAR:
+    case TOK_SHR:
+    case TOK_SHL:
+        if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
             t = vtop[-1].type.t;
             vswap();
             lexpand();
             vrotb(3);
             c = (int)vtop->c.i;
             vpop();
-            if (op != 0x01)
+            if (op != TOK_SHL)
                 vswap();
             if (c >= 32) {
                 vpop();
@@ -5223,12 +5222,12 @@ static void gen_opl(int op) {
                     vpushi(c - 32);
                     gen_op(op);
                 }
-                if (op != 0x02) {
+                if (op != TOK_SAR) {
                     vpushi(0);
                 } else {
                     gv_dup();
                     vpushi(31);
-                    gen_op(0x02);
+                    gen_op(TOK_SAR);
                 }
                 vswap();
             } else {
@@ -5238,17 +5237,16 @@ static void gen_opl(int op) {
                 gen_op(op);
                 vswap();
                 vpushi(32 - c);
-                if (op == 0x01)
-                    gen_op(0xc9);
+                if (op == TOK_SHL)
+                    gen_op(TOK_SHR);
                 else
-                    gen_op(0x01);
+                    gen_op(TOK_SHL);
                 vrotb(3);
-
                 vpushi(c);
-                if (op == 0x01)
-                    gen_op(0x01);
+                if (op == TOK_SHL)
+                    gen_op(TOK_SHL);
                 else
-                    gen_op(0xc9);
+                    gen_op(TOK_SHR);
                 gen_op('|');
             }
             if (op != 0x01)
@@ -5256,13 +5254,13 @@ static void gen_opl(int op) {
             lbuild(t);
         } else {
             switch(op) {
-            case 0x02:
+            case TOK_SAR:
                 func = TOK___ashrdi3;
                 goto gen_func;
-            case 0xc9:
+            case TOK_SHR:
                 func = TOK___lshrdi3;
                 goto gen_func;
-            case 0x01:
+            case TOK_SHL:
                 func = TOK___ashldi3;
                 goto gen_func;
             }
@@ -5278,44 +5276,45 @@ static void gen_opl(int op) {
         vtop[-1] = vtop[-2];
         vtop[-2] = tmp;
         op1 = op;
-        if (op1 == 0x9c)
-            op1 = 0x9e;
-        else if (op1 == 0x9f)
-            op1 = 0x9d;
-        else if (op1 == 0x92)
-            op1 = 0x96;
-        else if (op1 == 0x97)
-            op1 = 0x93;
+        if (op1 == TOK_LT)
+            op1 = TOK_LE;
+        else if (op1 == TOK_GT)
+            op1 = TOK_GE;
+        else if (op1 == TOK_ULT)
+            op1 = TOK_ULE;
+        else if (op1 == TOK_UGT)
+            op1 = TOK_UGE;
         a = 0;
         b = 0;
         gen_op(op1);
-        if (op == 0x95) {
+        if (op == TOK_NE) {
             b = gvtst(0, 0);
         } else {
             a = gvtst(1, 0);
-            if (op != 0x94) {
-                vpushi(0x95);
-                vtop->r = 0x0033;
+            if (op != TOK_EQ) {
+                vpushi(TOK_NE);
+                vtop->r = VT_CMP;
                 b = gvtst(0, 0);
             }
         }
         op1 = op;
-        if (op1 == 0x9c)
-            op1 = 0x92;
-        else if (op1 == 0x9e)
-            op1 = 0x96;
-        else if (op1 == 0x9f)
-            op1 = 0x97;
-        else if (op1 == 0x9d)
-            op1 = 0x93;
+        if (op1 == TOK_LT)
+            op1 = TOK_ULT;
+        else if (op1 == TOK_LE)
+            op1 = TOK_ULE;
+        else if (op1 == TOK_GT)
+            op1 = TOK_UGT;
+        else if (op1 == TOK_GE)
+            op1 = TOK_UGE;
         gen_op(op1);
         a = gvtst(1, a);
         gsym(b);
-        vseti(0x0035, a);
+        vseti(VT_JMPI, a);
         break;
     }
 }
 
+// LJW BOOKMARK
 static uint64_t gen_opic_sdiv(uint64_t a, uint64_t b) {
     uint64_t x = (a >> 63 ? -a : a) / (b >> 63 ? -b : b);
     return (a ^ b) >> 63 ? -x : x;
