@@ -8227,17 +8227,13 @@ static void gfunc_return(CType *func_type) {
         ret_nregs = gfunc_sret(func_type, func_var, &ret_type,
                                &ret_align, &regsize);
         if (0 == ret_nregs) {
-
-
             type = *func_type;
             mk_pointer(&type);
             vset(&type, 0x0032 | 0x0100, func_vc);
             indir();
             vswap();
-
             vstore();
         } else {
-
             int r, size, addr, align;
             size = type_size(func_type,&align);
             if ((vtop->r != (0x0032 | 0x0100) ||
@@ -8257,7 +8253,6 @@ static void gfunc_return(CType *func_type) {
                 r = rc_fret(ret_type.t);
             else
                 r = 0x0004;
-
             if (ret_nregs == 1)
                 gv(r);
             else {
@@ -8267,9 +8262,6 @@ static void gfunc_return(CType *func_type) {
                     vpop();
                     if (--ret_nregs == 0)
                       break;
-
-
-
                     r <<= 1;
                     vtop->c.i += regsize;
                 }
