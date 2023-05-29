@@ -4147,8 +4147,8 @@ static void init_putv(CType *type, Section *sec, unsigned long c);
 static void decl_initializer(CType *type, Section *sec, unsigned long c, int first, int size_only);
 static void block(int *bsym, int *csym, int is_expr);
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r, int has_init, int v, int scope);
-// LJW BOOKMARK
 static void decl(int l);
+// LJW BOOKMARK
 static int decl0(int l, int is_for_loop_init, Sym *);
 static void expr_eq(void);
 static int is_compatible_unqualified_types(CType *type1, CType *type2);
@@ -9700,7 +9700,8 @@ found:
 }
 
 static void decl(int l) {
-    decl0(l, 0, ((void*)0));
+// LJW DONE
+    decl0(l, 0, NULL);
 }
 
 static Section *text_section, *data_section, *bss_section;
