@@ -4132,8 +4132,8 @@ static inline CType *pointed_type(CType *type);
 static int is_compatible_types(CType *type1, CType *type2);
 static int parse_btype(CType *type, AttributeDef *ad);
 static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td);
-// LJW BOOKMARK
 static void parse_expr_type(CType *type);
+// LJW BOOKMARK
 static void init_putv(CType *type, Section *sec, unsigned long c);
 static void decl_initializer(CType *type, Section *sec, unsigned long c, int first, int size_only);
 static void block(int *bsym, int *csym, int is_expr);
@@ -7406,16 +7406,13 @@ static void expr_type(CType *type, void (*expr_fn)(void))
     nocode_wanted--;
 }
 
-
-
-static void parse_expr_type(CType *type)
-{
+static void parse_expr_type(CType *type) {
+// LJW DONE
     int n;
     AttributeDef ad;
-
     skip('(');
     if (parse_btype(type, &ad)) {
-        type_decl(type, &ad, &n, 1);
+        type_decl(type, &ad, &n, TYPE_ABSTRACT);
     } else {
         expr_type(type, gexpr);
     }
