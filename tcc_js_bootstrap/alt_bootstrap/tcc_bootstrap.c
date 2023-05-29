@@ -6400,19 +6400,19 @@ static Sym * find_field (CType *type, int v) {
     return s;
 }
 
-// LJW BOOKMARK
 static void struct_add_offset (Sym *s, int offset) {
-
-    while ((s = s->next) != ((void*)0)) {
-	if ((s->v & 0x20000000) &&
-	    (s->type.t & 0x000f) == 7 &&
-	    (s->v & ~0x20000000) >= 0x10000000) {
-	    struct_add_offset(s->type.ref, offset);
-	} else
-	  s->c += offset;
+// LJW DONE
+    while ((s = s->next) != NULL) {
+        if ((s->v & SYM_FIELD) &&
+            (s->type.t & VT_BTYPE) == VT_STRUCT &&
+            (s->v & ~SYM_FIELD) >= SYM_FIRST_ANOM) {
+            struct_add_offset(s->type.ref, offset);
+        } else
+          s->c += offset;
     }
 }
 
+// LJW BOOKMARK
 static void struct_layout(CType *type, AttributeDef *ad)
 {
     int size, align, maxalign, offset, c, bit_pos, bit_size;
