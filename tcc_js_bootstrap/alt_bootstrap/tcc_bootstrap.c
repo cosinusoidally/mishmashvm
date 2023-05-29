@@ -9625,7 +9625,6 @@ static unsigned long elf_hash(const unsigned char *name) {
     return h;
 }
 
-// LJW BOOKMARK
 static void rebuild_hash(Section *s, unsigned int nb_buckets) {
 // LJW DONE
     Elf32_Sym *sym;
@@ -9839,6 +9838,7 @@ static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset) {
 }
 
 static void sort_syms(TCCState *s1, Section *s) {
+// LJW DONE
     int *old_to_new_syms;
     Elf32_Sym *new_syms;
     int nb_syms, i;
@@ -9852,7 +9852,7 @@ static void sort_syms(TCCState *s1, Section *s) {
     p = (Elf32_Sym *)s->data;
     q = new_syms;
     for(i = 0; i < nb_syms; i++) {
-        if ((((unsigned char) (p->st_info)) >> 4) == 0) {
+        if ((((unsigned char) (p->st_info)) >> 4) == STB_LOCAL) {
             old_to_new_syms[i] = q - new_syms;
             *q++ = *p;
         }
@@ -9862,7 +9862,7 @@ static void sort_syms(TCCState *s1, Section *s) {
         s->sh_info = q - new_syms;
     p = (Elf32_Sym *)s->data;
     for(i = 0; i < nb_syms; i++) {
-        if ((((unsigned char) (p->st_info)) >> 4) != 0) {
+        if ((((unsigned char) (p->st_info)) >> 4) != STB_LOCAL) {
             old_to_new_syms[i] = q - new_syms;
             *q++ = *p;
         }
@@ -9884,7 +9884,9 @@ static void sort_syms(TCCState *s1, Section *s) {
     tcc_free(old_to_new_syms);
 }
 
+// LJW BOOKMARK
 static int alloc_sec_names(TCCState *s1, int file_type, Section *strsec) {
+
     int i;
     Section *s;
     int textrel = 0;
