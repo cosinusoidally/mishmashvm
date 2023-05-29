@@ -8719,7 +8719,6 @@ static void init_putz(Section *sec, unsigned long c, int size) {
 // LJW BOOKMARK
 static int decl_designator(CType *type, Section *sec, unsigned long c,
                            Sym **cur_field, int size_only, int al) {
-
     Sym *s, *f;
     int index, index_last, align, l, nb_elems, elem_size;
     unsigned long corig = c;
@@ -8728,24 +8727,24 @@ static int decl_designator(CType *type, Section *sec, unsigned long c,
     nb_elems = 1;
     if (gnu_ext && (l = is_label()) != 0)
         goto struct_field;
-
+    /* NOTE: we only support ranges for last designator */
     while (nb_elems == 1 && (tok == '[' || tok == '.')) {
         if (tok == '[') {
-            if (!(type->t & 0x0040))
+            if (!(type->t & VT_ARRAY))
                 expect("array type");
             next();
             index = index_last = expr_const();
-            if (tok == 0xc8 && gnu_ext) {
+            if (tok == TOK_DOTS && gnu_ext) {
                 next();
                 index_last = expr_const();
             }
             skip(']');
             s = type->ref;
-	    if (index < 0 || (s->c >= 0 && index_last >= s->c) ||
-		index_last < index)
-	        tcc_error("invalid index");
+            if (index < 0 || (s->c >= 0 && index_last >= s->c) ||
+                index_last < index)
+                tcc_error("invalid index");
             if (cur_field)
-		(*cur_field)->c = index_last;
+                (*cur_field)->c = index_last;
             type = pointed_type(type);
             elem_size = type_size(type, &align);
             c += index * elem_size;
@@ -8755,42 +8754,42 @@ static int decl_designator(CType *type, Section *sec, unsigned long c,
             l = tok;
         struct_field:
             next();
-            if ((type->t & 0x000f) != 7)
+            if ((type->t & VT_BTYPE) != VT_STRUCT)
                 expect("struct/union type");
-	    f = find_field(type, l);
+            f = find_field(type, l);
             if (!f)
                 expect("field");
             if (cur_field)
                 *cur_field = f;
-	    type = &f->type;
+            type = &f->type;
             c += f->c;
         }
-        cur_field = ((void*)0);
+        cur_field = NULL;
     }
     if (!cur_field) {
         if (tok == '=') {
             next();
         } else if (!gnu_ext) {
-	    expect("=");
+            expect("=");
         }
     } else {
-        if (type->t & 0x0040) {
-	    index = (*cur_field)->c;
-	    if (type->ref->c >= 0 && index >= type->ref->c)
-	        tcc_error("index too large");
+        if (type->t & VT_ARRAY) {
+            index = (*cur_field)->c;
+            if (type->ref->c >= 0 && index >= type->ref->c)
+                tcc_error("index too large");
             type = pointed_type(type);
             c += index * type_size(type, &align);
         } else {
             f = *cur_field;
-	    while (f && (f->v & 0x10000000) && (f->type.t & 0x0080))
-	        *cur_field = f = f->next;
+            while (f && (f->v & SYM_FIRST_ANOM) && (f->type.t & VT_BITFIELD))
+                *cur_field = f = f->next;
             if (!f)
                 tcc_error("too many field init");
 	    type = &f->type;
             c += f->c;
         }
     }
-
+// LJW BOOKMARK2
 
     if (!size_only && c - corig > al)
 	init_putz(sec, corig + al, c - corig - al);
