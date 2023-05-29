@@ -6357,9 +6357,8 @@ static void inc(int post, int c) {
         vpop();
 }
 
-// LJW BOOKMARK
-static int exact_log2p1(int i)
-{
+static int exact_log2p1(int i) {
+// LJW DONE
   int ret;
   if (!i)
     return 0;
@@ -6375,14 +6374,15 @@ static int exact_log2p1(int i)
 }
 
 static void parse_attribute(AttributeDef *ad) {
+// LJW DONE
     int t, n;
     CString astr;
-
 redo:
     if (tok != TOK_ATTRIBUTE1 && tok != TOK_ATTRIBUTE2)
         return;
 }
 
+// LJW BOOKMARK
 static Sym * find_field (CType *type, int v)
 {
     Sym *s = type->ref;
