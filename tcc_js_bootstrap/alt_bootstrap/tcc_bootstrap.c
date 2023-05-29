@@ -3394,9 +3394,8 @@ maybe_newline:
     p=PARSE2(&c,&p, '%', '=', TOK_A_MOD); break;
     case '^':
     p=PARSE2(&c,&p, '^', '=', TOK_A_XOR); break;
-// LJW BOOKMARK2
     case '/':
-        p=PEEKC(&c,&p);
+        p=PEEKC(&c, &p);
         if (c == '*') {
             p = parse_comment(p);
             tok = ' ';
@@ -3407,7 +3406,7 @@ maybe_newline:
             goto keep_tok_flags;
         } else if (c == '=') {
             p++;
-            tok = 0xaf;
+            tok = TOK_A_DIV;
         } else {
             tok = '/';
         }
@@ -3431,7 +3430,7 @@ maybe_newline:
     default:
         if (c >= 0x80 && c <= 0xFF)
 	    goto parse_ident_fast;
-        if (parse_flags & 0x0008)
+        if (parse_flags)
             goto parse_simple;
         tcc_error("unrecognized character \\x%02x", c);
         break;
