@@ -4556,7 +4556,6 @@ static void vpushv(SValue *v) {
     *vtop = *v;
 }
 
-// LJW BOOKMARK
 static void vdup(void) {
 // LJW DONE
     vpushv(vtop);
@@ -4588,10 +4587,11 @@ static void vrott(int n) {
     vrote(vtop, n);
 }
 
-static inline void vpushsym(CType *type, Sym *sym) {
+static void vpushsym(CType *type, Sym *sym) {
+// LJW DONE
     CValue cval;
     cval.i = 0;
-    vsetc(type, 0x0030 | 0x0200, &cval);
+    vsetc(type, VT_CONST | VT_SYM, &cval);
     vtop->sym = sym;
 }
 static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size) {
@@ -4606,8 +4606,8 @@ static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigne
     return sym;
 }
 
-
 static void vpush_ref(CType *type, Section *sec, unsigned long offset, unsigned long size) {
+// LJW DONE
     vpushsym(type, get_sym_ref(type, sec, offset, size));
 }
 
@@ -4623,7 +4623,9 @@ static Sym *external_global_sym(int v, CType *type, int r) {
     return s;
 }
 
+// LJW BOOKMARK
 static void patch_type(Sym *sym, CType *type) {
+puts("s\n");exit(1);
     if (!(type->t & 0x00001000)) {
         if (!(sym->type.t & 0x00001000))
             tcc_error("redefinition of '%s'", get_tok_str(sym->v, ((void*)0)));
