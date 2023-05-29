@@ -783,6 +783,8 @@ enum {
 };
 const int R_DATA_PTR = R_386_32;
 
+const int SYM_POOL_NB = (8192 / sizeof(Sym));
+
 enum LABELS {
     LABEL_DEFINED = 0,
     LABEL_FORWARD = 1,
@@ -4159,7 +4161,6 @@ static void gen_inline_functions(TCCState *s);
 static void skip_or_save_block(TokenString **str);
 static void gv_dup(void);
 
-// LJW BOOKMARK
 static int is_float(int t) {
 // LJW DONE
     int bt;
@@ -4311,15 +4312,15 @@ static void greloc(Section *s, Sym *sym, unsigned long offset, int type) {
     greloca(s, sym, offset, type, 0);
 }
 
-static Sym *__sym_malloc(void)
-{
+static Sym *__sym_malloc(void) {
+// LJW DONE
     Sym *sym_pool, *sym, *last_sym;
     int i;
-    sym_pool = tcc_malloc((8192 / sizeof(Sym)) * sizeof(Sym));
+    sym_pool = tcc_malloc(SYM_POOL_NB * sizeof(Sym));
     dynarray_add(&sym_pools, &nb_sym_pools, sym_pool);
     last_sym = sym_free_first;
     sym = sym_pool;
-    for(i = 0; i < (8192 / sizeof(Sym)); i++) {
+    for(i = 0; i < SYM_POOL_NB; i++) {
         sym->next = last_sym;
         last_sym = sym;
         sym++;
@@ -4328,6 +4329,7 @@ static Sym *__sym_malloc(void)
     return last_sym;
 }
 
+// LJW BOOKMARK
 static inline Sym *sym_malloc(void) {
     Sym *sym;
     sym = sym_free_first;
