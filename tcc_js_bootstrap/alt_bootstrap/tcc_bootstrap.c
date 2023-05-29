@@ -10010,32 +10010,31 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                     file_offset += (int) ( addr - tmp );
                     s->sh_offset = file_offset;
                     s->sh_addr = addr;
-// LJW BOOKMARK2
                     if (ph->p_offset == 0) {
                         ph->p_offset = file_offset;
                         ph->p_vaddr = addr;
                         ph->p_paddr = ph->p_vaddr;
                     }
-                    if (s->sh_type == 9) {
+                    if (s->sh_type == SHT_RELX) {
                         if (dyninf->rel_size == 0)
                             dyninf->rel_addr = addr;
                         dyninf->rel_size += s->sh_size;
                     }
                     addr += s->sh_size;
-                    if (s->sh_type != 8)
+                    if (s->sh_type != SHT_NOBITS)
                         file_offset += s->sh_size;
                 }
             }
-	    if (j == 0) {
-		ph->p_offset &= ~(ph->p_align - 1);
-		ph->p_vaddr &= ~(ph->p_align - 1);
-		ph->p_paddr &= ~(ph->p_align - 1);
-	    }
+            if (j == 0) {
+                ph->p_offset &= ~(ph->p_align - 1);
+                ph->p_vaddr &= ~(ph->p_align - 1);
+                ph->p_paddr &= ~(ph->p_align - 1);
+            }
             ph->p_filesz = file_offset - ph->p_offset;
             ph->p_memsz = addr - ph->p_vaddr;
             ph++;
             if (j == 0) {
-                if (s1->output_format == 0) {
+                if (s1->output_format == TCC_OUTPUT_FORMAT_ELF) {
                     if ((addr & (s_align - 1)) != 0)
                         addr += s_align;
                 } else {
@@ -10045,6 +10044,7 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
             }
         }
     }
+// LJW BOOKMARK2
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
         if (phnum > 0 && (s->sh_flags & (1 << 1)))
