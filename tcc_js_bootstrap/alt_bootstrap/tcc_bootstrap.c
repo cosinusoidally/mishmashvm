@@ -6008,36 +6008,29 @@ static int is_compatible_func(CType *type1, CType *type2) {
     return 1;
 }
 
-// LJW BOOKMARK
-static int compare_types(CType *type1, CType *type2, int unqualified)
-{
+static int compare_types(CType *type1, CType *type2, int unqualified) {
+// LJW DONE
     int bt1, t1, t2;
-
-    t1 = type1->t & (~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)|(((1 << (6+6)) - 1) << 20 | 0x0080)));
-    t2 = type2->t & (~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)|(((1 << (6+6)) - 1) << 20 | 0x0080)));
+    t1 = type1->t & VT_TYPE;
+    t2 = type2->t & VT_TYPE;
     if (unqualified) {
-
-        t1 &= ~(0x0100 | 0x0200);
-        t2 &= ~(0x0100 | 0x0200);
+        t1 &= ~(VT_CONSTANT | VT_VOLATILE);
+        t2 &= ~(VT_CONSTANT | VT_VOLATILE);
     }
-
-
-    if ((t1 & 0x000f) != 1) {
-        t1 &= ~0x0020;
-        t2 &= ~0x0020;
+    if ((t1 & VT_BTYPE) != VT_BYTE) {
+        t1 &= ~VT_DEFSIGN;
+        t2 &= ~VT_DEFSIGN;
     }
-
     if (t1 != t2)
         return 0;
-
-    bt1 = t1 & 0x000f;
-    if (bt1 == 5) {
+    bt1 = t1 & VT_BTYPE;
+    if (bt1 == VT_PTR) {
         type1 = pointed_type(type1);
         type2 = pointed_type(type2);
         return is_compatible_types(type1, type2);
-    } else if (bt1 == 7) {
+    } else if (bt1 == VT_STRUCT) {
         return (type1->ref == type2->ref);
-    } else if (bt1 == 6) {
+    } else if (bt1 == VT_FUNC) {
         return is_compatible_func(type1, type2);
     } else {
         return 1;
@@ -6055,6 +6048,7 @@ static int is_compatible_unqualified_types(CType *type1, CType *type2) {
     return compare_types(type1,type2,1);
 }
 
+// LJW BOOKMARK
 static void type_to_str(char *buf, int buf_size,
                  CType *type, const char *varstr) {
     int bt, v, t;
