@@ -4511,7 +4511,6 @@ static void vpushi(int v) {
     vsetc(&int_type, VT_CONST, &cval);
 }
 
-// LJW BOOKMARK
 static void vpushs(Elf32_Addr v) {
 // LJW DONE
   CValue cval;
@@ -4529,9 +4528,9 @@ static void vpush64(int ty, unsigned long long v) {
     vsetc(&ctype, VT_CONST, &cval);
 }
 
-
-static inline void vpushll(long long v)
-{
+// LJW BOOKMARK
+static void vpushll(long long v) {
+// LJW DONE
     vpush64(4, v);
 }
 
