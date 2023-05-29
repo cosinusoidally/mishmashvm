@@ -6598,14 +6598,12 @@ static void struct_decl(CType *type, int u) {
     Sym *s, *ss, **ps;
     AttributeDef ad, ad1;
     CType type1, btype;
-
     memset(&ad, 0, sizeof ad);
     next();
     parse_attribute(&ad);
     if (tok != '{') {
         v = tok;
         next();
-        /* struct already defined ? return it */
         if (v < TOK_IDENT)
             expect("struct/union/enum name");
         s = struct_find(v);
@@ -6619,28 +6617,22 @@ static void struct_decl(CType *type, int u) {
     } else {
         v = anon_sym++;
     }
-    /* Record the original enum/struct/union token.  */
     type1.t = u == VT_ENUM ? u | VT_INT | VT_UNSIGNED : u;
     type1.ref = NULL;
-    /* we put an undefined size for struct/union */
     s = sym_push(v | SYM_STRUCT, &type1, 0, -1);
     s->r = 0; /* default alignment is zero as gcc */
 do_decl:
     type->t = s->type.t;
     type->ref = s;
-
     if (tok == '{') {
         next();
         if (s->c != -1)
             tcc_error("struct/union/enum already defined");
-        /* cannot be empty */
-        /* non empty enums are not allowed */
         ps = &s->next;
         if (u == VT_ENUM) {
             long long ll = 0, pl = 0, nl = 0;
             CType t;
             t.ref = s;
-            /* enum symbols have static storage */
             t.t = VT_INT|VT_STATIC|VT_ENUM_VAL;
             for(;;) {
                 v = tok;
@@ -6657,7 +6649,6 @@ do_decl:
                 }
                 ss = sym_push(v, &t, VT_CONST, 0);
                 ss->enum_val = ll;
-// LJW BOOKMARK2
                 *ps = ss, ps = &ss->next;
                 if (ll < nl)
                     nl = ll;
@@ -6671,55 +6662,56 @@ do_decl:
                     break;
             }
             skip('}');
-            t.t = 3;
+            t.t = VT_INT;
             if (nl >= 0) {
                 if (pl != (unsigned)pl)
-                    t.t = (4==8 ? 4|0x0800 : 4);
-                t.t |= 0x0010;
+                    t.t = (LONG_SIZE==8 ? VT_LLONG|VT_LONG : VT_LLONG);
+                t.t |= VT_UNSIGNED;
             } else if (pl != (int)pl || nl != (int)nl)
-                t.t = (4==8 ? 4|0x0800 : 4);
-            s->type.t = type->t = t.t | (2 << 20);
+                t.t = (LONG_SIZE==8 ? VT_LLONG|VT_LONG : VT_LLONG);
+            s->type.t = type->t = t.t | VT_ENUM;
             s->c = 0;
             for (ss = s->next; ss; ss = ss->next) {
                 ll = ss->enum_val;
                 if (ll == (int)ll)
                     continue;
-                if (t.t & 0x0010) {
-                    ss->type.t |= 0x0010;
+                if (t.t & VT_UNSIGNED) {
+                    ss->type.t |= VT_UNSIGNED;
                     if (ll == (unsigned)ll)
                         continue;
                 }
-                ss->type.t = (ss->type.t & ~0x000f)
-                    | (4==8 ? 4|0x0800 : 4);
+                ss->type.t = (ss->type.t & ~VT_BTYPE)
+                    | (LONG_SIZE==8 ? VT_LLONG|VT_LONG : VT_LLONG);
             }
         } else {
             c = 0;
             flexible = 0;
             while (tok != '}') {
                 if (!parse_btype(&btype, &ad1)) {
-		    skip(';');
-		    continue;
-		}
+                    skip(';');
+                    continue;
+                }
                 while (1) {
-		    if (flexible)
-		        tcc_error("flexible array member '%s' not at the end of struct",
-                              get_tok_str(v, ((void*)0)));
+                    if (flexible)
+                        tcc_error("flexible array member '%s' not at the end of struct",
+                              get_tok_str(v, NULL));
                     bit_size = -1;
                     v = 0;
                     type1 = btype;
                     if (tok != ':') {
-			if (tok != ';')
-                            type_decl(&type1, &ad1, &v, 2);
+                        if (tok != ';')
+                            type_decl(&type1, &ad1, &v, TYPE_DIRECT);
                         if (v == 0) {
-                    	    if ((type1.t & 0x000f) != 7)
-                        	expect("identifier");
-                    	    else {
-				int v = btype.ref->v;
-				if (!(v & 0x20000000) && (v & ~0x40000000) < 0x10000000) {
-				}
-                    	    }
+                            if ((type1.t & VT_BTYPE) != VT_STRUCT)
+                                expect("identifier");
+                            else {
+                                int v = btype.ref->v;
+                                if (!(v & SYM_FIELD) && (v & ~SYM_STRUCT) < SYM_FIRST_ANOM) {
+                                }
+                            }
                         }
                         if (type_size(&type1, &align) < 0) {
+// LJW BOOKMARK2
 			    if ((u == 7) && (type1.t & 0x0040) && c)
 			        flexible = 1;
 			    else
