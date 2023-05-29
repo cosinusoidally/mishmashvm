@@ -8591,14 +8591,16 @@ static void gcase(struct case_t **base, int len, int *bsym)
     }
 }
 
-static void block(int *bsym, int *csym, int is_expr)
-{
+static void block(int *bsym, int *csym, int is_expr) {
+
     int a, b, c, d, cond;
     Sym *s;
     if (is_expr) {
         vpushi(0);
-        vtop->type.t = 0;
+        vtop->type.t = VT_VOID;
+
     }
+// LJW BOOKMARK2
     if (tok == TOK_IF) {
 	int saved_nocode_wanted = nocode_wanted;
         next();
@@ -8649,20 +8651,16 @@ static void block(int *bsym, int *csym, int is_expr)
     } else if (tok == '{') {
         Sym *llabel;
         int block_vla_sp_loc = vla_sp_loc, saved_vlas_in_scope = vlas_in_scope;
-
         next();
-
         s = local_stack;
         llabel = local_label_stack;
         ++local_scope;
-
-
         if (tok == TOK_LABEL) {
             next();
             for(;;) {
                 if (tok < TOK_DEFINE)
                     expect("label identifier");
-                label_push(&local_label_stack, tok, 2);
+                label_push(&local_label_stack, tok, LABEL_DECLARED);
                 next();
                 if (tok == ',') {
                     next();
@@ -8728,7 +8726,6 @@ static void block(int *bsym, int *csym, int is_expr)
         s = local_stack;
         ++local_scope;
         if (tok != ';') {
-
             if (!decl0(0x0032, 1, ((void*)0))) {
 
                 gexpr();
@@ -8801,14 +8798,11 @@ static void block(int *bsym, int *csym, int is_expr)
         block(&a, csym, 0);
 	nocode_wanted = saved_nocode_wanted;
         a = gjmp(a);
-
         gsym(b);
         qsort(sw.p, sw.n, sizeof(void*), case_cmp);
         for (b = 1; b < sw.n; b++)
             if (sw.p[b - 1]->v2 >= sw.p[b]->v1)
                 tcc_error("duplicate case value");
-
-
         if ((switchval.type.t & 0x000f) == 4)
             switchval.type.t &= ~0x0010;
         vpushv(&switchval);
@@ -8818,7 +8812,6 @@ static void block(int *bsym, int *csym, int is_expr)
           gjmp_addr(sw.def_sym);
         dynarray_reset(&sw.p, &sw.n);
         cur_switch = saved;
-
         gsym(a);
     } else
     if (tok == TOK_CASE) {
@@ -8854,14 +8847,12 @@ static void block(int *bsym, int *csym, int is_expr)
     if (tok == TOK_GOTO) {
         next();
         if (tok == '*' && gnu_ext) {
-
             next();
             gexpr();
             if ((vtop->type.t & 0x000f) != 5)
                 expect("pointer");
         } else if (tok >= TOK_DEFINE) {
             s = label_find(tok);
-
             if (!s) {
                 s = label_push(&global_label_stack, tok, 1);
             } else {
@@ -8880,7 +8871,6 @@ static void block(int *bsym, int *csym, int is_expr)
     } else {
         b = is_label();
         if (b) {
-
 	    next();
             s = label_find(b);
             if (s) {
@@ -8892,7 +8882,6 @@ static void block(int *bsym, int *csym, int is_expr)
                 s = label_push(&global_label_stack, b, 0);
             }
             s->jnext = ind;
-
         block_after_label:
 	    nocode_wanted &= ~0x20000000;
             if (tok == '}') {
