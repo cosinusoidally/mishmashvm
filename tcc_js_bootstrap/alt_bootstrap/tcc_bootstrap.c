@@ -4528,25 +4528,23 @@ static void vpush64(int ty, unsigned long long v) {
     vsetc(&ctype, VT_CONST, &cval);
 }
 
-// LJW BOOKMARK
 static void vpushll(long long v) {
 // LJW DONE
     vpush64(4, v);
 }
 
-static void vset(CType *type, int r, int v)
-{
+static void vset(CType *type, int r, int v) {
+// LJW DONE
     CValue cval;
-
     cval.i = v;
     vsetc(type, r, &cval);
 }
 
-static void vseti(int r, int v)
-{
+static void vseti(int r, int v) {
+// LJW DONE
     CType type;
-    type.t = 3;
-    type.ref = ((void*)0);
+    type.t = VT_INT;
+    type.ref = NULL;
     vset(&type, r, v);
 }
 
@@ -4558,8 +4556,9 @@ static void vpushv(SValue *v) {
     *vtop = *v;
 }
 
-static void vdup(void)
-{
+// LJW BOOKMARK
+static void vdup(void) {
+// LJW DONE
     vpushv(vtop);
 }
 
