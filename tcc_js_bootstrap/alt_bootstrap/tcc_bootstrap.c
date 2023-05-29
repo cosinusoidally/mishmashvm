@@ -4144,8 +4144,8 @@ static int parse_btype(CType *type, AttributeDef *ad);
 static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td);
 static void parse_expr_type(CType *type);
 static void init_putv(CType *type, Section *sec, unsigned long c);
-// LJW BOOKMARK
 static void decl_initializer(CType *type, Section *sec, unsigned long c, int first, int size_only);
+// LJW BOOKMARK
 static void block(int *bsym, int *csym, int is_expr);
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r, int has_init, int v, int scope);
 static void decl(int l);
@@ -9213,7 +9213,7 @@ static void init_putv(CType *type, Section *sec, unsigned long c) {
 
 static void decl_initializer(CType *type, Section *sec, unsigned long c,
                              int first, int size_only) {
-
+// LJW DONE
     int len, n, no_oblock, nb, i;
     int size1, align1;
     int have_elem;
@@ -9250,9 +9250,8 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
             ) || (tok == TOK_STR && (t1->t & VT_BTYPE) == VT_BYTE)) {
 	    len = 0;
             while (tok == TOK_STR || tok == TOK_LSTR) {
-// LJW BOOKMARK2
                 int cstr_len, ch;
-                if (tok == 0xb9)
+                if (tok == TOK_STR)
                     cstr_len = tokc.str.size;
                 else
                     cstr_len = tokc.str.size / sizeof(nwchar_t);
@@ -9263,12 +9262,12 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
                 if (!size_only) {
                     if (cstr_len > nb)
                         tcc_warning("initializer-string for array is too long");
-                    if (sec && tok == 0xb9 && size1 == 1) {
+                    if (sec && tok == TOK_STR && size1 == 1) {
                         if (!(nocode_wanted > 0))
                             memcpy(sec->data + c + len, tokc.str.data, nb);
                     } else {
                         for(i=0;i<nb;i++) {
-                            if (tok == 0xb9)
+                            if (tok == TOK_STR)
                                 ch = ((unsigned char *)tokc.str.data)[i];
                             else
                                 ch = ((nwchar_t *)tokc.str.data)[i];
@@ -9296,16 +9295,16 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
 	    while (tok != '}' || have_elem) {
 		len = decl_designator(type, sec, c, &f, size_only, len);
 		have_elem = 0;
-		if (type->t & 0x0040) {
+                if (type->t & VT_ARRAY) {
 		    ++indexsym.c;
 		    if (no_oblock && len >= n*size1)
 		        break;
 		} else {
-		    if (s->type.t == (1 << 20 | 7))
+                    if (s->type.t == VT_UNION)
 		        f = ((void*)0);
 		    else
 		        f = f->next;
-		    if (no_oblock && f == ((void*)0))
+                    if (no_oblock && f == NULL)
 		        break;
 		}
 		if (tok == '}')
@@ -9319,7 +9318,7 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
             skip('}');
         if (n < 0)
             s->c = size1 == 1 ? len : ((len + size1 - 1)/size1);
-    } else if ((type->t & 0x000f) == 7) {
+    } else if ((type->t & VT_BTYPE) == VT_STRUCT) {
 	size1 = 1;
         no_oblock = 1;
         if (first || tok == '{') {
@@ -9335,12 +9334,12 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
         decl_initializer(type, sec, c, first, size_only);
         skip('}');
     } else if (size_only) {
-        skip_or_save_block(((void*)0));
+        skip_or_save_block(NULL);
     } else {
 	if (!have_elem) {
-	    if (tok != 0xb9 && tok != 0xba)
+            if (tok != TOK_STR && tok != TOK_LSTR)
 	      expect("string constant");
-	    parse_init_elem(!sec ? 2 : 1);
+            parse_init_elem(!sec ? EXPR_ANY : EXPR_CONST);
 	}
         init_putv(type, sec, c);
     }
