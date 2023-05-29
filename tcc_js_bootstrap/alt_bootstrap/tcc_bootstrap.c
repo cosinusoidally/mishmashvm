@@ -6598,14 +6598,12 @@ static void struct_decl(CType *type, int u) {
     Sym *s, *ss, **ps;
     AttributeDef ad, ad1;
     CType type1, btype;
-
     memset(&ad, 0, sizeof ad);
     next();
     parse_attribute(&ad);
     if (tok != '{') {
         v = tok;
         next();
-
         if (v < 256)
             expect("struct/union/enum name");
         s = struct_find(v);
@@ -6619,28 +6617,22 @@ static void struct_decl(CType *type, int u) {
     } else {
         v = anon_sym++;
     }
-
     type1.t = u == (2 << 20) ? u | 3 | 0x0010 : u;
     type1.ref = ((void*)0);
-
     s = sym_push(v | 0x40000000, &type1, 0, -1);
     s->r = 0;
 do_decl:
     type->t = s->type.t;
     type->ref = s;
-
     if (tok == '{') {
         next();
         if (s->c != -1)
             tcc_error("struct/union/enum already defined");
-
-
         ps = &s->next;
         if (u == (2 << 20)) {
             long long ll = 0, pl = 0, nl = 0;
 	    CType t;
             t.ref = s;
-
             t.t = 3|0x00002000|(3 << 20);
             for(;;) {
                 v = tok;
@@ -6666,12 +6658,10 @@ do_decl:
                     break;
                 next();
                 ll++;
-
                 if (tok == '}')
                     break;
             }
             skip('}');
-
             t.t = 3;
             if (nl >= 0) {
                 if (pl != (unsigned)pl)
@@ -6681,7 +6671,6 @@ do_decl:
                 t.t = (4==8 ? 4|0x0800 : 4);
             s->type.t = type->t = t.t | (2 << 20);
             s->c = 0;
-
             for (ss = s->next; ss; ss = ss->next) {
                 ll = ss->enum_val;
                 if (ll == (int)ll)
@@ -6736,7 +6725,6 @@ do_decl:
                     if (tok == ':') {
                         next();
                         bit_size = expr_const();
-
                         if (bit_size < 0)
                             tcc_error("negative width in bit-field '%s'",
                                   get_tok_str(v, ((void*)0)));
@@ -6760,7 +6748,6 @@ do_decl:
                                   get_tok_str(v, ((void*)0)));
                         } else if (bit_size == bsize
                                     && !ad.a.packed && !ad1.a.packed) {
-
                             ;
                         } else if (bit_size == 64) {
                             tcc_error("field width 64 not implemented");
@@ -6771,12 +6758,8 @@ do_decl:
                         }
                     }
                     if (v != 0 || (type1.t & 0x000f) == 7) {
-
-
 			c = 1;
                     }
-
-
                     if (v == 0 &&
 			((type1.t & 0x000f) == 7 ||
 			 bit_size >= 0)) {
