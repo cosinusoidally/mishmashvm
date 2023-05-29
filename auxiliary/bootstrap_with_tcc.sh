@@ -39,6 +39,7 @@ rm out.o
 rm tcc_linux.exe
 tcc_bootstrap.exe ${LINK_CMD}
 chmod +x tcc_linux.exe
+rm out.o
 
 # this is just to stop the self hosted building of libtcc1_bootstrap.o
 # from regressing further
