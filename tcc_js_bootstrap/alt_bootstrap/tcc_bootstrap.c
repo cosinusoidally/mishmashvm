@@ -814,6 +814,11 @@ enum SHNS {
     SHN_UNDEF = 0,
 };
 
+enum EXPRS {
+    EXPR_CONST = 1,
+    EXPR_ANY = 2,
+};
+
 static int gnu_ext;
 static int tcc_ext;
 static struct TCCState *tcc_state;
@@ -9207,8 +9212,8 @@ static void init_putv(CType *type, Section *sec, unsigned long c) {
 }
 
 static void decl_initializer(CType *type, Section *sec, unsigned long c,
-                             int first, int size_only)
-{
+                             int first, int size_only) {
+
     int len, n, no_oblock, nb, i;
     int size1, align1;
     int have_elem;
@@ -9217,22 +9222,22 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
     CType *t1;
     have_elem = tok == '}' || tok == ',';
     if (!have_elem && tok != '{' &&
-	tok != 0xba && tok != 0xb9 &&
+        tok != TOK_LSTR && tok != TOK_STR &&
 	!size_only) {
-	parse_init_elem(!sec ? 2 : 1);
+        parse_init_elem(!sec ? EXPR_ANY : EXPR_CONST);
 	have_elem = 1;
     }
     if (have_elem &&
-	!(type->t & 0x0040) &&
+        !(type->t & VT_ARRAY) &&
 	is_compatible_unqualified_types(type, &vtop->type)) {
         init_putv(type, sec, c);
-    } else if (type->t & 0x0040) {
+    } else if (type->t & VT_ARRAY) {
         s = type->ref;
         n = s->c;
         t1 = pointed_type(type);
         size1 = type_size(t1, &align1);
         no_oblock = 1;
-        if ((first && tok != 0xba && tok != 0xb9) ||
+        if ((first && tok != TOK_LSTR && tok != TOK_STR) ||
             tok == '{') {
             if (tok != '{')
                 tcc_error("character array initializer must be a literal,"
@@ -9240,11 +9245,12 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
             skip('{');
             no_oblock = 0;
         }
-        if ((tok == 0xba &&
-             (t1->t & 0x000f) == 3
-            ) || (tok == 0xb9 && (t1->t & 0x000f) == 1)) {
+        if ((tok == TOK_LSTR &&
+             (t1->t & VT_BTYPE) == VT_INT
+            ) || (tok == TOK_STR && (t1->t & VT_BTYPE) == VT_BYTE)) {
 	    len = 0;
-            while (tok == 0xb9 || tok == 0xba) {
+            while (tok == TOK_STR || tok == TOK_LSTR) {
+// LJW BOOKMARK2
                 int cstr_len, ch;
                 if (tok == 0xb9)
                     cstr_len = tokc.str.size;
