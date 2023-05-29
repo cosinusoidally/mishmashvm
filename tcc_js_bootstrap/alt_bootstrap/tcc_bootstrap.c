@@ -8822,7 +8822,6 @@ static int decl_designator(CType *type, Section *sec, unsigned long c,
     return al;
 }
 
-// LJW BOOKMARK
 static void init_putv(CType *type, Section *sec, unsigned long c) {
 // LJW DONE
     int bt;
@@ -9173,19 +9172,16 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
     nocode_wanted = saved_nocode_wanted;
 }
 
-static void gen_function(Sym *sym)
-{
+// LJW BOOKMARK
+static void gen_function(Sym *sym) {
+
     nocode_wanted = 0;
     ind = cur_text_section->data_offset;
-
     put_extern_sym(sym, cur_text_section, ind, 0);
     funcname = get_tok_str(sym->v, ((void*)0));
     func_ind = ind;
-
     vla_sp_loc = -1;
     vla_sp_root_loc = -1;
-
-
     sym_push2(&local_stack, 0x20000000, 0, 0);
     local_scope = 1;
     gfunc_prolog(&sym->type);
@@ -9197,13 +9193,9 @@ static void gen_function(Sym *sym)
     gfunc_epilog();
     cur_text_section->data_offset = ind;
     label_pop(&global_label_stack, ((void*)0), 0);
-
     local_scope = 0;
     sym_pop(&local_stack, ((void*)0), 0);
-
-
     elfsym(sym)->st_size = ind - func_ind;
-
     cur_text_section = ((void*)0);
     funcname = "";
     func_vt.t = 0;
