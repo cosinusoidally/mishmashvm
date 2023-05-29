@@ -8337,7 +8337,6 @@ static void gcase(struct case_t **base, int len, int *bsym) {
     }
 }
 
-// LJW BOOKMARK
 static void block(int *bsym, int *csym, int is_expr) {
 // LJW DONE
     int a, b, c, d, cond;
@@ -8684,39 +8683,30 @@ static void skip_or_save_block(TokenString **str) {
     }
 }
 
-
-
-
-static void parse_init_elem(int expr_type)
-{
+static void parse_init_elem(int expr_type) {
+// LJW DONE
     int saved_global_expr;
     switch(expr_type) {
-    case 1:
-
+    case EXPR_CONST:
         saved_global_expr = global_expr;
         global_expr = 1;
         expr_const1();
         global_expr = saved_global_expr;
-
-
-        if (((vtop->r & (0x003f | 0x0100)) != 0x0030
-	     && ((vtop->r & (0x0200|0x0100)) != (0x0200|0x0100)
-		 || vtop->sym->v < 0x10000000))
-
-
-
+        if (((vtop->r & (VT_VALMASK | VT_LVAL)) != VT_CONST
+             && ((vtop->r & (VT_SYM|VT_LVAL)) != (VT_SYM|VT_LVAL)
+                 || vtop->sym->v < SYM_FIRST_ANOM))
             )
             tcc_error("initializer element is not constant");
         break;
-    case 2:
+    case EXPR_ANY:
         expr_eq();
         break;
     }
 }
 
+// LJW BOOKMARK
+static void init_putz(Section *sec, unsigned long c, int size) {
 
-static void init_putz(Section *sec, unsigned long c, int size)
-{
     if (sec) {
 
     } else {
@@ -8732,12 +8722,6 @@ static void init_putz(Section *sec, unsigned long c, int size)
         gfunc_call(3);
     }
 }
-
-
-
-
-
-
 
 static int decl_designator(CType *type, Section *sec, unsigned long c,
                            Sym **cur_field, int size_only, int al)
