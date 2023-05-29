@@ -4149,8 +4149,8 @@ static void block(int *bsym, int *csym, int is_expr);
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r, int has_init, int v, int scope);
 static void decl(int l);
 static int decl0(int l, int is_for_loop_init, Sym *);
-// LJW BOOKMARK
 static void expr_eq(void);
+// LJW BOOKMARK
 static int is_compatible_unqualified_types(CType *type1, CType *type2);
 static inline int64_t expr_const64(void);
 static void vpush64(int ty, unsigned long long v);
@@ -8373,15 +8373,14 @@ static void expr_cond(void)
     }
 }
 
-static void expr_eq(void)
-{
+static void expr_eq(void) {
+// LJW DONE
     int t;
-
     expr_cond();
     if (tok == '=' ||
-        (tok >= 0xa5 && tok <= 0xaf) ||
-        tok == 0xde || tok == 0xfc ||
-        tok == 0x81 || tok == 0x82) {
+        (tok >= TOK_A_MOD && tok <= TOK_A_DIV) ||
+        tok == TOK_A_XOR || tok == TOK_A_OR ||
+        tok == TOK_A_SHL || tok == TOK_A_SAR) {
         test_lvalue();
         t = tok;
         next();
