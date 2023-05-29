@@ -5788,44 +5788,44 @@ static void gen_cast_s(int t) {
 static void gen_cast(CType *type) {
 
     int sbt, dbt, sf, df, c, p;
-    if (vtop->r & 0x0400) {
-        vtop->r &= ~0x0400;
+    if (vtop->r & VT_MUSTCAST) {
+        vtop->r &= ~VT_MUSTCAST;
         force_charshort_cast(vtop->type.t);
     }
-    if (vtop->type.t & 0x0080) {
-        gv(0x0001);
+    if (vtop->type.t & VT_BITFIELD) {
+        gv(RC_INT);
     }
-    dbt = type->t & (0x000f | 0x0010);
-    sbt = vtop->type.t & (0x000f | 0x0010);
+    dbt = type->t & (VT_BTYPE | VT_UNSIGNED);
+    sbt = vtop->type.t & (VT_BTYPE | VT_UNSIGNED);
     if (sbt != dbt) {
         sf = is_float(sbt);
         df = is_float(dbt);
-        c = (vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
-        p = (vtop->r & (0x003f | 0x0100 | 0x0200)) == (0x0030 | 0x0200);
+        c = (vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST;
+        p = (vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == (VT_CONST | VT_SYM);
         if (c) {
-            if (sbt == 8)
+            if (sbt == VT_FLOAT)
                 vtop->c.ld = vtop->c.f;
-            else if (sbt == 9)
+            else if (sbt == VT_DOUBLE)
                 vtop->c.ld = vtop->c.d;
             if (df) {
-                if ((sbt & 0x000f) == 4) {
-                    if ((sbt & 0x0010) || !(vtop->c.i >> 63))
+                if ((sbt & VT_BTYPE) == VT_LLONG) {
+                    if ((sbt & VT_UNSIGNED) || !(vtop->c.i >> 63))
                         vtop->c.ld = vtop->c.i;
                     else
                         vtop->c.ld = -(double)-vtop->c.i;
                 } else if(!sf) {
-                    if ((sbt & 0x0010) || !(vtop->c.i >> 31))
+                    if ((sbt & VT_UNSIGNED) || !(vtop->c.i >> 31))
                         vtop->c.ld = (uint32_t)vtop->c.i;
                     else
                         vtop->c.ld = -(double)-(uint32_t)vtop->c.i;
                 }
-                if (dbt == 8)
+                if (dbt == VT_FLOAT)
                     vtop->c.f = (float)vtop->c.ld;
-                else if (dbt == 9)
+                else if (dbt == VT_DOUBLE)
                     vtop->c.d = (double)vtop->c.ld;
-            } else if (sf && dbt == (4|0x0010)) {
+            } else if (sf && dbt == (VT_LLONG|VT_UNSIGNED)) {
                 vtop->c.i = vtop->c.ld;
-            } else if (sf && dbt == 11) {
+            } else if (sf && dbt == VT_BOOL) {
                 vtop->c.i = (vtop->c.ld != 0);
             } else {
                 if(sf)
