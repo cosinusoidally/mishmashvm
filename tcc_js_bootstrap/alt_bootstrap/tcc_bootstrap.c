@@ -3705,6 +3705,7 @@ static int next_argstream(Sym **nested_list, TokenString *ws_str) {
 
 // LJW BOOKMARK
 static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
+
     Sym *args, *sa, *sa1;
     int parlevel, t, t1, spc;
     TokenString str;
@@ -3716,11 +3717,11 @@ static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
         t = tok == TOK___LINE__ ? file->line_num : pp_counter++;
         snprintf(buf, sizeof(buf), "%d", t);
         cstrval = buf;
-        t1 = 0xbe;
+        t1 = TOK_PPNUM;
         goto add_cstr1;
     } else if (tok == TOK___FILE__) {
         cstrval = file->filename;
-        t1 = 0xb9;
+        t1 = TOK_STR;
     add_cstr1:
         cstr_new(&cstr);
         cstr_cat(&cstr, cstrval, 0);
@@ -3730,19 +3731,19 @@ static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
         cstr_free(&cstr);
     } else if (s->d) {
         int saved_parse_flags = parse_flags;
-	int *joined_str = ((void*)0);
+        int *joined_str = NULL;
         int *mstr = s->d;
-        if (s->type.t == 1) {
+        if (s->type.t == MACRO_FUNC) {
             TokenString ws_str;
             tok_str_new(&ws_str);
             spc = 0;
-            parse_flags |= 0x0010 | 0x0004
-                | 0x0020;
+            parse_flags |= PARSE_FLAG_SPACES | PARSE_FLAG_LINEFEED
+                | PARSE_FLAG_ACCEPT_STRAYS;
             t = next_argstream(nested_list, &ws_str);
             if (t != '(') {
                 parse_flags = saved_parse_flags;
                 tok_str_add(tok_str, tok);
-                if (parse_flags & 0x0010) {
+                if (parse_flags & PARSE_FLAG_SPACES) {
                     int i;
                     for (i = 0; i < ws_str.len; i++)
                         tok_str_add(tok_str, ws_str.str[i]);
@@ -3752,15 +3753,15 @@ static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
             } else {
                 tok_str_free_str(ws_str.str);
             }
-	    do {
-		next_nomacro();
-	    } while (tok == 0xcb);
-            args = ((void*)0);
+            do {
+                next_nomacro();
+            } while (tok == TOK_PLCHLDR);
+            args = NULL;
             sa = s->next;
             for(;;) {
                 do {
-                    next_argstream(nested_list, ((void*)0));
-                } while (is_space(tok) || 10 == tok);
+                    next_argstream(nested_list, NULL);
+                } while (is_space(tok) || TOK_LINEFEED == tok);
     empty_arg:
                 if (!args && !sa && tok == ')')
                     break;
@@ -3772,24 +3773,24 @@ static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
                 while ((parlevel > 0 ||
                         (tok != ')' &&
                          (tok != ',' || sa->type.t)))) {
-                    if (tok == (-1) || tok == 0)
+                    if (tok == TOK_EOF || tok == 0)
                         break;
                     if (tok == '(')
                         parlevel++;
                     else if (tok == ')')
                         parlevel--;
-                    if (tok == 10)
+                    if (tok == TOK_LINEFEED)
                         tok = ' ';
                     if (!check_space(tok, &spc))
                         tok_str_add2(&str, tok, &tokc);
-                    next_argstream(nested_list, ((void*)0));
+                    next_argstream(nested_list, NULL);
                 }
                 if (parlevel)
                     expect(")");
                 str.len -= spc;
                 tok_str_add(&str, -1);
                 tok_str_add(&str, 0);
-                sa1 = sym_push2(&args, sa->v & ~0x20000000, sa->type.t, 0);
+                sa1 = sym_push2(&args, sa->v & ~SYM_FIELD, sa->type.t, 0);
                 sa1->d = str.str;
                 sa = sa->next;
                 if (tok == ')') {
