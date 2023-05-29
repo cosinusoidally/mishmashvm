@@ -8281,66 +8281,63 @@ static int case_cmp(const void *pa, const void *pb) {
     return a < b ? -1 : a > b;
 }
 
-// LJW BOOKMARK
 static void gcase(struct case_t **base, int len, int *bsym) {
+// LJW DONE
     struct case_t *p;
     int e;
-    int ll = (vtop->type.t & 0x000f) == 4;
-    gv(0x0001);
+    int ll = (vtop->type.t & VT_BTYPE) == VT_LLONG;
+    gv(RC_INT);
     while (len > 4) {
-
         p = base[len/2];
         vdup();
-	if (ll)
-	    vpushll(p->v2);
-	else
-	    vpushi(p->v2);
-        gen_op(0x9e);
+        if (ll)
+            vpushll(p->v2);
+        else
+            vpushi(p->v2);
+        gen_op(TOK_LE);
         e = gtst(1, 0);
         vdup();
-	if (ll)
-	    vpushll(p->v1);
-	else
-	    vpushi(p->v1);
-        gen_op(0x9d);
+        if (ll)
+            vpushll(p->v1);
+        else
+            vpushi(p->v1);
+        gen_op(TOK_GE);
         gtst_addr(0, p->sym);
-
         gcase(base, len/2, bsym);
         if (cur_switch->def_sym)
             gjmp_addr(cur_switch->def_sym);
         else
             *bsym = gjmp(*bsym);
-
         gsym(e);
         e = len/2 + 1;
         base += e; len -= e;
     }
-
     while (len--) {
         p = *base++;
         vdup();
-	if (ll)
-	    vpushll(p->v2);
-	else
-	    vpushi(p->v2);
+        if (ll)
+            vpushll(p->v2);
+        else
+            vpushi(p->v2);
         if (p->v1 == p->v2) {
-            gen_op(0x94);
+            gen_op(TOK_EQ);
             gtst_addr(0, p->sym);
         } else {
-            gen_op(0x9e);
+            gen_op(TOK_LE);
             e = gtst(1, 0);
             vdup();
-	    if (ll)
-	        vpushll(p->v1);
-	    else
-	        vpushi(p->v1);
-            gen_op(0x9d);
+            if (ll)
+                vpushll(p->v1);
+            else
+                vpushi(p->v1);
+            gen_op(TOK_GE);
             gtst_addr(0, p->sym);
             gsym(e);
         }
     }
 }
 
+// LJW BOOKMARK
 static void block(int *bsym, int *csym, int is_expr) {
 // LJW DONE
     int a, b, c, d, cond;
