@@ -10230,7 +10230,6 @@ static void gen_le32(int c) {
     g(c >> 24);
 }
 
-
 static void gsym_addr(int t, int a) {
 // LJW DONE
     while (t) {
@@ -10264,14 +10263,13 @@ static void gen_addr32(int r, Sym *sym, int c) {
     gen_le32(c);
 }
 
-// LJW BOOKMARK
 static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
-
+// LJW DONE
     op_reg = op_reg << 3;
-    if ((r & 0x003f) == 0x0030) {
+    if ((r & VT_VALMASK) == VT_CONST) {
         o(0x05 | op_reg);
         gen_addr32(r, sym, c);
-    } else if ((r & 0x003f) == 0x0032) {
+    } else if ((r & VT_VALMASK) == VT_LOCAL) {
         if (c == (char)c) {
             o(0x45 | op_reg);
             g(c);
@@ -10279,7 +10277,7 @@ static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
             oad(0x85 | op_reg, c);
         }
     } else {
-        g(0x00 | op_reg | (r & 0x003f));
+        g(0x00 | op_reg | (r & VT_VALMASK));
     }
 }
 
@@ -10389,6 +10387,7 @@ static void store(int r, SValue *v) {
     }
 }
 
+// LJW BOOKMARK
 static void gadd_sp(int val) {
     if (val == (char)val) {
         o(0xc483);
