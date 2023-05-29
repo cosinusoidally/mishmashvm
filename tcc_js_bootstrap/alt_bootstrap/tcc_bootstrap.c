@@ -4847,10 +4847,10 @@ static void load_packed_bf(CType *type, int bit_pos, int bit_size) {
     }
 }
 
-// LJW BOOKMARK
 static void store_packed_bf(int bit_pos, int bit_size) {
+// LJW DONE
     int bits, n, o, m, c;
-    c = (vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
+    c = (vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST;
     vswap();
     save_reg_upstack(vtop->r, 1);
     bits = 0, o = bit_pos >> 3, bit_pos &= 7;
@@ -4860,9 +4860,9 @@ static void store_packed_bf(int bit_pos, int bit_size) {
         c ? vdup() : gv_dup();
         vrott(3);
         if (bits)
-            vpushi(bits), gen_op(0xc9);
+            vpushi(bits), gen_op(TOK_SHR);
         if (bit_pos)
-            vpushi(bit_pos), gen_op(0x01);
+            vpushi(bit_pos), gen_op(TOK_SHL);
         n = 8 - bit_pos;
         if (n > bit_size)
             n = bit_size;
@@ -4881,6 +4881,7 @@ static void store_packed_bf(int bit_pos, int bit_size) {
     vpop(), vpop();
 }
 
+// LJW BOOKMARK
 static int adjust_bf(SValue *sv, int bit_pos, int bit_size) {
     int t;
     if (0 == sv->type.ref)
