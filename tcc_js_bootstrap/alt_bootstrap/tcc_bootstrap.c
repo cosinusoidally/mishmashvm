@@ -1,5 +1,4 @@
 // This is a modified version of the preprocessed tcc source code
-// LJW BOOKMARK
 // bound by the same license as the copy of tcc in tcc_js_bootstrap/tcc_src/ .
 // Modifications (C) 2022-2023 Liam Wilson and licensed under the LGPL v2.1
 // (a copy of which exists under tcc_src/COPYING). Preceding paths are relative
