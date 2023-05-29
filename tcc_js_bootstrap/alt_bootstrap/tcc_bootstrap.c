@@ -9334,6 +9334,7 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
 
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
                                    int has_init, int v, int scope) {
+
     int size, align, addr;
     TokenString *init_str = ((void*)0);
     Section *sec;
@@ -9391,103 +9392,63 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
     }
     if ((nocode_wanted > 0))
         size = 0, align = 1;
-
     if ((r & 0x003f) == 0x0032) {
         sec = ((void*)0);
-
         if (bcheck && (type->t & 0x0040)) {
             loc--;
         }
-
         loc = (loc - size) & -align;
         addr = loc;
-
-
-
-
         if (bcheck && (type->t & 0x0040)) {
             Elf32_Addr *bounds_ptr;
-
             loc--;
-
             bounds_ptr = section_ptr_add(lbounds_section, 2 * sizeof(Elf32_Addr));
             bounds_ptr[0] = addr;
             bounds_ptr[1] = size;
         }
-
         if (v) {
-
-
 	    if (ad->asm_label) {
 	    }
 
             sym = sym_push(v, type, r, addr);
             sym->a = ad->a;
         } else {
-
             vset(type, r, addr);
         }
     } else {
         if (v && scope == 0x0030) {
-
             sym = sym_find(v);
             if (sym) {
                 patch_storage(sym, ad, type);
-
                 if (!has_init && sym->c && elfsym(sym)->st_shndx != 0)
                     goto no_alloc;
             }
         }
-
-
         sec = ad->section;
         if (!sec) {
             if (has_init)
                 sec = data_section;
         }
-
         if (sec) {
 	    addr = section_add(sec, size, align);
-
-
             if (bcheck)
                 section_add(sec, 1, 1);
-
         } else {
             addr = align;
 	    sec = common_section;
         }
-
         if (v) {
             if (!sym) {
                 sym = sym_push(v, type, r | 0x0200, 0);
                 patch_storage(sym, ad, ((void*)0));
             }
-
-
             sym->sym_scope = 0;
-
 	    put_extern_sym(sym, sec, addr, size);
         } else {
-
             sym = get_sym_ref(type, sec, addr, size);
 	    vpushsym(type, sym);
 	    vtop->r |= r;
         }
-
-
-
-
-        if (bcheck) {
-            Elf32_Addr *bounds_ptr;
-
-            greloca(bounds_section, sym, bounds_section->data_offset, 1, 0);
-
-            bounds_ptr = section_ptr_add(bounds_section, 2 * sizeof(Elf32_Addr));
-            bounds_ptr[0] = 0;
-            bounds_ptr[1] = size;
-        }
-
     }
     if (has_init) {
 	size_t oldreloc_offset = 0;
