@@ -4155,8 +4155,8 @@ static int64_t expr_const64(void);
 static void vpush64(int ty, unsigned long long v);
 static void vpush(CType *type);
 static int gvtst(int inv, int t);
-// LJW BOOKMARK
 static void gen_inline_functions(TCCState *s);
+// LJW BOOKMARK
 static void skip_or_save_block(TokenString **str);
 static void gv_dup(void);
 
@@ -9490,6 +9490,7 @@ static void gen_function(Sym *sym)
 }
 
 static void gen_inline_functions(TCCState *s) {
+// LJW DONE
     Sym *sym;
     int inline_generated, i, ln;
     struct InlineFunc *fn;
@@ -9500,7 +9501,7 @@ static void gen_inline_functions(TCCState *s) {
             fn = s->inline_fns[i];
             sym = fn->sym;
             if (sym && sym->c) {
-                fn->sym = ((void*)0);
+                fn->sym = NULL;
                 if (file)
                     pstrcpy(file->filename, sizeof file->filename, fn->filename);
                 sym->type.t &= ~VT_INLINE;
@@ -9519,7 +9520,6 @@ static void gen_inline_functions(TCCState *s) {
 static void free_inline_functions(TCCState *s) {
 // LJW DONE
     int i;
-
     for (i = 0; i < s->nb_inline_fns; ++i) {
         struct InlineFunc *fn = s->inline_fns[i];
         if (fn->sym)
