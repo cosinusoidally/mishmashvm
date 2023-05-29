@@ -841,6 +841,14 @@ enum EXPRS {
     EXPR_ANY = 2,
 };
 
+enum SHTS {
+    SHT_DYNSYM = 11,
+    SHT_STRTAB = 3,
+    SHT_HASH = 5,
+    SHT_RELX = 9,
+    SHT_NOBITS = 8,
+};
+
 static int gnu_ext;
 static int tcc_ext;
 static struct TCCState *tcc_state;
@@ -9972,24 +9980,23 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                         if ((s->sh_flags & (SHF_ALLOC | SHF_WRITE)) !=
                             SHF_ALLOC)
                             continue;
-// LJW BOOKMARK2
                     } else {
-                        if ((s->sh_flags & ((1 << 1) | (1 << 0))) !=
-                            ((1 << 1) | (1 << 0)))
+                        if ((s->sh_flags & (SHF_ALLOC | SHF_WRITE)) !=
+                            (SHF_ALLOC | SHF_WRITE))
                             continue;
                     }
                     if (s == interp) {
                         if (k != 0)
                             continue;
-                    } else if (s->sh_type == 11 ||
-                               s->sh_type == 3 ||
-                               s->sh_type == 5) {
+                    } else if (s->sh_type == SHT_DYNSYM ||
+                               s->sh_type == SHT_STRTAB ||
+                               s->sh_type == SHT_HASH) {
                         if (k != 1)
                             continue;
-                    } else if (s->sh_type == 9) {
+                    } else if (s->sh_type == SHT_RELX) {
                         if (k != 2)
                             continue;
-                    } else if (s->sh_type == 8) {
+                    } else if (s->sh_type == SHT_NOBITS) {
                         if (k != 4)
                             continue;
                     } else {
@@ -10003,6 +10010,7 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                     file_offset += (int) ( addr - tmp );
                     s->sh_offset = file_offset;
                     s->sh_addr = addr;
+// LJW BOOKMARK2
                     if (ph->p_offset == 0) {
                         ph->p_offset = file_offset;
                         ph->p_vaddr = addr;
