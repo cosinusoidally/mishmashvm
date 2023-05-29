@@ -6048,96 +6048,91 @@ static int is_compatible_unqualified_types(CType *type1, CType *type2) {
     return compare_types(type1,type2,1);
 }
 
-// LJW BOOKMARK
 static void type_to_str(char *buf, int buf_size,
                  CType *type, const char *varstr) {
+// LJW DONE
     int bt, v, t;
     Sym *s, *sa;
     char buf1[256];
     const char *tstr;
-
     t = type->t;
-    bt = t & 0x000f;
+    bt = t & VT_BTYPE;
     buf[0] = '\0';
-
-    if (t & 0x00001000)
+    if (t & VT_EXTERN)
         pstrcat(buf, buf_size, "extern ");
-    if (t & 0x00002000)
+    if (t & VT_STATIC)
         pstrcat(buf, buf_size, "static ");
-    if (t & 0x00004000)
+    if (t & VT_TYPEDEF)
         pstrcat(buf, buf_size, "typedef ");
-    if (t & 0x00008000)
+    if (t & VT_INLINE)
         pstrcat(buf, buf_size, "inline ");
-    if (t & 0x0200)
+    if (t & VT_VOLATILE)
         pstrcat(buf, buf_size, "volatile ");
-    if (t & 0x0100)
+    if (t & VT_CONSTANT)
         pstrcat(buf, buf_size, "const ");
-
-    if (((t & 0x0020) && bt == 1)
-        || ((t & 0x0010)
-            && (bt == 2 || bt == 3 || bt == 4)
+    if (((t & VT_DEFSIGN) && bt == VT_BYTE)
+        || ((t & VT_UNSIGNED)
+            && (bt == VT_SHORT || bt == VT_INT || bt == VT_LLONG)
             && !IS_ENUM(t)
             ))
-        pstrcat(buf, buf_size, (t & 0x0010) ? "unsigned " : "signed ");
-
+        pstrcat(buf, buf_size, (t & VT_UNSIGNED) ? "unsigned " : "signed ");
     buf_size -= strlen(buf);
     buf += strlen(buf);
-
     switch(bt) {
-    case 0:
+    case VT_VOID:
         tstr = "void";
         goto add_tstr;
-    case 11:
+    case VT_BOOL:
         tstr = "_Bool";
         goto add_tstr;
-    case 1:
+    case VT_BYTE:
         tstr = "char";
         goto add_tstr;
-    case 2:
+    case VT_SHORT:
         tstr = "short";
         goto add_tstr;
-    case 3:
+    case VT_INT:
         tstr = "int";
         goto maybe_long;
-    case 4:
+    case VT_LLONG:
         tstr = "long long";
     maybe_long:
-        if (t & 0x0800)
+        if (t & VT_LONG)
             tstr = "long";
         if (!IS_ENUM(t))
             goto add_tstr;
         tstr = "enum ";
         goto tstruct;
-    case 8:
+    case VT_FLOAT:
         tstr = "float";
         goto add_tstr;
-    case 9:
+    case VT_DOUBLE:
         tstr = "double";
         goto add_tstr;
-    case 10:
+    case VT_LDOUBLE:
         tstr = "long double";
     add_tstr:
         pstrcat(buf, buf_size, tstr);
         break;
-    case 7:
+    case VT_STRUCT:
         tstr = "struct ";
         if (((t & ((((1 << (6+6)) - 1) << 20 | 0x0080)|0x000f)) == (1 << 20 | 7)))
             tstr = "union ";
     tstruct:
         pstrcat(buf, buf_size, tstr);
-        v = type->ref->v & ~0x40000000;
-        if (v >= 0x10000000)
+        v = type->ref->v & ~SYM_STRUCT;
+        if (v >= SYM_FIRST_ANOM)
             pstrcat(buf, buf_size, "<anonymous>");
         else
-            pstrcat(buf, buf_size, get_tok_str(v, ((void*)0)));
+            pstrcat(buf, buf_size, get_tok_str(v, NULL));
         break;
-    case 6:
+    case VT_FUNC:
         s = type->ref;
         type_to_str(buf, buf_size, &s->type, varstr);
         pstrcat(buf, buf_size, "(");
         sa = s->next;
-        while (sa != ((void*)0)) {
-            type_to_str(buf1, sizeof(buf1), &sa->type, ((void*)0));
+        while (sa != NULL) {
+            type_to_str(buf1, sizeof(buf1), &sa->type, NULL);
             pstrcat(buf, buf_size, buf1);
             sa = sa->next;
             if (sa)
@@ -6145,17 +6140,17 @@ static void type_to_str(char *buf, int buf_size,
         }
         pstrcat(buf, buf_size, ")");
         goto no_var;
-    case 5:
+    case VT_PTR:
         s = type->ref;
-        if (t & 0x0040) {
+        if (t & VT_ARRAY) {
             snprintf(buf1, sizeof(buf1), "%s[%d]", varstr ? varstr : "", s->c);
             type_to_str(buf, buf_size, &s->type, buf1);
             goto no_var;
         }
         pstrcpy(buf1, sizeof(buf1), "*");
-        if (t & 0x0100)
+        if (t & VT_CONSTANT)
             pstrcat(buf1, buf_size, "const ");
-        if (t & 0x0200)
+        if (t & VT_VOLATILE)
             pstrcat(buf1, buf_size, "volatile ");
         if (varstr)
             pstrcat(buf1, sizeof(buf1), varstr);
@@ -6169,10 +6164,9 @@ static void type_to_str(char *buf, int buf_size,
  no_var: ;
 }
 
+// LJW BOOKMARK
+static void gen_assign_cast(CType *dt) {
 
-
-static void gen_assign_cast(CType *dt)
-{
     CType *st, *type1, *type2;
     char buf1[256], buf2[256];
     int dbt, sbt;
