@@ -3883,7 +3883,6 @@ no_subst:
     }
 }
 
-// LJW BOOKMARK
 static void next(void) {
 // LJW DONE
  redo:
@@ -4032,45 +4031,22 @@ static void tccpp_delete(TCCState *s) {
     cstr_alloc = ((void*)0);
 }
 
-static void pp_line(TCCState *s1, BufferedFile *f, int level)
-{
-    int d = f->line_num - f->line_ref;
-
-    if (s1->dflag & 4)
-	return;
-
-    if (s1->Pflag == LINE_MACRO_OUTPUT_FORMAT_NONE) {
-        ;
-    } else if (level == 0 && f->line_ref && d < 8) {
-	while (d > 0)
-	    fputs("\n", s1->ppfp), --d;
-    } else if (s1->Pflag == LINE_MACRO_OUTPUT_FORMAT_STD) {
-	fprintf(s1->ppfp, "#line %d \"%s\"\n", f->line_num, f->filename);
-    } else {
-	fprintf(s1->ppfp, "# %d \"%s\"%s\n", f->line_num, f->filename,
-	    level > 0 ? " 1" : level < 0 ? " 2" : "");
-    }
-    f->line_ref = f->line_num;
+static void pp_line(TCCState *s1, BufferedFile *f, int level) {
+// LJW DONE
+puts("s\n");exit(1);
 }
 
-static int pp_need_space(int a, int b)
-{
-    return 'E' == a ? '+' == b || '-' == b
-        : '+' == a ? 0xa4 == b || '+' == b
-        : '-' == a ? 0xa2 == b || '-' == b
-        : a >= 256 ? b >= 256
-	: a == 0xbe ? b >= 256
-        : 0;
+static int pp_need_space(int a, int b) {
+// LJW DONE
+puts("s\n");exit(1);
 }
 
-
-static int pp_check_he0xE(int t, const char *p)
-{
-    if (t == 0xbe && toup(strchr(p, 0)[-1]) == 'E')
-        return 'E';
-    return t;
+static int pp_check_he0xE(int t, const char *p) {
+// LJW DONE
+puts("s\n");exit(1);
 }
 
+// LJW BOOKMARK
 static int tcc_preprocess(TCCState *s1) {
 // LJW DONE
     BufferedFile **iptr;
