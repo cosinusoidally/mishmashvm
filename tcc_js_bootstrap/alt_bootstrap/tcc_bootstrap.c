@@ -7203,35 +7203,31 @@ static void indir(void) {
     }
 }
 
-// LJW BOOKMARK
 static void gfunc_param_typed(Sym *func, Sym *arg) {
-
+// LJW DONE
     int func_type;
     CType type;
-
     func_type = func->f.func_type;
-    if (func_type == 2 ||
-        (func_type == 3 && arg == ((void*)0))) {
-
-        if ((vtop->type.t & 0x000f) == 8) {
-            gen_cast_s(9);
-        } else if (vtop->type.t & 0x0080) {
-            type.t = vtop->type.t & (0x000f | 0x0010);
-	    type.ref = vtop->type.ref;
+    if (func_type == FUNC_OLD ||
+        (func_type == FUNC_ELLIPSIS && arg == NULL)) {
+        if ((vtop->type.t & VT_BTYPE) == VT_FLOAT) {
+            gen_cast_s(VT_DOUBLE);
+        } else if (vtop->type.t & VT_BITFIELD) {
+            type.t = vtop->type.t & (VT_BTYPE | VT_UNSIGNED);
+            type.ref = vtop->type.ref;
             gen_cast(&type);
         }
-    } else if (arg == ((void*)0)) {
+    } else if (arg == NULL) {
         tcc_error("too many arguments to function");
     } else {
         type = arg->type;
-        type.t &= ~0x0100;
+        type.t &= ~VT_CONSTANT;
         gen_assign_cast(&type);
     }
 }
 
-
-static void expr_type(CType *type, void (*expr_fn)(void))
-{
+static void expr_type(CType *type, void (*expr_fn)(void)) {
+// LJW DONE
     nocode_wanted++;
     expr_fn();
     *type = vtop->type;
@@ -7252,11 +7248,11 @@ static void parse_expr_type(CType *type) {
     skip(')');
 }
 
-static void parse_type(CType *type)
-{
+// LJW BOOKMARK
+static void parse_type(CType *type) {
+
     AttributeDef ad;
     int n;
-
     if (!parse_btype(type, &ad)) {
         expect("type");
     }
