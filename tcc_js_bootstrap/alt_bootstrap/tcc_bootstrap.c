@@ -6164,85 +6164,70 @@ static void type_to_str(char *buf, int buf_size,
  no_var: ;
 }
 
-// LJW BOOKMARK
 static void gen_assign_cast(CType *dt) {
-
+// LJW DONE
     CType *st, *type1, *type2;
     char buf1[256], buf2[256];
     int dbt, sbt;
-
     st = &vtop->type;
-    dbt = dt->t & 0x000f;
-    sbt = st->t & 0x000f;
-    if (sbt == 0 || dbt == 0) {
-	if (sbt == 0 && dbt == 0)
-	    ;
-	else
-    	    tcc_error("cannot cast from/to void");
+    dbt = dt->t & VT_BTYPE;
+    sbt = st->t & VT_BTYPE;
+    if (sbt == VT_VOID || dbt == VT_VOID) {
+        if (sbt == VT_VOID && dbt == VT_VOID)
+            ;
+        else
+            tcc_error("cannot cast from/to void");
     }
-    if (dt->t & 0x0100)
+    if (dt->t & VT_CONSTANT)
         tcc_warning("assignment of read-only location");
     switch(dbt) {
-    case 5:
-
-
+    case VT_PTR:
         if (is_null_pointer(vtop))
             goto type_ok;
-
         if (is_integer_btype(sbt)) {
             tcc_warning("assignment makes pointer from integer without a cast");
             goto type_ok;
         }
         type1 = pointed_type(dt);
-
-        if (sbt == 6) {
-            if ((type1->t & 0x000f) != 0 &&
+        if (sbt == VT_FUNC) {
+            if ((type1->t & VT_BTYPE) != VT_VOID &&
                 !is_compatible_types(pointed_type(dt), st))
                 tcc_warning("assignment from incompatible pointer type");
             goto type_ok;
         }
-        if (sbt != 5)
+        if (sbt != VT_PTR)
             goto error;
         type2 = pointed_type(st);
-        if ((type1->t & 0x000f) == 0 ||
-            (type2->t & 0x000f) == 0) {
-
+        if ((type1->t & VT_BTYPE) == VT_VOID ||
+            (type2->t & VT_BTYPE) == VT_VOID) {
         } else {
-
-
             if (!is_compatible_unqualified_types(type1, type2)) {
-
-
-
-
-		if ((type1->t & (0x000f|0x0800)) != (type2->t & (0x000f|0x0800))
+                if ((type1->t & (VT_BTYPE|VT_LONG)) != (type2->t & (VT_BTYPE|VT_LONG))
                     || IS_ENUM(type1->t) || IS_ENUM(type2->t)
                     )
-		    tcc_warning("assignment from incompatible pointer type");
-	    }
+                    tcc_warning("assignment from incompatible pointer type");
+            }
         }
-
-        if ((!(type1->t & 0x0100) && (type2->t & 0x0100)) ||
-            (!(type1->t & 0x0200) && (type2->t & 0x0200)))
+        if ((!(type1->t & VT_CONSTANT) && (type2->t & VT_CONSTANT)) ||
+            (!(type1->t & VT_VOLATILE) && (type2->t & VT_VOLATILE)))
             tcc_warning("assignment discards qualifiers from pointer target type");
         break;
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-        if (sbt == 5 || sbt == 6) {
+    case VT_BYTE:
+    case VT_SHORT:
+    case VT_INT:
+    case VT_LLONG:
+        if (sbt == VT_PTR || sbt == VT_FUNC) {
             tcc_warning("assignment makes integer from pointer without a cast");
-        } else if (sbt == 7) {
+        } else if (sbt == VT_STRUCT) {
             goto case_VT_STRUCT;
         }
-
         break;
-    case 7:
+    case VT_STRUCT:
     case_VT_STRUCT:
         if (!is_compatible_unqualified_types(dt, st)) {
         error:
-            type_to_str(buf1, sizeof(buf1), st, ((void*)0));
-            type_to_str(buf2, sizeof(buf2), dt, ((void*)0));
+            type_to_str(buf1, sizeof(buf1), st, NULL);
+            type_to_str(buf2, sizeof(buf2), dt, NULL);
             tcc_error("cannot cast '%s' to '%s'", buf1, buf2);
         }
         break;
@@ -6251,7 +6236,7 @@ static void gen_assign_cast(CType *dt) {
     gen_cast(dt);
 }
 
-
+// LJW BOOKMARK
 static void vstore(void) {
 // LJW DONE
     int sbt, dbt, ft, r, t, size, align, bit_size, bit_pos, rc, delayed_cast;
