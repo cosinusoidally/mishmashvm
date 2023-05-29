@@ -6236,7 +6236,6 @@ static void gen_assign_cast(CType *dt) {
     gen_cast(dt);
 }
 
-// LJW BOOKMARK
 static void vstore(void) {
 // LJW DONE
     int sbt, dbt, ft, r, t, size, align, bit_size, bit_pos, rc, delayed_cast;
@@ -6247,8 +6246,7 @@ static void vstore(void) {
          (sbt == VT_INT && dbt == VT_SHORT))
         && !(vtop->type.t & VT_BITFIELD)) {
         delayed_cast = VT_MUSTCAST;
-// VT_TYPE FIXME
-        vtop->type.t = ft & (~((0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)|(((1 << (6+6)) - 1) << 20 | 0x0080)));
+        vtop->type.t = ft & VT_TYPE;
         if (ft & VT_CONSTANT)
             tcc_warning("assignment of read-only location");
     } else {
@@ -6359,6 +6357,7 @@ static void inc(int post, int c) {
         vpop();
 }
 
+// LJW BOOKMARK
 static int exact_log2p1(int i)
 {
   int ret;
