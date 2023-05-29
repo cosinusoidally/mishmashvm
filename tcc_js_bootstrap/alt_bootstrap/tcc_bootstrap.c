@@ -5126,6 +5126,7 @@ static int gvtst(int inv, int t) {
 
 // LJW BOOKMARK
 static void gen_opl(int op) {
+
     int t, a, b, op1, c, i;
     int func;
     unsigned short reg_iret = TREG_EAX;
