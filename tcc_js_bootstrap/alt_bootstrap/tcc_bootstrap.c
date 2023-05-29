@@ -3357,30 +3357,29 @@ maybe_newline:
             tok = '|';
         }
         break;
-// LJW BOOKMARK2
     case '+':
-        p=PEEKC(&c,&p);
+        p=PEEKC(&c, &p);
         if (c == '+') {
             p++;
-            tok = 0xa4;
+            tok = TOK_INC;
         } else if (c == '=') {
             p++;
-            tok = 0xab;
+            tok = TOK_A_ADD;
         } else {
             tok = '+';
         }
         break;
     case '-':
-        p=PEEKC(&c,&p);
+        p=PEEKC(&c, &p);
         if (c == '-') {
             p++;
-            tok = 0xa2;
+            tok = TOK_DEC;
         } else if (c == '=') {
             p++;
-            tok = 0xad;
+            tok = TOK_A_SUB;
         } else if (c == '>') {
             p++;
-            tok = 0xc7;
+            tok = TOK_ARROW;
         } else {
             tok = '-';
         }
@@ -3395,6 +3394,7 @@ maybe_newline:
     p=PARSE2(&c,&p, '%', '=', TOK_A_MOD); break;
     case '^':
     p=PARSE2(&c,&p, '^', '=', TOK_A_XOR); break;
+// LJW BOOKMARK2
     case '/':
         p=PEEKC(&c,&p);
         if (c == '*') {
