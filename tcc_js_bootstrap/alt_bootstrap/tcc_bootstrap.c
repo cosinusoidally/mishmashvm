@@ -789,6 +789,8 @@ const int R_DATA_PTR = R_386_32;
 
 const int SYM_POOL_NB = (8192 / sizeof(Sym));
 
+const int ELF_PAGE_SIZE = 0x1000;
+
 enum LABELS {
     LABEL_DEFINED = 0,
     LABEL_FORWARD = 1,
@@ -9920,6 +9922,7 @@ struct dyn_inf {
 static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                            Section *interp, Section* strsec,
                            struct dyn_inf *dyninf, int *sec_order) {
+
     int i, j, k, file_type, sh_order_index, file_offset;
     unsigned long s_align;
     long long tmp;
@@ -9929,9 +9932,9 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
     file_type = s1->output_type;
     sh_order_index = 1;
     file_offset = 0;
-    if (s1->output_format == 0)
+    if (s1->output_format == TCC_OUTPUT_FORMAT_ELF)
         file_offset = sizeof(Elf32_Ehdr) + phnum * sizeof(Elf32_Phdr);
-    s_align = 0x1000;
+    s_align = ELF_PAGE_SIZE;
     if (s1->section_align)
         s_align = s1->section_align;
     if (phnum > 0) {
@@ -9943,13 +9946,6 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
             if (a_offset < p_offset)
                 a_offset += s_align;
             file_offset += (a_offset - p_offset);
-        } else {
-            if (file_type == 3)
-                addr = 0;
-            else
-                addr = 0x08048000;
-
-            addr += (file_offset & (s_align - 1));
         }
         ph = &phdr[0];
         if (interp)
