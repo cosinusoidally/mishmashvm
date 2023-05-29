@@ -8716,9 +8716,9 @@ static void init_putz(Section *sec, unsigned long c, int size) {
     }
 }
 
-// LJW BOOKMARK
 static int decl_designator(CType *type, Section *sec, unsigned long c,
                            Sym **cur_field, int size_only, int al) {
+// LJW DONE
     Sym *s, *f;
     int index, index_last, align, l, nb_elems, elem_size;
     unsigned long corig = c;
@@ -8789,37 +8789,32 @@ static int decl_designator(CType *type, Section *sec, unsigned long c,
             c += f->c;
         }
     }
-// LJW BOOKMARK2
-
     if (!size_only && c - corig > al)
-	init_putz(sec, corig + al, c - corig - al);
+        init_putz(sec, corig + al, c - corig - al);
     decl_initializer(type, sec, c, 0, size_only);
-
-
     if (!size_only && nb_elems > 1) {
         unsigned long c_end;
         uint8_t *src, *dst;
         int i;
-
         if (!sec) {
-	    vset(type, 0x0032|0x0100, c);
-	    for (i = 1; i < nb_elems; i++) {
-		vset(type, 0x0032|0x0100, c + elem_size * i);
-		vswap();
-		vstore();
-	    }
-	    vpop();
+            vset(type, VT_LOCAL|VT_LVAL, c);
+            for (i = 1; i < nb_elems; i++) {
+                vset(type, VT_LOCAL|VT_LVAL, c + elem_size * i);
+                vswap();
+                vstore();
+            }
+            vpop();
         } else if (!(nocode_wanted > 0)) {
-	    c_end = c + nb_elems * elem_size;
-	    if (c_end > sec->data_allocated)
-	        section_realloc(sec, c_end);
-	    src = sec->data + c;
-	    dst = src;
-	    for(i = 1; i < nb_elems; i++) {
-		dst += elem_size;
-		memcpy(dst, src, elem_size);
-	    }
-	}
+            c_end = c + nb_elems * elem_size;
+            if (c_end > sec->data_allocated)
+                section_realloc(sec, c_end);
+            src = sec->data + c;
+            dst = src;
+            for(i = 1; i < nb_elems; i++) {
+                dst += elem_size;
+                memcpy(dst, src, elem_size);
+            }
+        }
     }
     c += nb_elems * type_size(type, &align);
     if (c - corig > al)
@@ -8827,7 +8822,7 @@ static int decl_designator(CType *type, Section *sec, unsigned long c,
     return al;
 }
 
-
+// LJW BOOKMARK
 static void init_putv(CType *type, Section *sec, unsigned long c) {
 // LJW DONE
     int bt;
