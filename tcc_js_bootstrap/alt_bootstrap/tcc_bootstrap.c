@@ -9935,11 +9935,10 @@ struct dyn_inf {
     Elf32_Addr rel_size;
 };
 
-// LJW BOOKMARK
 static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                            Section *interp, Section* strsec,
                            struct dyn_inf *dyninf, int *sec_order) {
-
+// LJW DONE
     int i, j, k, file_type, sh_order_index, file_offset;
     unsigned long s_align;
     long long tmp;
@@ -10044,23 +10043,26 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
             }
         }
     }
-// LJW BOOKMARK2
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
-        if (phnum > 0 && (s->sh_flags & (1 << 1)))
+        if (phnum > 0 && (s->sh_flags & SHF_ALLOC))
             continue;
         sec_order[sh_order_index++] = i;
+
         file_offset = (file_offset + s->sh_addralign - 1) &
             ~(s->sh_addralign - 1);
         s->sh_offset = file_offset;
-        if (s->sh_type != 8)
+        if (s->sh_type != SHT_NOBITS)
             file_offset += s->sh_size;
     }
+
     return file_offset;
 }
 
+// LJW BOOKMARK
 static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
                            int file_offset, int *sec_order) {
+
     int i, shnum, offset, size, file_type;
     Section *s;
     Elf32_Ehdr ehdr;
