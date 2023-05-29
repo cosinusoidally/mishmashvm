@@ -5739,22 +5739,15 @@ static void gen_cvt_itof1(int t) {
     }
 }
 
-// LJW BOOKMARK
 static void gen_cvt_ftoi1(int t) {
-
-
-
+// LJW DONE
     int st;
-
-    if (t == (4 | 0x0010)) {
-
-        st = vtop->type.t & 0x000f;
-        if (st == 8)
+    if (t == (VT_LLONG | VT_UNSIGNED)) {
+        st = vtop->type.t & VT_BTYPE;
+        if (st == VT_FLOAT)
             vpush_global_sym(&func_old_type, TOK___fixunssfdi);
-
-        else if (st == 10)
+        else if (st == VT_LDOUBLE)
             vpush_global_sym(&func_old_type, TOK___fixunsxfdi);
-
         else
             vpush_global_sym(&func_old_type, TOK___fixunsdfdi);
         vrott(2);
@@ -5765,12 +5758,10 @@ static void gen_cvt_ftoi1(int t) {
     } else {
         ;
     }
-
 }
 
-
-static void force_charshort_cast(int t)
-{
+// LJW BOOKMARK
+static void force_charshort_cast(int t) {
     int bits, dbt;
 
 
