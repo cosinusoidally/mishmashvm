@@ -4126,9 +4126,9 @@ static struct switch_t {
     } **p; int n;
     int def_sym;
 } *cur_switch;
-// LJW BOOKMARK
 static void gen_cast(CType *type);
 static void gen_cast_s(int t);
+// LJW BOOKMARK
 static inline CType *pointed_type(CType *type);
 static int is_compatible_types(CType *type1, CType *type2);
 static int parse_btype(CType *type, AttributeDef *ad);
@@ -5786,7 +5786,7 @@ static void gen_cast_s(int t) {
 }
 
 static void gen_cast(CType *type) {
-
+// LJW DONE
     int sbt, dbt, sf, df, c, p;
     if (vtop->r & VT_MUSTCAST) {
         vtop->r &= ~VT_MUSTCAST;
@@ -5890,27 +5890,26 @@ static void gen_cast(CType *type) {
                     vtop[-1].r2 = vtop->r;
                     vpop();
                 }
-// LJW BOOKMARK2
-            } else if (dbt == 11) {
+            } else if (dbt == VT_BOOL) {
                 vpushi(0);
-                gen_op(0x95);
-            } else if ((dbt & 0x000f) == 1 ||
-                       (dbt & 0x000f) == 2) {
-                if (sbt == 5) {
-                    vtop->type.t = 3;
+                gen_op(TOK_NE);
+            } else if ((dbt & VT_BTYPE) == VT_BYTE ||
+                       (dbt & VT_BTYPE) == VT_SHORT) {
+                if (sbt == VT_PTR) {
+                    vtop->type.t = VT_INT;
                     tcc_warning("nonportable conversion from pointer to char/short");
                 }
                 force_charshort_cast(dbt);
-            } else if ((dbt & 0x000f) == 3) {
-                if ((sbt & 0x000f) == 4) {
+            } else if ((dbt & VT_BTYPE) == VT_INT) {
+                if ((sbt & VT_BTYPE) == VT_LLONG) {
                     lexpand();
                     vpop();
                 }
             }
         }
-    } else if ((dbt & 0x000f) == 5 && !(vtop->r & 0x0100)) {
-        vtop->r = (vtop->r & ~(0x1000 | 0x2000 | 0x4000))
-                  | (lvalue_type(type->ref->type.t) & (0x1000 | 0x2000 | 0x4000));
+    } else if ((dbt & VT_BTYPE) == VT_PTR && !(vtop->r & VT_LVAL)) {
+        vtop->r = (vtop->r & ~VT_LVAL_TYPE)
+                  | (lvalue_type(type->ref->type.t) & VT_LVAL_TYPE);
     }
     vtop->type = *type;
 }
