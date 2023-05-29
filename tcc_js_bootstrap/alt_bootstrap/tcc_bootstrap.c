@@ -6795,7 +6795,6 @@ static void sym_to_attr(AttributeDef *ad, Sym *s) {
         ad->a.packed = 1;
 }
 
-// LJW BOOKMARK
 static void parse_btype_qualify(CType *type, int qualifiers) {
 // LJW DONE
     while (type->t & VT_ARRAY) {
@@ -6992,22 +6991,19 @@ the_end:
     return type_found;
 }
 
-
-
-static inline void convert_parameter_type(CType *pt)
-{
-
-
-    pt->t &= ~(0x0100 | 0x0200);
-
-    pt->t &= ~0x0040;
-    if ((pt->t & 0x000f) == 6) {
+static void convert_parameter_type(CType *pt) {
+// LJW DONE
+    pt->t &= ~(VT_CONSTANT | VT_VOLATILE);
+    /* array must be transformed to pointer according to ANSI C */
+    pt->t &= ~VT_ARRAY;
+    if ((pt->t & VT_BTYPE) == VT_FUNC) {
         mk_pointer(pt);
     }
 }
 
-static int post_type(CType *type, AttributeDef *ad, int storage, int td)
-{
+// LJW BOOKMARK
+static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
+
     int n, l, t1, arg_size, align;
     Sym **plast, *s, *first;
     AttributeDef ad1;
