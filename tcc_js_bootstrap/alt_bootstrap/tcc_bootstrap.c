@@ -717,6 +717,10 @@ enum FUNCS {
     FUNC_PROLOG_SIZE = 9,
 };
 
+enum {
+    FUNC_NEW = 1,
+};
+
 enum MISC {
     LONG_SIZE = 4,
 };
@@ -7001,63 +7005,62 @@ static void convert_parameter_type(CType *pt) {
     }
 }
 
-// LJW BOOKMARK
 static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
-
+// LJW DONE
     int n, l, t1, arg_size, align;
     Sym **plast, *s, *first;
     AttributeDef ad1;
     CType pt;
     if (tok == '(') {
         next();
-	if (td && !(td & 1))
-	  return 0;
-	if (tok == ')')
-	  l = 0;
-	else if (parse_btype(&pt, &ad1))
-	  l = 1;
-	else if (td)
-	  return 0;
-	else
-	  l = 2;
-        first = ((void*)0);
+        if (td && !(td & TYPE_ABSTRACT))
+          return 0;
+        if (tok == ')')
+          l = 0;
+        else if (parse_btype(&pt, &ad1))
+          l = FUNC_NEW;
+        else if (td)
+          return 0;
+        else
+          l = FUNC_OLD;
+        first = NULL;
         plast = &first;
         arg_size = 0;
         if (l) {
             for(;;) {
-                if (l != 2) {
-                    if ((pt.t & 0x000f) == 0 && tok == ')')
+                if (l != FUNC_OLD) {
+                    if ((pt.t & VT_BTYPE) == VT_VOID && tok == ')')
                         break;
-                    type_decl(&pt, &ad1, &n, 2 | 1);
-                    if ((pt.t & 0x000f) == 0)
+                    type_decl(&pt, &ad1, &n, TYPE_DIRECT | TYPE_ABSTRACT);
+                    if ((pt.t & VT_BTYPE) == VT_VOID)
                         tcc_error("parameter declared as void");
-                    arg_size += (type_size(&pt, &align) + 4 - 1) / 4;
+                    arg_size += (type_size(&pt, &align) + PTR_SIZE - 1) / PTR_SIZE;
                 } else {
                     n = tok;
-                    if (n < TOK_DEFINE)
+                    if (n < TOK_UIDENT)
                         expect("identifier");
-                    pt.t = 0;
+                    pt.t = VT_VOID;
                     next();
                 }
                 convert_parameter_type(&pt);
-                s = sym_push(n | 0x20000000, &pt, 0, 0);
+                s = sym_push(n | SYM_FIELD, &pt, 0, 0);
                 *plast = s;
                 plast = &s->next;
                 if (tok == ')')
                     break;
                 skip(',');
-                if (l == 1 && tok == 0xc8) {
-                    l = 3;
+                if (l == FUNC_NEW && tok == TOK_DOTS) {
+                    l = FUNC_ELLIPSIS;
                     next();
                     break;
                 }
-		if (l == 1 && !parse_btype(&pt, &ad1))
-		    tcc_error("invalid type");
+                if (l == FUNC_NEW && !parse_btype(&pt, &ad1))
+                    tcc_error("invalid type");
             }
         } else
-            l = 2;
+            l = FUNC_OLD;
         skip(')');
-        type->t &= ~0x0100;
+        type->t &= ~VT_CONSTANT;
         if (tok == '[') {
             next();
             skip(']');
@@ -7065,55 +7068,46 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
         }
         ad->f.func_args = arg_size;
         ad->f.func_type = l;
-        s = sym_push(0x20000000, type, 0, 0);
+        s = sym_push(SYM_FIELD, type, 0, 0);
         s->a = ad->a;
         s->f = ad->f;
         s->next = first;
-        type->t = 6;
+        type->t = VT_FUNC;
         type->ref = s;
     } else if (tok == '[') {
-	int saved_nocode_wanted = nocode_wanted;
+        int saved_nocode_wanted = nocode_wanted;
         next();
         if (tok == TOK_RESTRICT1)
             next();
         n = -1;
         t1 = 0;
         if (tok != ']') {
-            if (!local_stack || (storage & 0x00002000))
+            if (!local_stack || (storage & VT_STATIC))
                 vpushi(expr_const());
             else {
-		nocode_wanted = 0;
-		gexpr();
-	    }
-            if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
+                nocode_wanted = 0;
+                gexpr();
+            }
+            if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
                 n = vtop->c.i;
                 if (n < 0)
                     tcc_error("invalid array size");
             } else {
-                if (!is_integer_btype(vtop->type.t & 0x000f))
+                if (!is_integer_btype(vtop->type.t & VT_BTYPE))
                     tcc_error("size of variable length array should be an integer");
-                t1 = 0x0400;
+                t1 = VT_VLA;
             }
         }
         skip(']');
         post_type(type, ad, storage, 0);
-        if (type->t == 6)
+        if (type->t == VT_FUNC)
             tcc_error("declaration of an array of functions");
-        t1 |= type->t & 0x0400;
-        if (t1 & 0x0400) {
-            loc -= type_size(&int_type, &align);
-            loc &= -align;
-            n = loc;
-            gen_op('*');
-            vset(&int_type, 0x0032|0x0100, n);
-            vswap();
-            vstore();
-        }
+        t1 |= type->t & VT_VLA;
         if (n != -1)
             vpop();
-	nocode_wanted = saved_nocode_wanted;
-        s = sym_push(0x20000000, type, 0, n);
-        type->t = (t1 ? 0x0400 : 0x0040) | 5;
+        nocode_wanted = saved_nocode_wanted;
+        s = sym_push(SYM_FIELD, type, 0, n);
+        type->t = (t1 ? VT_VLA : VT_ARRAY) | VT_PTR;
         type->ref = s;
     }
     return 1;
@@ -7209,9 +7203,9 @@ static void indir(void) {
     }
 }
 
+// LJW BOOKMARK
+static void gfunc_param_typed(Sym *func, Sym *arg) {
 
-static void gfunc_param_typed(Sym *func, Sym *arg)
-{
     int func_type;
     CType type;
 
