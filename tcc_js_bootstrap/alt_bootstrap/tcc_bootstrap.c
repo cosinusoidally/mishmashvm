@@ -5314,16 +5314,18 @@ static void gen_opl(int op) {
     }
 }
 
-// LJW BOOKMARK
 static uint64_t gen_opic_sdiv(uint64_t a, uint64_t b) {
+// LJW DONE
     uint64_t x = (a >> 63 ? -a : a) / (b >> 63 ? -b : b);
     return (a ^ b) >> 63 ? -x : x;
 }
 
 static int gen_opic_lt(uint64_t a, uint64_t b) {
+// LJW DONE
     return (a ^ (uint64_t)1 << 63) < (b ^ (uint64_t)1 << 63);
 }
 
+// LJW BOOKMARK
 static void gen_opic(int op) {
     SValue *v1 = vtop - 1;
     SValue *v2 = vtop;
