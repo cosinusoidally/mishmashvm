@@ -5830,28 +5830,28 @@ static void gen_cast(CType *type) {
             } else {
                 if(sf)
                     vtop->c.i = vtop->c.ld;
-                else if (sbt == (4|0x0010))
+                else if (sbt == (VT_LLONG|VT_UNSIGNED))
                     ;
-                else if (sbt & 0x0010)
+                else if (sbt & VT_UNSIGNED)
                     vtop->c.i = (uint32_t)vtop->c.i;
-                else if (sbt != 4)
+                else if (sbt != VT_LLONG)
                     vtop->c.i = ((uint32_t)vtop->c.i |
                                   -(vtop->c.i & 0x80000000));
-                if (dbt == (4|0x0010))
+                if (dbt == (VT_LLONG|VT_UNSIGNED))
                     ;
-                else if (dbt == 11)
+                else if (dbt == VT_BOOL)
                     vtop->c.i = (vtop->c.i != 0);
-                else if (dbt != 4) {
-                    uint32_t m = ((dbt & 0x000f) == 1 ? 0xff :
-                                  (dbt & 0x000f) == 2 ? 0xffff :
+                else if (dbt != VT_LLONG) {
+                    uint32_t m = ((dbt & VT_BTYPE) == VT_BYTE ? 0xff :
+                                  (dbt & VT_BTYPE) == VT_SHORT ? 0xffff :
                                   0xffffffff);
                     vtop->c.i &= m;
-                    if (!(dbt & 0x0010))
+                    if (!(dbt & VT_UNSIGNED))
                         vtop->c.i |= -(vtop->c.i & ((m >> 1) + 1));
                 }
             }
-        } else if (p && dbt == 11) {
-            vtop->r = 0x0030;
+        } else if (p && dbt == VT_BOOL) {
+            vtop->r = VT_CONST;
             vtop->c.i = 1;
         } else {
             if (sf && df) {
@@ -5859,20 +5859,21 @@ static void gen_cast(CType *type) {
             } else if (df) {
                 gen_cvt_itof1(dbt);
             } else if (sf) {
-                if (dbt == 11) {
+                if (dbt == VT_BOOL) {
                      vpushi(0);
-                     gen_op(0x95);
+                     gen_op(TOK_NE);
                 } else {
-                    if (dbt != (3 | 0x0010) &&
-                        dbt != (4 | 0x0010) &&
-                        dbt != 4)
-                        dbt = 3;
+                    if (dbt != (VT_INT | VT_UNSIGNED) &&
+                        dbt != (VT_LLONG | VT_UNSIGNED) &&
+                        dbt != VT_LLONG)
+                        dbt = VT_INT;
                     gen_cvt_ftoi1(dbt);
-                    if (dbt == 3 && (type->t & (0x000f | 0x0010)) != dbt) {
+                    if (dbt == VT_INT && (type->t & (VT_BTYPE | VT_UNSIGNED)) != dbt) {
                         vtop->type.t = dbt;
                         gen_cast(type);
                     }
                 }
+// LJW BOOKMARK2
             } else if ((dbt & 0x000f) == 4) {
                 if ((sbt & 0x000f) != 4) {
                     gv(0x0001);
