@@ -9107,22 +9107,17 @@ static int decl_designator(CType *type, Section *sec, unsigned long c,
 }
 
 
-static void init_putv(CType *type, Section *sec, unsigned long c)
-{
+static void init_putv(CType *type, Section *sec, unsigned long c) {
+
     int bt;
     void *ptr;
     CType dtype;
-
     dtype = *type;
     dtype.t &= ~0x0100;
-
     if (sec) {
 	int size, align;
-
-
         gen_assign_cast(&dtype);
         bt = type->t & 0x000f;
-
         if ((vtop->r & 0x0200)
             && bt != 5
             && bt != 6
@@ -9131,21 +9126,16 @@ static void init_putv(CType *type, Section *sec, unsigned long c)
             && !((vtop->r & 0x0030) && vtop->sym->v >= 0x10000000)
             )
             tcc_error("initializer element is not computable at load time");
-
         if ((nocode_wanted > 0)) {
             vtop--;
             return;
         }
-
 	size = type_size(type, &align);
 	section_reserve(sec, c + size);
         ptr = sec->data + c;
-
-
 	if ((vtop->r & (0x0200|0x0030)) == (0x0200|0x0030) &&
 	    vtop->sym->v >= 0x10000000 &&
 	    (vtop->type.t & 0x000f) != 5) {
-
 	    Section *ssec;
 	    Elf32_Sym *esym;
 	    Elf32_Rel *rel;
@@ -9153,10 +9143,6 @@ static void init_putv(CType *type, Section *sec, unsigned long c)
 	    ssec = tcc_state->sections[esym->st_shndx];
 	    memmove (ptr, ssec->data + esym->st_value, size);
 	    if (ssec->reloc) {
-
-
-
-
 		int num_relocs = ssec->reloc->data_offset / sizeof(*rel);
 		rel = (Elf32_Rel*)(ssec->reloc->data + ssec->reloc->data_offset);
 		while (num_relocs--) {
@@ -9165,21 +9151,11 @@ static void init_putv(CType *type, Section *sec, unsigned long c)
 		      continue;
 		    if (rel->r_offset < esym->st_value)
 		      break;
-
-
-
-
-
-
 		    put_elf_reloca(symtab_section, sec,
 				   c + rel->r_offset - esym->st_value,
 				   ((rel->r_info) & 0xff),
 				   ((rel->r_info) >> 8),
-
-
-
 				   0
-
 				  );
 		}
 	    }
@@ -9202,9 +9178,6 @@ static void init_putv(CType *type, Section *sec, unsigned long c)
                 }
             } else
             switch(bt) {
-
-
-
 	    case 11:
 		vtop->c.i = vtop->c.i != 0;
 	    case 1:
@@ -9220,14 +9193,11 @@ static void init_putv(CType *type, Section *sec, unsigned long c)
 		*(double *)ptr = vtop->c.d;
 		break;
 	    case 10:
-
                 if (sizeof (long double) >= 10)
                     memcpy(ptr, &vtop->c.ld, 10);
-
                 else if (vtop->c.ld == 0.0)
                     ;
                 else
-
                 if (sizeof(double) == 12)
 		    *(double*)ptr = vtop->c.ld;
                 else if (sizeof(double) == 12)
@@ -9235,41 +9205,23 @@ static void init_putv(CType *type, Section *sec, unsigned long c)
                 else
                     tcc_error("can't cross compile long double constants");
 		break;
-
 	    case 4:
 		*(long long *)ptr |= vtop->c.i;
 		break;
-
-
-
 	    case 5:
 		{
 		    Elf32_Addr val = vtop->c.i;
-
-
-
-
-
-
 		    if (vtop->r & 0x0200)
 		      greloc(sec, vtop->sym, c, 1);
 		    *(Elf32_Addr *)ptr |= val;
-
 		    break;
 		}
 	    default:
 		{
 		    int val = vtop->c.i;
-
-
-
-
-
-
 		    if (vtop->r & 0x0200)
 		      greloc(sec, vtop->sym, c, 1);
 		    *(int *)ptr |= val;
-
 		    break;
 		}
 	    }
