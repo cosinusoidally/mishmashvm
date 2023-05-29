@@ -4666,20 +4666,20 @@ static void patch_storage(Sym *sym, AttributeDef *ad, CType *type) {
     update_storage(sym);
 }
 
-// LJW BOOKMARK
 static Sym *external_sym(int v, CType *type, int r, AttributeDef *ad) {
+// LJW DONE
     Sym *s;
     s = sym_find(v);
     if (!s) {
-        s = sym_push(v, type, r | 0x0030 | 0x0200, 0);
-        s->type.t |= 0x00001000;
+        s = sym_push(v, type, r | VT_CONST | VT_SYM, 0);
+        s->type.t |= VT_EXTERN;
         s->a = ad->a;
         s->sym_scope = 0;
     } else {
         if (s->type.ref == func_old_type.ref) {
             s->type.ref = type->ref;
-            s->r = r | 0x0030 | 0x0200;
-            s->type.t |= 0x00001000;
+            s->r = r | VT_CONST | VT_SYM;
+            s->type.t |= VT_EXTERN;
         }
         patch_storage(s, ad, type);
     }
@@ -4752,6 +4752,7 @@ static void save_reg_upstack(int r, int n) {
     }
 }
 
+// LJW BOOKMARK
 static int get_reg(int rc) {
 
     int r;
