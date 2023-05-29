@@ -4150,9 +4150,9 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r, int has
 static void decl(int l);
 static int decl0(int l, int is_for_loop_init, Sym *);
 static void expr_eq(void);
-// LJW BOOKMARK
 static int is_compatible_unqualified_types(CType *type1, CType *type2);
-static inline int64_t expr_const64(void);
+static int64_t expr_const64(void);
+// LJW BOOKMARK
 static void vpush64(int ty, unsigned long long v);
 static void vpush(CType *type);
 static int gvtst(int inv, int t);
@@ -6058,18 +6058,13 @@ static int is_compatible_types(CType *type1, CType *type2) {
     return compare_types(type1,type2,0);
 }
 
-static int is_compatible_unqualified_types(CType *type1, CType *type2)
-{
+static int is_compatible_unqualified_types(CType *type1, CType *type2) {
+// LJW DONE
     return compare_types(type1,type2,1);
 }
 
-
-
-
-
 static void type_to_str(char *buf, int buf_size,
-                 CType *type, const char *varstr)
-{
+                 CType *type, const char *varstr) {
     int bt, v, t;
     Sym *s, *sa;
     char buf1[256];
@@ -8416,11 +8411,11 @@ static void expr_const1(void)
 }
 
 
-static inline int64_t expr_const64(void)
-{
+static int64_t expr_const64(void) {
+// LJW DONE
     int64_t c;
     expr_const1();
-    if ((vtop->r & (0x003f | 0x0100 | 0x0200)) != 0x0030)
+    if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) != VT_CONST)
         expect("constant expression");
     c = vtop->c.i;
     vpop();
