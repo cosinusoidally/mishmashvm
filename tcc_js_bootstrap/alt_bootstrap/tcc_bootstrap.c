@@ -6412,9 +6412,8 @@ static void struct_add_offset (Sym *s, int offset) {
     }
 }
 
-// LJW BOOKMARK
 static void struct_layout(CType *type, AttributeDef *ad) {
-
+// LJW DONE
     int size, align, maxalign, offset, c, bit_pos, bit_size;
     int packed, a, bt, prevbt, prev_bit_size;
     int pcc = 0;
@@ -6544,18 +6543,17 @@ static void struct_layout(CType *type, AttributeDef *ad) {
     }
     c = (c + a - 1) & -a;
     type->ref->c = c;
-// LJW BOOKMARK2
     for (f = type->ref->next; f; f = f->next) {
         int s, px, cx, c0;
         CType t;
-        if (0 == (f->type.t & 0x0080))
+        if (0 == (f->type.t & VT_BITFIELD))
             continue;
         f->type.ref = f;
         f->auxtype = -1;
-        bit_size = (((f->type.t) >> (20 + 6)) & 0x3f);
+        bit_size = BIT_SIZE(f->type.t);
         if (bit_size == 0)
             continue;
-        bit_pos = (((f->type.t) >> 20) & 0x3f);
+        bit_pos = BIT_POS(f->type.t);
         size = type_size(&f->type, &align);
         if (bit_pos + bit_size <= size * 8 && f->c + size <= c)
             continue;
@@ -6568,13 +6566,13 @@ static void struct_layout(CType *type, AttributeDef *ad) {
                 break;
             s = (px + bit_size + 7) >> 3;
             if (s > 4) {
-                t.t = 4;
+                t.t = VT_LLONG;
             } else if (s > 2) {
-                t.t = 3;
+                t.t = VT_INT;
             } else if (s > 1) {
-                t.t = 2;
+                t.t = VT_SHORT;
             } else {
-                t.t = 1;
+                t.t = VT_BYTE;
             }
             s = type_size(&t, &align);
             c0 = cx;
@@ -6582,18 +6580,19 @@ static void struct_layout(CType *type, AttributeDef *ad) {
         if (px + bit_size <= s * 8 && cx + s <= c) {
             f->c = cx;
             bit_pos = px;
-	    f->type.t = (f->type.t & ~(0x3f << 20))
-		        | (bit_pos << 20);
+            f->type.t = (f->type.t & ~(0x3f << VT_STRUCT_SHIFT))
+                        | (bit_pos << VT_STRUCT_SHIFT);
             if (s != size)
                 f->auxtype = t.t;
         } else {
-            f->auxtype = 7;
+            f->auxtype = VT_STRUCT;
         }
     }
 }
 
-static void struct_decl(CType *type, int u)
-{
+// LJW BOOKMARK
+static void struct_decl(CType *type, int u) {
+
     int v, c, size, align, flexible;
     int bit_size, bsize, bt;
     Sym *s, *ss, **ps;
