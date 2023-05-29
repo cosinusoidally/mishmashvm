@@ -4131,8 +4131,8 @@ static void gen_cast_s(int t);
 static inline CType *pointed_type(CType *type);
 static int is_compatible_types(CType *type1, CType *type2);
 static int parse_btype(CType *type, AttributeDef *ad);
-// LJW BOOKMARK
 static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td);
+// LJW BOOKMARK
 static void parse_expr_type(CType *type);
 static void init_putv(CType *type, Section *sec, unsigned long c);
 static void decl_initializer(CType *type, Section *sec, unsigned long c, int first, int size_only);
@@ -7279,16 +7279,14 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td)
     }
     return 1;
 }
-static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td)
-{
+
+static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td) {
+// LJW DONE
     CType *post, *ret;
     int qualifiers, storage;
-
-
-    storage = type->t & (0x00001000 | 0x00002000 | 0x00004000 | 0x00008000);
-    type->t &= ~(0x00001000 | 0x00002000 | 0x00004000 | 0x00008000);
+    storage = type->t & VT_STORAGE;
+    type->t &= ~VT_STORAGE;
     post = ret = type;
-
     while (tok == '*') {
         qualifiers = 0;
     redo:
@@ -7297,51 +7295,40 @@ static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td)
         case TOK_CONST1:
         case TOK_CONST2:
         case TOK_CONST3:
-            qualifiers |= 0x0100;
+            qualifiers |= VT_CONSTANT;
             goto redo;
         case TOK_VOLATILE1:
         case TOK_VOLATILE2:
         case TOK_VOLATILE3:
-
-            qualifiers |= 0x0200;
+            qualifiers |= VT_VOLATILE;
             goto redo;
         case TOK_RESTRICT1:
         case TOK_RESTRICT2:
         case TOK_RESTRICT3:
             goto redo;
-
-	case TOK_ATTRIBUTE1:
-	case TOK_ATTRIBUTE2:
-	    parse_attribute(ad);
-	    break;
+        case TOK_ATTRIBUTE1:
+        case TOK_ATTRIBUTE2:
+            parse_attribute(ad);
+            break;
         }
         mk_pointer(type);
         type->t |= qualifiers;
-	if (ret == type)
-
-	    ret = pointed_type(type);
+        if (ret == type)
+            ret = pointed_type(type);
     }
-
     if (tok == '(') {
-
-
-	if (!post_type(type, ad, 0, td)) {
-
-
-
-
-	    parse_attribute(ad);
-	    post = type_decl(type, ad, v, td);
-	    skip(')');
-	}
-    } else if (tok >= 256 && (td & 2)) {
-
-	*v = tok;
-	next();
+        if (!post_type(type, ad, 0, td)) {
+            parse_attribute(ad);
+            post = type_decl(type, ad, v, td);
+            skip(')');
+        }
+    } else if (tok >= TOK_IDENT && (td & TYPE_DIRECT)) {
+        *v = tok;
+        next();
     } else {
-	if (!(td & 1))
-	  expect("identifier");
-	*v = 0;
+        if (!(td & TYPE_ABSTRACT))
+          expect("identifier");
+        *v = 0;
     }
     post_type(post, ad, storage, 0);
     parse_attribute(ad);
