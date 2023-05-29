@@ -9172,33 +9172,32 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
     nocode_wanted = saved_nocode_wanted;
 }
 
-// LJW BOOKMARK
 static void gen_function(Sym *sym) {
-
+// LJW DONE
     nocode_wanted = 0;
     ind = cur_text_section->data_offset;
     put_extern_sym(sym, cur_text_section, ind, 0);
-    funcname = get_tok_str(sym->v, ((void*)0));
+    funcname = get_tok_str(sym->v, NULL);
     func_ind = ind;
     vla_sp_loc = -1;
     vla_sp_root_loc = -1;
-    sym_push2(&local_stack, 0x20000000, 0, 0);
+    sym_push2(&local_stack, SYM_FIELD, 0, 0);
     local_scope = 1;
     gfunc_prolog(&sym->type);
     local_scope = 0;
     rsym = 0;
-    block(((void*)0), ((void*)0), 0);
+    block(NULL, NULL, 0);
     nocode_wanted = 0;
     gsym(rsym);
     gfunc_epilog();
     cur_text_section->data_offset = ind;
-    label_pop(&global_label_stack, ((void*)0), 0);
+    label_pop(&global_label_stack, NULL, 0);
     local_scope = 0;
-    sym_pop(&local_stack, ((void*)0), 0);
+    sym_pop(&local_stack, NULL, 0);
     elfsym(sym)->st_size = ind - func_ind;
-    cur_text_section = ((void*)0);
+    cur_text_section = NULL;
     funcname = "";
-    func_vt.t = 0;
+    func_vt.t = VT_VOID;
     func_var = 0;
     ind = 0;
     nocode_wanted = 0x80000000;
@@ -9443,7 +9442,9 @@ static void tccelf_new(TCCState *s) {
                                       ".dynhashtab", 0x80000000);
 }
 
+// LJW BOOKMARK
 static void free_section(Section *s) {
+// LJW DONE
     tcc_free(s->data);
 }
 
