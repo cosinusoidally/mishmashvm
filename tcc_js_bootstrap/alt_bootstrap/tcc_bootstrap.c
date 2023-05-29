@@ -5873,24 +5873,24 @@ static void gen_cast(CType *type) {
                         gen_cast(type);
                     }
                 }
-// LJW BOOKMARK2
-            } else if ((dbt & 0x000f) == 4) {
-                if ((sbt & 0x000f) != 4) {
-                    gv(0x0001);
-                    if (sbt == (3 | 0x0010)) {
+            } else if ((dbt & VT_BTYPE) == VT_LLONG) {
+                if ((sbt & VT_BTYPE) != VT_LLONG) {
+                    gv(RC_INT);
+                    if (sbt == (VT_INT | VT_UNSIGNED)) {
                         vpushi(0);
-                        gv(0x0001);
+                        gv(RC_INT);
                     } else {
-                        if (sbt == 5) {
-                            gen_cast_s(3);
+                        if (sbt == VT_PTR) {
+                            gen_cast_s(VT_INT);
                         }
                         gv_dup();
                         vpushi(31);
-                        gen_op(0x02);
+                        gen_op(TOK_SAR);
                     }
                     vtop[-1].r2 = vtop->r;
                     vpop();
                 }
+// LJW BOOKMARK2
             } else if (dbt == 11) {
                 vpushi(0);
                 gen_op(0x95);
