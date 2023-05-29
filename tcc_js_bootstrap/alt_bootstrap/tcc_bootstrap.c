@@ -793,6 +793,8 @@ const int ELF_PAGE_SIZE = 0x1000;
 
 const int PT_LOAD = 1;
 
+const int ET_REL = 1;
+
 enum PFS {
     PF_X = (1 << 0),
     PF_W = (1 << 1),
@@ -10083,19 +10085,8 @@ static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
     ehdr.e_ident[4] = 1;
     ehdr.e_ident[5] = 1;
     ehdr.e_ident[6] = 1;
-    switch(file_type) {
-    default:
-    case 2:
-        ehdr.e_type = 2;
-        break;
-    case 3:
-        ehdr.e_type = 3;
-        ehdr.e_entry = text_section->sh_addr;
-        break;
-    case 4:
-        ehdr.e_type = 1;
-        break;
-    }
+// LJW BOOKMARK2
+    ehdr.e_type = ET_REL;
     ehdr.e_machine = 3;
     ehdr.e_version = 1;
     ehdr.e_shoff = file_offset;
