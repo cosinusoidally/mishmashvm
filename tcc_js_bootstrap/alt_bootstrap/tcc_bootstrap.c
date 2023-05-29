@@ -10246,10 +10246,8 @@ static void gsym(int t) {
     gsym_addr(t, ind);
 }
 
-
-// LJW BOOKMARK
 static int oad(int c, int s) {
-
+// LJW DONE
     int t;
     if (nocode_wanted)
         return s;
@@ -10266,16 +10264,15 @@ static void gen_addr32(int r, Sym *sym, int c) {
     gen_le32(c);
 }
 
+// LJW BOOKMARK
 static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
+
     op_reg = op_reg << 3;
     if ((r & 0x003f) == 0x0030) {
-
         o(0x05 | op_reg);
         gen_addr32(r, sym, c);
     } else if ((r & 0x003f) == 0x0032) {
-
         if (c == (char)c) {
-
             o(0x45 | op_reg);
             g(c);
         } else {
