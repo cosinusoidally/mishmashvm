@@ -5719,18 +5719,13 @@ redo:
         gv(is_float(vtop->type.t & VT_BTYPE) ? RC_FLOAT : RC_INT);
 }
 
-// LJW BOOKMARK
 static void gen_cvt_itof1(int t) {
-
-
-
-    if ((vtop->type.t & (0x000f | 0x0010)) ==
-        (4 | 0x0010)) {
-
-        if (t == 8)
+// LJW DONE
+    if ((vtop->type.t & (VT_BTYPE | VT_UNSIGNED)) ==
+        (VT_LLONG | VT_UNSIGNED)) {
+        if (t == VT_FLOAT)
             vpush_global_sym(&func_old_type, TOK___floatundisf);
-
-        else if (t == 10)
+        else if (t == VT_LDOUBLE)
             vpush_global_sym(&func_old_type, TOK___floatundixf);
 
         else
@@ -5742,13 +5737,10 @@ static void gen_cvt_itof1(int t) {
     } else {
         gen_cvt_itof(t);
     }
-
 }
 
-
-
-static void gen_cvt_ftoi1(int t)
-{
+// LJW BOOKMARK
+static void gen_cvt_ftoi1(int t) {
 
 
 
