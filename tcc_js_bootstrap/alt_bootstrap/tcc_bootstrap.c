@@ -7248,19 +7248,18 @@ static void parse_expr_type(CType *type) {
     skip(')');
 }
 
-// LJW BOOKMARK
 static void parse_type(CType *type) {
-
+// LJW DONE
     AttributeDef ad;
     int n;
     if (!parse_btype(type, &ad)) {
         expect("type");
     }
-    type_decl(type, &ad, &n, 1);
+    type_decl(type, &ad, &n, TYPE_ABSTRACT);
 }
 
-static void parse_builtin_params(int nc, const char *args)
-{
+// LJW BOOKMARK
+static void parse_builtin_params(int nc, const char *args) {
     char c, sep = '(';
     CType t;
     if (nc)
