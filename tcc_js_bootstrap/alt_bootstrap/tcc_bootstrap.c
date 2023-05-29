@@ -778,6 +778,11 @@ const int PTR_SIZE=4;
 const int LDOUBLE_ALIGN = 4;
 const int LDOUBLE_SIZE = 12;
 
+enum {
+    R_386_32 = 1,
+};
+const int R_DATA_PTR = R_386_32;
+
 enum LABELS {
     LABEL_DEFINED = 0,
     LABEL_FORWARD = 1,
@@ -4133,8 +4138,8 @@ static int is_compatible_types(CType *type1, CType *type2);
 static int parse_btype(CType *type, AttributeDef *ad);
 static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td);
 static void parse_expr_type(CType *type);
-// LJW BOOKMARK
 static void init_putv(CType *type, Section *sec, unsigned long c);
+// LJW BOOKMARK
 static void decl_initializer(CType *type, Section *sec, unsigned long c, int first, int size_only);
 static void block(int *bsym, int *csym, int is_expr);
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r, int has_init, int v, int scope);
@@ -9108,7 +9113,7 @@ static int decl_designator(CType *type, Section *sec, unsigned long c,
 
 
 static void init_putv(CType *type, Section *sec, unsigned long c) {
-
+// LJW DONE
     int bt;
     void *ptr;
     CType dtype;
@@ -9158,35 +9163,35 @@ static void init_putv(CType *type, Section *sec, unsigned long c) {
             case VT_DOUBLE:
                 *(double *)ptr = vtop->c.d;
                 break;
-	    case 10:
+            case VT_LDOUBLE:
                 if (sizeof (long double) >= 10)
                     memcpy(ptr, &vtop->c.ld, 10);
                 else if (vtop->c.ld == 0.0)
                     ;
                 else
-                if (sizeof(double) == 12)
-		    *(double*)ptr = vtop->c.ld;
-                else if (sizeof(double) == 12)
-		    *(double *)ptr = (double)vtop->c.ld;
+                if (sizeof(double) == LDOUBLE_SIZE)
+                    *(double*)ptr = vtop->c.ld;
+                else if (sizeof(double) == LDOUBLE_SIZE)
+                    *(double *)ptr = (double)vtop->c.ld;
                 else
                     tcc_error("can't cross compile long double constants");
 		break;
-	    case 4:
-		*(long long *)ptr |= vtop->c.i;
-		break;
-	    case 5:
+            case VT_LLONG:
+                *(long long *)ptr |= vtop->c.i;
+                break;
+            case VT_PTR:
 		{
 		    Elf32_Addr val = vtop->c.i;
-		    if (vtop->r & 0x0200)
-		      greloc(sec, vtop->sym, c, 1);
+                    if (vtop->r & VT_SYM)
+		      greloc(sec, vtop->sym, c, R_DATA_PTR);
 		    *(Elf32_Addr *)ptr |= val;
 		    break;
 		}
 	    default:
 		{
 		    int val = vtop->c.i;
-		    if (vtop->r & 0x0200)
-		      greloc(sec, vtop->sym, c, 1);
+                    if (vtop->r & VT_SYM)
+                      greloc(sec, vtop->sym, c, R_DATA_PTR);
 		    *(int *)ptr |= val;
 		    break;
 		}
@@ -9194,17 +9199,12 @@ static void init_putv(CType *type, Section *sec, unsigned long c) {
 	}
         vtop--;
     } else {
-        vset(&dtype, 0x0032|0x0100, c);
+        vset(&dtype, VT_LOCAL|VT_LVAL, c);
         vswap();
         vstore();
         vpop();
     }
 }
-
-
-
-
-
 
 static void decl_initializer(CType *type, Section *sec, unsigned long c,
                              int first, int size_only)
