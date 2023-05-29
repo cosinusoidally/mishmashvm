@@ -820,6 +820,11 @@ enum SHNS {
     SHN_UNDEF = 0,
 };
 
+enum SHFS {
+    SHF_ALLOC = (1 << 1),
+    SHF_EXECINSTR = (1 << 2),
+};
+
 enum EXPRS {
     EXPR_CONST = 1,
     EXPR_ANY = 2,
@@ -9884,28 +9889,19 @@ static void sort_syms(TCCState *s1, Section *s) {
     tcc_free(old_to_new_syms);
 }
 
-// LJW BOOKMARK
 static int alloc_sec_names(TCCState *s1, int file_type, Section *strsec) {
-
+// LJW DONE
     int i;
     Section *s;
     int textrel = 0;
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
-        if (file_type == 3 &&
-            s->sh_type == 9 &&
-            !(s->sh_flags & (1 << 1)) &&
-            (s1->sections[s->sh_info]->sh_flags & (1 << 1)) &&
-            0) {
-                if (s1->sections[s->sh_info]->sh_flags & (1 << 2))
-                    textrel = 1;
-        } else if ( file_type == 4 ||
-            (s->sh_flags & (1 << 1)) ||
+        if ( file_type == TCC_OUTPUT_OBJ ||
+            (s->sh_flags & SHF_ALLOC) ||
 	    i == (s1->nb_sections - 1)) {
-
             s->sh_size = s->data_offset;
         }
-	if (s->sh_size || (s->sh_flags & (1 << 1)))
+	if (s->sh_size || (s->sh_flags & SHF_ALLOC))
             s->sh_name = put_elf_str(strsec, s->name);
     }
     strsec->sh_size = strsec->data_offset;
@@ -9920,6 +9916,7 @@ struct dyn_inf {
     Elf32_Addr rel_size;
 };
 
+// LJW BOOKMARK
 static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                            Section *interp, Section* strsec,
                            struct dyn_inf *dyninf, int *sec_order) {
