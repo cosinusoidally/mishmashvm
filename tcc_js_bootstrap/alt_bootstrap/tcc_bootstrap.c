@@ -5777,12 +5777,11 @@ static void force_charshort_cast(int t)
     }
 }
 
-
-static void gen_cast_s(int t)
-{
+static void gen_cast_s(int t) {
+// LJW DONE
     CType type;
     type.t = t;
-    type.ref = ((void*)0);
+    type.ref = NULL;
     gen_cast(&type);
 }
 
