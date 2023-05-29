@@ -4153,9 +4153,9 @@ static void expr_eq(void);
 static int is_compatible_unqualified_types(CType *type1, CType *type2);
 static int64_t expr_const64(void);
 static void vpush64(int ty, unsigned long long v);
-// LJW BOOKMARK
 static void vpush(CType *type);
 static int gvtst(int inv, int t);
+// LJW BOOKMARK
 static void gen_inline_functions(TCCState *s);
 static void skip_or_save_block(TokenString **str);
 static void gv_dup(void);
@@ -5098,12 +5098,13 @@ static void gv_dup(void) {
 }
 
 static int gvtst(int inv, int t) {
-    int v = vtop->r & 0x003f;
-    if (v != 0x0033 && v != 0x0034 && v != 0x0035) {
+// LJW DONE
+    int v = vtop->r & VT_VALMASK;
+    if (v != VT_CMP && v != VT_JMP && v != VT_JMPI) {
         vpushi(0);
-        gen_op(0x95);
+        gen_op(TOK_NE);
     }
-    if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
+    if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
         if ((vtop->c.i != 0) != inv)
             t = gjmp(t);
         vtop--;
