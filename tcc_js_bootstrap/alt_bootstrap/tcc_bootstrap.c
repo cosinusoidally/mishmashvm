@@ -3648,17 +3648,16 @@ static inline int *macro_twosharps(const int *ptr0) {
     return macro_str1.str;
 }
 
-// LJW BOOKMARK
 static int next_argstream(Sym **nested_list, TokenString *ws_str) {
+// LJW DONE
     int t;
     const int *p;
     Sym *sa;
-
     for (;;) {
         if (macro_ptr) {
             p = macro_ptr, t = *p;
             if (ws_str) {
-                while (is_space(t) || 10 == t || 0xcb == t)
+                while (is_space(t) || TOK_LINEFEED == t || TOK_PLCHLDR == t)
                     tok_str_add(ws_str, t), t = *++p;
             }
             if (t == 0) {
@@ -3677,7 +3676,7 @@ static int next_argstream(Sym **nested_list, TokenString *ws_str) {
                     if (ch == '/') {
                         int c;
                         uint8_t *p = file->buf_ptr;
-                        p=PEEKC(&c,&p);
+                        p=PEEKC(&c, &p);
                         if (c == '*') {
                             p = parse_comment(p);
                             file->buf_ptr = p - 1;
@@ -3704,6 +3703,7 @@ static int next_argstream(Sym **nested_list, TokenString *ws_str) {
     }
 }
 
+// LJW BOOKMARK
 static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
     Sym *args, *sa, *sa1;
     int parlevel, t, t1, spc;
