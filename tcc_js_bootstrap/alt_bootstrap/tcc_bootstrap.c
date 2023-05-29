@@ -3169,7 +3169,6 @@ maybe_newline:
             }
         }
         break;
-// LJW BOOKMARK2
     case 'a': case 'b': case 'c': case 'd':
     case 'e': case 'f': case 'g': case 'h':
     case 'i': case 'j': case 'k': case 'l':
@@ -3187,14 +3186,14 @@ maybe_newline:
     case '_':
     parse_ident_fast:
         p1 = p;
-        h = 1;
-        h = ((h) + ((h) << 5) + ((h) >> 27) + (c));
-        while (c = *++p, isidnum_table[c - (-1)] & (2|4))
-            h = ((h) + ((h) << 5) + ((h) >> 27) + (c));
+        h = TOK_HASH_INIT;
+        h = TOK_HASH_FUNC(h, c);
+        while (c = *++p, isidnum_table[c - CH_EOF] & (IS_ID|IS_NUM))
+            h = TOK_HASH_FUNC(h, c);
         len = p - p1;
         if (c != '\\') {
             TokenSym **pts;
-            h &= (16384 - 1);
+            h &= (TOK_HASH_SIZE - 1);
             pts = &hash_ident[h];
             for(;;) {
                 ts = *pts;
@@ -3210,12 +3209,12 @@ maybe_newline:
             cstr_reset(&tokcstr);
             cstr_cat(&tokcstr, (char *) p1, len);
             p--;
-            p=PEEKC(&c,&p);
+            p=PEEKC(&c, &p);
         parse_ident_slow:
-            while (isidnum_table[c - (-1)] & (2|4))
+            while (isidnum_table[c - CH_EOF] & (IS_ID|IS_NUM))
             {
                 cstr_ccat(&tokcstr, c);
-                p=PEEKC(&c,&p);
+                p=PEEKC(&c, &p);
             }
             ts = tok_alloc(tokcstr.data, tokcstr.size);
         }
@@ -3226,7 +3225,7 @@ maybe_newline:
         if (t != '\\' && t != '\'' && t != '\"') {
             goto parse_ident_fast;
         } else {
-            p=PEEKC(&c,&p);
+            p=PEEKC(&c, &p);
             if (c == '\'' || c == '\"') {
                 is_long = 1;
                 goto str_const;
@@ -3246,24 +3245,25 @@ maybe_newline:
         cstr_reset(&tokcstr);
         for(;;) {
             cstr_ccat(&tokcstr, t);
-            if (!((isidnum_table[c - (-1)] & (2|4))
+            if (!((isidnum_table[c - CH_EOF] & (IS_ID|IS_NUM))
                   || c == '.'
                   || ((c == '+' || c == '-')
                       && (((t == 'e' || t == 'E')
-                            && !(parse_flags & 0x0008
+                            && !(parse_flags & PARSE_FLAG_ASM_FILE
                                 && ((char*)tokcstr.data)[0] == '0'
                                 && toup(((char*)tokcstr.data)[1]) == 'X'))
                           || t == 'p' || t == 'P'))))
                 break;
             t = c;
-            p=PEEKC(&c,&p);
+            p=PEEKC(&c, &p);
         }
         cstr_ccat(&tokcstr, '\0');
         tokc.str.size = tokcstr.size;
         tokc.str.data = tokcstr.data;
-        tok = 0xbe;
+        tok = TOK_PPNUM;
         break;
     case '.':
+// LJW BOOKMARK2
         p=PEEKC(&c,&p);
         if (isnum(c)) {
             t = '.';
