@@ -10999,8 +10999,8 @@ static void dynarray_reset(void *pp, int *n) {
     *(void**)pp = ((void*)0);
 }
 
-// LJW BOOKMARK
 static void tcc_split_path(TCCState *s, void *p_ary, int *p_nb_ary, const char *in) {
+// LJW DONE
     const char *p;
     do {
         int c;
@@ -11019,18 +11019,22 @@ static void tcc_split_path(TCCState *s, void *p_ary, int *p_nb_ary, const char *
 }
 
 static void strcat_vprintf(char *buf, int buf_size, const char *fmt, va_list ap) {
+// LJW DONE
     int len;
     len = strlen(buf);
     vsnprintf(buf + len, buf_size - len, fmt, ap);
 }
 
 static void strcat_printf(char *buf, int buf_size, const char *fmt, ...) {
+// LJW DONE
     va_list ap;
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
     strcat_vprintf(buf, buf_size, fmt, ap);
 }
 
+// LJW BOOKMARK
 static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap) {
+// LJW DONE
     char buf[2048];
     BufferedFile **pf, *f;
     buf[0] = '\0';
@@ -11050,8 +11054,6 @@ static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap) {
         strcat_printf(buf, sizeof(buf), "error: ");
     strcat_vprintf(buf, sizeof(buf), fmt, ap);
     if (!s1->error_func) {
-        if (s1->output_type == 5 && s1->ppfp == stdout)
-            printf("\n"), fflush(stdout);
         fflush(stdout);
         fprintf(stderr, "%s\n", buf);
         fflush(stderr);
