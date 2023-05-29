@@ -3077,9 +3077,8 @@ static void parse_number(const char *p) {
         tcc_error("invalid number\n");
 }
 
-// LJW BOOKMARK
 static void next_nomacro1(void) {
-
+// LJW DONE
     int t, c, is_long, len;
     TokenSym *ts;
     uint8_t *p, *p1;
@@ -3471,6 +3470,7 @@ static void macro_subst(
     );
 
 static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args) {
+// LJW DONE
     int t, t0, t1, spc;
     const int *st;
     Sym *s;
@@ -3495,12 +3495,12 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args) 
                 spc = 0;
                 while (*st >= 0) {
                     TOK_GET(&t, &st, &cval);
-                    if (t != 0xcb
-                     && t != 0xcc
+                    if (t != TOK_PLCHLDR
+                     && t != TOK_NOSUBST
                      && 0 == check_space(t, &spc)) {
                         const char *s = get_tok_str(t, &cval);
                         while (*s) {
-                            if (t == 0xbf && *s != '\'')
+                            if (t == TOK_PPSTR && *s != '\'')
                                 add_char(&cstr, *s);
                             else
                                 cstr_ccat(&cstr, *s);
@@ -3519,13 +3519,13 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args) 
         bad_stringy:
                 expect("macro parameter after '#'");
             }
-        } else if (t >= 256) {
+        } else if (t >= TOK_IDENT) {
             s = sym_find2(args, t);
             if (s) {
                 int l0 = str.len;
                 st = s->d;
-                if (*macro_str == 0xcd || t1 == 0xcd) {
-                    if (t1 == 0xcd && t0 == ',' && gnu_ext && s->type.t) {
+                if (*macro_str == TOK_PPJOIN || t1 == TOK_PPJOIN) {
+                    if (t1 == TOK_PPJOIN && t0 == ',' && gnu_ext && s->type.t) {
                         if (*st <= 0) {
 
                             str.len -= 2;
@@ -3554,7 +3554,7 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args) 
                     tok_str_add2(&str, t2, &cval);
                 }
                 if (str.len == l0)
-                    tok_str_add(&str, 0xcb);
+                    tok_str_add(&str, TOK_PLCHLDR);
             } else {
                 tok_str_add(&str, t);
             }
@@ -3568,13 +3568,14 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args) 
 }
 
 static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2) {
+// LJW DONE
     CString cstr;
     int n, ret = 1;
     cstr_new(&cstr);
-    if (t1 != 0xcb)
+    if (t1 != TOK_PLCHLDR)
         cstr_cat(&cstr, get_tok_str(t1, v1), -1);
     n = cstr.size;
-    if (t2 != 0xcb)
+    if (t2 != TOK_PLCHLDR)
         cstr_cat(&cstr, get_tok_str(t2, v2), -1);
     cstr_ccat(&cstr, '\0');
     tcc_open_bf(tcc_state, ":paste:", cstr.size);
@@ -3597,6 +3598,7 @@ static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2) {
 }
 
 static inline int *macro_twosharps(const int *ptr0) {
+// LJW DONE
     int t;
     CValue cval;
     TokenString macro_str1;
@@ -3604,26 +3606,27 @@ static inline int *macro_twosharps(const int *ptr0) {
     const int *ptr;
     for (ptr = ptr0;;) {
         TOK_GET(&t, &ptr, &cval);
-        if (t == 0xcd)
+        if (t == TOK_PPJOIN)
             break;
         if (t == 0)
-            return ((void*)0);
+            return NULL;
     }
     tok_str_new(&macro_str1);
     for (ptr = ptr0;;) {
         TOK_GET(&t, &ptr, &cval);
         if (t == 0)
             break;
-        if (t == 0xcd)
+        if (t == TOK_PPJOIN)
             continue;
-        while (*ptr == 0xcd) {
+        while (*ptr == TOK_PPJOIN) {
             int t1; CValue cv1;
             if (start_of_nosubsts >= 0)
                 macro_str1.len = start_of_nosubsts;
-            while ((t1 = *++ptr) == 0xcc) ;
-            if (t1 && t1 != 0xcd) {
+            while ((t1 = *++ptr) == TOK_NOSUBST)
+                ;
+            if (t1 && t1 != TOK_PPJOIN) {
                 TOK_GET(&t1, &ptr, &cv1);
-                if (t != 0xcb || t1 != 0xcb) {
+                if (t != TOK_PLCHLDR || t1 != TOK_PLCHLDR) {
                     if (paste_tokens(t, &cval, t1, &cv1)) {
                         t = tok, cval = tokc;
                     } else {
@@ -3633,7 +3636,7 @@ static inline int *macro_twosharps(const int *ptr0) {
                 }
             }
         }
-        if (t == 0xcc) {
+        if (t == TOK_NOSUBST) {
             if (start_of_nosubsts < 0)
                 start_of_nosubsts = macro_str1.len;
         } else {
@@ -3645,6 +3648,7 @@ static inline int *macro_twosharps(const int *ptr0) {
     return macro_str1.str;
 }
 
+// LJW BOOKMARK
 static int next_argstream(Sym **nested_list, TokenString *ws_str) {
     int t;
     const int *p;
