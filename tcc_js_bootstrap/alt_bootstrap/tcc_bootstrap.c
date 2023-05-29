@@ -8017,22 +8017,14 @@ static void expr_cond(void) {
     int tt, u, r1, r2, rc, t1, t2, bt1, bt2, islv, c, g;
     SValue sv;
     CType type, type1, type2;
-
     expr_lor();
     if (tok == '?') {
         next();
 	c = condition_3way();
         g = (tok == ':' && gnu_ext);
         if (c < 0) {
-
-
             if (is_float(vtop->type.t)) {
                 rc = 0x0002;
-
-
-
-
-
             } else
                 rc = 0x0001;
             gv(rc);
@@ -8040,29 +8032,24 @@ static void expr_cond(void) {
             if (g)
                 gv_dup();
             tt = gvtst(1, 0);
-
         } else {
             if (!g)
                 vpop();
             tt = 0;
         }
-
         if (1) {
             if (c == 0)
                 nocode_wanted++;
             if (!g)
                 gexpr();
-
             type1 = vtop->type;
             sv = *vtop;
             vtop--;
             skip(':');
-
             u = 0;
             if (c < 0)
                 u = gjmp(0);
             gsym(tt);
-
             if (c == 0)
                 nocode_wanted--;
             if (c == 1)
@@ -8070,69 +8057,51 @@ static void expr_cond(void) {
             expr_cond();
             if (c == 1)
                 nocode_wanted--;
-
             type2 = vtop->type;
             t1 = type1.t;
             bt1 = t1 & 0x000f;
             t2 = type2.t;
             bt2 = t2 & 0x000f;
             type.ref = ((void*)0);
-
-
             if (is_float(bt1) || is_float(bt2)) {
                 if (bt1 == 10 || bt2 == 10) {
                     type.t = 10;
-
                 } else if (bt1 == 9 || bt2 == 9) {
                     type.t = 9;
                 } else {
                     type.t = 8;
                 }
             } else if (bt1 == 4 || bt2 == 4) {
-
                 type.t = 4 | 0x0800;
                 if (bt1 == 4)
                     type.t &= t1;
                 if (bt2 == 4)
                     type.t &= t2;
-
                 if ((t1 & (0x000f | 0x0010 | 0x0080)) == (4 | 0x0010) ||
                     (t2 & (0x000f | 0x0010 | 0x0080)) == (4 | 0x0010))
                     type.t |= 0x0010;
             } else if (bt1 == 5 || bt2 == 5) {
-
-
 		if (is_null_pointer (vtop))
 		  type = type1;
 		else if (is_null_pointer (&sv))
 		  type = type2;
-
-
 		else
 		  type = type1;
             } else if (bt1 == 6 || bt2 == 6) {
-
                 type = bt1 == 6 ? type1 : type2;
             } else if (bt1 == 7 || bt2 == 7) {
-
                 type = bt1 == 7 ? type1 : type2;
             } else if (bt1 == 0 || bt2 == 0) {
 
                 type.t = 0;
             } else {
-
                 type.t = 3 | (0x0800 & (t1 | t2));
-
                 if ((t1 & (0x000f | 0x0010 | 0x0080)) == (3 | 0x0010) ||
                     (t2 & (0x000f | 0x0010 | 0x0080)) == (3 | 0x0010))
                     type.t |= 0x0010;
             }
-
-
             islv = (vtop->r & 0x0100) && (sv.r & 0x0100) && 7 == (type.t & 0x000f);
             islv &= c < 0;
-
-
             if (c != 1) {
                 gen_cast(&type);
                 if (islv) {
@@ -8141,30 +8110,18 @@ static void expr_cond(void) {
                 } else if (7 == (vtop->type.t & 0x000f))
                     gaddrof();
             }
-
             rc = 0x0001;
             if (is_float(type.t)) {
                 rc = 0x0002;
-
-
-
-
-
             } else if ((type.t & 0x000f) == 4) {
-
-
                 rc = 0x0004;
             }
-
             tt = r2 = 0;
             if (c < 0) {
                 r2 = gv(rc);
                 tt = gjmp(0);
             }
             gsym(u);
-
-
-
             if (c != 0) {
                 *vtop = sv;
                 gen_cast(&type);
@@ -8174,7 +8131,6 @@ static void expr_cond(void) {
                 } else if (7 == (vtop->type.t & 0x000f))
                     gaddrof();
             }
-
             if (c < 0) {
                 r1 = gv(rc);
                 move_reg(r2, r1, type.t);
