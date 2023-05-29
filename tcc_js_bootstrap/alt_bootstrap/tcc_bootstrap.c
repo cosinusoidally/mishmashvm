@@ -9938,15 +9938,13 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
     if (s1->section_align)
         s_align = s1->section_align;
     if (phnum > 0) {
-        if (s1->has_text_addr) {
-            int a_offset, p_offset;
-            addr = s1->text_addr;
-            a_offset = (int) (addr & (s_align - 1));
-            p_offset = file_offset & (s_align - 1);
-            if (a_offset < p_offset)
-                a_offset += s_align;
-            file_offset += (a_offset - p_offset);
-        }
+        int a_offset, p_offset;
+        addr = s1->text_addr;
+        a_offset = (int) (addr & (s_align - 1));
+        p_offset = file_offset & (s_align - 1);
+        if (a_offset < p_offset)
+            a_offset += s_align;
+        file_offset += (a_offset - p_offset);
         ph = &phdr[0];
         if (interp)
             ph += 2;
