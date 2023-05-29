@@ -4625,7 +4625,6 @@ static Sym *external_global_sym(int v, CType *type, int r) {
 
 // LJW BOOKMARK
 static void patch_type(Sym *sym, CType *type) {
-puts("s\n");exit(1);
     if (!(type->t & 0x00001000)) {
         if (!(sym->type.t & 0x00001000))
             tcc_error("redefinition of '%s'", get_tok_str(sym->v, ((void*)0)));
