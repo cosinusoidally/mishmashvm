@@ -4881,15 +4881,15 @@ static void store_packed_bf(int bit_pos, int bit_size) {
     vpop(), vpop();
 }
 
-// LJW BOOKMARK
 static int adjust_bf(SValue *sv, int bit_pos, int bit_size) {
+// LJW DONE
     int t;
     if (0 == sv->type.ref)
         return 0;
     t = sv->type.ref->auxtype;
-    if (t != -1 && t != 7) {
-        sv->type.t = (sv->type.t & ~0x000f) | t;
-        sv->r = (sv->r & ~(0x1000 | 0x2000 | 0x4000)) | lvalue_type(sv->type.t);
+    if (t != -1 && t != VT_STRUCT) {
+        sv->type.t = (sv->type.t & ~VT_BTYPE) | t;
+        sv->r = (sv->r & ~VT_LVAL_TYPE) | lvalue_type(sv->type.t);
     }
     return t;
 }
@@ -5031,34 +5031,38 @@ static void gv2(int rc1, int rc2) {
 }
 
 static int rc_fret(int t) {
+// LJW DONE
     return 0x0008;
 }
 
 static int reg_fret(int t) {
+// LJW DONE
     return TREG_ST0;
 }
 
 static void lexpand(void) {
+// LJW DONE
     int u, v;
-    u = vtop->type.t & (0x0020 | 0x0010);
-    v = vtop->r & (0x003f | 0x0100);
-    if (v == 0x0030) {
+    u = vtop->type.t & (VT_DEFSIGN | VT_UNSIGNED);
+    v = vtop->r & (VT_VALMASK | VT_LVAL);
+    if (v == VT_CONST) {
         vdup();
         vtop[0].c.i >>= 32;
-    } else if (v == (0x0100|0x0030) || v == (0x0100|0x0032)) {
+    } else if (v == (VT_LVAL|VT_CONST) || v == (VT_LVAL|VT_LOCAL)) {
         vdup();
         vtop[0].c.i += 4;
     } else {
-        gv(0x0001);
+        gv(RC_INT);
         vdup();
         vtop[0].r = vtop[-1].r2;
-        vtop[0].r2 = vtop[-1].r2 = 0x0030;
+        vtop[0].r2 = vtop[-1].r2 = VT_CONST;
     }
-    vtop[0].type.t = vtop[-1].type.t = 3 | u;
+    vtop[0].type.t = vtop[-1].type.t = VT_INT | u;
 }
 
 static void lbuild(int t) {
-    gv2(0x0001, 0x0001);
+// LJW DONE
+    gv2(RC_INT, RC_INT);
     vtop[-1].r2 = vtop[0].r;
     vtop[-1].type.t = t;
     vpop();
@@ -5120,6 +5124,7 @@ static int gvtst(int inv, int t) {
     return gtst(inv, t);
 }
 
+// LJW BOOKMARK
 static void gen_opl(int op) {
     int t, a, b, op1, c, i;
     int func;
