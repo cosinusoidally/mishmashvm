@@ -8674,7 +8674,7 @@ static void block(int *bsym, int *csym, int is_expr) {
 	    if ((a = is_label()))
 		unget_tok(a);
 	    else
-	        decl(0x0032);
+                decl(VT_LOCAL);
             if (tok != '}') {
                 if (is_expr)
                     vpop();
@@ -8694,7 +8694,7 @@ static void block(int *bsym, int *csym, int is_expr) {
         if (tok != ';') {
             gexpr();
             gen_assign_cast(&func_vt);
-            if ((func_vt.t & 0x000f) == 0)
+            if ((func_vt.t & VT_BTYPE) == VT_VOID)
                 vtop--;
             else
                 gfunc_return(&func_vt);
@@ -8726,8 +8726,7 @@ static void block(int *bsym, int *csym, int is_expr) {
         s = local_stack;
         ++local_scope;
         if (tok != ';') {
-            if (!decl0(0x0032, 1, ((void*)0))) {
-
+            if (!decl0(VT_LOCAL, 1, NULL)) {
                 gexpr();
                 vpop();
             }
