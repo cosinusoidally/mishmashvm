@@ -8011,22 +8011,21 @@ static int condition_3way(void) {
     return c;
 }
 
-// LJW BOOKMARK
 static void expr_cond(void) {
-
+// LJW DONE
     int tt, u, r1, r2, rc, t1, t2, bt1, bt2, islv, c, g;
     SValue sv;
     CType type, type1, type2;
     expr_lor();
     if (tok == '?') {
         next();
-	c = condition_3way();
+        c = condition_3way();
         g = (tok == ':' && gnu_ext);
         if (c < 0) {
             if (is_float(vtop->type.t)) {
-                rc = 0x0002;
+                rc = RC_FLOAT;
             } else
-                rc = 0x0001;
+                rc = RC_INT;
             gv(rc);
             save_regs(1);
             if (g)
@@ -8059,62 +8058,60 @@ static void expr_cond(void) {
                 nocode_wanted--;
             type2 = vtop->type;
             t1 = type1.t;
-            bt1 = t1 & 0x000f;
+            bt1 = t1 & VT_BTYPE;
             t2 = type2.t;
-            bt2 = t2 & 0x000f;
-            type.ref = ((void*)0);
+            bt2 = t2 & VT_BTYPE;
+            type.ref = NULL;
             if (is_float(bt1) || is_float(bt2)) {
-                if (bt1 == 10 || bt2 == 10) {
-                    type.t = 10;
-                } else if (bt1 == 9 || bt2 == 9) {
-                    type.t = 9;
+                if (bt1 == VT_LDOUBLE || bt2 == VT_LDOUBLE) {
+                    type.t = VT_LDOUBLE;
+                } else if (bt1 == VT_DOUBLE || bt2 == VT_DOUBLE) {
+                    type.t = VT_DOUBLE;
                 } else {
-                    type.t = 8;
+                    type.t = VT_FLOAT;
                 }
-            } else if (bt1 == 4 || bt2 == 4) {
-                type.t = 4 | 0x0800;
-                if (bt1 == 4)
+            } else if (bt1 == VT_LLONG || bt2 == VT_LLONG) {
+                type.t = VT_LLONG | VT_LONG;
+                if (bt1 == VT_LLONG)
                     type.t &= t1;
-                if (bt2 == 4)
+                if (bt2 == VT_LLONG)
                     type.t &= t2;
-                if ((t1 & (0x000f | 0x0010 | 0x0080)) == (4 | 0x0010) ||
-                    (t2 & (0x000f | 0x0010 | 0x0080)) == (4 | 0x0010))
-                    type.t |= 0x0010;
-            } else if (bt1 == 5 || bt2 == 5) {
-		if (is_null_pointer (vtop))
-		  type = type1;
-		else if (is_null_pointer (&sv))
-		  type = type2;
-		else
-		  type = type1;
-            } else if (bt1 == 6 || bt2 == 6) {
-                type = bt1 == 6 ? type1 : type2;
-            } else if (bt1 == 7 || bt2 == 7) {
-                type = bt1 == 7 ? type1 : type2;
-            } else if (bt1 == 0 || bt2 == 0) {
-
-                type.t = 0;
+                if ((t1 & (VT_BTYPE | VT_UNSIGNED | VT_BITFIELD)) == (VT_LLONG | VT_UNSIGNED) ||
+                    (t2 & (VT_BTYPE | VT_UNSIGNED | VT_BITFIELD)) == (VT_LLONG | VT_UNSIGNED))
+                    type.t |= VT_UNSIGNED;
+            } else if (bt1 == VT_PTR || bt2 == VT_PTR) {
+                if (is_null_pointer (vtop))
+                  type = type1;
+                else if (is_null_pointer (&sv))
+                  type = type2;
+                else
+                  type = type1;
+            } else if (bt1 == VT_FUNC || bt2 == VT_FUNC) {
+                type = bt1 == VT_FUNC ? type1 : type2;
+            } else if (bt1 == VT_STRUCT || bt2 == VT_STRUCT) {
+                type = bt1 == VT_STRUCT ? type1 : type2;
+            } else if (bt1 == VT_VOID || bt2 == VT_VOID) {
+                type.t = VT_VOID;
             } else {
-                type.t = 3 | (0x0800 & (t1 | t2));
-                if ((t1 & (0x000f | 0x0010 | 0x0080)) == (3 | 0x0010) ||
-                    (t2 & (0x000f | 0x0010 | 0x0080)) == (3 | 0x0010))
-                    type.t |= 0x0010;
+                type.t = VT_INT | (VT_LONG & (t1 | t2));
+                if ((t1 & (VT_BTYPE | VT_UNSIGNED | VT_BITFIELD)) == (VT_INT | VT_UNSIGNED) ||
+                    (t2 & (VT_BTYPE | VT_UNSIGNED | VT_BITFIELD)) == (VT_INT | VT_UNSIGNED))
+                    type.t |= VT_UNSIGNED;
             }
-            islv = (vtop->r & 0x0100) && (sv.r & 0x0100) && 7 == (type.t & 0x000f);
+            islv = (vtop->r & VT_LVAL) && (sv.r & VT_LVAL) && VT_STRUCT == (type.t & VT_BTYPE);
             islv &= c < 0;
             if (c != 1) {
                 gen_cast(&type);
                 if (islv) {
                     mk_pointer(&vtop->type);
                     gaddrof();
-                } else if (7 == (vtop->type.t & 0x000f))
+                } else if (VT_STRUCT == (vtop->type.t & VT_BTYPE))
                     gaddrof();
             }
-            rc = 0x0001;
             if (is_float(type.t)) {
-                rc = 0x0002;
-            } else if ((type.t & 0x000f) == 4) {
-                rc = 0x0004;
+                rc = RC_FLOAT;
+            } else if ((type.t & VT_BTYPE) == VT_LLONG) {
+                rc = RC_IRET;
             }
             tt = r2 = 0;
             if (c < 0) {
@@ -8128,7 +8125,7 @@ static void expr_cond(void) {
                 if (islv) {
                     mk_pointer(&vtop->type);
                     gaddrof();
-                } else if (7 == (vtop->type.t & 0x000f))
+                } else if (VT_STRUCT == (vtop->type.t & VT_BTYPE))
                     gaddrof();
             }
             if (c < 0) {
