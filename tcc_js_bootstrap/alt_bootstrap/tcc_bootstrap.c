@@ -6783,8 +6783,8 @@ do_decl:
     }
 }
 
-// LJW BOOKMARK
 static void sym_to_attr(AttributeDef *ad, Sym *s) {
+// LJW DONE
     if (s->a.aligned && 0 == ad->a.aligned)
         ad->a.aligned = s->a.aligned;
     if (s->f.func_call && 0 == ad->f.func_call)
@@ -6795,19 +6795,15 @@ static void sym_to_attr(AttributeDef *ad, Sym *s) {
         ad->a.packed = 1;
 }
 
-
-
-static void parse_btype_qualify(CType *type, int qualifiers)
-{
-    while (type->t & 0x0040) {
-        type->ref = sym_push(0x20000000, &type->ref->type, 0, type->ref->c);
+// LJW BOOKMARK
+static void parse_btype_qualify(CType *type, int qualifiers) {
+// LJW DONE
+    while (type->t & VT_ARRAY) {
+        type->ref = sym_push(SYM_FIELD, &type->ref->type, 0, type->ref->c);
         type = &type->ref->type;
     }
     type->t |= qualifiers;
 }
-
-
-
 
 static int parse_btype(CType *type, AttributeDef *ad) {
 // LJW DONE
