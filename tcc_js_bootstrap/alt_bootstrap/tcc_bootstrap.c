@@ -1,4 +1,5 @@
 // This is a modified version of the preprocessed tcc source code
+// LJW BOOKMARK
 // bound by the same license as the copy of tcc in tcc_js_bootstrap/tcc_src/ .
 // Modifications (C) 2022-2023 Liam Wilson and licensed under the LGPL v2.1
 // (a copy of which exists under tcc_src/COPYING). Preceding paths are relative
@@ -784,6 +785,7 @@ const int LDOUBLE_SIZE = 12;
 
 enum {
     R_386_32 = 1,
+    R_386_PC32 = 2,
 };
 const int R_DATA_PTR = R_386_32;
 
@@ -10387,8 +10389,8 @@ static void store(int r, SValue *v) {
     }
 }
 
-// LJW BOOKMARK
 static void gadd_sp(int val) {
+// LJW DONE
     if (val == (char)val) {
         o(0xc483);
         g(val);
@@ -10398,31 +10400,30 @@ static void gadd_sp(int val) {
 }
 
 static void gcall_or_jmp(int is_jmp) {
+// LJW DONE
     int r;
-    if ((vtop->r & (0x003f | 0x0100)) == 0x0030 && (vtop->r & 0x0200)) {
-
-        greloc(cur_text_section, vtop->sym, ind + 1, 2);
+    if ((vtop->r & (VT_VALMASK | VT_LVAL)) == VT_CONST && (vtop->r & VT_SYM)) {
+        greloc(cur_text_section, vtop->sym, ind + 1, R_386_PC32);
         oad(0xe8 + is_jmp, vtop->c.i - 4);
     } else {
-
-        r = gv(0x0001);
+        r = gv(RC_INT);
         o(0xff);
         o(0xd0 + r + (is_jmp << 4));
     }
     if (!is_jmp) {
         int rt;
         rt = vtop->type.ref->type.t;
-        switch (rt & 0x000f) {
-            case 1:
-                if (rt & 0x0010) {
+        switch (rt & VT_BTYPE) {
+            case VT_BYTE:
+                if (rt & VT_UNSIGNED) {
                     o(0xc0b60f);
                 }
                 else {
                     o(0xc0be0f);
                 }
                 break;
-            case 2:
-                if (rt & 0x0010) {
+            case VT_SHORT:
+                if (rt & VT_UNSIGNED) {
                     o(0xc0b70f);
                 }
                 else {
@@ -10890,6 +10891,7 @@ static void gen_cvt_ftof(int t) {
     gv(0x0002);
 }
 
+// LJW BOOKMARK
 static char *pstrcpy(char *buf, int buf_size, const char *s) {
     char *q, *q_end;
     int c;
