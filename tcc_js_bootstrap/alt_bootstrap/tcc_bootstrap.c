@@ -9442,7 +9442,6 @@ static void tccelf_new(TCCState *s) {
                                       ".dynhashtab", 0x80000000);
 }
 
-// LJW BOOKMARK
 static void free_section(Section *s) {
 // LJW DONE
     tcc_free(s->data);
@@ -9614,6 +9613,7 @@ static int put_elf_str(Section *s, const char *sym) {
 }
 
 static unsigned long elf_hash(const unsigned char *name) {
+// LJW DONE
     unsigned long h = 0, g;
     while (*name) {
         h = (h << 4) + *name++;
@@ -9625,6 +9625,7 @@ static unsigned long elf_hash(const unsigned char *name) {
     return h;
 }
 
+// LJW BOOKMARK
 static void rebuild_hash(Section *s, unsigned int nb_buckets) {
     Elf32_Sym *sym;
     int *ptr, *hash, nb_syms, sym_index, h;
