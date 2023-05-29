@@ -4157,9 +4157,9 @@ static void vpush(CType *type);
 static int gvtst(int inv, int t);
 static void gen_inline_functions(TCCState *s);
 static void skip_or_save_block(TokenString **str);
-// LJW BOOKMARK
 static void gv_dup(void);
 
+// LJW BOOKMARK
 static int is_float(int t) {
 // LJW DONE
     int bt;
@@ -5059,12 +5059,13 @@ static void lbuild(int t) {
 }
 
 static void gv_dup(void) {
+// LJW DONE
     int rc, t, r, r1;
     SValue sv;
     t = vtop->type.t;
-    if ((t & 0x000f) == 4) {
-        if (t & 0x0080) {
-            gv(0x0001);
+    if ((t & VT_BTYPE) == VT_LLONG) {
+        if (t & VT_BITFIELD) {
+            gv(RC_INT);
             t = vtop->type.t;
         }
         lexpand();
@@ -5080,10 +5081,10 @@ static void gv_dup(void) {
         lbuild(t);
         vswap();
     } else {
-        rc = 0x0001;
-        sv.type.t = 3;
+        rc = RC_INT;
+        sv.type.t = VT_INT;
         if (is_float(t)) {
-            rc = 0x0002;
+            rc = RC_FLOAT;
             sv.type.t = t;
         }
         r = gv(rc);
