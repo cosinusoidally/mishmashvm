@@ -4148,8 +4148,8 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c, int fir
 static void block(int *bsym, int *csym, int is_expr);
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r, int has_init, int v, int scope);
 static void decl(int l);
-// LJW BOOKMARK
 static int decl0(int l, int is_for_loop_init, Sym *);
+// LJW BOOKMARK
 static void expr_eq(void);
 static int is_compatible_unqualified_types(CType *type1, CType *type2);
 static inline int64_t expr_const64(void);
@@ -9534,6 +9534,7 @@ static void free_inline_functions(TCCState *s) {
 }
 
 static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
+// LJW DONE
     int v, has_init, r;
     CType type, btype;
     Sym *sym;
@@ -9589,7 +9590,7 @@ static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
                 if ((type.t & VT_BTYPE) != VT_FUNC)
                     expect("function definition");
                 sym = type.ref;
-                while ((sym = sym->next) != ((void*)0)) {
+                while ((sym = sym->next) != NULL ) {
                     if (!(sym->v & ~SYM_FIELD))
                         expect("identifier");
 		    if (sym->type.t == VT_VOID)
