@@ -6598,57 +6598,66 @@ static void struct_decl(CType *type, int u) {
     Sym *s, *ss, **ps;
     AttributeDef ad, ad1;
     CType type1, btype;
+
     memset(&ad, 0, sizeof ad);
     next();
     parse_attribute(&ad);
     if (tok != '{') {
         v = tok;
         next();
-        if (v < 256)
+        /* struct already defined ? return it */
+        if (v < TOK_IDENT)
             expect("struct/union/enum name");
         s = struct_find(v);
         if (s && (s->sym_scope == local_scope || tok != '{')) {
             if (u == s->type.t)
                 goto do_decl;
-            if (u == (2 << 20) && IS_ENUM(s->type.t))
+            if (u == VT_ENUM && IS_ENUM(s->type.t))
                 goto do_decl;
-            tcc_error("redefinition of '%s'", get_tok_str(v, ((void*)0)));
+            tcc_error("redefinition of '%s'", get_tok_str(v, NULL));
         }
     } else {
         v = anon_sym++;
     }
-    type1.t = u == (2 << 20) ? u | 3 | 0x0010 : u;
-    type1.ref = ((void*)0);
-    s = sym_push(v | 0x40000000, &type1, 0, -1);
-    s->r = 0;
+    /* Record the original enum/struct/union token.  */
+    type1.t = u == VT_ENUM ? u | VT_INT | VT_UNSIGNED : u;
+    type1.ref = NULL;
+    /* we put an undefined size for struct/union */
+    s = sym_push(v | SYM_STRUCT, &type1, 0, -1);
+    s->r = 0; /* default alignment is zero as gcc */
 do_decl:
     type->t = s->type.t;
     type->ref = s;
+
     if (tok == '{') {
         next();
         if (s->c != -1)
             tcc_error("struct/union/enum already defined");
+        /* cannot be empty */
+        /* non empty enums are not allowed */
         ps = &s->next;
-        if (u == (2 << 20)) {
+        if (u == VT_ENUM) {
             long long ll = 0, pl = 0, nl = 0;
-	    CType t;
+            CType t;
             t.ref = s;
-            t.t = 3|0x00002000|(3 << 20);
+            /* enum symbols have static storage */
+            t.t = VT_INT|VT_STATIC|VT_ENUM_VAL;
             for(;;) {
                 v = tok;
-                if (v < TOK_DEFINE)
+                if (v < TOK_UIDENT)
                     expect("identifier");
                 ss = sym_find(v);
                 if (ss && !local_stack)
                     tcc_error("redefinition of enumerator '%s'",
-                              get_tok_str(v, ((void*)0)));
+                              get_tok_str(v, NULL));
                 next();
                 if (tok == '=') {
                     next();
-		    ll = expr_const64();
+                    ll = expr_const64();
                 }
-                ss = sym_push(v, &t, 0x0030, 0);
+                ss = sym_push(v, &t, VT_CONST, 0);
                 ss->enum_val = ll;
+// LJW BOOKMARK2
                 *ps = ss, ps = &ss->next;
                 if (ll < nl)
                     nl = ll;
