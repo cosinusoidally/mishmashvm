@@ -4329,8 +4329,8 @@ static Sym *__sym_malloc(void) {
     return last_sym;
 }
 
-// LJW BOOKMARK
 static inline Sym *sym_malloc(void) {
+// LJW DONE
     Sym *sym;
     sym = sym_free_first;
     if (!sym)
@@ -4453,21 +4453,23 @@ static void sym_pop(Sym **ptop, Sym *b, int keep) {
 	*ptop = b;
 }
 
+// LJW BOOKMARK
 static void vsetc(CType *type, int r, CValue *vc) {
+// LJW DONE
     int v;
-    if (vtop >= (__vstack + 1) + (256 - 1))
+    if (vtop >= (__vstack + 1) + (VSTACK_SIZE - 1))
         tcc_error("memory full (vstack)");
     if (vtop >= (__vstack + 1) && !nocode_wanted) {
-        v = vtop->r & 0x003f;
-        if (v == 0x0033 || (v & ~1) == 0x0034)
-            gv(0x0001);
+        v = vtop->r & VT_VALMASK;
+        if (v == VT_CMP || (v & ~1) == VT_JMP)
+            gv(RC_INT);
     }
     vtop++;
     vtop->type = *type;
     vtop->r = r;
-    vtop->r2 = 0x0030;
+    vtop->r2 = VT_CONST;
     vtop->c = *vc;
-    vtop->sym = ((void*)0);
+    vtop->sym = NULL;
 }
 
 static void vswap(void) {
