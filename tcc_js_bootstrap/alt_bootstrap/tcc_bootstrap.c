@@ -6424,11 +6424,11 @@ static void struct_layout(CType *type, AttributeDef *ad) {
     offset = 0;
     c = 0;
     bit_pos = 0;
-    prevbt = 7;
+    prevbt = VT_STRUCT;
     prev_bit_size = 0;
     for (f = type->ref->next; f; f = f->next) {
-        if (f->type.t & 0x0080)
-            bit_size = (((f->type.t) >> (20 + 6)) & 0x3f);
+        if (f->type.t & VT_BITFIELD)
+            bit_size = BIT_SIZE(f->type.t);
         else
             bit_size = -1;
         size = type_size(&f->type, &align);
@@ -6448,89 +6448,88 @@ static void struct_layout(CType *type, AttributeDef *ad) {
         }
         if (a)
             align = a;
-        if (type->ref->type.t == (1 << 20 | 7)) {
-	    if (pcc && bit_size >= 0)
-	        size = (bit_size + 7) >> 3;
-	    offset = 0;
-	    if (size > c)
-	        c = size;
-	} else if (bit_size < 0) {
+        if (type->ref->type.t == VT_UNION) {
+            if (pcc && bit_size >= 0)
+                size = (bit_size + 7) >> 3;
+            offset = 0;
+            if (size > c)
+                c = size;
+        } else if (bit_size < 0) {
             if (pcc)
                 c += (bit_pos + 7) >> 3;
-	    c = (c + align - 1) & -align;
-	    offset = c;
-	    if (size > 0)
-	        c += size;
-	    bit_pos = 0;
-	    prevbt = 7;
-	    prev_bit_size = 0;
-	} else {
+            c = (c + align - 1) & -align;
+            offset = c;
+            if (size > 0)
+                c += size;
+            bit_pos = 0;
+            prevbt = VT_STRUCT;
+            prev_bit_size = 0;
+        } else {
             if (pcc) {
                 if (bit_size == 0) {
             new_field:
-		    c = (c + ((bit_pos + 7) >> 3) + align - 1) & -align;
-		    bit_pos = 0;
+                    c = (c + ((bit_pos + 7) >> 3) + align - 1) & -align;
+                    bit_pos = 0;
                 } else if (f->a.aligned) {
                     goto new_field;
                 } else if (!packed) {
                     int a8 = align * 8;
-	            int ofs = ((c * 8 + bit_pos) % a8 + bit_size + a8 - 1) / a8;
+                    int ofs = ((c * 8 + bit_pos) % a8 + bit_size + a8 - 1) / a8;
                     if (ofs > size / align)
                         goto new_field;
                 }
                 if (size == 8 && bit_size <= 32)
-                    f->type.t = (f->type.t & ~0x000f) | 3, size = 4;
+                    f->type.t = (f->type.t & ~VT_BTYPE) | VT_INT, size = 4;
                 while (bit_pos >= align * 8)
                     c += align, bit_pos -= align * 8;
                 offset = c;
-		if (f->v & 0x10000000
-                    )
-		    align = 1;
-	    } else {
-		bt = f->type.t & 0x000f;
-		if ((bit_pos + bit_size > size * 8)
+                if (f->v & SYM_FIRST_ANOM)
+                    align = 1;
+            } else {
+                bt = f->type.t & VT_BTYPE;
+                if ((bit_pos + bit_size > size * 8)
                     || (bit_size > 0) == (bt != prevbt)
                     ) {
-		    c = (c + align - 1) & -align;
-		    offset = c;
-		    bit_pos = 0;
-		    if (bit_size || prev_bit_size)
-		        c += size;
-		}
-		if (bit_size == 0 && prevbt != bt)
-		    align = 1;
-		prevbt = bt;
+                    c = (c + align - 1) & -align;
+                    offset = c;
+                    bit_pos = 0;
+                    if (bit_size || prev_bit_size)
+                        c += size;
+                }
+                if (bit_size == 0 && prevbt != bt)
+                    align = 1;
+                prevbt = bt;
                 prev_bit_size = bit_size;
-	    }
-	    f->type.t = (f->type.t & ~(0x3f << 20))
-		        | (bit_pos << 20);
-	    bit_pos += bit_size;
-	}
-	if (align > maxalign)
-	    maxalign = align;
-	if (f->v & 0x10000000 && (f->type.t & 0x000f) == 7) {
-	    Sym *ass;
-	    int v2 = f->type.ref->v;
-	    if (!(v2 & 0x20000000) &&
-		(v2 & ~0x40000000) < 0x10000000) {
-		Sym **pps;
-		ass = f->type.ref;
-		f->type.ref = sym_push(anon_sym++ | 0x20000000,
-				       &f->type.ref->type, 0,
-				       f->type.ref->c);
-		pps = &f->type.ref->next;
-		while ((ass = ass->next) != ((void*)0)) {
-		    *pps = sym_push(ass->v, &ass->type, 0, ass->c);
-		    pps = &((*pps)->next);
-		}
-		*pps = ((void*)0);
-	    }
-	    struct_add_offset(f->type.ref, offset);
-	    f->c = 0;
-	} else {
-	    f->c = offset;
-	}
-	f->r = 0;
+            }
+            f->type.t = (f->type.t & ~(0x3f << VT_STRUCT_SHIFT))
+                        | (bit_pos << VT_STRUCT_SHIFT);
+            bit_pos += bit_size;
+        }
+        if (align > maxalign)
+            maxalign = align;
+        if (f->v & SYM_FIRST_ANOM && (f->type.t & VT_BTYPE) == VT_STRUCT) {
+            Sym *ass;
+            int v2 = f->type.ref->v;
+            if (!(v2 & SYM_FIELD) &&
+                (v2 & ~SYM_STRUCT) < SYM_FIRST_ANOM) {
+                Sym **pps;
+                ass = f->type.ref;
+                f->type.ref = sym_push(anon_sym++ | SYM_FIELD,
+                                       &f->type.ref->type, 0,
+                                       f->type.ref->c);
+                pps = &f->type.ref->next;
+                while ((ass = ass->next) != NULL) {
+                    *pps = sym_push(ass->v, &ass->type, 0, ass->c);
+                    pps = &((*pps)->next);
+                }
+                *pps = NULL;
+            }
+            struct_add_offset(f->type.ref, offset);
+            f->c = 0;
+        } else {
+            f->c = offset;
+        }
+        f->r = 0;
     }
     if (pcc)
         c += (bit_pos + 7) >> 3;
@@ -6545,6 +6544,7 @@ static void struct_layout(CType *type, AttributeDef *ad) {
     }
     c = (c + a - 1) & -a;
     type->ref->c = c;
+// LJW BOOKMARK2
     for (f = type->ref->next; f; f = f->next) {
         int s, px, cx, c0;
         CType t;
