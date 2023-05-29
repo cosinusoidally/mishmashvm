@@ -6590,9 +6590,8 @@ static void struct_layout(CType *type, AttributeDef *ad) {
     }
 }
 
-// LJW BOOKMARK
 static void struct_decl(CType *type, int u) {
-
+// LJW DONE
     int v, c, size, align, flexible;
     int bit_size, bsize, bt;
     Sym *s, *ss, **ps;
@@ -6711,68 +6710,67 @@ do_decl:
                             }
                         }
                         if (type_size(&type1, &align) < 0) {
-// LJW BOOKMARK2
-			    if ((u == 7) && (type1.t & 0x0040) && c)
-			        flexible = 1;
-			    else
-			        tcc_error("field '%s' has incomplete type",
-                                      get_tok_str(v, ((void*)0)));
+                            if ((u == VT_STRUCT) && (type1.t & VT_ARRAY) && c)
+                                flexible = 1;
+                            else
+                                tcc_error("field '%s' has incomplete type",
+                                      get_tok_str(v, NULL));
                         }
-                        if ((type1.t & 0x000f) == 6 ||
-                            (type1.t & (0x00001000 | 0x00002000 | 0x00004000 | 0x00008000)))
+                        if ((type1.t & VT_BTYPE) == VT_FUNC ||
+                            (type1.t & VT_STORAGE))
                             tcc_error("invalid type for '%s'",
-                                  get_tok_str(v, ((void*)0)));
+                                  get_tok_str(v, NULL));
                     }
                     if (tok == ':') {
                         next();
                         bit_size = expr_const();
                         if (bit_size < 0)
                             tcc_error("negative width in bit-field '%s'",
-                                  get_tok_str(v, ((void*)0)));
+                                  get_tok_str(v, NULL));
                         if (v && bit_size == 0)
                             tcc_error("zero width for bit-field '%s'",
-                                  get_tok_str(v, ((void*)0)));
-			parse_attribute(&ad1);
+                                  get_tok_str(v, NULL));
+                        parse_attribute(&ad1);
                     }
                     size = type_size(&type1, &align);
                     if (bit_size >= 0) {
-                        bt = type1.t & 0x000f;
-                        if (bt != 3 &&
-                            bt != 1 &&
-                            bt != 2 &&
-                            bt != 11 &&
-                            bt != 4)
+                        bt = type1.t & VT_BTYPE;
+                        if (bt != VT_INT &&
+                            bt != VT_BYTE &&
+                            bt != VT_SHORT &&
+                            bt != VT_BOOL &&
+                            bt != VT_LLONG)
                             tcc_error("bitfields must have scalar type");
                         bsize = size * 8;
                         if (bit_size > bsize) {
                             tcc_error("width of '%s' exceeds its type",
-                                  get_tok_str(v, ((void*)0)));
+                                  get_tok_str(v, NULL));
                         } else if (bit_size == bsize
                                     && !ad.a.packed && !ad1.a.packed) {
                             ;
                         } else if (bit_size == 64) {
                             tcc_error("field width 64 not implemented");
                         } else {
-                            type1.t = (type1.t & ~(((1 << (6+6)) - 1) << 20 | 0x0080))
-                                | 0x0080
-                                | (bit_size << (20 + 6));
+                            type1.t = (type1.t & ~VT_STRUCT_MASK)
+                                | VT_BITFIELD
+                                | (bit_size << (VT_STRUCT_SHIFT + 6));
                         }
                     }
-                    if (v != 0 || (type1.t & 0x000f) == 7) {
-			c = 1;
+                    if (v != 0 || (type1.t & VT_BTYPE) == VT_STRUCT) {
+                        c = 1;
                     }
                     if (v == 0 &&
-			((type1.t & 0x000f) == 7 ||
-			 bit_size >= 0)) {
-		        v = anon_sym++;
-		    }
+                        ((type1.t & VT_BTYPE) == VT_STRUCT ||
+                         bit_size >= 0)) {
+                        v = anon_sym++;
+                    }
                     if (v) {
-                        ss = sym_push(v | 0x20000000, &type1, 0, 0);
+                        ss = sym_push(v | SYM_FIELD, &type1, 0, 0);
                         ss->a = ad1.a;
                         *ps = ss;
                         ps = &ss->next;
                     }
-                    if (tok == ';' || tok == (-1))
+                    if (tok == ';' || tok == TOK_EOF)
                         break;
                     skip(',');
                 }
@@ -6785,8 +6783,8 @@ do_decl:
     }
 }
 
-static void sym_to_attr(AttributeDef *ad, Sym *s)
-{
+// LJW BOOKMARK
+static void sym_to_attr(AttributeDef *ad, Sym *s) {
     if (s->a.aligned && 0 == ad->a.aligned)
         ad->a.aligned = s->a.aligned;
     if (s->f.func_call && 0 == ad->f.func_call)
