@@ -791,6 +791,14 @@ const int SYM_POOL_NB = (8192 / sizeof(Sym));
 
 const int ELF_PAGE_SIZE = 0x1000;
 
+const int PT_LOAD = 1;
+
+enum PFS {
+    PF_X = (1 << 0),
+    PF_W = (1 << 1),
+    PF_R =  (1 << 2),
+};
+
 enum LABELS {
     LABEL_DEFINED = 0,
     LABEL_FORWARD = 1,
@@ -823,6 +831,7 @@ enum SHNS {
 };
 
 enum SHFS {
+    SHF_WRITE = (1 << 0),
     SHF_ALLOC = (1 << 1),
     SHF_EXECINSTR = (1 << 2),
 };
@@ -9950,19 +9959,20 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
             ph += 2;
         dyninf->rel_addr = dyninf->rel_size = 0;
         for(j = 0; j < 2; j++) {
-            ph->p_type = 1;
+            ph->p_type = PT_LOAD;
             if (j == 0)
-                ph->p_flags = (1 << 2) | (1 << 0);
+                ph->p_flags = PF_R | PF_X;
             else
-                ph->p_flags = (1 << 2) | (1 << 1);
+                ph->p_flags = PF_R | PF_W;
             ph->p_align = s_align;
             for(k = 0; k < 5; k++) {
                 for(i = 1; i < s1->nb_sections; i++) {
                     s = s1->sections[i];
                     if (j == 0) {
-                        if ((s->sh_flags & ((1 << 1) | (1 << 0))) !=
-                            (1 << 1))
+                        if ((s->sh_flags & (SHF_ALLOC | SHF_WRITE)) !=
+                            SHF_ALLOC)
                             continue;
+// LJW BOOKMARK2
                     } else {
                         if ((s->sh_flags & ((1 << 1) | (1 << 0))) !=
                             ((1 << 1) | (1 << 0)))
