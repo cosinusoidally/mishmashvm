@@ -3826,8 +3826,8 @@ static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
         sa1 = *nested_list;
         *nested_list = sa1->prev;
         sym_free(sa1);
-	if (joined_str)
-	    tok_str_free_str(joined_str);
+        if (joined_str)
+            tok_str_free_str(joined_str);
         if (mstr != s->d)
             tok_str_free_str(mstr);
     }
