@@ -8173,15 +8173,14 @@ static void gexpr(void) {
     }
 }
 
-static void expr_const1(void)
-{
+static void expr_const1(void) {
+// LJW DONE
     const_wanted++;
     nocode_wanted++;
     expr_cond();
     nocode_wanted--;
     const_wanted--;
 }
-
 
 static int64_t expr_const64(void) {
 // LJW DONE
@@ -8204,16 +8203,11 @@ static int expr_const(void) {
     return c;
 }
 
-
-
-static int is_label(void)
-{
+static int is_label(void) {
+// LJW DONE
     int last_tok;
-
-
     if (tok < TOK_DEFINE)
         return 0;
-
     last_tok = tok;
     next();
     if (tok == ':') {
@@ -8224,9 +8218,9 @@ static int is_label(void)
     }
 }
 
+// LJW BOOKMARK
+static void gfunc_return(CType *func_type) {
 
-static void gfunc_return(CType *func_type)
-{
     if ((func_type->t & 0x000f) == 7) {
         CType type, ret_type;
         int ret_align, ret_nregs, regsize;
