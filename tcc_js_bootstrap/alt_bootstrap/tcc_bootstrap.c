@@ -8218,10 +8218,9 @@ static int is_label(void) {
     }
 }
 
-// LJW BOOKMARK
 static void gfunc_return(CType *func_type) {
-
-    if ((func_type->t & 0x000f) == 7) {
+// LJW DONE
+    if ((func_type->t & VT_BTYPE) == VT_STRUCT) {
         CType type, ret_type;
         int ret_align, ret_nregs, regsize;
         ret_nregs = gfunc_sret(func_type, func_var, &ret_type,
@@ -8229,30 +8228,30 @@ static void gfunc_return(CType *func_type) {
         if (0 == ret_nregs) {
             type = *func_type;
             mk_pointer(&type);
-            vset(&type, 0x0032 | 0x0100, func_vc);
+            vset(&type, VT_LOCAL | VT_LVAL, func_vc);
             indir();
             vswap();
             vstore();
         } else {
             int r, size, addr, align;
             size = type_size(func_type,&align);
-            if ((vtop->r != (0x0032 | 0x0100) ||
+            if ((vtop->r != (VT_LOCAL | VT_LVAL) ||
                  (vtop->c.i & (ret_align-1)))
                 && (align & (ret_align-1))) {
                 loc = (loc - size) & -ret_align;
                 addr = loc;
                 type = *func_type;
-                vset(&type, 0x0032 | 0x0100, addr);
+                vset(&type, VT_LOCAL | VT_LVAL, addr);
                 vswap();
                 vstore();
                 vpop();
-                vset(&ret_type, 0x0032 | 0x0100, addr);
+                vset(&ret_type, VT_LOCAL | VT_LVAL, addr);
             }
             vtop->type = ret_type;
             if (is_float(ret_type.t))
                 r = rc_fret(ret_type.t);
             else
-                r = 0x0004;
+                r = RC_IRET;
             if (ret_nregs == 1)
                 gv(r);
             else {
@@ -8270,21 +8269,20 @@ static void gfunc_return(CType *func_type) {
     } else if (is_float(func_type->t)) {
         gv(rc_fret(func_type->t));
     } else {
-        gv(0x0004);
+        gv(RC_IRET);
     }
     vtop--;
 }
 
-
-static int case_cmp(const void *pa, const void *pb)
-{
+static int case_cmp(const void *pa, const void *pb) {
+// LJW DONE
     int64_t a = (*(struct case_t**) pa)->v1;
     int64_t b = (*(struct case_t**) pb)->v1;
     return a < b ? -1 : a > b;
 }
 
-static void gcase(struct case_t **base, int len, int *bsym)
-{
+// LJW BOOKMARK
+static void gcase(struct case_t **base, int len, int *bsym) {
     struct case_t *p;
     int e;
     int ll = (vtop->type.t & 0x000f) == 4;
