@@ -9339,18 +9339,18 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
     TokenString *init_str = ((void*)0);
     Section *sec;
     Sym *flexible_array;
-    Sym *sym = ((void*)0);
+    Sym *sym = NULL;
     int saved_nocode_wanted = nocode_wanted;
     int bcheck = 0;
-    if (type->t & 0x00002000)
+    if (type->t & VT_STATIC)
         nocode_wanted |= (nocode_wanted > 0) ? 0x40000000 : 0x80000000;
-    flexible_array = ((void*)0);
-    if ((type->t & 0x000f) == 7) {
+    flexible_array = NULL;
+    if ((type->t & VT_BTYPE) == VT_STRUCT) {
         Sym *field = type->ref->next;
         if (field) {
             while (field->next)
                 field = field->next;
-            if (field->type.t & 0x0040 && field->type.ref->c < 0)
+            if (field->type.t & VT_ARRAY && field->type.ref->c < 0)
                 flexible_array = field;
         }
     }
@@ -9360,7 +9360,7 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
             tcc_error("unknown type size");
         if (has_init == 2) {
 	    init_str = tok_str_alloc();
-            while (tok == 0xb9 || tok == 0xba) {
+            while (tok == TOK_STR || tok == TOK_LSTR) {
                 tok_str_add_tok(init_str);
                 next();
             }
@@ -9372,7 +9372,7 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
         unget_tok(0);
         begin_macro(init_str, 1);
         next();
-        decl_initializer(type, ((void*)0), 0, 1, 1);
+        decl_initializer(type, NULL, 0, 1, 1);
         macro_ptr = init_str->str;
         next();
         size = type_size(type, &align);
@@ -9392,24 +9392,11 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
     }
     if ((nocode_wanted > 0))
         size = 0, align = 1;
-    if ((r & 0x003f) == 0x0032) {
-        sec = ((void*)0);
-        if (bcheck && (type->t & 0x0040)) {
-            loc--;
-        }
+    if ((r & VT_VALMASK) == VT_LOCAL) {
+        sec = NULL;
         loc = (loc - size) & -align;
         addr = loc;
-        if (bcheck && (type->t & 0x0040)) {
-            Elf32_Addr *bounds_ptr;
-            loc--;
-            bounds_ptr = section_ptr_add(lbounds_section, 2 * sizeof(Elf32_Addr));
-            bounds_ptr[0] = addr;
-            bounds_ptr[1] = size;
-        }
         if (v) {
-	    if (ad->asm_label) {
-	    }
-
             sym = sym_push(v, type, r, addr);
             sym->a = ad->a;
         } else {
