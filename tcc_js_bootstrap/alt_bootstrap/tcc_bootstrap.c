@@ -3170,9 +3170,6 @@ maybe_newline:
         }
         break;
 // LJW BOOKMARK2
-        if (!(isidnum_table[c - (-1)] & 2)
-         || (parse_flags & 0x0008))
-            goto parse_simple;
     case 'a': case 'b': case 'c': case 'd':
     case 'e': case 'f': case 'g': case 'h':
     case 'i': case 'j': case 'k': case 'l':
