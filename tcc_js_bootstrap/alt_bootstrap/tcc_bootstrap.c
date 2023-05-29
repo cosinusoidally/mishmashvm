@@ -10061,10 +10061,9 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
     return file_offset;
 }
 
-// LJW BOOKMARK
 static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
                            int file_offset, int *sec_order) {
-
+// LJW DONE
     int i, shnum, offset, size, file_type;
     Section *s;
     Elf32_Ehdr ehdr;
@@ -10085,7 +10084,6 @@ static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
     ehdr.e_ident[4] = 1;
     ehdr.e_ident[5] = 1;
     ehdr.e_ident[6] = 1;
-// LJW BOOKMARK2
     ehdr.e_type = ET_REL;
     ehdr.e_machine = 3;
     ehdr.e_version = 1;
@@ -10100,7 +10098,7 @@ static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
     sort_syms(s1, symtab_section);
     for(i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[sec_order[i]];
-        if (s->sh_type != 8) {
+        if (s->sh_type != SHT_NOBITS) {
             while (offset < s->sh_offset) {
                 fputc(0, f);
                 offset++;
@@ -10138,6 +10136,7 @@ static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
 
 static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
                               Elf32_Phdr *phdr, int file_offset, int *sec_order) {
+// LJW DONE
     int fd, mode, file_type;
     FILE *f;
     unlink(filename);
@@ -10147,8 +10146,8 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
     return 0;
 }
 
-static int elf_output_file(TCCState *s1, const char *filename)
-{
+static int elf_output_file(TCCState *s1, const char *filename) {
+// LJW DONE
     int i, ret, phnum, shnum, file_type, file_offset, *sec_order;
     struct dyn_inf dyninf = {0};
     Elf32_Phdr *phdr;
@@ -10158,11 +10157,11 @@ static int elf_output_file(TCCState *s1, const char *filename)
     file_type = s1->output_type;
     s1->nb_errors = 0;
     ret = -1;
-    phdr = ((void*)0);
-    sec_order = ((void*)0);
-    interp = dynamic = dynstr = ((void*)0);
+    phdr = NULL;
+    sec_order = NULL;
+    interp = dynamic = dynstr = NULL;
     textrel = 0;
-    strsec = new_section(s1, ".shstrtab", 3, 0);
+    strsec = new_section(s1, ".shstrtab", SHT_STRTAB, 0);
     put_elf_str(strsec, "");
     textrel = alloc_sec_names(s1, file_type, strsec);
     phnum = 0;
@@ -10248,8 +10247,9 @@ static void gsym(int t) {
 }
 
 
-static int oad(int c, int s)
-{
+// LJW BOOKMARK
+static int oad(int c, int s) {
+
     int t;
     if (nocode_wanted)
         return s;
