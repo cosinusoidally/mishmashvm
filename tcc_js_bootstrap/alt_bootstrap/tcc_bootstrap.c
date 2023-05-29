@@ -4152,8 +4152,8 @@ static int decl0(int l, int is_for_loop_init, Sym *);
 static void expr_eq(void);
 static int is_compatible_unqualified_types(CType *type1, CType *type2);
 static int64_t expr_const64(void);
-// LJW BOOKMARK
 static void vpush64(int ty, unsigned long long v);
+// LJW BOOKMARK
 static void vpush(CType *type);
 static int gvtst(int inv, int t);
 static void gen_inline_functions(TCCState *s);
@@ -4515,14 +4515,14 @@ static void vpushs(Elf32_Addr v) {
 }
 
 
-static void vpush64(int ty, unsigned long long v)
-{
+static void vpush64(int ty, unsigned long long v) {
+// LJW DONE
     CValue cval;
     CType ctype;
     ctype.t = ty;
-    ctype.ref = ((void*)0);
+    ctype.ref = NULL;
     cval.i = v;
-    vsetc(&ctype, 0x0030, &cval);
+    vsetc(&ctype, VT_CONST, &cval);
 }
 
 
