@@ -7008,9 +7008,7 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
     Sym **plast, *s, *first;
     AttributeDef ad1;
     CType pt;
-
     if (tok == '(') {
-
         next();
 	if (td && !(td & 1))
 	  return 0;
@@ -7027,7 +7025,6 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
         arg_size = 0;
         if (l) {
             for(;;) {
-
                 if (l != 2) {
                     if ((pt.t & 0x000f) == 0 && tok == ')')
                         break;
@@ -7058,21 +7055,14 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
 		    tcc_error("invalid type");
             }
         } else
-
             l = 2;
         skip(')');
-
-
         type->t &= ~0x0100;
-
-
-
         if (tok == '[') {
             next();
             skip(']');
             mk_pointer(type);
         }
-
         ad->f.func_args = arg_size;
         ad->f.func_type = l;
         s = sym_push(0x20000000, type, 0, 0);
@@ -7083,7 +7073,6 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
         type->ref = s;
     } else if (tok == '[') {
 	int saved_nocode_wanted = nocode_wanted;
-
         next();
         if (tok == TOK_RESTRICT1)
             next();
@@ -7093,10 +7082,6 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
             if (!local_stack || (storage & 0x00002000))
                 vpushi(expr_const());
             else {
-
-
-
-
 		nocode_wanted = 0;
 		gexpr();
 	    }
@@ -7111,17 +7096,14 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
             }
         }
         skip(']');
-
         post_type(type, ad, storage, 0);
         if (type->t == 6)
             tcc_error("declaration of an array of functions");
         t1 |= type->t & 0x0400;
-
         if (t1 & 0x0400) {
             loc -= type_size(&int_type, &align);
             loc &= -align;
             n = loc;
-
             gen_op('*');
             vset(&int_type, 0x0032|0x0100, n);
             vswap();
@@ -7130,9 +7112,6 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
         if (n != -1)
             vpop();
 	nocode_wanted = saved_nocode_wanted;
-
-
-
         s = sym_push(0x20000000, type, 0, n);
         type->t = (t1 ? 0x0400 : 0x0040) | 5;
         type->ref = s;
