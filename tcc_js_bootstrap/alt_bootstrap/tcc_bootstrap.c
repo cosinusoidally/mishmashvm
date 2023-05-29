@@ -8704,28 +8704,22 @@ static void parse_init_elem(int expr_type) {
     }
 }
 
-// LJW BOOKMARK
 static void init_putz(Section *sec, unsigned long c, int size) {
-
+// LJW DONE
     if (sec) {
-
     } else {
         vpush_global_sym(&func_old_type, TOK_memset);
-        vseti(0x0032, c);
-
-
-
-
+        vseti(VT_LOCAL, c);
         vpushi(0);
         vpushs(size);
-
         gfunc_call(3);
     }
 }
 
+// LJW BOOKMARK
 static int decl_designator(CType *type, Section *sec, unsigned long c,
-                           Sym **cur_field, int size_only, int al)
-{
+                           Sym **cur_field, int size_only, int al) {
+
     Sym *s, *f;
     int index, index_last, align, l, nb_elems, elem_size;
     unsigned long corig = c;
