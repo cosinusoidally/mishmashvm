@@ -5982,25 +5982,21 @@ static void mk_pointer(CType *type) {
     type->ref = s;
 }
 
-// LJW BOOKMARK
 static int is_compatible_func(CType *type1, CType *type2) {
-
+// LJW DONE
     Sym *s1, *s2;
-
     s1 = type1->ref;
     s2 = type2->ref;
     if (!is_compatible_types(&s1->type, &s2->type))
         return 0;
-
     if (s1->f.func_call != s2->f.func_call)
         return 0;
-
-    if (s1->f.func_type == 2 || s2->f.func_type == 2)
+    if (s1->f.func_type == FUNC_OLD || s2->f.func_type == FUNC_OLD)
         return 1;
     if (s1->f.func_type != s2->f.func_type)
         return 0;
-    while (s1 != ((void*)0)) {
-        if (s2 == ((void*)0))
+    while (s1 != NULL) {
+        if (s2 == NULL)
             return 0;
         if (!is_compatible_unqualified_types(&s1->type, &s2->type))
             return 0;
@@ -6012,11 +6008,7 @@ static int is_compatible_func(CType *type1, CType *type2) {
     return 1;
 }
 
-
-
-
-
-
+// LJW BOOKMARK
 static int compare_types(CType *type1, CType *type2, int unqualified)
 {
     int bt1, t1, t2;
