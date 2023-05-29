@@ -10890,8 +10890,8 @@ static void gen_cvt_ftof(int t) {
     gv(0x0002);
 }
 
-// LJW BOOKMARK
 static char *pstrcpy(char *buf, int buf_size, const char *s) {
+// LJW DONE
     char *q, *q_end;
     int c;
     if (buf_size > 0) {
@@ -10909,6 +10909,7 @@ static char *pstrcpy(char *buf, int buf_size, const char *s) {
 }
 
 static char *pstrcat(char *buf, int buf_size, const char *s) {
+// LJW DONE
     int len;
     len = strlen(buf);
     if (len < buf_size)
@@ -10917,6 +10918,7 @@ static char *pstrcat(char *buf, int buf_size, const char *s) {
 }
 
 static char *pstrncpy(char *out, const char *in, size_t num) {
+// LJW DONE
     memcpy(out, in, num);
     out[num] = '\0';
     return out;
@@ -10997,6 +10999,7 @@ static void dynarray_reset(void *pp, int *n) {
     *(void**)pp = ((void*)0);
 }
 
+// LJW BOOKMARK
 static void tcc_split_path(TCCState *s, void *p_ary, int *p_nb_ary, const char *in) {
     const char *p;
     do {
