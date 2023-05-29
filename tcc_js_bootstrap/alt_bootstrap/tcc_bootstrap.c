@@ -5760,36 +5760,29 @@ static void gen_cvt_ftoi1(int t) {
     }
 }
 
-// LJW BOOKMARK
 static void force_charshort_cast(int t) {
+// LJW DONE
     int bits, dbt;
-
-
     if ((nocode_wanted & 0xC0000000))
 	return;
-
-    dbt = t & 0x000f;
-
-    if (dbt == 1)
+    dbt = t & VT_BTYPE;
+    if (dbt == VT_BYTE)
         bits = 8;
     else
         bits = 16;
-    if (t & 0x0010) {
+    if (t & VT_UNSIGNED) {
         vpushi((1 << bits) - 1);
         gen_op('&');
     } else {
-        if ((vtop->type.t & 0x000f) == 4)
+        if ((vtop->type.t & VT_BTYPE) == VT_LLONG)
             bits = 64 - bits;
         else
             bits = 32 - bits;
         vpushi(bits);
-        gen_op(0x01);
-
-
-
-        vtop->type.t &= ~0x0010;
+        gen_op(TOK_SHL);
+        vtop->type.t &= ~VT_UNSIGNED;
         vpushi(bits);
-        gen_op(0x02);
+        gen_op(TOK_SAR);
     }
 }
 
@@ -5989,8 +5982,9 @@ static void mk_pointer(CType *type) {
     type->ref = s;
 }
 
-static int is_compatible_func(CType *type1, CType *type2)
-{
+// LJW BOOKMARK
+static int is_compatible_func(CType *type1, CType *type2) {
+
     Sym *s1, *s2;
 
     s1 = type1->ref;
