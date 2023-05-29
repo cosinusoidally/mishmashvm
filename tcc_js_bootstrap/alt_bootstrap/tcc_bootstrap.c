@@ -5461,20 +5461,20 @@ static void gen_opic(int op) {
     }
 }
 
-// LJW BOOKMARK
 static void gen_opif(int op) {
+// LJW DONE
     int c1, c2;
     SValue *v1, *v2;
     double f1, f2;
     v1 = vtop - 1;
     v2 = vtop;
-    c1 = (v1->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
-    c2 = (v2->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
+    c1 = (v1->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST;
+    c2 = (v2->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST;
     if (c1 && c2) {
-        if (v1->type.t == 8) {
+        if (v1->type.t == VT_FLOAT) {
             f1 = v1->c.f;
             f2 = v2->c.f;
-        } else if (v1->type.t == 9) {
+        } else if (v1->type.t == VT_DOUBLE) {
             f1 = v1->c.d;
             f2 = v2->c.d;
         } else {
@@ -5498,9 +5498,9 @@ static void gen_opif(int op) {
         default:
             goto general_case;
         }
-        if (v1->type.t == 8) {
+        if (v1->type.t == VT_FLOAT) {
             v1->c.f = f1;
-        } else if (v1->type.t == 9) {
+        } else if (v1->type.t == VT_DOUBLE) {
             v1->c.d = f1;
         } else {
             v1->c.ld = f1;
@@ -5513,29 +5513,35 @@ static void gen_opif(int op) {
 }
 
 static int pointed_size(CType *type) {
+// LJW DONE
     int align;
     return type_size(pointed_type(type), &align);
 }
 
 static void vla_runtime_pointed_size(CType *type) {
+// LJW DONE
     int align;
 }
 
 static int is_null_pointer(SValue *p) {
-    if ((p->r & (0x003f | 0x0100 | 0x0200)) != 0x0030)
+// LJW DONE
+    if ((p->r & (VT_VALMASK | VT_LVAL | VT_SYM)) != VT_CONST)
         return 0;
-    return ((p->type.t & 0x000f) == 3 && (uint32_t)p->c.i == 0) ||
-        ((p->type.t & 0x000f) == 4 && p->c.i == 0) ||
-        ((p->type.t & 0x000f) == 5 &&
-         (4 == 4 ? (uint32_t)p->c.i == 0 : p->c.i == 0));
+    return ((p->type.t & VT_BTYPE) == VT_INT && (uint32_t)p->c.i == 0) ||
+        ((p->type.t & VT_BTYPE) == VT_LLONG && p->c.i == 0) ||
+        ((p->type.t & VT_BTYPE) == VT_PTR &&
+         (PTR_SIZE == 4 ? (uint32_t)p->c.i == 0 : p->c.i == 0));
 }
 
-static inline int is_integer_btype(int bt) {
-    return (bt == 1 || bt == 2 ||
-            bt == 3 || bt == 4);
+static int is_integer_btype(int bt) {
+// LJW DONE
+    return (bt == VT_BYTE || bt == VT_SHORT ||
+            bt == VT_INT || bt == VT_LLONG);
 }
 
+// LJW BOOKMARK
 static void check_comparison_pointer_types(SValue *p1, SValue *p2, int op) {
+
     CType *type1, *type2, tmp_type1, tmp_type2;
     int bt1, bt2;
     if (is_null_pointer(p1) || is_null_pointer(p2))
