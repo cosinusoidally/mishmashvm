@@ -7861,13 +7861,12 @@ static void expr_shift(void) {
     }
 }
 
-// LJW BOOKMARK
 static void expr_cmp(void) {
-
+// LJW DONE
     int t;
     expr_shift();
-    while ((tok >= 0x96 && tok <= 0x9f) ||
-           tok == 0x92 || tok == 0x93) {
+    while ((tok >= TOK_ULE && tok <= TOK_GT) ||
+           tok == TOK_ULT || tok == TOK_UGE) {
         t = tok;
         next();
         expr_shift();
@@ -7875,12 +7874,11 @@ static void expr_cmp(void) {
     }
 }
 
-static void expr_cmpeq(void)
-{
+static void expr_cmpeq(void) {
+// LJW DONE
     int t;
-
     expr_cmp();
-    while (tok == 0x94 || tok == 0x95) {
+    while (tok == TOK_EQ || tok == TOK_NE) {
         t = tok;
         next();
         expr_cmp();
@@ -7888,6 +7886,7 @@ static void expr_cmpeq(void)
     }
 }
 
+// LJW BOOKMARK
 static void expr_and(void)
 {
     expr_cmpeq();
