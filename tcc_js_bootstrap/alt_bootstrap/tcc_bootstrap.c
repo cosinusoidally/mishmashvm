@@ -6413,23 +6413,19 @@ static void struct_add_offset (Sym *s, int offset) {
 }
 
 // LJW BOOKMARK
-static void struct_layout(CType *type, AttributeDef *ad)
-{
+static void struct_layout(CType *type, AttributeDef *ad) {
+
     int size, align, maxalign, offset, c, bit_pos, bit_size;
     int packed, a, bt, prevbt, prev_bit_size;
     int pcc = 0;
     int pragma_pack = *tcc_state->pack_stack_ptr;
     Sym *f;
-
     maxalign = 1;
     offset = 0;
     c = 0;
     bit_pos = 0;
     prevbt = 7;
     prev_bit_size = 0;
-
-
-
     for (f = type->ref->next; f; f = f->next) {
         if (f->type.t & 0x0080)
             bit_size = (((f->type.t) >> (20 + 6)) & 0x3f);
@@ -6438,36 +6434,26 @@ static void struct_layout(CType *type, AttributeDef *ad)
         size = type_size(&f->type, &align);
         a = f->a.aligned ? 1 << (f->a.aligned - 1) : 0;
         packed = 0;
-
         if (pcc && bit_size == 0) {
-
-
         } else {
-
             if (pcc && (f->a.packed || ad->a.packed))
                 align = packed = 1;
-
-
             if (pragma_pack) {
                 packed = 1;
                 if (pragma_pack < align)
                     align = pragma_pack;
-
                 if (pcc && pragma_pack < a)
                     a = 0;
             }
         }
-
         if (a)
             align = a;
-
         if (type->ref->type.t == (1 << 20 | 7)) {
 	    if (pcc && bit_size >= 0)
 	        size = (bit_size + 7) >> 3;
 	    offset = 0;
 	    if (size > c)
 	        c = size;
-
 	} else if (bit_size < 0) {
             if (pcc)
                 c += (bit_pos + 7) >> 3;
@@ -6478,17 +6464,8 @@ static void struct_layout(CType *type, AttributeDef *ad)
 	    bit_pos = 0;
 	    prevbt = 7;
 	    prev_bit_size = 0;
-
 	} else {
-
-
             if (pcc) {
-
-
-
-
-
-
                 if (bit_size == 0) {
             new_field:
 		    c = (c + ((bit_pos + 7) >> 3) + align - 1) & -align;
@@ -6501,23 +6478,14 @@ static void struct_layout(CType *type, AttributeDef *ad)
                     if (ofs > size / align)
                         goto new_field;
                 }
-
-
                 if (size == 8 && bit_size <= 32)
                     f->type.t = (f->type.t & ~0x000f) | 3, size = 4;
-
                 while (bit_pos >= align * 8)
                     c += align, bit_pos -= align * 8;
                 offset = c;
-
-
-
-
 		if (f->v & 0x10000000
-
                     )
 		    align = 1;
-
 	    } else {
 		bt = f->type.t & 0x000f;
 		if ((bit_pos + bit_size > size * 8)
@@ -6526,23 +6494,14 @@ static void struct_layout(CType *type, AttributeDef *ad)
 		    c = (c + align - 1) & -align;
 		    offset = c;
 		    bit_pos = 0;
-
-
-
-
 		    if (bit_size || prev_bit_size)
 		        c += size;
 		}
-
-
-
-
 		if (bit_size == 0 && prevbt != bt)
 		    align = 1;
 		prevbt = bt;
                 prev_bit_size = bit_size;
 	    }
-
 	    f->type.t = (f->type.t & ~(0x3f << 20))
 		        | (bit_pos << 20);
 	    bit_pos += bit_size;
@@ -6551,22 +6510,10 @@ static void struct_layout(CType *type, AttributeDef *ad)
 	    maxalign = align;
 	if (f->v & 0x10000000 && (f->type.t & 0x000f) == 7) {
 	    Sym *ass;
-
-
-
-
-
-
-
 	    int v2 = f->type.ref->v;
 	    if (!(v2 & 0x20000000) &&
 		(v2 & ~0x40000000) < 0x10000000) {
 		Sym **pps;
-
-
-
-
-
 		ass = f->type.ref;
 		f->type.ref = sym_push(anon_sym++ | 0x20000000,
 				       &f->type.ref->type, 0,
@@ -6583,37 +6530,24 @@ static void struct_layout(CType *type, AttributeDef *ad)
 	} else {
 	    f->c = offset;
 	}
-
 	f->r = 0;
     }
-
     if (pcc)
         c += (bit_pos + 7) >> 3;
-
-
     a = bt = ad->a.aligned ? 1 << (ad->a.aligned - 1) : 1;
     if (a < maxalign)
         a = maxalign;
     type->ref->r = a;
     if (pragma_pack && pragma_pack < maxalign && 0 == pcc) {
-
-
         a = pragma_pack;
         if (a < bt)
             a = bt;
     }
     c = (c + a - 1) & -a;
     type->ref->c = c;
-
-
-
-
-
-
     for (f = type->ref->next; f; f = f->next) {
         int s, px, cx, c0;
         CType t;
-
         if (0 == (f->type.t & 0x0080))
             continue;
         f->type.ref = f;
@@ -6625,8 +6559,6 @@ static void struct_layout(CType *type, AttributeDef *ad)
         size = type_size(&f->type, &align);
         if (bit_pos + bit_size <= size * 8 && f->c + size <= c)
             continue;
-
-
         c0 = -1, s = align = 1;
         for (;;) {
             px = f->c * 8 + bit_pos;
@@ -6647,32 +6579,18 @@ static void struct_layout(CType *type, AttributeDef *ad)
             s = type_size(&t, &align);
             c0 = cx;
         }
-
         if (px + bit_size <= s * 8 && cx + s <= c) {
-
             f->c = cx;
             bit_pos = px;
 	    f->type.t = (f->type.t & ~(0x3f << 20))
 		        | (bit_pos << 20);
             if (s != size)
                 f->auxtype = t.t;
-
-
-
-
-
-
         } else {
-
             f->auxtype = 7;
-
-
-
-
         }
     }
 }
-
 
 static void struct_decl(CType *type, int u)
 {
