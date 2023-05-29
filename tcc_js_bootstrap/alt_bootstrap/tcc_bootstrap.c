@@ -9142,56 +9142,22 @@ static void init_putv(CType *type, Section *sec, unsigned long c) {
 	    esym = elfsym(vtop->sym);
 	    ssec = tcc_state->sections[esym->st_shndx];
 	    memmove (ptr, ssec->data + esym->st_value, size);
-	    if (ssec->reloc) {
-		int num_relocs = ssec->reloc->data_offset / sizeof(*rel);
-		rel = (Elf32_Rel*)(ssec->reloc->data + ssec->reloc->data_offset);
-		while (num_relocs--) {
-		    rel--;
-		    if (rel->r_offset >= esym->st_value + size)
-		      continue;
-		    if (rel->r_offset < esym->st_value)
-		      break;
-		    put_elf_reloca(symtab_section, sec,
-				   c + rel->r_offset - esym->st_value,
-				   ((rel->r_info) & 0xff),
-				   ((rel->r_info) >> 8),
-				   0
-				  );
-		}
-	    }
 	} else {
-            if (type->t & 0x0080) {
-                int bit_pos, bit_size, bits, n;
-                unsigned char *p, v, m;
-                bit_pos = (((vtop->type.t) >> 20) & 0x3f);
-                bit_size = (((vtop->type.t) >> (20 + 6)) & 0x3f);
-                p = (unsigned char*)ptr + (bit_pos >> 3);
-                bit_pos &= 7, bits = 0;
-                while (bit_size) {
-                    n = 8 - bit_pos;
-                    if (n > bit_size)
-                        n = bit_size;
-                    v = vtop->c.i >> bits << bit_pos;
-                    m = ((1 << n) - 1) << bit_pos;
-                    *p = (*p & ~m) | (v & m);
-                    bits += n, bit_size -= n, bit_pos = 0, ++p;
-                }
-            } else
             switch(bt) {
-	    case 11:
-		vtop->c.i = vtop->c.i != 0;
-	    case 1:
-		*(char *)ptr |= vtop->c.i;
-		break;
-	    case 2:
-		*(short *)ptr |= vtop->c.i;
-		break;
-	    case 8:
-		*(float*)ptr = vtop->c.f;
-		break;
-	    case 9:
-		*(double *)ptr = vtop->c.d;
-		break;
+            case VT_BOOL:
+                vtop->c.i = vtop->c.i != 0;
+            case VT_BYTE:
+                *(char *)ptr |= vtop->c.i;
+                break;
+            case VT_SHORT:
+                *(short *)ptr |= vtop->c.i;
+                break;
+            case VT_FLOAT:
+                *(float*)ptr = vtop->c.f;
+                break;
+            case VT_DOUBLE:
+                *(double *)ptr = vtop->c.d;
+                break;
 	    case 10:
                 if (sizeof (long double) >= 10)
                     memcpy(ptr, &vtop->c.ld, 10);
