@@ -4752,9 +4752,8 @@ static void save_reg_upstack(int r, int n) {
     }
 }
 
-// LJW BOOKMARK
 static int get_reg(int rc) {
-
+// LJW DONE
     int r;
     SValue *p;
     for(r=0;r<NB_REGS;r++) {
@@ -4785,11 +4784,12 @@ static int get_reg(int rc) {
 }
 
 static void move_reg(int r, int s, int t) {
+// LJW DONE
     SValue sv;
     if (r != s) {
         save_reg(r);
         sv.type.t = t;
-        sv.type.ref = ((void*)0);
+        sv.type.ref = NULL;
         sv.r = s;
         sv.c.i = 0;
         load(r, &sv);
@@ -4804,20 +4804,22 @@ static void gaddrof(void) {
 }
 
 static void incr_bf_adr(int o) {
+// LJW DONE
     vtop->type = char_pointer_type;
     gaddrof();
     vpushi(o);
     gen_op('+');
-    vtop->type.t = (vtop->type.t & ~(0x000f|0x0020))
-        | (1|0x0010);
-    vtop->r = (vtop->r & ~(0x1000 | 0x2000 | 0x4000))
-        | (0x1000|0x4000|0x0100);
+    vtop->type.t = (vtop->type.t & ~(VT_BTYPE|VT_DEFSIGN))
+        | (VT_BYTE|VT_UNSIGNED);
+    vtop->r = (vtop->r & ~VT_LVAL_TYPE)
+        | (VT_LVAL_BYTE|VT_LVAL_UNSIGNED|VT_LVAL);
 }
 
 static void load_packed_bf(CType *type, int bit_pos, int bit_size) {
+// LJW DONE
     int n, o, bits;
     save_reg_upstack(vtop->r, 1);
-    vpush64(type->t & 0x000f, 0);
+    vpush64(type->t & VT_BTYPE, 0);
     bits = 0, o = bit_pos >> 3, bit_pos &= 7;
     do {
         vswap();
@@ -4827,24 +4829,25 @@ static void load_packed_bf(CType *type, int bit_pos, int bit_size) {
         if (n > bit_size)
             n = bit_size;
         if (bit_pos)
-            vpushi(bit_pos), gen_op(0xc9), bit_pos = 0;
+            vpushi(bit_pos), gen_op(TOK_SHR), bit_pos = 0;
         if (n < 8)
             vpushi((1 << n) - 1), gen_op('&');
         gen_cast(type);
         if (bits)
-            vpushi(bits), gen_op(0x01);
+            vpushi(bits), gen_op(TOK_SHL);
         vrotb(3);
         gen_op('|');
         bits += n, bit_size -= n, o = 1;
     } while (bit_size);
     vswap(), vpop();
-    if (!(type->t & 0x0010)) {
-        n = ((type->t & 0x000f) == 4 ? 64 : 32) - bits;
-        vpushi(n), gen_op(0x01);
-        vpushi(n), gen_op(0x02);
+    if (!(type->t & VT_UNSIGNED)) {
+        n = ((type->t & VT_BTYPE) == VT_LLONG ? 64 : 32) - bits;
+        vpushi(n), gen_op(TOK_SHL);
+        vpushi(n), gen_op(TOK_SAR);
     }
 }
 
+// LJW BOOKMARK
 static void store_packed_bf(int bit_pos, int bit_size) {
     int bits, n, o, m, c;
     c = (vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
