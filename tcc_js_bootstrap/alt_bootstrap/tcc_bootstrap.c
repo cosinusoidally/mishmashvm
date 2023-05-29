@@ -4156,8 +4156,8 @@ static void vpush64(int ty, unsigned long long v);
 static void vpush(CType *type);
 static int gvtst(int inv, int t);
 static void gen_inline_functions(TCCState *s);
-// LJW BOOKMARK
 static void skip_or_save_block(TokenString **str);
+// LJW BOOKMARK
 static void gv_dup(void);
 
 static int is_float(int t) {
@@ -8901,14 +8901,14 @@ static void block(int *bsym, int *csym, int is_expr) {
 }
 
 static void skip_or_save_block(TokenString **str) {
+// LJW DONE
     int braces = tok == '{';
     int level = 0;
     if (str)
       *str = tok_str_alloc();
-
     while ((level > 0 || (tok != '}' && tok != ',' && tok != ';' && tok != ')'))) {
 	int t;
-	if (tok == (-1)) {
+        if (tok == TOK_EOF) {
 	     if (str || level > 0)
 	       tcc_error("unexpected end of file");
 	     else
