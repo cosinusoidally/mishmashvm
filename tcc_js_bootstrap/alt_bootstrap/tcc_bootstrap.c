@@ -4046,7 +4046,6 @@ static int pp_check_he0xE(int t, const char *p) {
 puts("s\n");exit(1);
 }
 
-// LJW BOOKMARK
 static int tcc_preprocess(TCCState *s1) {
 // LJW DONE
     BufferedFile **iptr;
@@ -4127,6 +4126,7 @@ static struct switch_t {
     } **p; int n;
     int def_sym;
 } *cur_switch;
+// LJW BOOKMARK
 static void gen_cast(CType *type);
 static void gen_cast_s(int t);
 static inline CType *pointed_type(CType *type);
@@ -5786,42 +5786,28 @@ static void gen_cast_s(int t)
     gen_cast(&type);
 }
 
-static void gen_cast(CType *type)
-{
+static void gen_cast(CType *type) {
+
     int sbt, dbt, sf, df, c, p;
-
-
-
-
     if (vtop->r & 0x0400) {
         vtop->r &= ~0x0400;
         force_charshort_cast(vtop->type.t);
     }
-
-
     if (vtop->type.t & 0x0080) {
         gv(0x0001);
     }
-
     dbt = type->t & (0x000f | 0x0010);
     sbt = vtop->type.t & (0x000f | 0x0010);
-
     if (sbt != dbt) {
         sf = is_float(sbt);
         df = is_float(dbt);
         c = (vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030;
         p = (vtop->r & (0x003f | 0x0100 | 0x0200)) == (0x0030 | 0x0200);
-
-
-
         if (c) {
-
-
             if (sbt == 8)
                 vtop->c.ld = vtop->c.f;
             else if (sbt == 9)
                 vtop->c.ld = vtop->c.d;
-
             if (df) {
                 if ((sbt & 0x000f) == 4) {
                     if ((sbt & 0x0010) || !(vtop->c.i >> 63))
@@ -5834,7 +5820,6 @@ static void gen_cast(CType *type)
                     else
                         vtop->c.ld = -(double)-(uint32_t)vtop->c.i;
                 }
-
                 if (dbt == 8)
                     vtop->c.f = (float)vtop->c.ld;
                 else if (dbt == 9)
@@ -5850,22 +5835,13 @@ static void gen_cast(CType *type)
                     ;
                 else if (sbt & 0x0010)
                     vtop->c.i = (uint32_t)vtop->c.i;
-
-
-
-
                 else if (sbt != 4)
                     vtop->c.i = ((uint32_t)vtop->c.i |
                                   -(vtop->c.i & 0x80000000));
-
                 if (dbt == (4|0x0010))
                     ;
                 else if (dbt == 11)
                     vtop->c.i = (vtop->c.i != 0);
-
-
-
-
                 else if (dbt != 4) {
                     uint32_t m = ((dbt & 0x000f) == 1 ? 0xff :
                                   (dbt & 0x000f) == 2 ? 0xffff :
@@ -5879,57 +5855,43 @@ static void gen_cast(CType *type)
             vtop->r = 0x0030;
             vtop->c.i = 1;
         } else {
-
             if (sf && df) {
-
                 gen_cvt_ftof(dbt);
             } else if (df) {
-
                 gen_cvt_itof1(dbt);
             } else if (sf) {
-
                 if (dbt == 11) {
                      vpushi(0);
                      gen_op(0x95);
                 } else {
-
                     if (dbt != (3 | 0x0010) &&
                         dbt != (4 | 0x0010) &&
                         dbt != 4)
                         dbt = 3;
                     gen_cvt_ftoi1(dbt);
                     if (dbt == 3 && (type->t & (0x000f | 0x0010)) != dbt) {
-
                         vtop->type.t = dbt;
                         gen_cast(type);
                     }
                 }
-
             } else if ((dbt & 0x000f) == 4) {
                 if ((sbt & 0x000f) != 4) {
-
-
                     gv(0x0001);
-
                     if (sbt == (3 | 0x0010)) {
                         vpushi(0);
                         gv(0x0001);
                     } else {
                         if (sbt == 5) {
-
-
                             gen_cast_s(3);
                         }
                         gv_dup();
                         vpushi(31);
                         gen_op(0x02);
                     }
-
                     vtop[-1].r2 = vtop->r;
                     vpop();
                 }
             } else if (dbt == 11) {
-
                 vpushi(0);
                 gen_op(0x95);
             } else if ((dbt & 0x000f) == 1 ||
@@ -5939,23 +5901,14 @@ static void gen_cast(CType *type)
                     tcc_warning("nonportable conversion from pointer to char/short");
                 }
                 force_charshort_cast(dbt);
-
             } else if ((dbt & 0x000f) == 3) {
-
                 if ((sbt & 0x000f) == 4) {
-
                     lexpand();
                     vpop();
                 }
-
-
-
-
             }
         }
     } else if ((dbt & 0x000f) == 5 && !(vtop->r & 0x0100)) {
-
-
         vtop->r = (vtop->r & ~(0x1000 | 0x2000 | 0x4000))
                   | (lvalue_type(type->ref->type.t) & (0x1000 | 0x2000 | 0x4000));
     }
