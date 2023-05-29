@@ -4145,8 +4145,8 @@ static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td);
 static void parse_expr_type(CType *type);
 static void init_putv(CType *type, Section *sec, unsigned long c);
 static void decl_initializer(CType *type, Section *sec, unsigned long c, int first, int size_only);
-// LJW BOOKMARK
 static void block(int *bsym, int *csym, int is_expr);
+// LJW BOOKMARK
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r, int has_init, int v, int scope);
 static void decl(int l);
 static int decl0(int l, int is_for_loop_init, Sym *);
@@ -8592,7 +8592,7 @@ static void gcase(struct case_t **base, int len, int *bsym)
 }
 
 static void block(int *bsym, int *csym, int is_expr) {
-
+// LJW DONE
     int a, b, c, d, cond;
     Sym *s;
     if (is_expr) {
@@ -8600,7 +8600,6 @@ static void block(int *bsym, int *csym, int is_expr) {
         vtop->type.t = VT_VOID;
 
     }
-// LJW BOOKMARK2
     if (tok == TOK_IF) {
 	int saved_nocode_wanted = nocode_wanted;
         next();
@@ -8802,8 +8801,8 @@ static void block(int *bsym, int *csym, int is_expr) {
         for (b = 1; b < sw.n; b++)
             if (sw.p[b - 1]->v2 >= sw.p[b]->v1)
                 tcc_error("duplicate case value");
-        if ((switchval.type.t & 0x000f) == 4)
-            switchval.type.t &= ~0x0010;
+        if ((switchval.type.t & VT_BTYPE) == VT_LLONG)
+            switchval.type.t &= ~VT_UNSIGNED;
         vpushv(&switchval);
         gcase(sw.p, sw.n, &a);
         vpop();
@@ -8820,7 +8819,7 @@ static void block(int *bsym, int *csym, int is_expr) {
 	nocode_wanted &= ~0x20000000;
         next();
         cr->v1 = cr->v2 = expr_const64();
-        if (gnu_ext && tok == 0xc8) {
+        if (gnu_ext && tok == TOK_DOTS) {
             next();
             cr->v2 = expr_const64();
             if (cr->v2 < cr->v1)
@@ -8848,17 +8847,17 @@ static void block(int *bsym, int *csym, int is_expr) {
         if (tok == '*' && gnu_ext) {
             next();
             gexpr();
-            if ((vtop->type.t & 0x000f) != 5)
+            if ((vtop->type.t & VT_BTYPE) != VT_PTR)
                 expect("pointer");
         } else if (tok >= TOK_DEFINE) {
             s = label_find(tok);
             if (!s) {
                 s = label_push(&global_label_stack, tok, 1);
             } else {
-                if (s->r == 2)
-                    s->r = 1;
+                if (s->r == LABEL_DECLARED)
+                    s->r = LABEL_FORWARD;
             }
-	    if (s->r & 1)
+            if (s->r & LABEL_FORWARD)
                 s->jnext = gjmp(s->jnext);
             else
                 gjmp_addr(s->jnext);
@@ -8873,12 +8872,12 @@ static void block(int *bsym, int *csym, int is_expr) {
 	    next();
             s = label_find(b);
             if (s) {
-                if (s->r == 0)
+                if (s->r == LABEL_DEFINED)
                     tcc_error("duplicate label '%s'", get_tok_str(s->v, ((void*)0)));
                 gsym(s->jnext);
-                s->r = 0;
+                s->r = LABEL_DEFINED;
             } else {
-                s = label_push(&global_label_stack, b, 0);
+                s = label_push(&global_label_stack, b, LABEL_DEFINED);
             }
             s->jnext = ind;
         block_after_label:
