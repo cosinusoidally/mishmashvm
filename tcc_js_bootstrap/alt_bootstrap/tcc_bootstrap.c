@@ -7957,66 +7957,63 @@ static void expr_land(void) {
     }
 }
 
-// LJW BOOKMARK
 static void expr_lor(void) {
-
+// LJW DONE
     expr_land();
-    if (tok == 0xa1) {
-	int t = 0;
-	for(;;) {
-	    if ((vtop->r & (0x003f | 0x0100 | 0x0200)) == 0x0030) {
-                gen_cast_s(11);
-		if (!vtop->c.i) {
-		    vpop();
-		} else {
-		    nocode_wanted++;
-		    while (tok == 0xa1) {
-			next();
-			expr_land();
-			vpop();
-		    }
-		    nocode_wanted--;
-		    if (t)
-		      gsym(t);
-		    gen_cast_s(3);
-		    break;
-		}
-	    } else {
-		if (!t)
-		  save_regs(1);
-		t = gvtst(0, t);
-	    }
-	    if (tok != 0xa1) {
-		if (t)
-		  vseti(0x0034, t);
-		else
-		  vpushi(0);
-		break;
-	    }
-	    next();
-	    expr_land();
-	}
+    if (tok == TOK_LOR) {
+        int t = 0;
+        for(;;) {
+            if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
+                gen_cast_s(VT_BOOL);
+                if (!vtop->c.i) {
+                    vpop();
+                } else {
+                    nocode_wanted++;
+                    while (tok == TOK_LOR) {
+                        next();
+                        expr_land();
+                        vpop();
+                    }
+                    nocode_wanted--;
+                    if (t)
+                      gsym(t);
+                    gen_cast_s(VT_INT);
+                    break;
+                }
+            } else {
+                if (!t)
+                  save_regs(1);
+                t = gvtst(0, t);
+            }
+            if (tok != TOK_LOR) {
+                if (t)
+                  vseti(VT_JMP, t);
+                else
+                  vpushi(0);
+                break;
+            }
+            next();
+            expr_land();
+        }
     }
 }
 
-
-
-
-static int condition_3way(void)
-{
+static int condition_3way(void) {
+// LJW DONE
     int c = -1;
-    if ((vtop->r & (0x003f | 0x0100)) == 0x0030 &&
-	(!(vtop->r & 0x0200) || !vtop->sym->a.weak)) {
-	vdup();
-        gen_cast_s(11);
-	c = vtop->c.i;
-	vpop();
+    if ((vtop->r & (VT_VALMASK | VT_LVAL)) == VT_CONST &&
+        (!(vtop->r & VT_SYM) || !vtop->sym->a.weak)) {
+        vdup();
+        gen_cast_s(VT_BOOL);
+        c = vtop->c.i;
+        vpop();
     }
     return c;
 }
 
-static void expr_cond(void)
-{
+// LJW BOOKMARK
+static void expr_cond(void) {
+
     int tt, u, r1, r2, rc, t1, t2, bt1, bt2, islv, c, g;
     SValue sv;
     CType type, type1, type2;
