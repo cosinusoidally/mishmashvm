@@ -27,7 +27,7 @@ echo "build tcc_boot3.o"
 
 LINK_CMD=" -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a out.o -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl"
 
-PHASE1_ARGS="-DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c ./alt_bootstrap/tcc_bootstrap.c -o out.o"
+PHASE1_ARGS="-nostdinc -nostdlib -c ./alt_bootstrap/tcc_bootstrap.c -o out.o"
 
 PHASE2_1_ARGS="-DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -I tcc_src/ ${INCS} -o out.o"
 
