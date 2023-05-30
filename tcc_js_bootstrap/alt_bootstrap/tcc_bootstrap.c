@@ -11032,7 +11032,6 @@ static void strcat_printf(char *buf, int buf_size, const char *fmt, ...) {
     strcat_vprintf(buf, buf_size, fmt, ap);
 }
 
-// LJW BOOKMARK
 static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap) {
 // LJW DONE
     char buf[2048];
@@ -11080,6 +11079,7 @@ void tcc_error_noabort(const char *fmt, ...) {
 }
 
 void tcc_error(const char *fmt, ...) {
+// LJW DONE
     TCCState *s1 = tcc_state;
     va_list ap;
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
@@ -11139,7 +11139,9 @@ static int tcc_open(TCCState *s1, const char *filename) {
     return fd;
 }
 
+// LJW BOOKMARK
 static int tcc_compile(TCCState *s1) {
+// LJW DONE
     Sym *define_start;
     int filetype;
     define_start = define_stack;
@@ -11151,8 +11153,8 @@ static int tcc_compile(TCCState *s1) {
     preprocess_end(s1);
     free_inline_functions(s1);
     free_defines(define_start);
-    sym_pop(&global_stack, ((void*)0), 0);
-    sym_pop(&local_stack, ((void*)0), 0);
+    sym_pop(&global_stack, NULL, 0);
+    sym_pop(&local_stack, NULL, 0);
     tccelf_end_file(s1);
     return s1->nb_errors != 0 ? -1 : 0;
 }
