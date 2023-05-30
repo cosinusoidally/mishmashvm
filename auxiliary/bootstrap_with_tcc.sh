@@ -7,14 +7,17 @@ set -e
 # can be used to bootstrap with tcc_em.js and tcc_bootstrap.c
 # js --no-ion mk_tcc_bootstrap.js
 
+LIBTCC1_ARGS="-nostdinc -nostdlib -c ./alt_bootstrap/libtcc1_bootstrap_min.c -o libtcc1.o"
+
 cd ../tcc_js_bootstrap
-tcc_bootstrap.exe -nostdinc -nostdlib -c tcc_src/lib/libtcc1.c -o libtcc1.o
+tcc_bootstrap.exe ${LIBTCC1_ARGS}
 # comment out if you want to use tcc_em.js to build initial tcc_bootstrap.c
 tcc_bootstrap.exe -nostdinc -nostdlib -c ./alt_bootstrap/tcc_bootstrap.c -o out.o
 
 # link phase 1
 tcc_bootstrap.exe -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a out.o -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl
 chmod +x tcc_linux.exe
+rm out.o
 
 echo "build tcc_boot3.o"
 
@@ -30,18 +33,24 @@ PHASE2_1_ARGS="-DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_
 
 PHASE2_2_ARGS="-nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -I tcc_src/ ${INCS} -o out.o"
 
+rm libtcc1.o
+./tcc_linux.exe ${LIBTCC1_ARGS}
 ./tcc_linux.exe ${PHASE1_ARGS}
 rm tcc_linux.exe
 tcc_bootstrap.exe ${LINK_CMD}
 chmod +x tcc_linux.exe
 rm out.o
 
+rm libtcc1.o
+./tcc_linux.exe ${LIBTCC1_ARGS}
 ./tcc_linux.exe ${PHASE1_ARGS}
 rm tcc_linux.exe
 tcc_bootstrap.exe ${LINK_CMD}
 chmod +x tcc_linux.exe
 rm out.o
 
+rm libtcc1.o
+./tcc_linux.exe ${LIBTCC1_ARGS}
 ./tcc_linux.exe ${PHASE1_ARGS}
 rm tcc_linux.exe
 tcc_bootstrap.exe ${LINK_CMD}
