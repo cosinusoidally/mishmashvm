@@ -3643,7 +3643,7 @@ static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2) {
     return ret;
 }
 
-static inline int *macro_twosharps(const int *ptr0) {
+static int *macro_twosharps(const int *ptr0) {
 // LJW DONE
     int t;
     CValue cval;
@@ -4174,7 +4174,7 @@ static struct switch_t {
 } *cur_switch;
 static void gen_cast(CType *type);
 static void gen_cast_s(int t);
-static inline CType *pointed_type(CType *type);
+static CType *pointed_type(CType *type);
 static int is_compatible_types(CType *type1, CType *type2);
 static int parse_btype(CType *type, AttributeDef *ad);
 static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td);
@@ -4363,7 +4363,7 @@ static Sym *__sym_malloc(void) {
     return last_sym;
 }
 
-static inline Sym *sym_malloc(void) {
+static Sym *sym_malloc(void) {
 // LJW DONE
     Sym *sym;
     sym = sym_free_first;
@@ -6002,7 +6002,7 @@ static int type_size(CType *type, int *a) {
     }
 }
 
-static inline CType *pointed_type(CType *type) {
+static CType *pointed_type(CType *type) {
 // LJW DONE
     return &type->ref->type;
 }
