@@ -116,13 +116,11 @@ static du_int __udivmoddi4(du_int a, du_int b, du_int* rem);
 
 unsigned long long __udivdi3(unsigned long long u, unsigned long long v)
 {
-puts("called __udivdi3\n");
     return __udivmoddi4 (u, v, (UDWtype *) 0);
 }
 
 unsigned long long __umoddi3(unsigned long long u, unsigned long long v)
 {
-puts("called __umoddi3\n");
     UDWtype w;
     __udivmoddi4 (u, v, &w);
     return w;
@@ -180,17 +178,14 @@ static di_int __ashrdi3(di_int a, int b) {
 }
 
 __builtin_ctz(){
-    puts("__builtin_ctz\n");
     exit(1);
 }
 
 __builtin_clz(){
-    puts("__builtin_clz\n");
     exit(1);
 }
 
 static du_int __udivmoddi4(du_int a, du_int b, du_int* rem) {
-    puts("called __udivmoddi4\n");
     const unsigned n_uword_bits = sizeof(su_int) * CHAR_BIT;
     const unsigned n_udword_bits = sizeof(du_int) * CHAR_BIT;
     udwords n;
