@@ -2,11 +2,18 @@ INCS="-I ../includes/tmp/tcc/lib/tcc/include/ -I ../includes/usr/include/i386-li
 
 ./bootstrap_cleanup_tcc.sh
 
-cd ../tcc_js_bootstrap
-
 set -e
+
+# can be used to bootstrap with tcc_em.js and tcc_bootstrap.c
+# js --no-ion mk_tcc_bootstrap.js
+
+cd ../tcc_js_bootstrap
 tcc_bootstrap.exe -nostdinc -nostdlib -c tcc_src/lib/libtcc1.c -o libtcc1.o
-tcc_bootstrap.exe -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a ./alt_bootstrap/tcc_bootstrap.c -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl
+# comment out if you want to use tcc_em.js to build initial tcc_bootstrap.c
+tcc_bootstrap.exe -nostdinc -nostdlib -c ./alt_bootstrap/tcc_bootstrap.c -o out.o
+
+# link phase 1
+tcc_bootstrap.exe -nostdlib ../../linux_lib_bin/crt1.o ../../linux_lib_bin/crti.o ../../linux_lib_bin/crtn.o libtcc1.o ../../linux_lib_bin/libc_nonshared.a out.o -o tcc_linux.exe -L ../../linux_lib_bin/ -lc -lm -ldl
 chmod +x tcc_linux.exe
 
 echo "build tcc_boot3.o"
