@@ -63,13 +63,13 @@ rm out.o
 # phase 2
 
 ./tcc_linux.exe ${PHASE2_1_ARGS}
-rm tcc_linux.exe
-tcc_bootstrap.exe ${LINK_CMD}
-chmod +x tcc_linux.exe
-rm out.o
+#rm tcc_linux.exe
+#tcc_bootstrap.exe ${LINK_CMD}
+#chmod +x tcc_linux.exe
+#rm out.o
 
-./tcc_linux.exe ${PHASE2_2_ARGS}
-rm tcc_linux.exe
+#./tcc_linux.exe ${PHASE2_2_ARGS}
+#rm tcc_linux.exe
 #tcc_bootstrap.exe ${LINK_CMD}
 #chmod +x tcc_linux.exe
 #rm out.o

@@ -1,5 +1,7 @@
 echo "alt boostrap phase 2"
 
+set -e
+
 #js alt_02_2.js
 
 #mv tcc_bin/tcc_boot3.o.new tcc_bin/tcc_boot3.o
