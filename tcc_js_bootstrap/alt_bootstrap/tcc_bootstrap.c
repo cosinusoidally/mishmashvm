@@ -796,6 +796,9 @@ const int PT_LOAD = 1;
 
 const int ET_REL = 1;
 
+const int SEEK_END = 2;
+const int SEEK_SET = 0;
+
 enum PFS {
     PF_X = (1 << 0),
     PF_W = (1 << 1),
@@ -11388,20 +11391,20 @@ static int args_parser_make_argv(const char *r, int *argc, char ***argv) {
     return ret;
 }
 
-// LJW BOOKMARK
 static void args_parser_listfile(TCCState *s,
     const char *filename, int optind, int *pargc, char ***pargv) {
+// LJW DONE
     int fd, i;
     size_t len;
     char *p;
     int argc = 0;
     char **argv = ((void*)0);
-    fd = open(filename, 00 | 0);
+    fd = open(filename, O_RDONLY | O_BINARY);
     if (fd < 0)
         tcc_error("listfile '%s' not found", filename);
-    len = lseek(fd, 0, 2);
+    len = lseek(fd, 0, SEEK_END);
     p = tcc_malloc(len + 1), p[len] = 0;
-    lseek(fd, 0, 0), read(fd, p, len), close(fd);
+    lseek(fd, 0, SEEK_SET), read(fd, p, len), close(fd);
     for (i = 0; i < *pargc; ++i)
         if (i == optind)
             args_parser_make_argv(p, &argc, &argv);
@@ -11486,12 +11489,13 @@ unsupported_option:
 }
 
 static unsigned long le2belong(unsigned long ul) {
+// LJW DONE
     return ((ul & 0xFF0000)>>8)+((ul & 0xFF000000)>>24) +
         ((ul & 0xFF)<<24)+((ul & 0xFF00)<<8);
 }
 
-
 static int contains_any(const char *s, const char *list) {
+// LJW DONE
   const char *l;
   for (; *s; s++) {
       for (l = list; *l; l++) {
@@ -11503,6 +11507,7 @@ static int contains_any(const char *s, const char *list) {
 }
 
 static void print_dirs(const char *msg, char **paths, int nb_paths) {
+// LJW DONE
     int i;
     printf("%s:\n%s", msg, nb_paths ? "" : "  -\n");
     for(i = 0; i < nb_paths; i++)
@@ -11510,6 +11515,7 @@ static void print_dirs(const char *msg, char **paths, int nb_paths) {
 }
 
 int main(int argc0, char **argv0) {
+// LJW DONE
     TCCState *s;
     int ret, opt, n = 0, t = 0;
     unsigned start_time = 0;
