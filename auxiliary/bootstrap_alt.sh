@@ -34,7 +34,7 @@ PHASE1_ARGS="-nostdinc -nostdlib -c ./alt_bootstrap/tcc_bootstrap.c -o out.o"
 
 PHASE2_1_ARGS="-DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -I tcc_src/ ${INCS} -o out.o"
 
-PHASE2_2_ARGS="-nostdinc -nostdlib -c ../tcc_js_bootstrap/tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -I ../tcc_js_bootstrap/tcc_src/ ${INCS} -o out.o"
+PHASE2_2_ARGS="-nostdinc -nostdlib -c ../tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -I ../tcc_src/ ${INCS} -o out.o"
 
 rm libtcc1.o
 ./tcc_linux.exe ${LIBTCC1_ARGS}
@@ -86,6 +86,7 @@ rm tcc_linux.exe
 #chmod +x tcc_linux.exe
 
 mv out.o ../libc_portable_proto/tcc_bin/tcc_boot3.o
+mv libtcc1.o ../libc_portable_proto/tcc_bin/libtcc1.o
 
 cd ../libc_portable_proto
 
