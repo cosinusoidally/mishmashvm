@@ -1008,23 +1008,18 @@ static int is_space(int ch) {
     return ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r';
 }
 static int isid(int c) {
-// LJW DONE
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 static int isnum(int c) {
-// LJW DONE
     return c >= '0' && c <= '9';
 }
 static int isoct(int c) {
-// LJW DONE
     return c >= '0' && c <= '7';
 }
 static int toup(int c) {
-// LJW DONE
     return (c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c;
 }
 int IS_ENUM(int t){
-// LJW DONE
     return ((t & (((1 << (6+6)) - 1) << 20 | 0x0080)) == (2 << 20));
 }
 
@@ -1117,15 +1112,12 @@ static uint16_t read16le(unsigned char *p) {
     return (p[0] | (uint16_t)p[1] << 8);
 }
 static void write16le(unsigned char *p, uint16_t x) {
-// LJW DONE
     p[0] = x & 255;  p[1] = x >> 8 & 255;
 }
 static uint32_t read32le(unsigned char *p) {
-// LJW DONE
   return read16le(p) | (uint32_t)read16le(p + 2) << 16;
 }
 static void write32le(unsigned char *p, uint32_t x) {
-// LJW DONE
     write16le(p, x);  write16le(p + 2, x >> 16);
 }
 static void g(int c);
@@ -1211,14 +1203,12 @@ static const unsigned char tok_two_chars[] = {
 };
 
 static void skip(int c) {
-// LJW DONE
     if (tok != c)
         tcc_error("'%c' expected (got \"%s\")", c, get_tok_str(tok, &tokc));
     next();
 }
 
 static void expect(const char *msg) {
-// LJW DONE
     tcc_error("%s expected", msg);
 }
 
@@ -1236,7 +1226,6 @@ typedef struct tal_header_t {
 } tal_header_t;
 
 static TinyAlloc *tal_new(TinyAlloc **pal, unsigned limit, unsigned size) {
-// LJW DONE
 // TODO possibly remove
     TinyAlloc *al = tcc_mallocz(sizeof(TinyAlloc));
     al->p = al->buffer = tcc_malloc(size);
@@ -1247,7 +1236,6 @@ static TinyAlloc *tal_new(TinyAlloc **pal, unsigned limit, unsigned size) {
 }
 
 static void tal_delete(TinyAlloc *al) {
-// LJW DONE
 // TODO possibly remove
     TinyAlloc *next;
 tail_call:
@@ -1261,7 +1249,6 @@ tail_call:
 }
 
 static void tal_free_impl(TinyAlloc *al, void *p ) {
-// LJW DONE
 // TODO possibly remove
     if (!p)
         return;
@@ -1279,7 +1266,6 @@ tail_call:
 }
 
 static void *tal_realloc_impl(TinyAlloc **pal, void *p, unsigned size ) {
-// LJW DONE
 // TODO possibly remove
     tal_header_t *header;
     void *ret;
@@ -1333,7 +1319,6 @@ tail_call:
 }
 
 static void cstr_realloc(CString *cstr, int new_size) {
-// LJW DONE
     int size;
 
     size = cstr->size_allocated;
@@ -1346,7 +1331,6 @@ static void cstr_realloc(CString *cstr, int new_size) {
 }
 
 static void cstr_ccat(CString *cstr, int ch) {
-// LJW DONE
     int size;
     size = cstr->size + 1;
     if (size > cstr->size_allocated)
@@ -1356,7 +1340,6 @@ static void cstr_ccat(CString *cstr, int ch) {
 }
 
 static void cstr_cat(CString *cstr, const char *str, int len) {
-// LJW DONE
     int size;
     if (len <= 0)
         len = strlen(str) + 1 + len;
@@ -1368,7 +1351,6 @@ static void cstr_cat(CString *cstr, const char *str, int len) {
 }
 
 static void cstr_wccat(CString *cstr, int ch) {
-// LJW DONE
     int size;
     size = cstr->size + sizeof(nwchar_t);
     if (size > cstr->size_allocated)
@@ -1378,24 +1360,20 @@ static void cstr_wccat(CString *cstr, int ch) {
 }
 
 static void cstr_new(CString *cstr) {
-// LJW DONE
     memset(cstr, 0, sizeof(CString));
 }
 
 
 static void cstr_free(CString *cstr) {
-// LJW DONE
     tal_free_impl(cstr_alloc, cstr->data);
     cstr_new(cstr);
 }
 
 static void cstr_reset(CString *cstr) {
-// LJW DONE
     cstr->size = 0;
 }
 
 static void add_char(CString *cstr, int c) {
-// LJW DONE
     if (c == '\'' || c == '\"' || c == '\\') {
         cstr_ccat(cstr, '\\');
     }
@@ -1414,7 +1392,6 @@ static void add_char(CString *cstr, int c) {
 }
 
 static TokenSym *tok_alloc_new(TokenSym **pts, const char *str, int len) {
-// LJW DONE
     TokenSym *ts, **ptable;
     int i;
     if (tok_ident >= SYM_FIRST_ANOM)
@@ -1440,7 +1417,6 @@ static TokenSym *tok_alloc_new(TokenSym **pts, const char *str, int len) {
 }
 
 static TokenSym *tok_alloc(const char *str, int len) {
-// LJW DONE
     TokenSym *ts, **pts;
     int i;
     unsigned int h;
@@ -1461,7 +1437,6 @@ static TokenSym *tok_alloc(const char *str, int len) {
 }
 
 static const char *get_tok_str(int v, CValue *cv) {
-// LJW DONE
     char *p;
     int i, len;
     cstr_reset(&cstr_buf);
@@ -1562,7 +1537,6 @@ static const char *get_tok_str(int v, CValue *cv) {
 }
 
 static int handle_eob(void) {
-// LJW DONE
     BufferedFile *bf = file;
     int len;
     if (bf->buf_ptr >= bf->buf_end) {
@@ -1588,14 +1562,12 @@ static int handle_eob(void) {
 }
 
 static void inp(void) {
-// LJW DONE
     ch = *(++(file->buf_ptr));
     if (ch == '\\')
         ch = handle_eob();
 }
 
 static int handle_stray_noerror(void) {
-// LJW DONE
     while (ch == '\\') {
         inp();
         if (ch == '\n') {
@@ -1616,13 +1588,11 @@ static int handle_stray_noerror(void) {
 }
 
 static void handle_stray(void) {
-// LJW DONE
     if (handle_stray_noerror())
         tcc_error("stray '\\' in program");
 }
 
 static int handle_stray1(uint8_t *p) {
-// LJW DONE
     int c;
     file->buf_ptr = p;
     if (p >= file->buf_end) {
@@ -1643,14 +1613,12 @@ static int handle_stray1(uint8_t *p) {
 }
 
 static void minp(void) {
-// LJW DONE
     inp();
     if (ch == '\\')
         handle_stray();
 }
 
 int PEEKC_EOB(uint8_t *p) {
-// LJW DONE
 // FIXME this function should mutate p from caller instead
 //  p++;
   int c;
@@ -1664,7 +1632,6 @@ int PEEKC_EOB(uint8_t *p) {
 }
 
 uint8_t* PEEKC(int *c,uint8_t **pp) {
-// LJW DONE
 // FIXME this function should mutate pp from caller instead
 //    int c;
     uint8_t *p;
@@ -1679,7 +1646,6 @@ uint8_t* PEEKC(int *c,uint8_t **pp) {
 }
 
 uint8_t* PARSE2(int *c,uint8_t **pp, int tok1, char c2, int tok2) {
-// LJW DONE
     uint8_t *p;
     p=*pp;
     p++;
@@ -1698,7 +1664,6 @@ uint8_t* PARSE2(int *c,uint8_t **pp, int tok1, char c2, int tok2) {
 }
 
 static uint8_t *parse_line_comment(uint8_t *p) {
-// LJW DONE
     int c;
     p++;
     for(;;) {
@@ -1733,7 +1698,6 @@ static uint8_t *parse_line_comment(uint8_t *p) {
 }
 
 static uint8_t *parse_comment(uint8_t *p) {
-// LJW DONE
     int c;
     p++;
     for(;;) {
@@ -1803,20 +1767,17 @@ static uint8_t *parse_comment(uint8_t *p) {
 }
 
 static int set_idnum(int c, int val) {
-// LJW DONE
     int prev = isidnum_table[c - CH_EOF];
     isidnum_table[c - CH_EOF] = val;
     return prev;
 }
 
 static void skip_spaces(void) {
-// LJW DONE
     while (isidnum_table[ch - CH_EOF] & IS_SPC)
         minp();
 }
 
 static int check_space(int t, int *spc) {
-// LJW DONE
     if (t < 256 && (isidnum_table[t - CH_EOF] & IS_SPC)) {
         if (*spc)
             return 1;
@@ -1828,7 +1789,6 @@ static int check_space(int t, int *spc) {
 
 static uint8_t *parse_pp_string(uint8_t *p,
                                 int sep, CString *str) {
-// LJW DONE
     int c;
     p++;
     for(;;) {
@@ -1887,7 +1847,6 @@ static uint8_t *parse_pp_string(uint8_t *p,
 }
 
 static void preprocess_skip(void) {
-// LJW DONE
     int a, start_of_line, c, in_warn_or_error;
     uint8_t *p;
     p = file->buf_ptr;
@@ -1970,7 +1929,6 @@ _default:
 }
 
 static void tok_str_new(TokenString *s) {
-// LJW DONE
     s->str = ((void*)0);
     s->len = s->lastlen = 0;
     s->allocated_len = 0;
@@ -1978,14 +1936,12 @@ static void tok_str_new(TokenString *s) {
 }
 
 static TokenString *tok_str_alloc(void) {
-// LJW DONE
     TokenString *str = tal_realloc_impl(&tokstr_alloc, 0, sizeof *str);
     tok_str_new(str);
     return str;
 }
 
 static int *tok_str_dup(TokenString *s) {
-// LJW DONE
     int *str;
     str = tal_realloc_impl(&tokstr_alloc, 0, s->len * sizeof(int));
     memcpy(str, s->str, s->len * sizeof(int));
@@ -1993,18 +1949,15 @@ static int *tok_str_dup(TokenString *s) {
 }
 
 static void tok_str_free_str(int *str) {
-// LJW DONE
     tal_free_impl(tokstr_alloc, str);
 }
 
 static void tok_str_free(TokenString *str) {
-// LJW DONE
     tok_str_free_str(str->str);
     tal_free_impl(tokstr_alloc, str);
 }
 
 static int *tok_str_realloc(TokenString *s, int new_size) {
-// LJW DONE
     int *str;
     int size;
     size = s->allocated_len;
@@ -2021,7 +1974,6 @@ static int *tok_str_realloc(TokenString *s, int new_size) {
 }
 
 static void tok_str_add(TokenString *s, int t) {
-// LJW DONE
     int len, *str;
     len = s->len;
     str = s->str;
@@ -2032,7 +1984,6 @@ static void tok_str_add(TokenString *s, int t) {
 }
 
 static void begin_macro(TokenString *str, int alloc) {
-// LJW DONE
     str->alloc = alloc;
     str->prev = macro_stack;
     str->prev_ptr = macro_ptr;
@@ -2042,7 +1993,6 @@ static void begin_macro(TokenString *str, int alloc) {
 }
 
 static void end_macro(void) {
-// LJW DONE
     TokenString *str = macro_stack;
     macro_stack = str->prev;
     macro_ptr = str->prev_ptr;
@@ -2055,7 +2005,6 @@ static void end_macro(void) {
 }
 
 static void tok_str_add2(TokenString *s, int t, CValue *cv) {
-// LJW DONE
     int len, *str;
     len = s->lastlen = s->len;
     str = s->str;
@@ -2105,7 +2054,6 @@ static void tok_str_add2(TokenString *s, int t, CValue *cv) {
 }
 
 static void tok_str_add_tok(TokenString *s) {
-// LJW DONE
     CValue cval;
     if (file->line_num != s->last_line_num) {
         s->last_line_num = file->line_num;
@@ -2116,7 +2064,6 @@ static void tok_str_add_tok(TokenString *s) {
 }
 
 static void TOK_GET(int *t, const int **pp, CValue *cv) {
-// LJW DONE
     const int *p = *pp;
     int n, *tab;
 
@@ -2163,7 +2110,6 @@ static void TOK_GET(int *t, const int **pp, CValue *cv) {
 }
 
 static int macro_is_equal(const int *a, const int *b) {
-// LJW DONE
     CValue cv;
     int t;
     if (!a || !b)
@@ -2180,7 +2126,6 @@ static int macro_is_equal(const int *a, const int *b) {
 }
 
 static void define_push(int v, int macro_type, int *str, Sym *first_arg) {
-// LJW DONE
     Sym *s, *o;
     o = define_find(v);
     s = sym_push2(&define_stack, v, macro_type, 0);
@@ -2192,14 +2137,12 @@ static void define_push(int v, int macro_type, int *str, Sym *first_arg) {
 }
 
 static void define_undef(Sym *s) {
-// LJW DONE
     int v = s->v;
     if (v >= TOK_IDENT && v < tok_ident)
         table_ident[v - TOK_IDENT]->sym_define = ((void*)0);
 }
 
 static Sym *define_find(int v) {
-// LJW DONE
     v -= TOK_IDENT;
     if ((unsigned)v >= (unsigned)(tok_ident - TOK_IDENT))
         return ((void*)0);
@@ -2207,7 +2150,6 @@ static Sym *define_find(int v) {
 }
 
 static void free_defines(Sym *b) {
-// LJW DONE
     while (define_stack != b) {
         Sym *top = define_stack;
         define_stack = top->prev;
@@ -2227,7 +2169,6 @@ static void free_defines(Sym *b) {
 }
 
 static Sym *label_find(int v) {
-// LJW DONE
     v -= TOK_IDENT;
     if ((unsigned)v >= (unsigned)(tok_ident - TOK_IDENT))
         return ((void*)0);
@@ -2235,7 +2176,6 @@ static Sym *label_find(int v) {
 }
 
 static Sym *label_push(Sym **ptop, int v, int flags) {
-// LJW DONE
     Sym *s, **ps;
     s = sym_push2(ptop, v, 0, 0);
     s->r = flags;
@@ -2250,7 +2190,6 @@ static Sym *label_push(Sym **ptop, int v, int flags) {
 }
 
 static void label_pop(Sym **ptop, Sym *slast, int keep) {
-// LJW DONE
     Sym *s, *s1;
     for(s = *ptop; s != slast; s = s1) {
         s1 = s->prev;
@@ -2273,7 +2212,6 @@ static void label_pop(Sym **ptop, Sym *slast, int keep) {
 }
 
 static int expr_preprocess(void) {
-// LJW DONE
     int c, t;
     TokenString *str;
     str = tok_str_alloc();
@@ -2312,7 +2250,6 @@ static int expr_preprocess(void) {
 }
 
 static void parse_define(void) {
-// LJW DONE
     Sym *s, *first, **ps;
     int v, t, varg, is_vaargs, spc;
     int saved_parse_flags = parse_flags;
@@ -2385,7 +2322,6 @@ bad_twosharp:
 }
 
 static CachedInclude *search_cached_include(TCCState *s1, const char *filename, int add) {
-// LJW DONE
     const unsigned char *s;
     unsigned int h;
     CachedInclude *e;
@@ -2418,7 +2354,6 @@ static CachedInclude *search_cached_include(TCCState *s1, const char *filename, 
 }
 
 static void preprocess(int is_bof) {
-// LJW DONE
     TCCState *s1 = tcc_state;
     int i, c, n, saved_parse_flags;
     char buf[1024], *q;
@@ -2664,7 +2599,6 @@ include_done:
 }
 
 static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long) {
-// LJW DONE
     int c, n;
     const uint8_t *p;
     p = buf;
@@ -2806,7 +2740,6 @@ static void parse_escape_string(CString *outstr, const uint8_t *buf, int is_long
 }
 
 static void parse_string(const char *s, int len) {
-// LJW DONE
     uint8_t buf[1000], *p = buf;
     int is_long, sep;
     if ((is_long = *s == 'L'))
@@ -2853,7 +2786,6 @@ static void parse_string(const char *s, int len) {
 const int BN_SIZE = 2;
 
 static void bn_lshift(unsigned int *bn, int shift, int or_val) {
-// LJW DONE
     int i;
     unsigned int v;
     for(i=0;i<BN_SIZE;i++) {
@@ -2864,7 +2796,6 @@ static void bn_lshift(unsigned int *bn, int shift, int or_val) {
 }
 
 static void bn_zero(unsigned int *bn) {
-// LJW DONE
     int i;
     for(i=0;i<BN_SIZE;i++) {
         bn[i] = 0;
@@ -2872,7 +2803,6 @@ static void bn_zero(unsigned int *bn) {
 }
 
 static void parse_number(const char *p) {
-// LJW DONE
     int b, t, shift, frac_bits, s, exp_val, ch;
     char *q;
 // BN_SIZE
@@ -3124,7 +3054,6 @@ static void parse_number(const char *p) {
 }
 
 static void next_nomacro1(void) {
-// LJW DONE
     int t, c, is_long, len;
     TokenSym *ts;
     uint8_t *p, *p1;
@@ -3486,7 +3415,6 @@ keep_tok_flags:
 }
 
 static void next_nomacro_spc(void) {
-// LJW DONE
     if (macro_ptr) {
     redo:
         tok = *macro_ptr;
@@ -3503,7 +3431,6 @@ static void next_nomacro_spc(void) {
 }
 
 static void next_nomacro(void) {
-// LJW DONE
     do {
         next_nomacro_spc();
     } while (tok < 256 && (isidnum_table[tok - CH_EOF] & IS_SPC));
@@ -3516,7 +3443,6 @@ static void macro_subst(
     );
 
 static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args) {
-// LJW DONE
     int t, t0, t1, spc;
     const int *st;
     Sym *s;
@@ -3614,7 +3540,6 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args) 
 }
 
 static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2) {
-// LJW DONE
     CString cstr;
     int n, ret = 1;
     cstr_new(&cstr);
@@ -3644,7 +3569,6 @@ static int paste_tokens(int t1, CValue *v1, int t2, CValue *v2) {
 }
 
 static int *macro_twosharps(const int *ptr0) {
-// LJW DONE
     int t;
     CValue cval;
     TokenString macro_str1;
@@ -3695,7 +3619,6 @@ static int *macro_twosharps(const int *ptr0) {
 }
 
 static int next_argstream(Sym **nested_list, TokenString *ws_str) {
-// LJW DONE
     int t;
     const int *p;
     Sym *sa;
@@ -3750,7 +3673,6 @@ static int next_argstream(Sym **nested_list, TokenString *ws_str) {
 }
 
 static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
-// LJW DONE
     Sym *args, *sa, *sa1;
     int parlevel, t, t1, spc;
     TokenString str;
@@ -3880,7 +3802,6 @@ static int macro_subst_tok( TokenString *tok_str, Sym **nested_list, Sym *s) {
 }
 
 static void macro_subst( TokenString *tok_str, Sym **nested_list, const int *macro_str) {
-// LJW DONE
     Sym *s;
     int t, spc, nosubst;
     CValue cval;
@@ -3930,7 +3851,6 @@ no_subst:
 }
 
 static void next(void) {
-// LJW DONE
  redo:
     if (parse_flags & PARSE_FLAG_SPACES)
         next_nomacro_spc();
@@ -3965,7 +3885,6 @@ static void next(void) {
 }
 
 static void unget_tok(int last_tok) {
-// LJW DONE
     TokenString *str = tok_str_alloc();
     tok_str_add2(str, tok, &tokc);
     tok_str_add(str, 0);
@@ -3974,7 +3893,6 @@ static void unget_tok(int last_tok) {
 }
 
 static void preprocess_start(TCCState *s1, int is_asm) {
-// LJW DONE
     CString cstr;
     int i;
     s1->include_stack_ptr = s1->include_stack;
@@ -4014,14 +3932,12 @@ static void preprocess_start(TCCState *s1, int is_asm) {
 
 
 static void preprocess_end(TCCState *s1) {
-// LJW DONE
     while (macro_stack)
         end_macro();
     macro_ptr = ((void*)0);
 }
 
 static void tccpp_new(TCCState *s) {
-// LJW DONE
     int i, c;
     const char *p, *r;
     s->include_stack_ptr = s->include_stack;
@@ -4057,7 +3973,6 @@ static void tccpp_new(TCCState *s) {
 }
 
 static void tccpp_delete(TCCState *s) {
-// LJW DONE
     int i, n;
     free_defines(((void*)0));
     n = tok_ident - TOK_IDENT;
@@ -4078,22 +3993,18 @@ static void tccpp_delete(TCCState *s) {
 }
 
 static void pp_line(TCCState *s1, BufferedFile *f, int level) {
-// LJW DONE
 puts("s\n");exit(1);
 }
 
 static int pp_need_space(int a, int b) {
-// LJW DONE
 puts("s\n");exit(1);
 }
 
 static int pp_check_he0xE(int t, const char *p) {
-// LJW DONE
 puts("s\n");exit(1);
 }
 
 static int tcc_preprocess(TCCState *s1) {
-// LJW DONE
     BufferedFile **iptr;
     int token_seen, spcs, level;
     const char *p;
@@ -4196,33 +4107,28 @@ static void skip_or_save_block(TokenString **str);
 static void gv_dup(void);
 
 static int is_float(int t) {
-// LJW DONE
     int bt;
     bt = t & VT_BTYPE;
     return bt == VT_LDOUBLE || bt == VT_DOUBLE || bt == VT_FLOAT || bt == VT_QFLOAT;
 }
 
 static int ieee_finite(double d) {
-// LJW DONE
     int p[4];
     memcpy(p, &d, sizeof(double));
     return ((unsigned)((p[1] | 0x800fffff) + 1)) >> 31;
 }
 
 static void test_lvalue(void) {
-// LJW DONE
     if (!(vtop->r & VT_LVAL))
         expect("lvalue");
 }
 
 static void check_vstack(void) {
-// LJW DONE
     if (pvtop != vtop)
         tcc_error("internal compiler error: vstack leak (%d)", vtop - pvtop);
 }
 
 static int tccgen_compile(TCCState *s1) {
-// LJW DONE
     cur_text_section = ((void*)0);
     funcname = "";
     anon_sym = SYM_FIRST_ANOM;
@@ -4248,14 +4154,12 @@ static int tccgen_compile(TCCState *s1) {
 
 
 static Elf32_Sym *elfsym(Sym *s) {
-// LJW DONE
   if (!s || !s->c)
     return ((void*)0);
   return &((Elf32_Sym *)symtab_section->data)[s->c];
 }
 
 static void update_storage(Sym *sym) {
-// LJW DONE
     Elf32_Sym *esym;
     int sym_bind, old_sym_bind;
     esym = elfsym(sym);
@@ -4279,7 +4183,6 @@ static void update_storage(Sym *sym) {
 static void put_extern_sym2(Sym *sym, int sh_num,
                             Elf32_Addr value, unsigned long size,
                             int can_add_underscore) {
-// LJW DONE
     int sym_type, sym_bind, info, other, t;
     Elf32_Sym *esym;
     const char *name;
@@ -4320,7 +4223,6 @@ static void put_extern_sym2(Sym *sym, int sh_num,
 
 static void put_extern_sym(Sym *sym, Section *section,
                            Elf32_Addr value, unsigned long size) {
-// LJW DONE
     int sh_num = section ? section->sh_num : SHN_UNDEF;
     put_extern_sym2(sym, sh_num, value, size, 1);
 }
@@ -4328,7 +4230,6 @@ static void put_extern_sym(Sym *sym, Section *section,
 
 static void greloca(Section *s, Sym *sym, unsigned long offset, int type,
                      Elf32_Addr addend) {
-// LJW DONE
     int c = 0;
     if (nocode_wanted && s == cur_text_section)
         return;
@@ -4342,12 +4243,10 @@ static void greloca(Section *s, Sym *sym, unsigned long offset, int type,
 
 
 static void greloc(Section *s, Sym *sym, unsigned long offset, int type) {
-// LJW DONE
     greloca(s, sym, offset, type, 0);
 }
 
 static Sym *__sym_malloc(void) {
-// LJW DONE
     Sym *sym_pool, *sym, *last_sym;
     int i;
     sym_pool = tcc_malloc(SYM_POOL_NB * sizeof(Sym));
@@ -4364,7 +4263,6 @@ static Sym *__sym_malloc(void) {
 }
 
 static Sym *sym_malloc(void) {
-// LJW DONE
     Sym *sym;
     sym = sym_free_first;
     if (!sym)
@@ -4374,13 +4272,11 @@ static Sym *sym_malloc(void) {
 }
 
 static void sym_free(Sym *sym) {
-// LJW DONE
     sym->next = sym_free_first;
     sym_free_first = sym;
 }
 
 static Sym *sym_push2(Sym **ps, int v, int t, int c) {
-// LJW DONE
     Sym *s;
     s = sym_malloc();
     memset(s, 0, sizeof *s);
@@ -4393,7 +4289,6 @@ static Sym *sym_push2(Sym **ps, int v, int t, int c) {
 }
 
 static Sym *sym_find2(Sym *s, int v) {
-// LJW DONE
     while (s) {
         if (s->v == v)
             return s;
@@ -4406,7 +4301,6 @@ static Sym *sym_find2(Sym *s, int v) {
 
 
 static Sym *struct_find(int v) {
-// LJW DONE
     v -= TOK_IDENT;
     if ((unsigned)v >= (unsigned)(tok_ident - TOK_IDENT))
         return NULL;
@@ -4414,7 +4308,6 @@ static Sym *struct_find(int v) {
 }
 
 static Sym *sym_find(int v) {
-// LJW DONE
     v -= TOK_IDENT;
     if ((unsigned)v >= (unsigned)(tok_ident - TOK_IDENT))
         return NULL;
@@ -4422,7 +4315,6 @@ static Sym *sym_find(int v) {
 }
 
 static Sym *sym_push(int v, CType *type, int r, int c) {
-// LJW DONE
     Sym *s, **ps;
     TokenSym *ts;
     if (local_stack)
@@ -4449,7 +4341,6 @@ static Sym *sym_push(int v, CType *type, int r, int c) {
 }
 
 static Sym *global_identifier_push(int v, int t, int c) {
-// LJW DONE
     Sym *s, **ps;
     s = sym_push2(&global_stack, v, t, c);
     if (v < SYM_FIRST_ANOM) {
@@ -4463,7 +4354,6 @@ static Sym *global_identifier_push(int v, int t, int c) {
 }
 
 static void sym_pop(Sym **ptop, Sym *b, int keep) {
-// LJW DONE
     Sym *s, *ss, **ps;
     TokenSym *ts;
     int v;
@@ -4488,7 +4378,6 @@ static void sym_pop(Sym **ptop, Sym *b, int keep) {
 }
 
 static void vsetc(CType *type, int r, CValue *vc) {
-// LJW DONE
     int v;
     if (vtop >= (__vstack + 1) + (VSTACK_SIZE - 1))
         tcc_error("memory full (vstack)");
@@ -4506,7 +4395,6 @@ static void vsetc(CType *type, int r, CValue *vc) {
 }
 
 static void vswap(void) {
-// LJW DONE
     SValue tmp;
     if (vtop >= (__vstack + 1) && !nocode_wanted) {
         int v = vtop->r & VT_VALMASK;
@@ -4520,7 +4408,6 @@ static void vswap(void) {
 }
 
 static void vpop(void) {
-// LJW DONE
     int v;
     v = vtop->r & VT_VALMASK;
     if (v == TREG_ST0) {
@@ -4534,26 +4421,22 @@ static void vpop(void) {
 }
 
 static void vpush(CType *type) {
-// LJW DONE
     vset(type, VT_CONST, 0);
 }
 
 static void vpushi(int v) {
-// LJW DONE
     CValue cval;
     cval.i = v;
     vsetc(&int_type, VT_CONST, &cval);
 }
 
 static void vpushs(Elf32_Addr v) {
-// LJW DONE
   CValue cval;
   cval.i = v;
   vsetc(&size_type, VT_CONST, &cval);
 }
 
 static void vpush64(int ty, unsigned long long v) {
-// LJW DONE
     CValue cval;
     CType ctype;
     ctype.t = ty;
@@ -4563,19 +4446,16 @@ static void vpush64(int ty, unsigned long long v) {
 }
 
 static void vpushll(long long v) {
-// LJW DONE
     vpush64(4, v);
 }
 
 static void vset(CType *type, int r, int v) {
-// LJW DONE
     CValue cval;
     cval.i = v;
     vsetc(type, r, &cval);
 }
 
 static void vseti(int r, int v) {
-// LJW DONE
     CType type;
     type.t = VT_INT;
     type.ref = NULL;
@@ -4583,7 +4463,6 @@ static void vseti(int r, int v) {
 }
 
 static void vpushv(SValue *v) {
-// LJW DONE
     if (vtop >= (__vstack + 1) + (VSTACK_SIZE - 1))
         tcc_error("memory full (vstack)");
     vtop++;
@@ -4591,12 +4470,10 @@ static void vpushv(SValue *v) {
 }
 
 static void vdup(void) {
-// LJW DONE
     vpushv(vtop);
 }
 
 static void vrotb(int n) {
-// LJW DONE
     int i;
     SValue tmp;
 
@@ -4607,7 +4484,6 @@ static void vrotb(int n) {
 }
 
 static void vrote(SValue *e, int n) {
-// LJW DONE
     int i;
     SValue tmp;
     tmp = *e;
@@ -4617,19 +4493,16 @@ static void vrote(SValue *e, int n) {
 }
 
 static void vrott(int n) {
-// LJW DONE
     vrote(vtop, n);
 }
 
 static void vpushsym(CType *type, Sym *sym) {
-// LJW DONE
     CValue cval;
     cval.i = 0;
     vsetc(type, VT_CONST | VT_SYM, &cval);
     vtop->sym = sym;
 }
 static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigned long size) {
-// LJW DONE
     int v;
     Sym *sym;
     v = anon_sym++;
@@ -4641,12 +4514,10 @@ static Sym *get_sym_ref(CType *type, Section *sec, unsigned long offset, unsigne
 }
 
 static void vpush_ref(CType *type, Section *sec, unsigned long offset, unsigned long size) {
-// LJW DONE
     vpushsym(type, get_sym_ref(type, sec, offset, size));
 }
 
 static Sym *external_global_sym(int v, CType *type, int r) {
-// LJW DONE
     Sym *s;
     s = sym_find(v);
     if (!s) {
@@ -4658,7 +4529,6 @@ static Sym *external_global_sym(int v, CType *type, int r) {
 }
 
 static void patch_type(Sym *sym, CType *type) {
-// LJW DONE
     if (!(type->t & VT_EXTERN)) {
         if (!(sym->type.t & VT_EXTERN))
             tcc_error("redefinition of '%s'", get_tok_str(sym->v, NULL));
@@ -4692,7 +4562,6 @@ static void patch_type(Sym *sym, CType *type) {
 }
 
 static void patch_storage(Sym *sym, AttributeDef *ad, CType *type) {
-// LJW DONE
     if (type) {
         patch_type(sym, type);
     }
@@ -4701,7 +4570,6 @@ static void patch_storage(Sym *sym, AttributeDef *ad, CType *type) {
 }
 
 static Sym *external_sym(int v, CType *type, int r, AttributeDef *ad) {
-// LJW DONE
     Sym *s;
     s = sym_find(v);
     if (!s) {
@@ -4721,12 +4589,10 @@ static Sym *external_sym(int v, CType *type, int r, AttributeDef *ad) {
 }
 
 static void vpush_global_sym(CType *type, int v) {
-// LJW DONE
     vpushsym(type, external_global_sym(v, type, 0));
 }
 
 static void save_regs(int n) {
-// LJW DONE
     SValue *p, *p1;
     for(p = (__vstack + 1), p1 = vtop - n; p <= p1; p++)
         save_reg(p->r);
@@ -4734,12 +4600,10 @@ static void save_regs(int n) {
 
 
 static void save_reg(int r) {
-// LJW DONE
     save_reg_upstack(r, 0);
 }
 
 static void save_reg_upstack(int r, int n) {
-// LJW DONE
     int l, saved, size, align;
     SValue *p, *p1, sv;
     CType *type;
@@ -4787,7 +4651,6 @@ static void save_reg_upstack(int r, int n) {
 }
 
 static int get_reg(int rc) {
-// LJW DONE
     int r;
     SValue *p;
     for(r=0;r<NB_REGS;r++) {
@@ -4818,7 +4681,6 @@ static int get_reg(int rc) {
 }
 
 static void move_reg(int r, int s, int t) {
-// LJW DONE
     SValue sv;
     if (r != s) {
         save_reg(r);
@@ -4831,14 +4693,12 @@ static void move_reg(int r, int s, int t) {
 }
 
 static void gaddrof(void) {
-// LJW DONE
     vtop->r &= ~VT_LVAL;
     if ((vtop->r & VT_VALMASK) == VT_LLOCAL)
         vtop->r = (vtop->r & ~(VT_VALMASK | VT_LVAL_TYPE)) | VT_LOCAL | VT_LVAL;
 }
 
 static void incr_bf_adr(int o) {
-// LJW DONE
     vtop->type = char_pointer_type;
     gaddrof();
     vpushi(o);
@@ -4850,7 +4710,6 @@ static void incr_bf_adr(int o) {
 }
 
 static void load_packed_bf(CType *type, int bit_pos, int bit_size) {
-// LJW DONE
     int n, o, bits;
     save_reg_upstack(vtop->r, 1);
     vpush64(type->t & VT_BTYPE, 0);
@@ -4882,7 +4741,6 @@ static void load_packed_bf(CType *type, int bit_pos, int bit_size) {
 }
 
 static void store_packed_bf(int bit_pos, int bit_size) {
-// LJW DONE
     int bits, n, o, m, c;
     c = (vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST;
     vswap();
@@ -4916,7 +4774,6 @@ static void store_packed_bf(int bit_pos, int bit_size) {
 }
 
 static int adjust_bf(SValue *sv, int bit_pos, int bit_size) {
-// LJW DONE
     int t;
     if (0 == sv->type.ref)
         return 0;
@@ -4929,7 +4786,6 @@ static int adjust_bf(SValue *sv, int bit_pos, int bit_size) {
 }
 
 static int gv(int rc) {
-// LJW DONE
     int r, bit_pos, bit_size, size, align, rc2;
     if (vtop->type.t & VT_BITFIELD) {
         CType type;
@@ -5039,7 +4895,6 @@ static int gv(int rc) {
 }
 
 static void gv2(int rc1, int rc2) {
-// LJW DONE
     int v;
     v = vtop[0].r & VT_VALMASK;
     if (v != VT_CMP && (v & ~1) != VT_JMP && rc1 <= rc2) {
@@ -5065,17 +4920,14 @@ static void gv2(int rc1, int rc2) {
 }
 
 static int rc_fret(int t) {
-// LJW DONE
     return 0x0008;
 }
 
 static int reg_fret(int t) {
-// LJW DONE
     return TREG_ST0;
 }
 
 static void lexpand(void) {
-// LJW DONE
     int u, v;
     u = vtop->type.t & (VT_DEFSIGN | VT_UNSIGNED);
     v = vtop->r & (VT_VALMASK | VT_LVAL);
@@ -5095,7 +4947,6 @@ static void lexpand(void) {
 }
 
 static void lbuild(int t) {
-// LJW DONE
     gv2(RC_INT, RC_INT);
     vtop[-1].r2 = vtop[0].r;
     vtop[-1].type.t = t;
@@ -5103,7 +4954,6 @@ static void lbuild(int t) {
 }
 
 static void gv_dup(void) {
-// LJW DONE
     int rc, t, r, r1;
     SValue sv;
     t = vtop->type.t;
@@ -5143,7 +4993,6 @@ static void gv_dup(void) {
 }
 
 static int gvtst(int inv, int t) {
-// LJW DONE
     int v = vtop->r & VT_VALMASK;
     if (v != VT_CMP && v != VT_JMP && v != VT_JMPI) {
         vpushi(0);
@@ -5159,7 +5008,6 @@ static int gvtst(int inv, int t) {
 }
 
 static void gen_opl(int op) {
-// LJW DONE
     int t, a, b, op1, c, i;
     int func;
     unsigned short reg_iret = TREG_EAX;
@@ -5349,18 +5197,15 @@ static void gen_opl(int op) {
 }
 
 static uint64_t gen_opic_sdiv(uint64_t a, uint64_t b) {
-// LJW DONE
     uint64_t x = (a >> 63 ? -a : a) / (b >> 63 ? -b : b);
     return (a ^ b) >> 63 ? -x : x;
 }
 
 static int gen_opic_lt(uint64_t a, uint64_t b) {
-// LJW DONE
     return (a ^ (uint64_t)1 << 63) < (b ^ (uint64_t)1 << 63);
 }
 
 static void gen_opic(int op) {
-// LJW DONE
     SValue *v1 = vtop - 1;
     SValue *v2 = vtop;
     int t1 = v1->type.t & VT_BTYPE;
@@ -5496,7 +5341,6 @@ static void gen_opic(int op) {
 }
 
 static void gen_opif(int op) {
-// LJW DONE
     int c1, c2;
     SValue *v1, *v2;
     double f1, f2;
@@ -5547,18 +5391,15 @@ static void gen_opif(int op) {
 }
 
 static int pointed_size(CType *type) {
-// LJW DONE
     int align;
     return type_size(pointed_type(type), &align);
 }
 
 static void vla_runtime_pointed_size(CType *type) {
-// LJW DONE
     int align;
 }
 
 static int is_null_pointer(SValue *p) {
-// LJW DONE
     if ((p->r & (VT_VALMASK | VT_LVAL | VT_SYM)) != VT_CONST)
         return 0;
     return ((p->type.t & VT_BTYPE) == VT_INT && (uint32_t)p->c.i == 0) ||
@@ -5568,13 +5409,11 @@ static int is_null_pointer(SValue *p) {
 }
 
 static int is_integer_btype(int bt) {
-// LJW DONE
     return (bt == VT_BYTE || bt == VT_SHORT ||
             bt == VT_INT || bt == VT_LLONG);
 }
 
 static void check_comparison_pointer_types(SValue *p1, SValue *p2, int op) {
-// LJW DONE
     CType *type1, *type2, tmp_type1, tmp_type2;
     int bt1, bt2;
     if (is_null_pointer(p1) || is_null_pointer(p2))
@@ -5614,7 +5453,6 @@ static void check_comparison_pointer_types(SValue *p1, SValue *p2, int op) {
 }
 
 static void gen_op(int op) {
-// LJW DONE
     int u, t1, t2, bt1, bt2, t;
     CType type1;
 redo:
@@ -5754,7 +5592,6 @@ redo:
 }
 
 static void gen_cvt_itof1(int t) {
-// LJW DONE
     if ((vtop->type.t & (VT_BTYPE | VT_UNSIGNED)) ==
         (VT_LLONG | VT_UNSIGNED)) {
         if (t == VT_FLOAT)
@@ -5774,7 +5611,6 @@ static void gen_cvt_itof1(int t) {
 }
 
 static void gen_cvt_ftoi1(int t) {
-// LJW DONE
     int st;
     if (t == (VT_LLONG | VT_UNSIGNED)) {
         st = vtop->type.t & VT_BTYPE;
@@ -5795,7 +5631,6 @@ static void gen_cvt_ftoi1(int t) {
 }
 
 static void force_charshort_cast(int t) {
-// LJW DONE
     int bits, dbt;
     if ((nocode_wanted & 0xC0000000))
 	return;
@@ -5821,7 +5656,6 @@ static void force_charshort_cast(int t) {
 }
 
 static void gen_cast_s(int t) {
-// LJW DONE
     CType type;
     type.t = t;
     type.ref = NULL;
@@ -5829,7 +5663,6 @@ static void gen_cast_s(int t) {
 }
 
 static void gen_cast(CType *type) {
-// LJW DONE
     int sbt, dbt, sf, df, c, p;
     if (vtop->r & VT_MUSTCAST) {
         vtop->r &= ~VT_MUSTCAST;
@@ -5959,7 +5792,6 @@ static void gen_cast(CType *type) {
 
 
 static int type_size(CType *type, int *a) {
-// LJW DONE
     Sym *s;
     int bt;
     bt = type->t & VT_BTYPE;
@@ -6003,13 +5835,11 @@ static int type_size(CType *type, int *a) {
 }
 
 static CType *pointed_type(CType *type) {
-// LJW DONE
     return &type->ref->type;
 }
 
 
 static void mk_pointer(CType *type) {
-// LJW DONE
     Sym *s;
     s = sym_push(SYM_FIELD, type, 0, -1);
     type->t = VT_PTR | (type->t & VT_STORAGE);
@@ -6017,7 +5847,6 @@ static void mk_pointer(CType *type) {
 }
 
 static int is_compatible_func(CType *type1, CType *type2) {
-// LJW DONE
     Sym *s1, *s2;
     s1 = type1->ref;
     s2 = type2->ref;
@@ -6043,7 +5872,6 @@ static int is_compatible_func(CType *type1, CType *type2) {
 }
 
 static int compare_types(CType *type1, CType *type2, int unqualified) {
-// LJW DONE
     int bt1, t1, t2;
     t1 = type1->t & VT_TYPE;
     t2 = type2->t & VT_TYPE;
@@ -6073,18 +5901,15 @@ static int compare_types(CType *type1, CType *type2, int unqualified) {
 
 
 static int is_compatible_types(CType *type1, CType *type2) {
-// LJW DONE
     return compare_types(type1,type2,0);
 }
 
 static int is_compatible_unqualified_types(CType *type1, CType *type2) {
-// LJW DONE
     return compare_types(type1,type2,1);
 }
 
 static void type_to_str(char *buf, int buf_size,
                  CType *type, const char *varstr) {
-// LJW DONE
     int bt, v, t;
     Sym *s, *sa;
     char buf1[256];
@@ -6199,7 +6024,6 @@ static void type_to_str(char *buf, int buf_size,
 }
 
 static void gen_assign_cast(CType *dt) {
-// LJW DONE
     CType *st, *type1, *type2;
     char buf1[256], buf2[256];
     int dbt, sbt;
@@ -6271,7 +6095,6 @@ static void gen_assign_cast(CType *dt) {
 }
 
 static void vstore(void) {
-// LJW DONE
     int sbt, dbt, ft, r, t, size, align, bit_size, bit_pos, rc, delayed_cast;
     ft = vtop[-1].type.t;
     sbt = vtop->type.t & VT_BTYPE;
@@ -6376,7 +6199,6 @@ static void vstore(void) {
 }
 
 static void inc(int post, int c) {
-// LJW DONE
     test_lvalue();
     vdup();
     if (post) {
@@ -6392,7 +6214,6 @@ static void inc(int post, int c) {
 }
 
 static int exact_log2p1(int i) {
-// LJW DONE
   int ret;
   if (!i)
     return 0;
@@ -6408,7 +6229,6 @@ static int exact_log2p1(int i) {
 }
 
 static void parse_attribute(AttributeDef *ad) {
-// LJW DONE
     int t, n;
     CString astr;
 redo:
@@ -6417,7 +6237,6 @@ redo:
 }
 
 static Sym * find_field (CType *type, int v) {
-// LJW DONE
     Sym *s = type->ref;
     v |= SYM_FIELD;
     while ((s = s->next) != NULL) {
@@ -6435,7 +6254,6 @@ static Sym * find_field (CType *type, int v) {
 }
 
 static void struct_add_offset (Sym *s, int offset) {
-// LJW DONE
     while ((s = s->next) != NULL) {
         if ((s->v & SYM_FIELD) &&
             (s->type.t & VT_BTYPE) == VT_STRUCT &&
@@ -6447,7 +6265,6 @@ static void struct_add_offset (Sym *s, int offset) {
 }
 
 static void struct_layout(CType *type, AttributeDef *ad) {
-// LJW DONE
     int size, align, maxalign, offset, c, bit_pos, bit_size;
     int packed, a, bt, prevbt, prev_bit_size;
     int pcc = 0;
@@ -6625,7 +6442,6 @@ static void struct_layout(CType *type, AttributeDef *ad) {
 }
 
 static void struct_decl(CType *type, int u) {
-// LJW DONE
     int v, c, size, align, flexible;
     int bit_size, bsize, bt;
     Sym *s, *ss, **ps;
@@ -6818,7 +6634,6 @@ do_decl:
 }
 
 static void sym_to_attr(AttributeDef *ad, Sym *s) {
-// LJW DONE
     if (s->a.aligned && 0 == ad->a.aligned)
         ad->a.aligned = s->a.aligned;
     if (s->f.func_call && 0 == ad->f.func_call)
@@ -6830,7 +6645,6 @@ static void sym_to_attr(AttributeDef *ad, Sym *s) {
 }
 
 static void parse_btype_qualify(CType *type, int qualifiers) {
-// LJW DONE
     while (type->t & VT_ARRAY) {
         type->ref = sym_push(SYM_FIELD, &type->ref->type, 0, type->ref->c);
         type = &type->ref->type;
@@ -6839,7 +6653,6 @@ static void parse_btype_qualify(CType *type, int qualifiers) {
 }
 
 static int parse_btype(CType *type, AttributeDef *ad) {
-// LJW DONE
     int t, u, bt, st, type_found, typespec_found, g;
     Sym *s;
     CType type1;
@@ -7026,7 +6839,6 @@ the_end:
 }
 
 static void convert_parameter_type(CType *pt) {
-// LJW DONE
     pt->t &= ~(VT_CONSTANT | VT_VOLATILE);
     /* array must be transformed to pointer according to ANSI C */
     pt->t &= ~VT_ARRAY;
@@ -7036,7 +6848,6 @@ static void convert_parameter_type(CType *pt) {
 }
 
 static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
-// LJW DONE
     int n, l, t1, arg_size, align;
     Sym **plast, *s, *first;
     AttributeDef ad1;
@@ -7144,7 +6955,6 @@ static int post_type(CType *type, AttributeDef *ad, int storage, int td) {
 }
 
 static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td) {
-// LJW DONE
     CType *post, *ret;
     int qualifiers, storage;
     storage = type->t & VT_STORAGE;
@@ -7201,7 +7011,6 @@ static CType *type_decl(CType *type, AttributeDef *ad, int *v, int td) {
 
 
 static int lvalue_type(int t) {
-// LJW DONE
     int bt, r;
     r = VT_LVAL;
     bt = t & VT_BTYPE;
@@ -7218,7 +7027,6 @@ static int lvalue_type(int t) {
 
 
 static void indir(void) {
-// LJW DONE
     if ((vtop->type.t & VT_BTYPE) != VT_PTR) {
         if ((vtop->type.t & VT_BTYPE) == VT_FUNC)
             return;
@@ -7234,7 +7042,6 @@ static void indir(void) {
 }
 
 static void gfunc_param_typed(Sym *func, Sym *arg) {
-// LJW DONE
     int func_type;
     CType type;
     func_type = func->f.func_type;
@@ -7257,7 +7064,6 @@ static void gfunc_param_typed(Sym *func, Sym *arg) {
 }
 
 static void expr_type(CType *type, void (*expr_fn)(void)) {
-// LJW DONE
     nocode_wanted++;
     expr_fn();
     *type = vtop->type;
@@ -7266,7 +7072,6 @@ static void expr_type(CType *type, void (*expr_fn)(void)) {
 }
 
 static void parse_expr_type(CType *type) {
-// LJW DONE
     int n;
     AttributeDef ad;
     skip('(');
@@ -7279,7 +7084,6 @@ static void parse_expr_type(CType *type) {
 }
 
 static void parse_type(CType *type) {
-// LJW DONE
     AttributeDef ad;
     int n;
     if (!parse_btype(type, &ad)) {
@@ -7289,7 +7093,6 @@ static void parse_type(CType *type) {
 }
 
 static void parse_builtin_params(int nc, const char *args) {
-// LJW DONE
     char c, sep = '(';
     CType t;
     if (nc)
@@ -7310,12 +7113,10 @@ static void parse_builtin_params(int nc, const char *args) {
 }
 
 int IS_ENUM_VAL(t) {
-// LJW DONE
     return ((t & VT_STRUCT_MASK) == VT_ENUM_VAL);
 }
 
 static void unary(void) {
-// LJW DONE
     int n, t, align, size, r, sizeof_caller;
     CType type;
     Sym *s;
@@ -7856,7 +7657,6 @@ static void unary(void) {
 }
 
 static void expr_prod(void) {
-// LJW DONE
     int t;
     unary();
     while (tok == '*' || tok == '/' || tok == '%') {
@@ -7868,7 +7668,6 @@ static void expr_prod(void) {
 }
 
 static void expr_sum(void) {
-// LJW DONE
     int t;
     expr_prod();
     while (tok == '+' || tok == '-') {
@@ -7880,7 +7679,6 @@ static void expr_sum(void) {
 }
 
 static void expr_shift(void) {
-// LJW DONE
     int t;
     expr_sum();
     while (tok == TOK_SHL || tok == TOK_SAR) {
@@ -7892,7 +7690,6 @@ static void expr_shift(void) {
 }
 
 static void expr_cmp(void) {
-// LJW DONE
     int t;
     expr_shift();
     while ((tok >= TOK_ULE && tok <= TOK_GT) ||
@@ -7905,7 +7702,6 @@ static void expr_cmp(void) {
 }
 
 static void expr_cmpeq(void) {
-// LJW DONE
     int t;
     expr_cmp();
     while (tok == TOK_EQ || tok == TOK_NE) {
@@ -7917,7 +7713,6 @@ static void expr_cmpeq(void) {
 }
 
 static void expr_and(void) {
-// LJW DONE
     expr_cmpeq();
     while (tok == '&') {
         next();
@@ -7927,7 +7722,6 @@ static void expr_and(void) {
 }
 
 static void expr_xor(void) {
-// LJW DONE
     expr_and();
     while (tok == '^') {
         next();
@@ -7937,7 +7731,6 @@ static void expr_xor(void) {
 }
 
 static void expr_or(void) {
-// LJW DONE
     expr_xor();
     while (tok == '|') {
         next();
@@ -7947,7 +7740,6 @@ static void expr_or(void) {
 }
 
 static void expr_land(void) {
-// LJW DONE
     expr_or();
     if (tok == TOK_LAND) {
         int t = 0;
@@ -7988,7 +7780,6 @@ static void expr_land(void) {
 }
 
 static void expr_lor(void) {
-// LJW DONE
     expr_land();
     if (tok == TOK_LOR) {
         int t = 0;
@@ -8029,7 +7820,6 @@ static void expr_lor(void) {
 }
 
 static int condition_3way(void) {
-// LJW DONE
     int c = -1;
     if ((vtop->r & (VT_VALMASK | VT_LVAL)) == VT_CONST &&
         (!(vtop->r & VT_SYM) || !vtop->sym->a.weak)) {
@@ -8042,7 +7832,6 @@ static int condition_3way(void) {
 }
 
 static void expr_cond(void) {
-// LJW DONE
     int tt, u, r1, r2, rc, t1, t2, bt1, bt2, islv, c, g;
     SValue sv;
     CType type, type1, type2;
@@ -8171,7 +7960,6 @@ static void expr_cond(void) {
 }
 
 static void expr_eq(void) {
-// LJW DONE
     int t;
     expr_cond();
     if (tok == '=' ||
@@ -8193,7 +7981,6 @@ static void expr_eq(void) {
 }
 
 static void gexpr(void) {
-// LJW DONE
     while (1) {
         expr_eq();
         if (tok != ',')
@@ -8204,7 +7991,6 @@ static void gexpr(void) {
 }
 
 static void expr_const1(void) {
-// LJW DONE
     const_wanted++;
     nocode_wanted++;
     expr_cond();
@@ -8213,7 +7999,6 @@ static void expr_const1(void) {
 }
 
 static int64_t expr_const64(void) {
-// LJW DONE
     int64_t c;
     expr_const1();
     if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) != VT_CONST)
@@ -8224,7 +8009,6 @@ static int64_t expr_const64(void) {
 }
 
 static int expr_const(void) {
-// LJW DONE
     int c;
     int64_t wc = expr_const64();
     c = wc;
@@ -8234,7 +8018,6 @@ static int expr_const(void) {
 }
 
 static int is_label(void) {
-// LJW DONE
     int last_tok;
     if (tok < TOK_DEFINE)
         return 0;
@@ -8249,7 +8032,6 @@ static int is_label(void) {
 }
 
 static void gfunc_return(CType *func_type) {
-// LJW DONE
     if ((func_type->t & VT_BTYPE) == VT_STRUCT) {
         CType type, ret_type;
         int ret_align, ret_nregs, regsize;
@@ -8305,14 +8087,12 @@ static void gfunc_return(CType *func_type) {
 }
 
 static int case_cmp(const void *pa, const void *pb) {
-// LJW DONE
     int64_t a = (*(struct case_t**) pa)->v1;
     int64_t b = (*(struct case_t**) pb)->v1;
     return a < b ? -1 : a > b;
 }
 
 static void gcase(struct case_t **base, int len, int *bsym) {
-// LJW DONE
     struct case_t *p;
     int e;
     int ll = (vtop->type.t & VT_BTYPE) == VT_LLONG;
@@ -8368,7 +8148,6 @@ static void gcase(struct case_t **base, int len, int *bsym) {
 }
 
 static void block(int *bsym, int *csym, int is_expr) {
-// LJW DONE
     int a, b, c, d, cond;
     Sym *s;
     if (is_expr) {
@@ -8682,7 +8461,6 @@ static void block(int *bsym, int *csym, int is_expr) {
 }
 
 static void skip_or_save_block(TokenString **str) {
-// LJW DONE
     int braces = tok == '{';
     int level = 0;
     if (str)
@@ -8714,7 +8492,6 @@ static void skip_or_save_block(TokenString **str) {
 }
 
 static void parse_init_elem(int expr_type) {
-// LJW DONE
     int saved_global_expr;
     switch(expr_type) {
     case EXPR_CONST:
@@ -8735,7 +8512,6 @@ static void parse_init_elem(int expr_type) {
 }
 
 static void init_putz(Section *sec, unsigned long c, int size) {
-// LJW DONE
     if (sec) {
     } else {
         vpush_global_sym(&func_old_type, TOK_memset);
@@ -8748,7 +8524,6 @@ static void init_putz(Section *sec, unsigned long c, int size) {
 
 static int decl_designator(CType *type, Section *sec, unsigned long c,
                            Sym **cur_field, int size_only, int al) {
-// LJW DONE
     Sym *s, *f;
     int index, index_last, align, l, nb_elems, elem_size;
     unsigned long corig = c;
@@ -8853,7 +8628,6 @@ static int decl_designator(CType *type, Section *sec, unsigned long c,
 }
 
 static void init_putv(CType *type, Section *sec, unsigned long c) {
-// LJW DONE
     int bt;
     void *ptr;
     CType dtype;
@@ -8948,7 +8722,6 @@ static void init_putv(CType *type, Section *sec, unsigned long c) {
 
 static void decl_initializer(CType *type, Section *sec, unsigned long c,
                              int first, int size_only) {
-// LJW DONE
     int len, n, no_oblock, nb, i;
     int size1, align1;
     int have_elem;
@@ -9082,7 +8855,6 @@ static void decl_initializer(CType *type, Section *sec, unsigned long c,
 
 static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
                                    int has_init, int v, int scope) {
-// LJW DONE
     int size, align, addr;
     TokenString *init_str = ((void*)0);
     Section *sec;
@@ -9203,7 +8975,6 @@ static void decl_initializer_alloc(CType *type, AttributeDef *ad, int r,
 }
 
 static void gen_function(Sym *sym) {
-// LJW DONE
     nocode_wanted = 0;
     ind = cur_text_section->data_offset;
     put_extern_sym(sym, cur_text_section, ind, 0);
@@ -9235,7 +9006,6 @@ static void gen_function(Sym *sym) {
 }
 
 static void gen_inline_functions(TCCState *s) {
-// LJW DONE
     Sym *sym;
     int inline_generated, i, ln;
     struct InlineFunc *fn;
@@ -9263,7 +9033,6 @@ static void gen_inline_functions(TCCState *s) {
 }
 
 static void free_inline_functions(TCCState *s) {
-// LJW DONE
     int i;
     for (i = 0; i < s->nb_inline_fns; ++i) {
         struct InlineFunc *fn = s->inline_fns[i];
@@ -9274,7 +9043,6 @@ static void free_inline_functions(TCCState *s) {
 }
 
 static int decl0(int l, int is_for_loop_init, Sym *func_sym) {
-// LJW DONE
     int v, has_init, r;
     CType type, btype;
     Sym *sym;
@@ -9441,7 +9209,6 @@ found:
 }
 
 static void decl(int l) {
-// LJW DONE
     decl0(l, 0, NULL);
 }
 
@@ -9456,7 +9223,6 @@ static Section *stab_section, *stabstr_section;
 static int new_undef_sym = 0;
 
 static void tccelf_new(TCCState *s) {
-// LJW DONE
     dynarray_add(&s->sections, &s->nb_sections, ((void*)0));
     text_section = new_section(s, ".text", 1, (1 << 1) | (1 << 2));
     data_section = new_section(s, ".data", 1, (1 << 1) | (1 << 0));
@@ -9473,12 +9239,10 @@ static void tccelf_new(TCCState *s) {
 }
 
 static void free_section(Section *s) {
-// LJW DONE
     tcc_free(s->data);
 }
 
 static void tccelf_delete(TCCState *s1) {
-// LJW DONE
     int i;
     for(i = 1; i < s1->nb_sections; i++)
         free_section(s1->sections[i]);
@@ -9491,7 +9255,6 @@ static void tccelf_delete(TCCState *s1) {
 }
 
 static void tccelf_begin_file(TCCState *s1) {
-// LJW DONE
     Section *s; int i;
     for (i = 1; i < s1->nb_sections; i++) {
         s = s1->sections[i];
@@ -9501,7 +9264,6 @@ static void tccelf_begin_file(TCCState *s1) {
 }
 
 static void tccelf_end_file(TCCState *s1) {
-// LJW DONE
     Section *s = s1->symtab;
     int first_sym, nb_syms, *tr, i;
     first_sym = s->sh_offset / sizeof (Elf32_Sym);
@@ -9533,7 +9295,6 @@ static void tccelf_end_file(TCCState *s1) {
 }
 
 static Section *new_section(TCCState *s1, const char *name, int sh_type, int sh_flags) {
-// LJW DONE
     Section *sec;
     sec = tcc_mallocz(sizeof(Section) + strlen(name));
     strcpy(sec->name, name);
@@ -9568,7 +9329,6 @@ static Section *new_symtab(TCCState *s1,
                            const char *symtab_name, int sh_type, int sh_flags,
                            const char *strtab_name,
                            const char *hash_name, int hash_sh_flags) {
-// LJW DONE
     Section *symtab, *strtab, *hash;
     int *ptr, nb_buckets;
     symtab = new_section(s1, symtab_name, sh_type, sh_flags);
@@ -9590,7 +9350,6 @@ static Section *new_symtab(TCCState *s1,
 }
 
 static void section_realloc(Section *sec, unsigned long new_size) {
-// LJW DONE
     unsigned long size;
     unsigned char *data;
     size = sec->data_allocated;
@@ -9605,7 +9364,6 @@ static void section_realloc(Section *sec, unsigned long new_size) {
 }
 
 static size_t section_add(Section *sec, Elf32_Addr size, int align) {
-// LJW DONE
     size_t offset, offset1;
     offset = (sec->data_offset + align - 1) & -align;
     offset1 = offset + size;
@@ -9618,13 +9376,11 @@ static size_t section_add(Section *sec, Elf32_Addr size, int align) {
 }
 
 static void *section_ptr_add(Section *sec, Elf32_Addr size) {
-// LJW DONE
     size_t offset = section_add(sec, size, 1);
     return sec->data + offset;
 }
 
 static void section_reserve(Section *sec, unsigned long size) {
-// LJW DONE
     if (size > sec->data_allocated)
         section_realloc(sec, size);
     if (size > sec->data_offset)
@@ -9632,7 +9388,6 @@ static void section_reserve(Section *sec, unsigned long size) {
 }
 
 static int put_elf_str(Section *s, const char *sym) {
-// LJW DONE
     int offset, len;
     char *ptr;
     len = strlen(sym) + 1;
@@ -9643,7 +9398,6 @@ static int put_elf_str(Section *s, const char *sym) {
 }
 
 static unsigned long elf_hash(const unsigned char *name) {
-// LJW DONE
     unsigned long h = 0, g;
     while (*name) {
         h = (h << 4) + *name++;
@@ -9656,7 +9410,6 @@ static unsigned long elf_hash(const unsigned char *name) {
 }
 
 static void rebuild_hash(Section *s, unsigned int nb_buckets) {
-// LJW DONE
     Elf32_Sym *sym;
     int *ptr, *hash, nb_syms, sym_index, h;
     unsigned char *strtab;
@@ -9688,7 +9441,6 @@ static void rebuild_hash(Section *s, unsigned int nb_buckets) {
 
 static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
     int info, int other, int shndx, const char *name) {
-// LJW DONE
     int name_offset, sym_index;
     int nbuckets, h;
     Elf32_Sym *sym;
@@ -9729,7 +9481,6 @@ static int put_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
 }
 
 static int find_elf_sym(Section *s, const char *name) {
-// LJW DONE
     Elf32_Sym *sym;
     Section *hs;
     int nbuckets, sym_index, h;
@@ -9752,7 +9503,6 @@ static int find_elf_sym(Section *s, const char *name) {
 
 static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
                        int info, int other, int shndx, const char *name) {
-// LJW DONE
     Elf32_Sym *esym;
     int sym_bind, sym_index, sym_type, esym_bind;
     unsigned char sym_vis, esym_vis, new_vis;
@@ -9818,7 +9568,6 @@ static int set_elf_sym(Section *s, Elf32_Addr value, unsigned long size,
 
 static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset,
                             int type, int symbol, Elf32_Addr addend) {
-// LJW DONE
     char buf[256];
     Section *sr;
     Elf32_Rel *rel;
@@ -9840,7 +9589,6 @@ static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset,
 }
 
 static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset) {
-// LJW DONE
     Section *sr = s->reloc;
     Elf32_Rel *r, *dest;
     ssize_t a;
@@ -9868,7 +9616,6 @@ static void squeeze_multi_relocs(Section *s, size_t oldrelocoffset) {
 }
 
 static void sort_syms(TCCState *s1, Section *s) {
-// LJW DONE
     int *old_to_new_syms;
     Elf32_Sym *new_syms;
     int nb_syms, i;
@@ -9915,7 +9662,6 @@ static void sort_syms(TCCState *s1, Section *s) {
 }
 
 static int alloc_sec_names(TCCState *s1, int file_type, Section *strsec) {
-// LJW DONE
     int i;
     Section *s;
     int textrel = 0;
@@ -9944,7 +9690,6 @@ struct dyn_inf {
 static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                            Section *interp, Section* strsec,
                            struct dyn_inf *dyninf, int *sec_order) {
-// LJW DONE
     int i, j, k, file_type, sh_order_index, file_offset;
     unsigned long s_align;
     long long tmp;
@@ -10067,7 +9812,6 @@ static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
 
 static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
                            int file_offset, int *sec_order) {
-// LJW DONE
     int i, shnum, offset, size, file_type;
     Section *s;
     Elf32_Ehdr ehdr;
@@ -10140,7 +9884,6 @@ static void tcc_output_elf(TCCState *s1, FILE *f, int phnum, Elf32_Phdr *phdr,
 
 static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
                               Elf32_Phdr *phdr, int file_offset, int *sec_order) {
-// LJW DONE
     int fd, mode, file_type;
     FILE *f;
     unlink(filename);
@@ -10151,7 +9894,6 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
 }
 
 static int elf_output_file(TCCState *s1, const char *filename) {
-// LJW DONE
     int i, ret, phnum, shnum, file_type, file_offset, *sec_order;
     struct dyn_inf dyninf = {0};
     Elf32_Phdr *phdr;
@@ -10184,7 +9926,6 @@ static int elf_output_file(TCCState *s1, const char *filename) {
 }
 
 int tcc_output_file(TCCState *s, const char *filename) {
-// LJW DONE
     int ret;
     ret = elf_output_file(s, filename);
     return ret;
@@ -10207,7 +9948,6 @@ static unsigned long func_bound_ind;
 
 
 static void g(int c) {
-// LJW DONE
     int ind1;
     if (nocode_wanted)
         return;
@@ -10219,7 +9959,6 @@ static void g(int c) {
 }
 
 static void o(unsigned int c) {
-// LJW DONE
     while (c) {
         g(c);
         c = c >> 8;
@@ -10227,7 +9966,6 @@ static void o(unsigned int c) {
 }
 
 static void gen_le32(int c) {
-// LJW DONE
     g(c);
     g(c >> 8);
     g(c >> 16);
@@ -10235,7 +9973,6 @@ static void gen_le32(int c) {
 }
 
 static void gsym_addr(int t, int a) {
-// LJW DONE
     while (t) {
         unsigned char *ptr = cur_text_section->data + t;
         uint32_t n = read32le(ptr);
@@ -10245,12 +9982,10 @@ static void gsym_addr(int t, int a) {
 }
 
 static void gsym(int t) {
-// LJW DONE
     gsym_addr(t, ind);
 }
 
 static int oad(int c, int s) {
-// LJW DONE
     int t;
     if (nocode_wanted)
         return s;
@@ -10261,14 +9996,12 @@ static int oad(int c, int s) {
 }
 
 static void gen_addr32(int r, Sym *sym, int c) {
-// LJW DONE
     if (r & VT_SYM)
         greloc(cur_text_section, sym, ind, 1);
     gen_le32(c);
 }
 
 static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
-// LJW DONE
     op_reg = op_reg << 3;
     if ((r & VT_VALMASK) == VT_CONST) {
         o(0x05 | op_reg);
@@ -10286,7 +10019,6 @@ static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
 }
 
 static void load(int r, SValue *sv) {
-// LJW DONE
     int v, t, ft, fc, fr;
     SValue v1;
     fr = sv->r;
@@ -10357,7 +10089,6 @@ static void load(int r, SValue *sv) {
 }
 
 static void store(int r, SValue *v) {
-// LJW DONE
     int fr, bt, ft, fc;
     ft = v->type.t;
     fc = v->c.i;
@@ -10392,7 +10123,6 @@ static void store(int r, SValue *v) {
 }
 
 static void gadd_sp(int val) {
-// LJW DONE
     if (val == (char)val) {
         o(0xc483);
         g(val);
@@ -10402,7 +10132,6 @@ static void gadd_sp(int val) {
 }
 
 static void gcall_or_jmp(int is_jmp) {
-// LJW DONE
     int r;
     if ((vtop->r & (VT_VALMASK | VT_LVAL)) == VT_CONST && (vtop->r & VT_SYM)) {
         greloc(cur_text_section, vtop->sym, ind + 1, R_386_PC32);
@@ -10439,13 +10168,11 @@ static void gcall_or_jmp(int is_jmp) {
 }
 
 static int gfunc_sret(CType *vt, int variadic, CType *ret, int *ret_align, int *regsize) {
-// LJW DONE
     *ret_align = 1;
     return 0;
 }
 
 static void gfunc_call(int nb_args) {
-// LJW DONE
     int size, align, r, args_size, i, func_call;
     Sym *func_sym;
     args_size = 0;
@@ -10502,7 +10229,6 @@ static void gfunc_call(int nb_args) {
 }
 
 static void gfunc_prolog(CType *func_type) {
-// LJW DONE
     int addr, align, size, func_call;
     int param_index, param_addr;
     Sym *sym;
@@ -10540,7 +10266,6 @@ static void gfunc_prolog(CType *func_type) {
 }
 
 static void gfunc_epilog(void) {
-// LJW DONE
     Elf32_Addr v, saved_ind;
     v = (-loc + 3) & -4;
     o(0xc9);
@@ -10563,12 +10288,10 @@ static void gfunc_epilog(void) {
 }
 
 static int gjmp(int t) {
-// LJW DONE
     return oad(0xe9,t);
 }
 
 static void gjmp_addr(int a) {
-// LJW DONE
     int r;
     r = a - ind - 2;
     if (r == (char)r) {
@@ -10580,7 +10303,6 @@ static void gjmp_addr(int a) {
 }
 
 static void gtst_addr(int inv, int a) {
-// LJW DONE
     int v = vtop->r & VT_VALMASK;
     if (v == VT_CMP) {
         inv ^= (vtop--)->c.i;
@@ -10606,7 +10328,6 @@ static void gtst_addr(int inv, int a) {
 }
 
 static int gtst(int inv, int t) {
-// LJW DONE
     int v = vtop->r & VT_VALMASK;
     if (nocode_wanted) {
         ;
@@ -10632,7 +10353,6 @@ static int gtst(int inv, int t) {
 }
 
 static void gen_opi(int op) {
-// LJW DONE
     int r, fr, opc, c;
     switch(op) {
     case '+':
@@ -10763,7 +10483,6 @@ static void gen_opi(int op) {
 }
 
 static void gen_opf(int op) {
-// LJW DONE
     int a, ft, fc, swapped, r;
     if ((vtop[-1].r & (VT_VALMASK | VT_LVAL)) == VT_CONST) {
         vswap();
@@ -10865,7 +10584,6 @@ static void gen_opf(int op) {
 }
 
 static void gen_cvt_itof(int t) {
-// LJW DONE
     save_reg(TREG_ST0);
     gv(RC_INT);
     if ((vtop->type.t & VT_BTYPE) == VT_LLONG) {
@@ -10889,12 +10607,10 @@ static void gen_cvt_itof(int t) {
 }
 
 static void gen_cvt_ftof(int t) {
-// LJW DONE
     gv(0x0002);
 }
 
 static char *pstrcpy(char *buf, int buf_size, const char *s) {
-// LJW DONE
     char *q, *q_end;
     int c;
     if (buf_size > 0) {
@@ -10912,7 +10628,6 @@ static char *pstrcpy(char *buf, int buf_size, const char *s) {
 }
 
 static char *pstrcat(char *buf, int buf_size, const char *s) {
-// LJW DONE
     int len;
     len = strlen(buf);
     if (len < buf_size)
@@ -10921,14 +10636,12 @@ static char *pstrcat(char *buf, int buf_size, const char *s) {
 }
 
 static char *pstrncpy(char *out, const char *in, size_t num) {
-// LJW DONE
     memcpy(out, in, num);
     out[num] = '\0';
     return out;
 }
 
 char *tcc_basename(const char *name) {
-// LJW DONE
     char *p = strchr(name, 0);
     while (p > name && !(p[-1] == '/'))
         --p;
@@ -10936,12 +10649,10 @@ char *tcc_basename(const char *name) {
 }
 
 void tcc_free(void *ptr) {
-// LJW DONE
     free(ptr);
 }
 
 void *tcc_malloc(unsigned long size) {
-// LJW DONE
     void *ptr;
     ptr = malloc(size);
     if (!ptr && size)
@@ -10950,7 +10661,6 @@ void *tcc_malloc(unsigned long size) {
 }
 
 void *tcc_mallocz(unsigned long size) {
-// LJW DONE
     void *ptr;
     ptr = tcc_malloc(size);
     memset(ptr, 0, size);
@@ -10958,7 +10668,6 @@ void *tcc_mallocz(unsigned long size) {
 }
 
 void *tcc_realloc(void *ptr, unsigned long size) {
-// LJW DONE
     void *ptr1;
     ptr1 = realloc(ptr, size);
     if (!ptr1 && size)
@@ -10967,7 +10676,6 @@ void *tcc_realloc(void *ptr, unsigned long size) {
 }
 
 char *tcc_strdup(const char *str) {
-// LJW DONE
     char *ptr;
     ptr = tcc_malloc(strlen(str) + 1);
     strcpy(ptr, str);
@@ -10975,7 +10683,6 @@ char *tcc_strdup(const char *str) {
 }
 
 static void dynarray_add(void *ptab, int *nb_ptr, void *data) {
-// LJW DONE
     int nb, nb_alloc;
     void **pp;
     nb = *nb_ptr;
@@ -10993,7 +10700,6 @@ static void dynarray_add(void *ptab, int *nb_ptr, void *data) {
 }
 
 static void dynarray_reset(void *pp, int *n) {
-// LJW DONE
     void **p;
     for (p = *(void***)pp; *n; ++p, --*n)
         if (*p)
@@ -11003,7 +10709,6 @@ static void dynarray_reset(void *pp, int *n) {
 }
 
 static void tcc_split_path(TCCState *s, void *p_ary, int *p_nb_ary, const char *in) {
-// LJW DONE
     const char *p;
     do {
         int c;
@@ -11022,21 +10727,18 @@ static void tcc_split_path(TCCState *s, void *p_ary, int *p_nb_ary, const char *
 }
 
 static void strcat_vprintf(char *buf, int buf_size, const char *fmt, va_list ap) {
-// LJW DONE
     int len;
     len = strlen(buf);
     vsnprintf(buf + len, buf_size - len, fmt, ap);
 }
 
 static void strcat_printf(char *buf, int buf_size, const char *fmt, ...) {
-// LJW DONE
     va_list ap;
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
     strcat_vprintf(buf, buf_size, fmt, ap);
 }
 
 static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap) {
-// LJW DONE
     char buf[2048];
     BufferedFile **pf, *f;
     buf[0] = '\0';
@@ -11068,13 +10770,11 @@ static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap) {
 
 void tcc_set_error_func(TCCState *s, void *error_opaque,
                         void (*error_func)(void *opaque, const char *msg)) {
-// LJW DONE
     s->error_opaque = error_opaque;
     s->error_func = error_func;
 }
 
 void tcc_error_noabort(const char *fmt, ...) {
-// LJW DONE
     TCCState *s1 = tcc_state;
     va_list ap;
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
@@ -11082,7 +10782,6 @@ void tcc_error_noabort(const char *fmt, ...) {
 }
 
 void tcc_error(const char *fmt, ...) {
-// LJW DONE
     TCCState *s1 = tcc_state;
     va_list ap;
     ap = ((char *)&(fmt)) + ((sizeof(fmt)+3)&~3);
@@ -11091,7 +10790,6 @@ void tcc_error(const char *fmt, ...) {
 }
 
 void tcc_warning(const char *fmt, ...) {
-// LJW DONE
     TCCState *s1 = tcc_state;
     va_list ap;
     if (s1->warn_none)
@@ -11101,7 +10799,6 @@ void tcc_warning(const char *fmt, ...) {
 }
 
 static void tcc_open_bf(TCCState *s1, const char *filename, int initlen) {
-// LJW DONE
     BufferedFile *bf;
     int buflen = initlen ? initlen : IO_BUF_SIZE;
     bf = tcc_mallocz(sizeof(BufferedFile) + buflen);
@@ -11119,7 +10816,6 @@ static void tcc_open_bf(TCCState *s1, const char *filename, int initlen) {
 }
 
 static void tcc_close(void) {
-// LJW DONE
     BufferedFile *bf = file;
     if (bf->fd > 0) {
         close(bf->fd);
@@ -11132,7 +10828,6 @@ static void tcc_close(void) {
 }
 
 static int tcc_open(TCCState *s1, const char *filename) {
-// LJW DONE
     int fd;
     fd = open(filename, O_RDONLY | O_BINARY);
     if (fd < 0)
@@ -11143,7 +10838,6 @@ static int tcc_open(TCCState *s1, const char *filename) {
 }
 
 static int tcc_compile(TCCState *s1) {
-// LJW DONE
     Sym *define_start;
     int filetype;
     define_start = define_stack;
@@ -11162,7 +10856,6 @@ static int tcc_compile(TCCState *s1) {
 }
 
 int tcc_compile_string(TCCState *s, const char *str) {
-// LJW DONE
     int len, ret;
     len = strlen(str);
     tcc_open_bf(s, "<string>", len);
@@ -11173,7 +10866,6 @@ int tcc_compile_string(TCCState *s, const char *str) {
 }
 
 void tcc_define_symbol(TCCState *s1, const char *sym, const char *value) {
-// LJW DONE
     int len1, len2;
     if (!value)
         value = "1";
@@ -11189,7 +10881,6 @@ void tcc_define_symbol(TCCState *s1, const char *sym, const char *value) {
 }
 
 static void tcc_cleanup(void) {
-// LJW DONE
     if (NULL == tcc_state)
         return;
     while (file)
@@ -11201,7 +10892,6 @@ static void tcc_cleanup(void) {
 }
 
 TCCState *tcc_new(void) {
-// LJW DONE
     TCCState *s;
     tcc_cleanup();
     s = tcc_mallocz(sizeof(TCCState));
@@ -11247,7 +10937,6 @@ TCCState *tcc_new(void) {
 }
 
 void tcc_delete(TCCState *s1) {
-// LJW DONE
     tcc_cleanup();
     tccelf_delete(s1);
     dynarray_reset(&s1->cached_includes, &s1->nb_cached_includes);
@@ -11261,20 +10950,17 @@ void tcc_delete(TCCState *s1) {
 }
 
 int tcc_set_output_type(TCCState *s, int output_type) {
-// LJW DONE
     s->output_type = output_type;
     s->output_format = TCC_OUTPUT_FORMAT_ELF;
     return 0;
 }
 
 int tcc_add_include_path(TCCState *s, const char *pathname) {
-// LJW DONE
     tcc_split_path(s, &s->include_paths, &s->nb_include_paths, pathname);
     return 0;
 }
 
 static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags) {
-// LJW DONE
     int ret;
     ret = tcc_open(s1, filename);
     dynarray_add(&s1->target_deps, &s1->nb_target_deps,
@@ -11285,7 +10971,6 @@ static int tcc_add_file_internal(TCCState *s1, const char *filename, int flags) 
 }
 
 int tcc_add_file(TCCState *s, const char *filename) {
-// LJW DONE
     int filetype = s->filetype;
     int flags = AFF_PRINT_ERROR;
     if (filetype == 0) {
@@ -11295,7 +10980,6 @@ int tcc_add_file(TCCState *s, const char *filename) {
 }
 
 static int strstart(const char *val, const char **str) {
-// LJW DONE
     const char *p, *q;
     p = *str;
     q = val;
@@ -11342,7 +11026,6 @@ static const TCCOption tcc_options[] = {
 };
 
 static void parse_option_D(TCCState *s1, const char *optarg) {
-// LJW DONE
     char *sym = tcc_strdup(optarg);
     char *value = strchr(sym, '=');
     if (value)
@@ -11352,7 +11035,6 @@ static void parse_option_D(TCCState *s1, const char *optarg) {
 }
 
 static void args_parser_add_file(TCCState *s, const char* filename, int filetype) {
-// LJW DONE
     struct filespec *f = tcc_malloc(sizeof *f + strlen(filename));
     f->type = filetype;
     f->alacarte = s->alacarte_link;
@@ -11361,7 +11043,6 @@ static void args_parser_add_file(TCCState *s, const char* filename, int filetype
 }
 
 static int args_parser_make_argv(const char *r, int *argc, char ***argv) {
-// LJW DONE
     int ret = 0, q, c;
     CString str;
     for(;;) {
@@ -11393,7 +11074,6 @@ static int args_parser_make_argv(const char *r, int *argc, char ***argv) {
 
 static void args_parser_listfile(TCCState *s,
     const char *filename, int optind, int *pargc, char ***pargv) {
-// LJW DONE
     int fd, i;
     size_t len;
     char *p;
@@ -11416,7 +11096,6 @@ static void args_parser_listfile(TCCState *s,
 }
 
 int tcc_parse_args(TCCState *s, int *pargc, char ***pargv, int optind) {
-// LJW DONE
     const TCCOption *popt;
     const char *optarg, *r;
     int last_o = -1;
@@ -11489,13 +11168,11 @@ unsupported_option:
 }
 
 static unsigned long le2belong(unsigned long ul) {
-// LJW DONE
     return ((ul & 0xFF0000)>>8)+((ul & 0xFF000000)>>24) +
         ((ul & 0xFF)<<24)+((ul & 0xFF00)<<8);
 }
 
 static int contains_any(const char *s, const char *list) {
-// LJW DONE
   const char *l;
   for (; *s; s++) {
       for (l = list; *l; l++) {
@@ -11507,7 +11184,6 @@ static int contains_any(const char *s, const char *list) {
 }
 
 static void print_dirs(const char *msg, char **paths, int nb_paths) {
-// LJW DONE
     int i;
     printf("%s:\n%s", msg, nb_paths ? "" : "  -\n");
     for(i = 0; i < nb_paths; i++)
@@ -11515,7 +11191,6 @@ static void print_dirs(const char *msg, char **paths, int nb_paths) {
 }
 
 int main(int argc0, char **argv0) {
-// LJW DONE
     TCCState *s;
     int ret, opt, n = 0, t = 0;
     unsigned start_time = 0;
