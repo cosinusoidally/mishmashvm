@@ -976,7 +976,7 @@ static const char *get_tok_str(int v, CValue *cv);
 static void begin_macro(TokenString *str, int alloc);
 static void end_macro(void);
 static int set_idnum(int c, int val);
-static inline void tok_str_new(TokenString *s);
+static void tok_str_new(TokenString *s);
 static TokenString *tok_str_alloc(void);
 static void tok_str_free(TokenString *s);
 static void tok_str_free_str(int *str);
@@ -1094,7 +1094,7 @@ static void put_elf_reloca(Section *symtab, Section *s, unsigned long offset, in
 static void squeeze_multi_relocs(Section *sec, size_t oldrelocoffset);
 static uint8_t *parse_comment(uint8_t *p);
 static void minp(void);
-static inline void inp(void);
+static void inp(void);
 static int handle_eob(void);
 static void gsym_addr(int t, int a);
 static void gsym(int t);
@@ -1345,7 +1345,7 @@ static void cstr_realloc(CString *cstr, int new_size) {
     cstr->size_allocated = size;
 }
 
-static inline void cstr_ccat(CString *cstr, int ch) {
+static void cstr_ccat(CString *cstr, int ch) {
 // LJW DONE
     int size;
     size = cstr->size + 1;
@@ -1587,7 +1587,7 @@ static int handle_eob(void) {
     }
 }
 
-static inline void inp(void) {
+static void inp(void) {
 // LJW DONE
     ch = *(++(file->buf_ptr));
     if (ch == '\\')
@@ -1969,7 +1969,7 @@ _default:
     file->buf_ptr = p;
 }
 
-static inline void tok_str_new(TokenString *s) {
+static void tok_str_new(TokenString *s) {
 // LJW DONE
     s->str = ((void*)0);
     s->len = s->lastlen = 0;
@@ -2115,7 +2115,7 @@ static void tok_str_add_tok(TokenString *s) {
     tok_str_add2(s, tok, &tokc);
 }
 
-static inline void TOK_GET(int *t, const int **pp, CValue *cv) {
+static void TOK_GET(int *t, const int **pp, CValue *cv) {
 // LJW DONE
     const int *p = *pp;
     int n, *tab;
