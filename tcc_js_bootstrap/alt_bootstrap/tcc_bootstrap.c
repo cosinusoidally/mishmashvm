@@ -11139,7 +11139,6 @@ static int tcc_open(TCCState *s1, const char *filename) {
     return fd;
 }
 
-// LJW BOOKMARK
 static int tcc_compile(TCCState *s1) {
 // LJW DONE
     Sym *define_start;
@@ -11187,14 +11186,15 @@ void tcc_define_symbol(TCCState *s1, const char *sym, const char *value) {
 }
 
 static void tcc_cleanup(void) {
-    if (((void*)0) == tcc_state)
+// LJW DONE
+    if (NULL == tcc_state)
         return;
     while (file)
         tcc_close();
     tccpp_delete(tcc_state);
-    tcc_state = ((void*)0);
+    tcc_state = NULL;
     dynarray_reset(&sym_pools, &nb_sym_pools);
-    sym_free_first = ((void*)0);
+    sym_free_first = NULL;
 }
 
 TCCState *tcc_new(void) {
@@ -11291,8 +11291,8 @@ int tcc_add_file(TCCState *s, const char *filename) {
     return tcc_add_file_internal(s, filename, flags);
 }
 
-static int strstart(const char *val, const char **str)
-{
+static int strstart(const char *val, const char **str) {
+// LJW DONE
     const char *p, *q;
     p = *str;
     q = val;
@@ -11339,6 +11339,7 @@ static const TCCOption tcc_options[] = {
 };
 
 static void parse_option_D(TCCState *s1, const char *optarg) {
+// LJW DONE
     char *sym = tcc_strdup(optarg);
     char *value = strchr(sym, '=');
     if (value)
@@ -11348,6 +11349,7 @@ static void parse_option_D(TCCState *s1, const char *optarg) {
 }
 
 static void args_parser_add_file(TCCState *s, const char* filename, int filetype) {
+// LJW DONE
     struct filespec *f = tcc_malloc(sizeof *f + strlen(filename));
     f->type = filetype;
     f->alacarte = s->alacarte_link;
@@ -11356,6 +11358,7 @@ static void args_parser_add_file(TCCState *s, const char* filename, int filetype
 }
 
 static int args_parser_make_argv(const char *r, int *argc, char ***argv) {
+// LJW DONE
     int ret = 0, q, c;
     CString str;
     for(;;) {
@@ -11385,6 +11388,7 @@ static int args_parser_make_argv(const char *r, int *argc, char ***argv) {
     return ret;
 }
 
+// LJW BOOKMARK
 static void args_parser_listfile(TCCState *s,
     const char *filename, int optind, int *pargc, char ***pargv) {
     int fd, i;
