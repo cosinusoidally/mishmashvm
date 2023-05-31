@@ -1,5 +1,7 @@
 echo "alt boostrap phase 2"
 
+set -e
+
 js alt_01.js
 
 js alt_02_1.js
@@ -13,7 +15,7 @@ echo "Building tcc (stage 1)"
 js 02.js
 
 echo "Building libtcc1.o (stage 1)"
-#js 03.js
+js 03.js
 
 mv tcc_bin/libtcc1.o.new tcc_bin/libtcc1.o
 mv tcc_bin/tcc_boot3.o.new tcc_bin/tcc_boot3.o
