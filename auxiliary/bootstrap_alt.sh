@@ -2,7 +2,7 @@
 
 set -e
 
-js --no-ion mk_tcc_bootstrap.js
+js --no-ion 01_mk_tcc_alt.js
 
 cd ../tcc_js_bootstrap
 
@@ -11,8 +11,6 @@ js --no-ion 02_mk_libc_wrap.js
 
 echo "Building libc unimplemented stubs with Emscripten compiled tcc"
 js --no-ion 03_mk_libc_stubs.js
-
-mv out.o ../libc_portable_proto/tcc_bin/tcc_boot3.o
 
 cd ../libc_portable_proto
 
