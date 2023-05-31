@@ -31,6 +31,7 @@ echo "build tcc_boot3.o"
 # since there are currently some issues with the linking phase in tcc_bootstrap.c
 
 PHASE1_ARGS="-nostdinc -nostdlib -c ./alt_bootstrap/tcc_bootstrap.c -o out.o"
+#PHASE1_1_ARGS="-nostdinc -nostdlib -c ./alt_bootstrap/tcc_bootstrap2.c -o out.o"
 
 PHASE2_1_ARGS="-DBOOTSTRAP_MODE=1 -nostdinc -nostdlib -c ../tcc_js_bootstrap/tcc_src/tcc.c -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -I ../tcc_js_bootstrap/tcc_src/ -I ../includes/tmp/tcc/lib/tcc/include/ -I ../includes/usr/include/i386-linux-gnu/  -I ../includes/usr/include/ -o tcc_bin/tcc_boot3.o"
 
@@ -55,17 +56,17 @@ rm out.o
 rm libtcc1.o
 ./tcc_linux.exe ${LIBTCC1_ARGS}
 ./tcc_linux.exe ${PHASE1_ARGS}
-rm tcc_linux.exe
-tcc_bootstrap.exe ${LINK_CMD}
-chmod +x tcc_linux.exe
+#rm tcc_linux.exe
+#tcc_bootstrap.exe ${LINK_CMD}
+#chmod +x tcc_linux.exe
 #rm out.o
 mv out.o ../libc_portable_proto/tcc_bin/tcc_boot3.o
 
 # phase 2
 
-cd ../libc_portable_proto/
+#cd ../libc_portable_proto/
 #../tcc_js_bootstrap/tcc_linux.exe ${PHASE2_1_ARGS}
-cd ../tcc_js_bootstrap
+#cd ../tcc_js_bootstrap
 #rm tcc_linux.exe
 #tcc_bootstrap.exe ${LINK_CMD}
 #chmod +x tcc_linux.exe

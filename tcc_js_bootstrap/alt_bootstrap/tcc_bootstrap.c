@@ -11162,7 +11162,9 @@ int tcc_parse_args(TCCState *s, int *pargc, char ***pargv, int optind) {
 reparse:
         if (r[0] != '-' || r[1] == '\0') {
             if (r[0] != '@'){
-                args_parser_add_file(s, r, s->filetype);
+                if(strlen(r)>0){
+                    args_parser_add_file(s, r, s->filetype);
+                }
             }
             continue;
         }
