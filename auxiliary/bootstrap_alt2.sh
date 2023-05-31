@@ -1,4 +1,4 @@
-#./bootstrap_cleanup_tcc.sh
+./bootstrap_cleanup_tcc.sh
 
 set -e
 
@@ -15,3 +15,4 @@ js --no-ion 03_mk_libc_stubs.js
 cd ../libc_portable_proto
 
 ./alt_bootstrap_tcc.sh
+sha256sum -c ../auxiliary/checksums_alt2.sha256sums
