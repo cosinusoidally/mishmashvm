@@ -9690,6 +9690,7 @@ struct dyn_inf {
 static int layout_sections(TCCState *s1, Elf32_Phdr *phdr, int phnum,
                            Section *interp, Section* strsec,
                            struct dyn_inf *dyninf, int *sec_order) {
+
     int i, j, k, file_type, sh_order_index, file_offset;
     unsigned long s_align;
     long long tmp;
@@ -9893,6 +9894,52 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
     return 0;
 }
 
+static void tcc_add_linker_symbols(TCCState *s1) {
+    char buf[1024];
+    int i;
+    Section *s;
+    for(i = 1; i < s1->nb_sections; i++) {
+        s = s1->sections[i];
+        if (s->sh_type == 1 &&
+            (s->sh_flags & (1 << 1))) {
+            const char *p;
+            int ch;
+            p = s->name;
+            for(;;) {
+                ch = *p;
+                if (!ch)
+                    break;
+                if (!isid(ch) && !isnum(ch))
+                    goto next_sec;
+                p++;
+            }
+            snprintf(buf, sizeof(buf), "__start_%s", s->name);
+            set_elf_sym(symtab_section,
+                        0, 0,
+                        (((1) << 4) + ((0) & 0xf)), 0,
+                        s->sh_num, buf);
+            snprintf(buf, sizeof(buf), "__stop_%s", s->name);
+            set_elf_sym(symtab_section,
+                        s->data_offset, 0,
+                        (((1) << 4) + ((0) & 0xf)), 0,
+                        s->sh_num, buf);
+        }
+    next_sec: ;
+    }
+}
+
+static void resolve_common_syms(TCCState *s1) {
+    Elf32_Sym *sym;
+    for (sym = (Elf32_Sym *) symtab_section->data + 1; sym < (Elf32_Sym *) (symtab_section->data + symtab_section->data_offset); sym++) {
+        if (sym->st_shndx == 0xfff2) {
+            sym->st_value = section_add(bss_section, sym->st_size,
+                                        sym->st_value);
+            sym->st_shndx = bss_section->sh_num;
+        }
+    }
+    tcc_add_linker_symbols(s1);
+}
+
 static int elf_output_file(TCCState *s1, const char *filename) {
     int i, ret, phnum, shnum, file_type, file_offset, *sec_order;
     struct dyn_inf dyninf = {0};
@@ -9907,6 +9954,11 @@ static int elf_output_file(TCCState *s1, const char *filename) {
     sec_order = NULL;
     interp = dynamic = dynstr = NULL;
     textrel = 0;
+
+// HACK to avoid bss ending up in COM section, which then causes by JS
+// elf loader to fail
+    resolve_common_syms(s1);
+
     strsec = new_section(s1, ".shstrtab", SHT_STRTAB, 0);
     put_elf_str(strsec, "");
     textrel = alloc_sec_names(s1, file_type, strsec);
