@@ -58,12 +58,13 @@ rm libtcc1.o
 rm tcc_linux.exe
 tcc_bootstrap.exe ${LINK_CMD}
 chmod +x tcc_linux.exe
-rm out.o
+#rm out.o
+mv out.o ../libc_portable_proto/tcc_bin/tcc_boot3.o
 
 # phase 2
 
 cd ../libc_portable_proto/
-../tcc_js_bootstrap/tcc_linux.exe ${PHASE2_1_ARGS}
+#../tcc_js_bootstrap/tcc_linux.exe ${PHASE2_1_ARGS}
 cd ../tcc_js_bootstrap
 #rm tcc_linux.exe
 #tcc_bootstrap.exe ${LINK_CMD}

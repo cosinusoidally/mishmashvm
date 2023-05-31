@@ -1,8 +1,8 @@
 echo "alt boostrap phase 2"
 
-#js alt_02_2.js
+js alt_02_1.js
 
-#mv tcc_bin/tcc_boot3.o.new tcc_bin/tcc_boot3.o
+mv tcc_bin/tcc_boot3.o.new tcc_bin/tcc_boot3.o
 
 echo "2nd stage bootstrap"
 
