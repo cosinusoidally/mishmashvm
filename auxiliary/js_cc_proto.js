@@ -87,3 +87,44 @@ _main=function($argc0,$argv0){
   _tcc_delete($s);
   STACKTOP=sp;return $ret;
 };
+
+read_string=function(x){
+  var c;
+  var a=[];
+  while((c=i8r(x++))!==0){
+    a.push(c);
+  };
+  return a.map(function(y){
+    return String.fromCharCode(y);
+  }).join("");
+};
+
+(function(){
+var file=76648;
+var orig_greloc=_greloc;
+_greloc=function($s,$sym,$offset,$type){
+  if($sym){
+// printf("greloca %s in section %s file %s:%d\n", get_tok_str(sym->v,0), s->name, file->filename,file->line_num);
+    var ident=read_string(_get_tok_str(i32r($sym),0));
+    var filename=read_string(i32r(file)+40);
+    var line_num=i32r(i32r(file)+16);
+    var section_name=read_string($s+72);
+    print("js_greloc intercept : "+ident+" file: "+filename+" line: "+line_num
+    +" section: "+section_name);
+  } else {
+   print("sym null");
+  };
+  return orig_greloc($s,$sym,$offset,$type);
+};
+
+})();
+
+(function(){
+var orig_set_elf_sym=_set_elf_sym;
+_set_elf_sym=function($s,$value,$size,$info,$other,$shndx,$name){
+  print("js_set_elf_sym name: "+read_string($name)+" shndx: "+$shndx);
+// printf("FOO define elf symbol %s in section %s shndx %d\n",name,s->name,shndx);
+  return orig_set_elf_sym($s,$value,$size,$info,$other,$shndx,$name);
+}
+
+})();
