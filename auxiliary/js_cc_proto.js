@@ -48,6 +48,7 @@ filespec$g$name=function(f){
   return (f+2);
 };
 _main=function($argc0,$argv0){
+    print("main override");
     var sp=STACKTOP;STACKTOP=(STACKTOP+16)|0;
     var $argc=sp;
     var $argv=(sp)+(8);
