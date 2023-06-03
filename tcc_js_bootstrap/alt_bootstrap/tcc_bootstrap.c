@@ -170,6 +170,9 @@ extern int unlink (const char *__name)  ;
 extern float strtof (const char *__nptr, char **__endptr);
 extern long double strtold (const char *__nptr, char **__endptr);
 
+extern int lseek(int fd, int offset, int whence);
+extern int close(int fd);
+
 // START TCC code
 
 struct TCCState;
