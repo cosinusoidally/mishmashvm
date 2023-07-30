@@ -26,6 +26,7 @@ tests=[
   {"path":"tests/nodejs","script":"napi_linux_build.js","description":"build Linux nodejs addon (TODO implement this)"},
   {"path":"tests/multitask","script":"multi.js","description":"multitasking demo"},
   {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap.js","description":"tcc bootstrap alt, tcc 0.9.2 to 0.9.10"},
+  {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p2.js","description":"tcc bootstrap alt, tcc 0.9.10 to 0.9.23"},
 ];
 
 print_tests=function(){
