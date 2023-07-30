@@ -28,6 +28,7 @@ tests=[
   {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap.js","description":"tcc bootstrap alt, tcc 0.9.2 to 0.9.10"},
   {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p2.js","description":"tcc bootstrap alt, tcc 0.9.10 to 0.9.23"},
   {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p3.js","description":"tcc bootstrap alt, tcc 0.9.23 to 0.9.24"},
+  {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p4.js","description":"tcc bootstrap alt, tcc 0.9.24 to 0.9.27"},
 ];
 
 print_tests=function(){
