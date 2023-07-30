@@ -43,6 +43,8 @@ passthrough={
   "fwrite": true,
   "fputc": true,
   "ldexp": true,
+// possibly patch out use of this fn
+  "strtold": true,
 };
 
 exclude={
