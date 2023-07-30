@@ -1,8 +1,9 @@
-print("tcc bootstrap 0.9.24 to 0.9.27");
+print("tcc bootstrap 0.9.24 to 0.9.26");
 load("lib/gen_wrap.js");
 
 libc.chdir("../tcc_bootstrap_alt/tcc_24/");
 
+libtcc1_o=mm.decode_elf(read("libtcc1.o","binary"));
 tcc_24_o=mm.decode_elf(read("tcc.o","binary"));
 
 
@@ -53,6 +54,10 @@ passthrough={
 exclude={
   "stdout": true,
   "stderr": true,
+  "__udivdi3": true,
+  "__shldi3": true,
+  "__divdi3": true,
+  "__sardi3": true,
 };
 
 und=[];
@@ -97,7 +102,7 @@ tcc_24_o.exports.push(mm.libc_compat.imports["stderr"]);
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
-tcc_24=mm.link([tcc_24_o,my_wrap]);
+tcc_24=mm.link([tcc_24_o,libtcc1_o,my_wrap]);
 
 main=mm.arg_wrap(tcc_24.get_fn("main"));
 
@@ -110,5 +115,6 @@ if(r!==0){
 return r;
 };
 
-libc.chdir("../tcc_27/");
-build("tcc");
+libc.chdir("../tcc_26/");
+build("tcc -I ../woody/usr/include/ -I include -c tcc.c -DONE_SOURCE");
+build("tcc -c ../tcc_24/libtcc1.c");
