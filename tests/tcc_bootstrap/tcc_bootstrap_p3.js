@@ -110,5 +110,6 @@ if(r!==0){
 return r;
 };
 
-libc.chdir("../tcc_bootstrap_alt/tcc_24/");
+libc.chdir("../tcc_24/");
 build("tcc -c libtcc1.c");
+build("tcc -I ../woody/usr/include/ -I . -c tcc.c");
