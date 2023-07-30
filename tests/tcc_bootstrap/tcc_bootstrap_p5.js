@@ -49,11 +49,19 @@ passthrough={
 // FIXME remove use of setjmp
   "_setjmp": true,
   "strtoul": true,
+  "sscanf": true,
+  "vsnprintf": true,
+// FIXME get rid of this
+  "unlink": true,
 };
 
 exclude={
   "stdout": true,
   "stderr": true,
+  "__udivdi3": true,
+  "__shldi3": true,
+  "__divdi3": true,
+  "__sardi3": true,
 };
 
 und=[];
@@ -112,4 +120,4 @@ return r;
 };
 
 libc.chdir("../tcc_27/");
-build("tcc -I ../woody/usr/include/ -I include -c tcc.c -DONE_SOURCE");
+build("tcc -I ../woody/usr/include/ -I ../tcc_26/include -c tcc.c -DONE_SOURCE");
