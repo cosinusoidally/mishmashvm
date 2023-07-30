@@ -1,6 +1,5 @@
 print("tcc bootstrap");
 load("lib/gen_wrap.js");
-libtcc1=mm.decode_elf(read("libc_portable_proto/tcc_bin/libtcc1.o","binary"));
 
 libc.chdir("../tcc_bootstrap_alt/tcc_1_7/");
 
@@ -89,12 +88,12 @@ overrides=[];
   my_libc=mm.load_c_string(my_libc_src);
 
 // hack to wire up stdout and stderr (which are file backed stderr.txt/stdout.txt)
-libtcc1.exports.push(mm.libc_compat.imports["stdout"]);
-libtcc1.exports.push(mm.libc_compat.imports["stderr"]);
+tcc_1_7_o.exports.push(mm.libc_compat.imports["stdout"]);
+tcc_1_7_o.exports.push(mm.libc_compat.imports["stderr"]);
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
-tcc_1_7=mm.link([tcc_1_7_o,libtcc1,my_wrap]);
+tcc_1_7=mm.link([tcc_1_7_o,my_wrap]);
 
 main=mm.arg_wrap(tcc_1_7.get_fn("main"));
 
