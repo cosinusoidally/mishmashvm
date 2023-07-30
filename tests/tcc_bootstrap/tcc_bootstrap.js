@@ -3,7 +3,7 @@ load("lib/gen_wrap.js");
 
 libc.chdir("../tcc_bootstrap_alt/tcc_1_7/");
 
-extra="-I .";
+extra="-nostdinc -I .";
 
 tcc_1_7_o=mm.load_c_string(read("dlsym_wrap.c"),{"extra_flags": extra});
 
