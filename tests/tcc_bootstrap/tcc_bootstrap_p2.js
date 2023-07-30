@@ -106,4 +106,4 @@ return r;
 };
 
 libc.chdir("../tcc_23/");
-build("tcc");
+build("tcc -o tcc.o -c tcc.c");
