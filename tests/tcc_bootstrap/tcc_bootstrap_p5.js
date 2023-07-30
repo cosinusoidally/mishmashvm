@@ -119,5 +119,5 @@ if(r!==0){
 return r;
 };
 
-libc.chdir("../tcc_27/");
-build("tcc -I ../woody/usr/include/ -I ../tcc_26/include -c tcc.c -DONE_SOURCE");
+libc.chdir("../../mishmashvm/tcc_js_bootstrap/");
+build("tcc -nostdinc -nostdlib -o out.o -c ../tcc_src/tcc.c -D__linux__ -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -I ../tcc_src/:../../tcc_bootstrap_alt/woody/usr/include/:../../tcc_bootstrap_alt/tcc_26/include/");
