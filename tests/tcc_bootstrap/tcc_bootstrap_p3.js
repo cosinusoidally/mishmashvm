@@ -47,6 +47,7 @@ passthrough={
   "strtold": true,
 // FIXME remove use of setjmp
   "_setjmp": true,
+  "strtoul": true,
 };
 
 exclude={
@@ -109,5 +110,5 @@ if(r!==0){
 return r;
 };
 
-libc.chdir("../tcc_24/");
+libc.chdir("../tcc_bootstrap_alt/tcc_24/");
 build("tcc -c libtcc1.c");
