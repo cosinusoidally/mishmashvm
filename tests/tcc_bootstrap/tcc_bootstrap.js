@@ -54,6 +54,16 @@ exclude={
 und=[];
 overrides=[];
 
+if(plat==="win32"){
+  print("on win32");
+  delete passthrough["mmap"];
+  exclude["mmap"]=true;
+
+  delete passthrough["getc_unlocked"];
+  exclude["getc_unlocked"]=true;
+  overrides.push(["getc","getc_unlocked"]);
+};
+
   for(var i=0;i<tcc_1_7_o.und.length;i++){
     var c=tcc_1_7_o.und[i].st_name;
     und.push(c);
@@ -77,6 +87,9 @@ overrides=[];
       my_libc_src.push("ljw_crash_"+s+"(){printf(\"unimplemented: "+s+"\\n\");exit(1);}");
     };
   };
+  if(plat==="win32"){
+    stubs_src.push("getc();");
+  };
   my_libc_src= my_libc_src.join("\n");
   stubs_src.push("}");
   stubs_src=stubs_src.join("\n");
@@ -90,6 +103,11 @@ overrides=[];
 // hack to wire up stdout and stderr (which are file backed stderr.txt/stdout.txt)
 tcc_1_7_o.exports.push(mm.libc_compat.imports["stdout"]);
 tcc_1_7_o.exports.push(mm.libc_compat.imports["stderr"]);
+
+// hack to wire up mmap alternative on win32
+if(plat==="win32"){
+  tcc_1_7_o.exports.push({st_name:"mmap", address: 0xdeadbeef});
+};
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
 
