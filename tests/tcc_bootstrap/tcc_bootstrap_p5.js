@@ -14,7 +14,6 @@ passthrough={
   "memcpy": true,
   "strlen": true,
   "memset": true,
-  "mmap": true,
   "printf": true,
   "fopen": true,
   "getc_unlocked": true,
@@ -44,8 +43,6 @@ passthrough={
   "fwrite": true,
   "fputc": true,
   "ldexp": true,
-// possibly patch out use of this fn
-  "strtold": true,
 // FIXME remove use of setjmp
   "_setjmp": true,
   "strtoul": true,
