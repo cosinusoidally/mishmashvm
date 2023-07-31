@@ -106,7 +106,19 @@ tcc_1_7_o.exports.push(mm.libc_compat.imports["stderr"]);
 
 // hack to wire up mmap alternative on win32
 if(plat==="win32"){
-  tcc_1_7_o.exports.push({st_name:"mmap", address: 0xdeadbeef});
+  function callback_dispatch(addr,length,prot,flags,fd,offset){
+    print("mmap called: " +([addr,length,prot,flags,fd,offset].join(" ")));
+    var ret=libc.mmap(addr,length,prot,flags,fd,offset);
+    print("mmap ret: "+(ret.toString(16)));
+    return ret;
+  };
+
+  var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
+
+  var callback_dispatch_handle = callback_dispatch_type.ptr(callback_dispatch);
+  var callback_dispatch_ptr = ctypes.cast(callback_dispatch_handle,ctypes.uint32_t).value;
+
+  tcc_1_7_o.exports.push({st_name:"mmap", address: callback_dispatch_ptr});
 };
 
 my_wrap=mm.gen_wrap(my_libc,stubs,overrides);
