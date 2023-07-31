@@ -1,7 +1,7 @@
 set js_cmd=../jsshell/js.exe
 set start_cmd=start /wait /B
 cd ..
-REM js -e "load('mishmashvm.js');test(20)"
+%start_cmd% %js_cmd% -e "load('mishmashvm.js');test(20)"
 %start_cmd% %js_cmd% -e "load('mishmashvm.js');test(21)"
 %start_cmd% %js_cmd% -e "load('mishmashvm.js');test(22)"
 %start_cmd% %js_cmd% -e "load('mishmashvm.js');test(23)"
