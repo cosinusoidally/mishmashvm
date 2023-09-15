@@ -25,6 +25,11 @@ tests=[
   {"path":"tests/nodejs","script":"napi_win32_build.js","description":"build win32 nodejs addon"},
   {"path":"tests/nodejs","script":"napi_linux_build.js","description":"build Linux nodejs addon (TODO implement this)"},
   {"path":"tests/multitask","script":"multi.js","description":"multitasking demo"},
+  {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap.js","description":"tcc bootstrap alt, tcc 0.9.2 to 0.9.10"},
+  {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p2.js","description":"tcc bootstrap alt, tcc 0.9.10 to 0.9.23"},
+  {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p3.js","description":"tcc bootstrap alt, tcc 0.9.23 to 0.9.24"},
+  {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p4.js","description":"tcc bootstrap alt, tcc 0.9.24 to 0.9.26"},
+  {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p5.js","description":"tcc bootstrap alt, tcc 0.9.26 to 0.9.27"},
 ];
 
 print_tests=function(){

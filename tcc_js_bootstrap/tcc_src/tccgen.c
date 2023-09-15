@@ -6562,11 +6562,11 @@ static void init_putv(CType *type, Section *sec, unsigned long c)
 		break;
 	    case VT_LDOUBLE:
 #if defined TCC_IS_NATIVE_387
-                if (sizeof (long double) >= 10) /* zero pad ten-byte LD */
-                    memcpy(ptr, &vtop->c.ld, 10);
+                if (sizeof (long double) >= 10) { memcpy(ptr, &vtop->c.ld, 10);}
 #ifdef __TINYC__
-                else if (sizeof (long double) == sizeof (double))
-                    __asm__("fldl %1\nfstpt %0\n" : "=m" (*ptr) : "m" (vtop->c.ld));
+#ifndef BOOTSTRAP_MODE
+                else if (sizeof (long double) == sizeof (double)){ __asm__("fldl %1\nfstpt %0\n" : "=m" (*ptr) : "m" (vtop->c.ld));}
+#endif
 #endif
                 else if (vtop->c.ld == 0.0)
                     ;
