@@ -178,6 +178,17 @@ tcc_o={
   exports: [{st_name:"main",address:real_entrypoint}],
   relocate_all:function(){}
 }
-main=mm.link([tcc_o]).get_fn("main");
+main=mm.arg_wrap(mm.link([tcc_o]).get_fn("main"));
 
-main(0,0);
+function build(com){
+print(com);
+var r=main(com);
+if(r!==0){
+  throw "Build failure";
+}
+return r;
+};
+
+libc.chdir("../../tcc_bootstrap_alt/tcc_10/");
+
+build("tcc ../tcc_1_7/dlsym_wrap.c ../tcc_1_7/tcc.c ../tcc_1_7/tcc.c ../tcc_1_8/tcc.c ../tcc_1_8/tcc.c ../tcc_1_8/tcc.c ../tcc_1_9/tcc.c ../tcc_1_9/tcc.c ../tcc_1_9/tcc.c ../tcc_2m/tcc.c ../tcc_2m/tcc.c ../tcc_2m/tcc.c ../tcc_2/tcc.c ../tcc_2/tcc.c ../tcc_2/tcc.c -DNO_LONG_LONG ../tcc_3/tcc.c -DNO_LONG_LONG ../tcc_3/tcc.c ../tcc_3/tcc.c ../tcc_3/tcc.c ../tcc_3/tcc.c tcc.c -o tcc.o -c tcc.c");
