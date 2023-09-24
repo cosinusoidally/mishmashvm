@@ -91,3 +91,19 @@ if(t!==m4){
 }
 o=o+4;
 prog_rel=o;
+
+
+var DATA_SIZE=(256*1024);
+var TEXT_SIZE=(256*1024);
+
+
+glo=libc.mmap(                  ctypes.voidptr_t(0),
+                                          DATA_SIZE,
+                  libc.PROT_READ | libc.PROT_WRITE ,
+              libc.MAP_ANONYMOUS | libc.MAP_PRIVATE,
+                                                 -1,
+                                                  0);
+prog = libc.mmap(ctypes.voidptr_t(0), TEXT_SIZE,
+              libc.PROT_EXEC | libc.PROT_READ | libc.PROT_WRITE,
+              libc.MAP_PRIVATE | libc.MAP_ANONYMOUS,
+              -1, 0);
