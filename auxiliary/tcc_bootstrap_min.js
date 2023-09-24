@@ -74,7 +74,7 @@ if(t!==m2){
    err();
 }
 o=o+4;
-date_rel=o;
+data_rel=o;
 o=o+data_len;
 t=unsigned(ri32(o));
 if(t!==m3){
@@ -112,6 +112,15 @@ prog = libc.mmap(ctypes.voidptr_t(0), TEXT_SIZE,
               -1, 0);
 
 m=global_relocs_table_base+global_reloc_table_len;
+
+for(i=0;i<reloc_len;i=i+12){
+  if(relocs_base+i+8==0){
+    p=prog;
+  } else {
+    p=glo;
+  }
+  wi32(prog_rel+ri32(relocs_base+i),unsigned(unsigned(ri32(relocs_base+i+4))+unsigned(p)));
+}
 
 goff=0;
 
@@ -156,6 +165,12 @@ for(var i=0;i<text_len;i++){
 }
 libc.memcpy(prog,p2,text_len);
 
+p3=new Uint8Array(data_len);
+for(var i=0;i<data_len;i++){
+  p3[i]=ri8(i+data_rel);
+}
+libc.memcpy(glo,p3,data_len);
+
 real_entrypoint=unsigned(prog+entrypoint);
 print("main: "+to_hex(real_entrypoint));
 
@@ -164,3 +179,5 @@ tcc_o={
   relocate_all:function(){}
 }
 main=mm.link([tcc_o]).get_fn("main");
+
+main(0,0);
