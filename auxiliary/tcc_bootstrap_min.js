@@ -23,6 +23,8 @@ for(var i=0;i<tcc.length;i++){
   wi8(o+i,tcc[i]);
 }
 
+// based on tcc_1_7/loader.c
+
 entrypoint=ri32(o);
 print("entrypoint: "+to_hex(entrypoint));
 o=o+4;
@@ -64,3 +66,28 @@ if(t!==m1){
    err();
 }
 o=o+4;
+relocs_base=o;
+o=o+reloc_len;
+t=unsigned(ri32(o));
+if(t!==m2){
+   print("error sync "+to_hex(t));
+   err();
+}
+o=o+4;
+date_rel=o;
+o=o+data_len;
+t=unsigned(ri32(o));
+if(t!==m3){
+   print("error sync "+to_hex(t));
+   err();
+}
+o=o+4;
+global_relocs_base=o;
+o=o+global_reloc_len;
+t=unsigned(ri32(o));
+if(t!==m4){
+   print("error sync "+to_hex(t));
+   err();
+}
+o=o+4;
+prog_rel=o;
