@@ -95,6 +95,9 @@ prog_rel=o;
 
 var DATA_SIZE=(256*1024);
 var TEXT_SIZE=(256*1024);
+var RELOC_ADDR32 = 1;  /* 32 bits relocation */
+var RELOC_REL32  = 2;  /* 32 bits relative relocation */
+
 
 
 glo=libc.mmap(                  ctypes.voidptr_t(0),
@@ -107,3 +110,34 @@ prog = libc.mmap(ctypes.voidptr_t(0), TEXT_SIZE,
               libc.PROT_EXEC | libc.PROT_READ | libc.PROT_WRITE,
               libc.MAP_PRIVATE | libc.MAP_ANONYMOUS,
               -1, 0);
+
+m=global_relocs_table_base+global_reloc_table_len;
+
+goff=0;
+
+while(global_relocs_table<m){
+  l=strlen(global_relocs_table);
+  var s=mk_js_string(global_relocs_table);
+  global_relocs_table+=l+1;
+  print("global_reloc: "+to_hex(global_relocs_table)+" "+l+" "+s);
+  n=ri32(global_relocs_table);
+  global_relocs_table+=4;
+  print("global_reloc_num: "+n);
+  for(i=0;i<n;i++){
+
+    off=ri32(global_relocs_base+goff+4);
+    switch(ri32(global_relocs_base+goff)) {
+        case RELOC_ADDR32:
+          print("Reloc type RELOC_ADDR32 at "+to_hex(off));
+//          *(int *)addr=a;
+          break;
+        case RELOC_REL32:
+          print("Reloc type RELOC_REL32 at "+to_hex(off));
+//          *(int *)addr = a - addr - 4;
+          break;
+        default:
+          err();
+    }
+    goff=goff+8;
+  }
+}
