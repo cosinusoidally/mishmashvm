@@ -22,3 +22,6 @@ return r;
 
 libc.chdir("../../mishmashvm/tcc_js_bootstrap/");
 build("tcc -nostdinc -nostdlib -o out.o -c ../tcc_src/tcc.c -D__linux__ -DCONFIG_TRIPLET=\"i386-linux-gnu\" -DTCC_TARGET_I386 -DONE_SOURCE=1 -I ../tcc_src/:../../tcc_bootstrap_alt/woody/usr/include/:../../tcc_bootstrap_alt/tcc_26/include/");
+libc.chdir("../libc_portable_proto");
+build("tcc -nostdinc -nostdlib -o my_libc.o -c my_libc.c -O0 -I ../tcc_src/:../../tcc_bootstrap_alt/woody/usr/include/:../../tcc_bootstrap_alt/tcc_26/include/");
+build("tcc -nostdinc -nostdlib -o stubs.o -c stubs.c -O0 -I ../tcc_src/:../../tcc_bootstrap_alt/woody/usr/include/:../../tcc_bootstrap_alt/tcc_26/include/");

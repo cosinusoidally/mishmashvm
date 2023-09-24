@@ -16,12 +16,13 @@ y=malloc(x);
 //printf("Malloc called: %u bytes at address: %u \n",x,y);
 return y;
 }
-void  ljw_free(void* x){
+void ljw_free(void* x){
 if(x!=0){
 free_calls++;
 }
 //printf("free called %u\n",x);
-return free(x);
+free(x);
+return;
 }
 
 
