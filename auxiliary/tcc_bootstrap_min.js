@@ -9,3 +9,5 @@ try {
 }
 quit=quit_orig;
 load("../lib/elf_loader.js");
+
+tcc=read("../../tcc_bootstrap_alt/tcc_10/tcc_boot.o","binary");
