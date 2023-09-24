@@ -43,6 +43,13 @@ passthrough={
   "fwrite": true,
   "fputc": true,
   "ldexp": true,
+// FIXME remove use of setjmp
+  "_setjmp": true,
+  "strtoul": true,
+  "sscanf": true,
+  "vsnprintf": true,
+// FIXME get rid of this
+  "unlink": true,
   "stdout": true,
   "stderr": true,
 };
