@@ -48,9 +48,17 @@ passthrough={
 };
 
 my_wrap={};
+exports=[];
+my_wrap.exports=exports;
+my_wrap.relocate_all=function(){};
 
 for(i in passthrough){
-  print(i);
+ a=ctypes.cast(
+      libc.lib.declare(i,ctypes.default_abi,ctypes.uint32_t),
+      ctypes.uint32_t
+      ).value;
+  print(i+" "+a);
+  exports.push({st_name:i,address:a});
 }
 
 tcc_10=mm.link([tcc_10_o,my_wrap]);
@@ -68,4 +76,3 @@ return r;
 
 libc.chdir("../tcc_23/");
 build("tcc -DFOO -o tcc.o -c tcc.c");
-
