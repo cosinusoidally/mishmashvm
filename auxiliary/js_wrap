@@ -2,4 +2,4 @@
 
 scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 
-$scriptDir/../artifacts/elf_loader_otcc.exe -l $scriptDir/../../tcc_27/libtcc1.o -l $scriptDir/../../tcc_27/tcc.o $@
+LD_PRELOAD=/lib/i386-linux-gnu/libm.so.6 $scriptDir/../../tcc_bootstrap_alt/otccelf/artifacts/elf_loader_otcc.exe -l $scriptDir/libtcc1.o -l $scriptDir/duk_glue.o -l $scriptDir/duk_main_linux.o -l $scriptDir/duktape.o $@
