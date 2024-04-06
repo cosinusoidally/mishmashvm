@@ -20,5 +20,4 @@ cd artifacts
 
 tcc_wrap -c -nostdinc -I ../includes/usr/include/:../includes/usr/include/i386-linux-gnu/:../includes/tmp/tcc/lib/tcc/include/:. ../tests/duktape/duk_main_linux.c ../tests/duktape/duk_glue.c ../tests/duktape/duktape_src/duktape.c -I t../ests/duktape/:../tests/duktape/duktape_src/
 
-# HACK elf_loader_otcc.exe is not linked to libm
-LD_PRELOAD=/lib/i386-linux-gnu/libm.so.6 elf_loader_otcc.exe -l duk_glue.o -l duk_main_linux.o -l duktape.o -l libtcc1.o
+elf_loader_otcc.exe -l duk_glue.o -l duk_main_linux.o -l duktape.o -l libtcc1.o
