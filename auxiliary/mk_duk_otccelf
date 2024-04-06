@@ -1,0 +1,6 @@
+pushd .
+
+cd ..
+
+cp /dev/shm/mishmashvm_tmp/duk_boot_code.h artifacts/
+
