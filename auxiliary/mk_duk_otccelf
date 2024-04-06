@@ -12,7 +12,6 @@ cd ..
 ./mk_clean_artifacts.sh
 otccelf_js.exe tests/duktape/gen_duk_boot_code.c ./artifacts/gen_duk_boot_code.exe
 chmod +x ./artifacts/gen_duk_boot_code.exe
-cp /dev/shm/mishmashvm_tmp/duk_boot_code.h artifacts/
 cp ./auxiliary/js_wrap artifacts/js
 cp ../tcc_bootstrap_alt/tcc_27/libtcc1.o artifacts
 

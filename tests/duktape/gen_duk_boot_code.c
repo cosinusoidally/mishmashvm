@@ -7,11 +7,14 @@ main(){
   while((c=fgetc(in)) != -1){
     if(c == '\n') {
       fprintf(out,"\\n");
+    } else if (c == '\"') {
+      fprintf(out,"\\");
+      fprintf(out,"\"");
     } else {
       fprintf(out,"%c", (c & 255));
     }
   }
-  fprintf(out,"\"");
+  fprintf(out,"\";\n");
   fclose(out);
   exit(0);
 }
