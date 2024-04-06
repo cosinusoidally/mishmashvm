@@ -23,7 +23,5 @@ cd ../artifacts
 export PATH=$PWD:$PATH
 
 cd ../libc_portable_proto
-js
-pwd
 
-# ./bootstrap_tcc.sh
+./bootstrap_tcc.sh
