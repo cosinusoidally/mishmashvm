@@ -7,11 +7,16 @@ export PATH=$PWD:$PATH
 
 popd
 
-cd ../artifacts
+cd ..
 
+./mk_clean_artifacts.sh
 cp /dev/shm/mishmashvm_tmp/duk_boot_code.h artifacts/
+cp ./auxiliary/js_wrap artifacts/js
+cp ../tcc_bootstrap_alt/tcc_27/libtcc1.o artifacts
+
+cd artifacts
 
 tcc_wrap -c -nostdinc -I ../includes/usr/include/:../includes/usr/include/i386-linux-gnu/:../includes/tmp/tcc/lib/tcc/include/:. ../tests/duktape/duk_main_linux.c ../tests/duktape/duk_glue.c ../tests/duktape/duktape_src/duktape.c -I t../ests/duktape/:../tests/duktape/duktape_src/
 
 # HACK elf_loader_otcc.exe is not linked to libm
-LD_PRELOAD=/lib/i386-linux-gnu/libm.so.6 elf_loader_otcc.exe -l duk_glue.o -l duk_main_linux.o -l duktape.o -l ../libc_portable_proto/tcc_bin/libtcc1.o
+LD_PRELOAD=/lib/i386-linux-gnu/libm.so.6 elf_loader_otcc.exe -l duk_glue.o -l duk_main_linux.o -l duktape.o -l libtcc1.o
