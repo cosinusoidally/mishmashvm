@@ -57,16 +57,40 @@ passthrough={
   "stderr": true,
 };
 
+override={
+  "getc_unlocked": "fgetc",
+  "strdup": "_strdup",
+  "open": "_open",
+  "read": "_read",
+  "close": "_close",
+  "snprintf": "_snprintf",
+  "fdopen": "_fdopen",
+  "vsnprintf": "_vsnprintf",
+  "unlink": "_unlink"
+};
+
 my_wrap={};
 exports=[];
 my_wrap.exports=exports;
 my_wrap.relocate_all=function(){};
 
+if(plat === "win32"){
+  delete passthrough.stdout;
+  delete passthrough.stderr;
+  // TODO add stdout and stderr symbols for win32
+
+}
+
 for(i in passthrough){
- a=ctypes.cast(
-      libc.lib.declare(i,ctypes.default_abi,ctypes.uint32_t),
-      ctypes.uint32_t
-      ).value;
+  if(plat === "win32"){
+    if(override[i]){
+      i=override[i];
+    }
+  };
+  a=ctypes.cast(
+       libc.lib.declare(i,ctypes.default_abi,ctypes.uint32_t),
+       ctypes.uint32_t
+       ).value;
   print(i+" "+a);
   exports.push({st_name:i,address:a});
 }
