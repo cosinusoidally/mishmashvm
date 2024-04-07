@@ -120,11 +120,11 @@ while(global_relocs_table<m){
   global_relocs_table+=l+1;
   var sr=s;
   if(plat === "win32"){
-    if(override[i]){
+    if(override[s]){
       sr=override[s];
     }
   };
-  print("sym: "+s);
+  print("sym: "+s+"/"+sr);
   var a;
   if(s==="stdout" && plat === "win32"){
     a=stdout_ptr;
