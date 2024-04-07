@@ -91,15 +91,16 @@ if(plat === "win32"){
 }
 
 for(i in passthrough){
+  var i2=i;
   if(plat === "win32"){
     if(override[i]){
-      i=override[i];
+      i2=override[i];
     }
   };
   a=ctypes.cast(
-       libc.lib.declare(i,ctypes.default_abi,ctypes.uint32_t),
+       libc.lib.declare(i2,ctypes.default_abi,ctypes.uint32_t),
        ctypes.uint32_t
        ).value;
-  print(i+" "+a);
+  print(i2+" "+a);
   exports.push({st_name:i,address:a});
 }
