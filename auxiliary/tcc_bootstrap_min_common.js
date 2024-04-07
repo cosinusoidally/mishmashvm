@@ -106,10 +106,11 @@ for(i in passthrough){
 }
 
 if(plat === "win32"){
-  callback_dispatch=function(a1,a2,a3,a4,a5,a6,a7){
-    print("mmap: " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
-    exit(1);
-  }
+  callback_dispatch=function(addr,length,prot,flags,fd,offset){
+    print("mmap: " +([addr,length,prot,flags,fd,offset].join(" ")));
+    var ret=kernel32.VirtualAlloc(ctypes.voidptr_t(0),length,kernel32.MEM_COMMIT,kernel32.PAGE_EXECUTE_READWRITE);
+    return ret;
+  };
   var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
 
   var callback_dispatch_handle = callback_dispatch_type.ptr(callback_dispatch);

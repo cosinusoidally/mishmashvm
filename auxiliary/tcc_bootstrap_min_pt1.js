@@ -130,6 +130,8 @@ while(global_relocs_table<m){
     a=stdout_ptr;
   } else if (s==="stderr" && plat === "win32"){
     a=stderr_ptr;
+  } else if (s==="mmap" && plat === "win32"){
+    a=win32_mmap;
   } else {
     a=ctypes.cast(
       libc.lib.declare(sr,ctypes.default_abi,ctypes.uint32_t),
