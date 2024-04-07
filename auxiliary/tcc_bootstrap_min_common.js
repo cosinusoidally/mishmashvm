@@ -104,3 +104,17 @@ for(i in passthrough){
   print(i2+" "+a);
   exports.push({st_name:i,address:a});
 }
+
+if(plat === "win32"){
+  callback_dispatch=function(a1,a2,a3,a4,a5,a6,a7){
+    print("mmap: " +([a1,a2,a3,a4,a5,a6,a7].join(" ")));
+    exit(1);
+  }
+  var callback_dispatch_type = ctypes.FunctionType(ctypes.default_abi, ctypes.uint32_t, [ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t,ctypes.uint32_t]);
+
+  var callback_dispatch_handle = callback_dispatch_type.ptr(callback_dispatch);
+  var callback_dispatch_ptr = ctypes.cast(callback_dispatch_handle,ctypes.uint32_t).value;
+
+  print("callback dispatch:"+callback_dispatch_ptr);
+  win32_mmap=callback_dispatch_ptr;
+}
