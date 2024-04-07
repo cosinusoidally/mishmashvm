@@ -77,11 +77,17 @@ my_wrap.relocate_all=function(){};
 if(plat === "win32"){
   delete passthrough.stdout;
   delete passthrough.stderr;
-  // TODO add stdout and stderr symbols for win32
   my_fdopen=libc.lib.declare("_fdopen", ctypes.default_abi,ctypes.uint32_t,
                              ctypes.uint32_t, ctypes.char.ptr);
-  exports.push({st_name: "stdout", address: my_fdopen(1,"wb")});
-  exports.push({st_name: "stderr", address: my_fdopen(2,"wb")});
+  stdout_file=my_fdopen(1,"wb");
+  stdout_ptr=libc.malloc(4);
+  libc.memcpy(stdout_ptr,new Uint32Array([stdout_file]),4);
+  exports.push({st_name: "stdout", address: stdout_ptr});
+
+  stderr_file=my_fdopen(2,"wb");
+  stderr_ptr=libc.malloc(4);
+  libc.memcpy(stderr_ptr,new Uint32Array([stderr_file]),4);
+  exports.push({st_name: "stderr", address: stderr_ptr});
 }
 
 for(i in passthrough){
