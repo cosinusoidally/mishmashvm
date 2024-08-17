@@ -118,10 +118,26 @@ while(global_relocs_table<m){
   l=strlen(global_relocs_table);
   var s=mk_js_string(global_relocs_table);
   global_relocs_table+=l+1;
-  var a=ctypes.cast(
-      libc.lib.declare(s,ctypes.default_abi,ctypes.uint32_t),
+  var sr=s;
+  if(plat === "win32"){
+    if(override[s]){
+      sr=override[s];
+    }
+  };
+  print("sym: "+s+"/"+sr);
+  var a;
+  if(s==="stdout" && plat === "win32"){
+    a=stdout_ptr;
+  } else if (s==="stderr" && plat === "win32"){
+    a=stderr_ptr;
+  } else if (s==="mmap" && plat === "win32"){
+    a=win32_mmap;
+  } else {
+    a=ctypes.cast(
+      libc.lib.declare(sr,ctypes.default_abi,ctypes.uint32_t),
       ctypes.uint32_t
       ).value;
+  }
   print("global_reloc: "+to_hex(global_relocs_table)+" "+l+" "+s+" "+to_hex(a));
 
   n=ri32(global_relocs_table);

@@ -7,3 +7,5 @@ stdout.txt
 *.dll
 *.swp
 *.node
+artifacts/*
+!artifacts/placeholder

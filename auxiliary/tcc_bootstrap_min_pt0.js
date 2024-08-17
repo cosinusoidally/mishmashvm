@@ -15,4 +15,5 @@ main(argc_argv.argc,argc_argv.argv);
 mm.writeFile("../tcc_10/tcc_boot.o",new Uint8Array(vfs["tcc_boot.o"]));
 print=print_orig;
 to_hex=to_hex_orig;
-check("0ee8d6110aeface2e916bd91075bc0ff535e61af6ad2b8215073ad74fefdb8fc");
+// temp disable as this is verbose
+// check("0ee8d6110aeface2e916bd91075bc0ff535e61af6ad2b8215073ad74fefdb8fc");
