@@ -184,4 +184,4 @@ build("i386-win32-tcc -ar artifacts/tcc_win32/lib/i386-win32-libtcc1.a "+
 return mm.cfg.tmpdir+"/"+x;
 }).join(" ")));
 //../i386-win32-tcc -ar rcs ../i386-win32-libtcc1.a i386-win32-libtcc1.o i386-win32-alloca86.o i386-win32-alloca86-bt.o i386-win32-chkstk.o i386-win32-bcheck.o i386-win32-crt1.o i386-win32-crt1w.o i386-win32-wincrt1.o i386-win32-wincrt1w.o i386-win32-dllcrt1.o i386-win32-dllmain.o
-build("i386-win32-tcc -I tcc_src/include -I tcc_src/win32/include -vv "+test_path+"/hello.c -o artifacts/hello.exe");
+build("i386-win32-tcc -DTCC_LIBTCC1=\"i386-win32-libtcc1.a\" -I tcc_src/include -I tcc_src/win32/include -I tcc_src/ -vv tcc_src/tcc.c -o artifacts/tcc_win32/tcc.exe");
