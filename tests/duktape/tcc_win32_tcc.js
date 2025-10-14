@@ -5,7 +5,7 @@ libtcc1=mm.decode_elf(read("libc_portable_proto/tcc_bin/libtcc1.o","binary"));
 // need an absolute path (TODO work out the path)
 //tcc_win32_deps_path="/tmp/tcc/lib/tcc/win32/"
 
-extra="-DTCC_TARGET_PE -DTCC_TARGET_I386 -DTCC_LIBTCC1=\"i386-win32-libtcc1.a\" -DCONFIG_TCCDIR=\""+mm.cfg.tcc_win32_deps_path+"\" -O0 -Wdeclaration-after-statement -fno-strict-aliasing -Wno-pointer-sign -Wno-sign-compare -Wno-unused-result -Itcc_src";
+extra="-DTCC_TARGET_PE -DTCC_TARGET_I386 -DTCC_LIBTCC1=\"i386-win32-libtcc1.a\" -DCONFIG_TCCDIR=\""+mm.cfg.tmpdir+"\" -O0 -Wdeclaration-after-statement -fno-strict-aliasing -Wno-pointer-sign -Wno-sign-compare -Wno-unused-result -Itcc_src";
 
 print(extra);
 
@@ -167,7 +167,7 @@ build("i386-win32-tcc -c tcc_src/win32/lib/wincrt1w.c -o "+mm.cfg.tmpdir+"/i386-
 build("i386-win32-tcc -c tcc_src/win32/lib/dllcrt1.c -o "+mm.cfg.tmpdir+"/i386-win32-dllcrt1.o -Btcc_src/win32 -Itcc_src/include");
 build("i386-win32-tcc -c tcc_src/win32/lib/dllmain.c -o "+mm.cfg.tmpdir+"/i386-win32-dllmain.o -Btcc_src/win32 -Itcc_src/include");
 
-build("i386-win32-tcc -ar "+mm.cfg.tmpdir+"/win32/lib/i386-win32-libtcc1.a "+
+build("i386-win32-tcc -ar "+ mm.cfg.tmpdir +"/lib/i386-win32-libtcc1.a "+
 (["i386-win32-libtcc1.o",
 "i386-win32-alloca86.o",
 "i386-win32-alloca86-bt.o",
@@ -182,3 +182,4 @@ build("i386-win32-tcc -ar "+mm.cfg.tmpdir+"/win32/lib/i386-win32-libtcc1.a "+
 return mm.cfg.tmpdir+"/"+x;
 }).join(" ")));
 //../i386-win32-tcc -ar rcs ../i386-win32-libtcc1.a i386-win32-libtcc1.o i386-win32-alloca86.o i386-win32-alloca86-bt.o i386-win32-chkstk.o i386-win32-bcheck.o i386-win32-crt1.o i386-win32-crt1w.o i386-win32-wincrt1.o i386-win32-wincrt1w.o i386-win32-dllcrt1.o i386-win32-dllmain.o
+build("i386-win32-tcc -I tcc_src/include -I tcc_src/win32/include -vv "+test_path+"/hello.c -o artifacts/hello.exe");
