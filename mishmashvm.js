@@ -30,6 +30,7 @@ tests=[
   {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p3.js","description":"tcc bootstrap alt, tcc 0.9.23 to 0.9.24"},
   {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p4.js","description":"tcc bootstrap alt, tcc 0.9.24 to 0.9.26"},
   {"path":"tests/tcc_bootstrap","script":"tcc_bootstrap_p5.js","description":"tcc bootstrap alt, tcc 0.9.26 to 0.9.27"},
+  {"path":"tests/duktape","script":"tcc_win32_tcc.js","description":"build win32 version of tcc"},
 ];
 
 print_tests=function(){
